@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomePageController!{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 text-center">
+            <picture>
+                <source srcset="{{ asset('images/logo.png') | imagine_filter('logo') }}" type="image/webp">
+                <source srcset="{{ asset('images/logo.png') | imagine_filter('logo') }}" type="image/png">
+                <img src="{{ asset('images/logo.png') | imagine_filter('logo') }}"
+                     alt=""
+                >
+            </picture>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <title>
+            {%- block meta_title -%}
+                The Vet Group
+            {%- endblock %}
+        </title>
+
+        {% block meta_decription %}
+            <meta name="description" content="">
+        {% endblock %}
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <link rel="icon" href="{{ asset('images/favicon.ico') }}">
+
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+            <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+
+        {% block javascripts %}
+            <!-- jQuery -->
+            <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+            <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+        {% endblock %}
+    </body>
+</html>
