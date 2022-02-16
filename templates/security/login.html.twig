@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        textarea:-webkit-autofill:hover,
+        textarea:-webkit-autofill:focus,
+        select:-webkit-autofill,
+        select:-webkit-autofill:hover,
+        select:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+        }
+        body {
+            background: none !important;
+        }
+        .form-control:focus {
+            border: solid 1px #7796a8;
+            outline: none;
+            box-shadow: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<form method="post">
+    <div class="row">
+
+        <div class="logo-custom mb-5 col-12 mt-5">
+            <img src="/images/logo.png" class="img-fluid" style="max-width: 250px">
+        </div>
+
+        {% if app.user %}
+            <div class="mb-3">
+                You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% endif %}
+
+        {% if error %}
+            <div class="col-12 col-md-4 offset-4">
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            </div>
+        {% endif %}
+
+        <div class="col-12 col-md-4 offset-xs-0 offset-md-4">
+            <input
+                    type="text"
+                    value="{{ last_username }}"
+                    name="email"
+                    id="inputEmail"
+                    class="form-control"
+                    placeholder="Email"
+                    autocomplete="email"
+                    style="margin-bottom: 20px;"
+                    required autofocus>
+        </div>
+        <div class="col-12 col-md-4 offset-xs-0 offset-md-4">
+            <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    id="inputPassword"
+                    class="form-control"
+                    style="margin-bottom: 20px;"
+                    autocomplete="current-password"
+                    required>
+        </div>
+        <input type="hidden" name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}"
+        >
+
+        {#
+        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+        See https://symfony.com/doc/current/security/remember_me.html
+
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" name="_remember_me"> Remember me
+            </label>
+        </div>
+        #}
+
+        <div class="col-12 col-md-4 offset-xs-0 offset-md-4">
+            <button
+                    class="btn btn-lg"
+                    type="submit"
+                    style="width: 100%;background-color:#9ed4d9 !important;border-color:#9ed4d9;color: #fff">
+                SIGN IN
+            </button>
+        </div>
+
+        <div class="col-12 col-md-4 offset-xs-0 offset-md-4">
+            <a
+                    href="{{ path('app_forgot_password_request') }}"
+                    class="btn btn-lg" type="submit"
+                    style="width: 100%;background-color:#868686 !important;border-color:#868686;margin-top:20px;color:#fff">
+                FORGOT PASSWORD
+            </a>
+        </div>
+
+        {#
+        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+        See https://symfony.com/doc/current/security/remember_me.html
+
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" name="_remember_me"> Remember me
+            </label>
+        </div>
+        #}
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends '/base.html.twig' %}
+
+{% block widgets %}
+    <!-- Cookie Widget -->
+    <script type="text/javascript" charset="UTF-8" src="//cdn.cookie-script.com/s/f6359593d1eb103441b0a11c4f5d26ef.js"></script>
+{% endblock %}
+
+{% block body %}
+    {{ parent() }}
+
+    {# Header #}
+    {% block header %}
+        {% include '/_header.html.twig' %}
+    {% endblock header %}
+
+    {# Carousel #}
+    {% block carousel %}
+    {% endblock %}
+
+    {# Carousel #}
+    {% block flash_messages %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success text-center">
+                {{ message|raw }}
+            </div>
+        {% endfor %}
+    {% endblock %}
+
+    {% block layout %}
+    {% endblock %}
+
+    {# Footer #}
+    {% block footer %}
+        {% include '/_footer.html.twig' %}
+    {% endblock footer %}
+    </div>
+{% endblock %}
