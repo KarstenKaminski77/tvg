@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e439f742330dc37992efb48064ef11d1",
+    "content-hash": "89f636d9b959df4c401a0436b00a6e38",
     "packages": [
         {
             "name": "adhocore/twig-yall",

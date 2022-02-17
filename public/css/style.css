@@ -13,3 +13,35 @@ p {
 .logo-custom{
     text-align: center;
 }
+
+.hidden_msg {
+    font-size: 10px;
+    color: #aa1111;
+    font-style: italic;
+    display: none;
+    margin-top: 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+}
+body {
+    background: none !important;
+}
+.form-control:focus {
+    border: solid 1px #7796a8;
+    outline: none;
+    box-shadow: none;
+}
