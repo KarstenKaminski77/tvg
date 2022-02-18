@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Distributors;
 use App\Form\DistributorFormType;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -110,6 +111,24 @@ class DistributorsController extends AbstractController
         }
 
         return new JsonResponse($response);
+    }
+
+    #[Route('/distributors/dashboard', name: 'distributor_dashboard')]
+    public function distributorDashboardAction(Request $request): Response
+    {
+        if($this->get('security.token_storage')->getToken() == null){
+
+            $this->addFlash('danger', 'Your session expired due to inactivity, please login.');
+
+            return $this->redirectToRoute('distributor_login');
+        }
+
+        $user_name = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
+        $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $user_name]);
+
+        return $this->render('frontend/distributors/dashboard.html.twig',[
+            'distributor' => $distributor,
+        ]);
     }
 
     private function generatePassword()

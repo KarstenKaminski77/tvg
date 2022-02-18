@@ -1,0 +1,30 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Hello DistributorsController!{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <h1>Distributor Dashboard</h1>
+
+        <h3>{{ distributor.firstName ~' '~ distributor.lastName }}</h3>
+        <table>
+            <tr>
+                <td>
+
+                </td>
+                <td>
+
+                </td>
+            </tr>
+        </table>
+
+        <a href="{{ path('app_logout') }}">Logout</a>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+    </script>
+{% endblock %}
