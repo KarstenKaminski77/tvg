@@ -3,12 +3,11 @@
 namespace App\Form;
 
 use App\Entity\Distributors;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\RadioType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,15 +19,15 @@ class DistributorFormType extends AbstractType
         $builder
             ->add('distributorName', TextType::class, [
                 'label' => 'Company Name',
-                'required' => true,
+                'required' => false,
             ])
             ->add('firstName', TextType::class, [
                 'label' => 'First Name',
-                'required' => true,
+                'required' => false,
             ])
             ->add('lastName', TextType::class, [
                 'label' => 'Last Name',
-                'required' => true,
+                'required' => false,
             ])
             ->add('logo', FileType::class, [
                 'label' => 'Logo',
@@ -36,31 +35,47 @@ class DistributorFormType extends AbstractType
             ])
             ->add('telephone', TextType::class, [
                 'label' => 'Telephone',
-                'required' => true,
+                'required' => false,
             ])
             ->add('email', TextType::class, [
                 'label' => 'Email',
-                'required' => true,
+                'required' => false,
             ])
             ->add('website', TextType::class, [
                 'label' => 'Website',
                 'required' => false,
             ])
-            ->add('about', TextareaType::class, [
+            ->add('position', TextType::class, [
+                'label' => 'Position',
+                'required' => false,
+            ])
+            ->add('about', CKEditorType::class, [
                 'label' => 'About',
-                'required' => true,
+                'required' => false,
+                'config' => [
+                    'toolbar' => 'basic'
+                ]
             ])
-            ->add('operatingHours', TextareaType::class, [
+            ->add('operatingHours', CKEditorType::class, [
                 'label' => 'Operating Hours',
-                'required' => true,
+                'required' => false,
+                'config' => [
+                    'toolbar' => 'basic'
+                ]
             ])
-            ->add('refundPolicy', TextareaType::class, [
+            ->add('refundPolicy', CKEditorType::class, [
                 'label' => 'Refund Policy',
                 'required' => false,
+                'config' => [
+                    'toolbar' => 'basic'
+                ]
             ])
-            ->add('salesTaxPolicy', TextareaType::class, [
+            ->add('salesTaxPolicy', CKEditorType::class, [
                 'label' => 'Sales Tax Policy',
                 'required' => false,
+                'config' => [
+                    'toolbar' => 'basic'
+                ]
             ])
             ->add('isManufaturer', ChoiceType::class, [
                 'choices' => [
@@ -79,6 +94,20 @@ class DistributorFormType extends AbstractType
                     'data' => 'No',
                     'placeholder' => false,
                     'expanded' => true,
+                ]
+            )
+            ->add(
+                'logo',
+                FileType::class,
+                [
+                    'required' => false,
+                ]
+            )
+            ->add(
+                'password',
+                PasswordType::class,[
+                    'label' => 'Old Password',
+                    'required' => false
                 ]
             )
         ;

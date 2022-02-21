@@ -4,6 +4,7 @@ html {
 
 h1,h2,h3,h4,h5,h6 {
     color: #555a5f;
+    text-transform: capitalize;
 }
 
 p {
@@ -44,4 +45,90 @@ body {
     border: solid 1px #7796a8;
     outline: none;
     box-shadow: none;
+}
+
+.btn-primary {
+    background: #7796a8;
+    border-color: #7796a8;
+    color: #fff;
+}
+
+.bg-primary, .btn-check:focus+.btn-primary, .btn-primary:focus, .btn-primary:active, .show>.btn-primary.dropdown-toggle,
+.btn-check:active+.btn-primary, .btn-check:checked+.btn-primary, .btn-primary.active {
+    background: #7796a8 !important;
+}
+
+label {
+    color: #82898f;
+    font-size: 12px;
+}
+
+.info {
+    color: #82898f;
+    font-size: 14px;
+}
+
+.btn-primary:hover {
+    background: #9ed4d9 !important;
+    border-color: #9ed4d9 !important;
+}
+
+.users-flash {
+    position:fixed !important;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    z-index:9999;
+    border-radius:0px;
+}
+
+.flash-close {
+    position: absolute;
+    right: 12px;
+    top: 16px;
+    cursor: pointer;
+}
+
+.dropdown-item {
+    color: #8b8b8b;
+}
+
+.dropdown-item:hover {
+    color: #7796a8!important;
+}
+
+.dropdown-item:active {
+    background: #7796a8!important;
+    color: #fff;
+}
+
+#product_list{
+    list-style:none;
+    margin-top:-3px;
+    padding:0;
+    width:100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+#product_list li{padding: 10px; background: #f0f0f0; border-bottom: #bbb9b9 1px solid;}
+
+#product_list li:hover{background:#ece3d2;cursor: pointer;}
+
+#suggestion_field {
+    position: relative;
+}
+
+#distributor_products_form_taxExempt_0 {
+    margin-right: 8px
+}
+
+#distributor_products_form_taxExempt_1 {
+    margin-left: 8px;
+    margin-right: 8px
+}
+
+.radio {
+    color: #000;
 }

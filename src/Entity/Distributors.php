@@ -27,14 +27,19 @@ class Distributors implements UserInterface, PasswordAuthenticatedUserInterface
     private $distributorName;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $firstName;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $lastName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $position;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -201,6 +206,18 @@ class Distributors implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLogo(string $logo): self
     {
         $this->logo = $logo;
+
+        return $this;
+    }
+
+    public function getPosition(): ?string
+    {
+        return $this->position;
+    }
+
+    public function setPosition(string $position): self
+    {
+        $this->position = $position;
 
         return $this;
     }
