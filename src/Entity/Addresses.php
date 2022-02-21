@@ -49,8 +49,43 @@ class Addresses
      */
     private $orders;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $clinicName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $telephone;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $city;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $state;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $postalCode;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $suite;
+
     public function __construct()
     {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+
         $this->orders = new ArrayCollection();
     }
 
@@ -145,6 +180,78 @@ class Addresses
                 $order->setAddress(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getClinicName(): ?string
+    {
+        return $this->clinicName;
+    }
+
+    public function setClinicName(string $clinicName): self
+    {
+        $this->clinicName = $clinicName;
+
+        return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(string $telephone): self
+    {
+        $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): self
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function setState(string $state): self
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    public function getPostalCode(): ?string
+    {
+        return $this->postalCode;
+    }
+
+    public function setPostalCode(string $postalCode): self
+    {
+        $this->postalCode = $postalCode;
+
+        return $this;
+    }
+
+    public function getSuite(): ?string
+    {
+        return $this->suite;
+    }
+
+    public function setSuite(?string $suite): self
+    {
+        $this->suite = $suite;
 
         return $this;
     }

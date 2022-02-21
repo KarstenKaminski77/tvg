@@ -15,19 +15,6 @@
                             <div class="row g-3">
                                 <div class="col-lg-3 col-6">
                                     <div class="col-megamenu">
-                                        <h6 class="title">Title Menu One</h6>
-                                        <ul class="list-unstyled">
-                                            <li><a href="#">Custom Menu</a></li>
-                                            <li><a href="#">Custom Menu</a></li>
-                                            <li><a href="#">Custom Menu</a></li>
-                                            <li><a href="#">Custom Menu</a></li>
-                                            <li><a href="#">Custom Menu</a></li>
-                                            <li><a href="#">Custom Menu</a></li>
-                                        </ul>
-                                    </div>  <!-- col-megamenu.// -->
-                                </div><!-- end col-3 -->
-                                <div class="col-lg-3 col-6">
-                                    <div class="col-megamenu">
                                         <h6 class="title">Title Menu Two</h6>
                                         <ul class="list-unstyled">
                                             <li><a href="#">Custom Menu</a></li>
@@ -72,10 +59,48 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#"> Menu item </a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link  dropdown-toggle" href="#" data-bs-toggle="dropdown"> Dropdown right </a>
+                        <a class="nav-link  dropdown-toggle" href="{{ path('app_logout') }}" data-bs-toggle="dropdown">{{ distributor.firstName ~' '~ distributor.lastName }}</a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#"> Submenu item 1</a></li>
-                            <li><a class="dropdown-item" href="#"> Submenu item 2 </a></li>
+                            <li>
+                                <a href="#" class="dropdown-item" id="account_settings_link">
+                                    <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;Account & Settings
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown-item" id="about_link">
+                                    <i class="fa-solid fa-circle-question"></i>&nbsp;&nbsp;About
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown-item" id="operating_hours_link">
+                                    <i class="fa-solid fa-clock"></i>&nbsp;&nbsp;Operating Hours
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown-item" id="refund_policy_link">
+                                    <i class="fa-solid fa-rotate-left"></i>&nbsp;&nbsp;Refund Policy
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown-item" id="sales_tax_policy_link">
+                                    <i class="fa-solid fa-scale-unbalanced"></i>&nbsp;&nbsp;Sale Tax Policy
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" id="inventory_link">
+                                    <i class="fa-solid fa-cart-flatbed"></i>  Invetory
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" id="addresses_link">
+                                    <i class="fa-solid fa-address-book"></i>  Addresses
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_logout') }}">
+                                    <i class="fa-solid fa-ban"></i>&nbsp;&nbsp;Sign Out
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>

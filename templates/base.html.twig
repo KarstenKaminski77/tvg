@@ -22,9 +22,44 @@
             {{ encore_entry_link_tags('app') }}
             <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
             <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            <style type="text/css">
+                .navbar .megamenu{ padding: 1rem; }
+                /* ============ desktop view ============ */
+                @media all and (min-width: 992px) {
+
+                    .navbar .has-megamenu{position:static!important;}
+                    .navbar .megamenu{left:0; right:0; width:100%; margin-top:0;  }
+
+                }
+                /* ============ desktop view .end// ============ */
+
+                /* ============ mobile view ============ */
+                @media(max-width: 991px){
+                    .navbar.fixed-top .navbar-collapse, .navbar.sticky-top .navbar-collapse{
+                        overflow-y: auto;
+                        max-height: 90vh;
+                        margin-top:10px;
+                    }
+                }
+                /* ============ mobile view .end// ============ */
+            </style>
+
+            <script type="text/javascript">
+                document.addEventListener("DOMContentLoaded", function(){
+                    /////// Prevent closing from click inside dropdown
+                    document.querySelectorAll('.dropdown-menu').forEach(function(element){
+                        element.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                        });
+                    })
+                });
+                // DOMContentLoaded  end
+            </script>
         {% endblock %}
     </head>
     <body>
+        {% block header %}{% endblock %}
         {% block body %}{% endblock %}
 
         {% block javascripts %}

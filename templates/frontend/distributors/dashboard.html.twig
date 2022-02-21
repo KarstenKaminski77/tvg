@@ -1,0 +1,1217 @@
+{% extends 'layout_distributor.html.twig' %}
+
+{% block title %}Hello DistributorsController!{% endblock %}
+
+{% block body %}
+    <div class="hidden users-flash" id="flash"></div>
+    <div class="container">
+
+        {# Account & Settings #}
+        <div class="row" id="account_settings">
+            <div class="col-12 mb-3 mt-5">
+                <h3>Account & Settings</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5>PersonaL Information</h5>
+            </div>
+            {{form_start(form, {'name': 'form_personal_information', 'attr': {'id': 'form_personal_information'}})}}
+            <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
+
+            <div class="row mb-3">
+
+                {# First name #}
+                <div class="col-12 col-sm-6">
+                    <label>
+                        First Name
+                    </label>
+                    {{ form_widget(form.firstName,{id: 'first_name', 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'First Name*',
+                        'value': distributor.firstName
+                    }}) }}
+                    <div class="hidden_msg" id="error_first_name">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Last name #}
+                <div class="col-12 col-sm-6">
+                    <label>
+                        Last Name
+                    </label>
+                    {{ form_widget(form.lastName,{id: 'last_name', 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Last Name*',
+                        'value': distributor.lastName
+                    }}) }}
+                    <div class="hidden_msg" id="error_last_name">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+
+                {# Telephone #}
+                <div class="col-12 col-sm-6">
+                    <label>
+                        Contact Number
+                    </label>
+                    {{ form_widget(form.telephone,{id: 'telephone', 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Telephone*',
+                        'value': distributor.telephone
+                    }}) }}
+                    <div class="hidden_msg" id="error_telephone">
+                        Required Field
+                    </div>
+                </div>
+
+                {# position #}
+                <div class="col-12 col-sm-6">
+                    <label>
+                        Position (i.e. Inventory Manager, Doctor)
+                    </label>
+                    {{ form_widget(form.position,{id: 'position', 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Position*',
+                        'value': distributor.position
+                    }}) }}
+                    <div class="hidden_msg" id="error_position">
+                        Required Field
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3 mb-5">
+                    <button id="btn_personal_information" type="submit" class="btn btn-primary w-100">UPDATE PERSONAL INFORMATION</button>
+                </div>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+
+            {{form_start(form, {'name': 'form_company_information', 'attr': {'id': 'form_company_information'}})}}
+                <div class="col-12 mb-3 mt-2">
+                    <h5>Company Information</h5>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# Company name #}
+                    <div class="col-12 col-sm-6">
+                        <label>
+                            Company Name
+                        </label>
+                        {{ form_widget(form.distributorName,{id: 'distributor_name', 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'Distributor Name*',
+                            'value': distributor.distributorName
+                        }}) }}
+                        <div class="hidden_msg" id="error_distributor_name">
+                            Required Field
+                        </div>
+                    </div>
+
+                    {# Website #}
+                    <div class="col-12 col-sm-6">
+                        <label>
+                            Website
+                        </label>
+                        {{ form_widget(form.website,{id: 'website', 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'Website',
+                            'value': distributor.website
+                        }}) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# Logo #}
+                    <div class="col-12">
+                        <label>
+                            Logo
+                        </label>
+                        {{ form_widget(form.logo,{id: 'logo', 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'Logo',
+                            'value': distributor.logo
+                        }}) }}
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3 mb-5">
+                    <input id="btn_company_information" type="submit" class="btn btn-primary w-100" value="UPDATE COMPANY INFORMATION">
+                </div>
+            {{ form_end(form, {render_rest: false}) }}
+
+            <form id="form_password" method="post">
+                <div class="col-12 mb-3 mt-2">
+                    <h5>Update Password</h5>
+                    <span class="info">
+                        If you need to update your password, you may do so using the form below. Your new password must be at least 6 characters.
+                    </span>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# Password #}
+                    <div class="col-12">
+                        <label>
+                            Old Password
+                        </label>
+                        <input type="password" class="form-control" id="old_password" name="old_password">
+                        <div class="hidden_msg" id="error_password">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# New password #}
+                    <div class="col-12 col-md-6">
+                        <label>
+                            New Password
+                        </label>
+                        <input type="password" class="form-control" id="new_password" name="new_password">
+                        <div class="hidden_msg" id="error_new_password">
+                            Required Field
+                        </div>
+                    </div>
+
+                    {# Old password #}
+                    <div class="col-12 col-md-6">
+                        <label>
+                            Repeat Password
+                        </label>
+                        <input type="password" class="form-control" id="repeat_password" name="repeat_password">
+                        <div class="hidden_msg" id="error_repeat_password">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3 mb-5">
+                    <button id="btn_password" type="submit" class="btn btn-primary w-100">UPDATE PASSWORD</button>
+                </div>
+            </form>
+
+            {{form_start(form, {'attr': {'id': 'form'}})}}
+            <div class="col-12 mb-3 mt-2">
+                <h5>Update Email</h5>
+                <span class="info">
+                    If you need to update the email address associated with your account, you may do so using the form below.
+                    Your email address is used to log in and receive important Vetcove notifications. Your current password is
+                    required to change your email address.
+                </span>
+            </div>
+
+            <div class="row mb-3">
+
+                {# Email #}
+                <div class="col-12">
+                    <label>
+                        Email Address
+                    </label>
+                    {{ form_widget(form.email,{id: 'email', 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Email*',
+                        'value': distributor.email
+                    }}) }}
+                    <div class="hidden_msg" id="error_email">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 mt-3 mb-5">
+                <button id="btn_email" type="submit" class="btn btn-primary w-100">UPDATE EMAIL ADDRESS</button>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {# End Account & Settings #}
+
+        {# About #}
+        <div class="row" id="about">
+            <div class="col-12 mb-3 mt-5">
+                <h3>About</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5>Lorem ipsum dolor sit amet</h5>
+            </div>
+            {{form_start(form, {'name': 'form_about_us', 'attr': {'id': 'form_about_us'}})}}
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    {{ form_widget(form.about,{'id': 'about_us', 'value': distributor.about, 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'About*'
+                    }}) }}
+                    <div class="hidden_msg" id="error_about_us">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-12 mt-3 mb-5">
+                    <button id="btn_about_us" type="submit" class="btn btn-primary w-100">UPDATE ABOUT US</button>
+                </div>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {# End About #}
+
+        {# Operating Hours #}
+        <div class="row" id="operating_hours">
+            <div class="col-12 mb-3 mt-5">
+                <h3>Operating Hours</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5>Lorem ipsum dolor sit amet</h5>
+            </div>
+            {{form_start(form, {'name': 'form_operating_hours', 'attr': {'id': 'form_operating_hours'}})}}
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    {{ form_widget(form.operatingHours,{'id': 'operating_hours_field', 'value': distributor.operatingHours, 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Operating Hours*'
+                    }}) }}
+                    <div class="hidden_msg" id="error_operating_hours">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-12 mt-3 mb-5">
+                    <button id="btn_operating_hours" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                </div>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {# End Operating Hours #}
+
+        {# Refund Policy #}
+        <div class="row" id="refund_policy">
+            <div class="col-12 mb-3 mt-5">
+                <h3>Refund Policy</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5>Lorem ipsum dolor sit amet</h5>
+            </div>
+            {{form_start(form, {'name': 'form_refund_policy', 'attr': {'id': 'form_refund_policy'}})}}
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    {{ form_widget(form.refundPolicy,{'id': 'refund_policy_field', 'value': distributor.refundPolicy, 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Refund Policy*'
+                    }}) }}
+                    <div class="hidden_msg" id="error_refund_policy">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-12 mt-3 mb-5">
+                    <button id="btn_refund_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                </div>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {# End Refund Policy #}
+
+        {# Sales Tax Policy #}
+        <div class="row" id="sales_tax_policy">
+            <div class="col-12 mb-3 mt-5">
+                <h3>Sales Tax Policy</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5>Lorem ipsum dolor sit amet</h5>
+            </div>
+            {{form_start(form, {'name': 'form_sales_tax_policy', 'attr': {'id': 'form_sales_tax_policy'}})}}
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    {{ form_widget(form.salesTaxPolicy,{'id': 'sales_tax_policy_field', 'value': distributor.salesTaxPolicy, 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Sales Tax Policy*'
+                    }}) }}
+                    <div class="hidden_msg" id="error_sales_tax_policy">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-12 mt-3 mb-5">
+                    <button id="btn_sales_tax_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                </div>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {# End Sales Tax Policy #}
+
+        {# Invenory / Distributor Products #}
+        <div class="row mb-3" id="inventory_search">
+            <div class="col-12 mb-3 mt-5">
+                <h3>Inventory</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5 id="product_name">Manage Your Inventory</h5>
+            </div>
+            <div class="col-12">
+                <input type="text" id="search_field" class="form-control" placeholder="Inventory Item" autocomplete="off" />
+                <div id="suggestion_field"></div>
+            </div>
+        </div>
+        <div class="row" id="inventor_item">
+            {{form_start(form, {'name': 'form_inventory_item', 'attr': {'id': 'form_inventory_item'}})}}
+                {{ form_widget(inventory_form.product,{'id': 'product_id'}) }}
+                {{ form_widget(inventory_form.distributor,{'id': 'distributor_id'}) }}
+                <div class="row mb-3">
+
+                    {# SKU #}
+                    <div class="col-6">
+                        <label>
+                            #SKU
+                        </label>
+                        {{ form_widget(inventory_form.sku,{'id': 'sku', 'attr':{
+                            'class': 'form-control',
+                            'placeholder': 'SKU'
+                        }}) }}
+                        <div class="hidden_msg" id="error_sku">
+                            Required Field
+                        </div>
+                    </div>
+
+                    {# Serial Number #}
+                    <div class="col-6">
+                        <label>
+                            Serial Number
+                        </label>
+                        {{ form_widget(inventory_form.distributorNo,{'id': 'distributor_no', 'attr':{
+                            'class': 'form-control',
+                            'placeholder': 'Serial Number'
+                        }}) }}
+                        <div class="hidden_msg" id="error_distributor_no">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# Unit Price #}
+                    <div class="col-6">
+                        <label>
+                            Unit Price
+                        </label>
+                        {{ form_widget(inventory_form.unitPrice,{'id': 'unit_price', 'attr':{
+                            'class': 'form-control',
+                            'placeholder': 'Unit Price'
+                        }}) }}
+                        <div class="hidden_msg" id="error_unit_price">
+                            Required Field
+                        </div>
+                    </div>
+
+                    {# Stock Level #}
+                    <div class="col-6">
+                        <label>
+                            Stock Level
+                        </label>
+                        {{ form_widget(inventory_form.stockCount,{'id': 'stock_count', 'attr':{
+                            'class': 'form-control',
+                            'placeholder': 'Stock Level'
+                        }}) }}
+                        <div class="hidden_msg" id="error_stock_count">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# Expiry Date #}
+                    <div class="col-6">
+                        <label>
+                            Expiry Date
+                        </label>
+                        {{ form_widget(inventory_form.expiryDate,{'id': 'expiry_date', 'attr':{
+                            'class': 'form-control',
+                        }}) }}
+                    </div>
+
+                    {# Tax Empt #}
+                    <div class="col-6">
+                        <label>
+                            Expiry Date
+                        </label>
+                        {{ form_widget(inventory_form.taxExempt,{'id': 'tax_exempt', 'attr':{
+                            'class': 'radio',
+                        }}) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12 mt-3 mb-5">
+                        <button id="btn_inventory" type="submit" class="btn btn-primary w-100"></button>
+                    </div>
+                </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {# End Invenory / Distributor Products #}
+
+        {# Addresses #}
+        <div class="row" id="addresses">
+            <div class="col-12 mb-3 mt-5">
+                <h3>Manage Shipping Addresses</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                Add or remove shipping addresses from the list below.
+                <strong>A valid address is required for purchasing Vetcove Commerce items and redeeming Vetcove rewards.</strong>
+            </div>
+        </div>
+
+        {# Create New #}
+        <div class="col-12 mb-3 mt-5">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <i class="fa-solid fa-circle-plus"></i> CREATE NEW ADDRESS
+            </button>
+        </div>
+
+        {# Modal #}
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Create an Address</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{form_start(form, {'name': 'form_addresses', 'attr': {'id': 'form_addresses'}})}}
+                        <div class="row mb-3">
+
+                            {# Clinic Name #}
+                            <div class="col-6">
+                                {{ form_label(address_form.clinicName) }}
+                                {{ form_widget(address_form.clinicName,{'id': 'address_clinic_name', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'Clinic Name*'
+                                }}) }}
+                                <div class="hidden_msg" id="error_address_clinic_name">
+                                    Required Field
+                                </div>
+                            </div>
+
+                            {# Telephone Number #}
+                            <div class="col-6">
+                                {{ form_label(address_form.telephone) }}
+                                {{ form_widget(address_form.telephone,{'id': 'address_telephone', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': '(123) 456-7890*'
+                                }}) }}
+                                <div class="hidden_msg" id="error_address_telephone">
+                                    Required Field
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+
+                            {# Address Line 1 #}
+                            <div class="col-6">
+                                {{ form_label(address_form.address) }}
+                                {{ form_widget(address_form.address,{'id': 'address_line_1', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'Address Line 1*'
+                                }}) }}
+                                <div class="hidden_msg" id="error_address_line_1">
+                                    Required Field
+                                </div>
+                            </div>
+
+                            {# Suite #}
+                            <div class="col-6">
+                                {{ form_label(address_form.suite) }}
+                                {{ form_widget(address_form.suite,{'id': 'address_suite', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'APT / Suite'
+                                }}) }}
+                                <div class="hidden_msg" id="error_address_suite">
+                                    Required Field
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+
+                            {# Postal Code #}
+                            <div class="col-4">
+                                {{ form_label(address_form.postalCode) }}
+                                {{ form_widget(address_form.postalCode,{'id': 'address_postal_code', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'Postal Code*'
+                                }}) }}
+                                <div class="hidden_msg" id="error_address_postal_code">
+                                    Required Field
+                                </div>
+                            </div>
+
+                            {# City #}
+                            <div class="col-4">
+                                {{ form_label(address_form.city) }}
+                                {{ form_widget(address_form.city,{'id': 'address_city', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'City*'
+                                }}) }}
+                                <div class="hidden_msg" id="error_address_city">
+                                    Required Field
+                                </div>
+                            </div>
+
+                            {# State #}
+                            <div class="col-4">
+                                {{ form_label(address_form.state) }}
+                                {{ form_widget(address_form.state,{'id': 'address_state', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'State*'
+                                }}) }}
+                                <div class="hidden_msg" id="error_address_state">
+                                    Required Field
+                                </div>
+                            </div>
+                        </div>
+                        {{ form_end(form, {render_rest: false}) }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# End Addresses #}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).ready(function(){
+
+            var account_settings = $('#account_settings');
+            var about = $('#about');
+            var operating_hours = $('#operating_hours');
+            var refund_policy = $('#refund_policy');
+            var sales_tax_policy = $('#sales_tax_policy');
+            var inventory_search = $('#inventory_search');
+            var inventor_item = $('#inventor_item');
+            var addresses = $('#addresses');
+
+            about.hide();
+            operating_hours.hide();
+            refund_policy.hide();
+            sales_tax_policy.hide();
+            inventory_search.hide();
+            inventor_item.hide();
+            addresses.hide();
+
+            {# Account & Settings #}
+            $('#account_settings_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.show();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                inventory_search.hide();
+                inventor_item.hide();
+                addresses.hide();
+            });
+
+            {# About #}
+            $('#about_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.show();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                inventory_search.hide();
+                inventor_item.hide();
+                addresses.hide();
+            });
+
+            {# Operating Hours #}
+            $('#operating_hours_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.show();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                inventory_search.hide();
+                inventor_item.hide();
+                addresses.hide();
+            });
+
+            {# Refund Policy #}
+            $('#refund_policy_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.show();
+                sales_tax_policy.hide();
+                inventory_search.hide();
+                inventor_item.hide();
+                addresses.hide();
+            });
+
+            {# Sales Tax Policy #}
+            $('#sales_tax_policy_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.show();
+                inventory_search.hide();
+                inventor_item.hide();
+                addresses.hide();
+            });
+
+            {# Inventory #}
+            $('#inventory_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                inventory_search.show();
+                inventor_item.hide();
+                addresses.hide();
+            });
+
+            {# Addresses #}
+            $('#addresses_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                inventory_search.hide();
+                inventor_item.hide();
+                addresses.show();
+            });
+
+            {# Update Personal Information #}
+            $('#btn_personal_information').click(function (e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var first_name = $('#first_name').val();
+                var last_name = $('#last_name').val();
+                var position = $('#position').val();
+                var telephone = $('#telephone').val();
+                var error_first_name = $('#error_first_name');
+                var error_last_name = $('#error_last_name');
+                var error_position = $('#error_position');
+                var error_telephone = $('#error_telephone');
+
+                error_first_name.hide();
+                error_last_name.hide();
+                error_position.hide();
+                error_telephone.hide();
+
+                if(first_name == '' || first_name == 'undefined'){
+
+                    error_first_name.show();
+                    is_valid = false;
+                }
+
+                if(last_name == '' || last_name == 'undefined'){
+
+                    error_last_dashname.show();
+                    is_valid = false;
+                }
+
+                if(position == '' || position == 'undefined'){
+
+                    error_position.show();
+                    is_valid = false;
+                }
+
+                if(telephone == '' || telephone == 'undefined'){
+
+                    error_telephone.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    $.ajax({
+                        url: "{{ path('distributor_update_personal_information') }}",
+                        type: 'POST',
+                        data: {
+                            first_name: first_name,
+                            last_name: last_name,
+                            position: position,
+                            telephone: telephone,
+                        },
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+            {# End Update Personal Information #}
+
+            {# Update Company Information #}
+            $('#btn_company_information').on('click', function (e) {
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var company_name = $('#distributor_name').val();
+                var website = $('#website').val();
+                var logo = $('#logo').val();
+                var error_company_name = $('#error_distributor_name');
+
+                error_company_name.hide();
+
+                if(company_name == '' || company_name == 'undefined'){
+
+                    error_company_name.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    // Create an FormData object
+                    var form = $('#form_company_information')[0];
+                    var data = new FormData(form);
+
+                    $.ajax({
+                        url: "{{ path('distributor_update_company_information') }}",
+                        type: 'POST',
+                        processData: false,
+                        contentType: false,
+                        data: data,
+                        dataType: 'json',
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+            {# End Update Company Information #}
+
+            {# About Us #}
+            $(document).on('click', '#btn_about_us', function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var about_us = CKEDITOR.instances.about_us.getData();
+                var error_about_us = $('#error_about_us');
+
+                error_about_us.hide();
+
+                if(about_us == '' || about_us == 'undefined'){
+
+                    error_about_us.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    $.ajax({
+                        url: "{{ path('distributor_update_about_us') }}",
+                        type: 'POST',
+                        data: {
+                            about_us: about_us
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+            {# End About Us #}
+
+            {# Operating Hours #}
+            $(document).on('click', '#btn_operating_hours', function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var operating_hours = CKEDITOR.instances.operating_hours_field.getData();
+                var error_operating_hours = $('#error_operating_hours');
+
+                error_operating_hours.hide();
+
+                if(operating_hours == '' || operating_hours == 'undefined'){
+
+                    error_operating_hours.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    $.ajax({
+                        url: "{{ path('distributor_update_operating_hours') }}",
+                        type: 'POST',
+                        data: {
+                            operating_hours: operating_hours
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+            {# End About Us #}
+
+            {# Refund Policy #}
+            $(document).on('click', '#btn_refund_policy', function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var refund_policy = CKEDITOR.instances.refund_policy_field.getData();
+                var error_refund_policy = $('#error_about_us');
+
+                error_refund_policy.hide();
+
+                if(refund_policy == '' || refund_policy == 'undefined'){
+
+                    error_refund_policy.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    $.ajax({
+                        url: "{{ path('distributor_update_refund_policy') }}",
+                        type: 'POST',
+                        data: {
+                            refund_policy: refund_policy
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+            {# End Refund Policy #}
+
+            {# Sales Tax Policy #}
+            $(document).on('click', '#btn_sales_tax_policy', function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var sales_tax_policy = CKEDITOR.instances.sales_tax_policy_field.getData();
+                var error_sales_tax_policy = $('#error_sales_tax_policy');
+
+                error_sales_tax_policy.hide();
+
+                if(sales_tax_policy == '' || sales_tax_policy == 'undefined'){
+
+                    error_sales_tax_policy.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    $.ajax({
+                        url: "{{ path('distributor_update_sales_tax_policy') }}",
+                        type: 'POST',
+                        data: {
+                            sales_tax_policy: sales_tax_policy
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+            {# End Sales Tax Policy #}
+
+            {# Invenory / Distributor Products #}
+            $('#form_inventory_item').submit(function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var unit_price = $('#unit_price');
+                var error_unit_price = $('#error_unit_price');
+
+                error_unit_price.hide();
+
+                if(unit_price == '' || unit_price == 'undefined'){
+
+                    error_unit_price.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    var data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('distributor_inventory_update') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+
+            $("#search_field").keyup(function(){
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('distributor_inventory_search') }}",
+                    data:'keyword='+$(this).val(),
+                    success: function(data){
+                        $("#suggestion_field").show();
+                        $("#suggestion_field").html(data);
+                    }
+                });
+            });
+            {# End Invenory / Distributor Products #}
+
+            {# Addresses #}
+            $('#form_addresses').submit(function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var clinic_name = $('#address_clinic_name');
+                var telephone = $('#address_telephone');
+                var address_line_1 = $('#address_line_1');
+                var suite = $('#address_suite');
+                var postal_code = $('#address_postal_code');
+                var city = $('#address_city');
+                var state = $('#address_state');
+                var error_clinic_name = $('#error_address_clinic_name');
+                var error_telephone = $('#error_address_telephone');
+                var error_address_line_1 = $('#error_address_line_1');
+                var error_suite = $('#error_address_suite');
+                var error_postal_code = $('#error_address_postal_code');
+                var error_city = $('#error_address_city');
+                var error_state = $('#error_address_state');
+
+                error_clinic_name.hide();
+                error_telephone.hide();
+                error_address_line_1.hide();
+                error_suite.hide();
+                error_postal_code.hide();
+                error_city.hide();
+                error_state.hide();
+
+                if(clinic_name == '' || clinic_name == 'undefined'){
+
+                    error_clinic_name.show();
+                    is_valid = false;
+                }
+
+                if(telephone == '' || telephone == 'undefined'){
+
+                    error_clinic_name.show();
+                    is_valid = false;
+                }
+
+                if(address_line_1 == '' || address_line_1 == 'undefined'){
+
+                    error_address_line_1.show();
+                    is_valid = false;
+                }
+
+                if(suite == '' || suite == 'undefined'){
+
+                    error_suite.show();
+                    is_valid = false;
+                }
+
+                if(city == '' || city == 'undefined'){
+
+                    error_city.show();
+                    is_valid = false;
+                }
+
+                if(postal_code == '' || postal_code == 'undefined'){
+
+                    error_postal_code.show();
+                    is_valid = false;
+                }
+
+                if(state == '' || state == 'undefined'){
+
+                    error_state.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    var data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('distributor_inventory_update') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+            {# End Addresses #}
+
+            {# Clode Flash Message #}
+            $('#flash').click(function (){
+                $('#flash').addClass('hidden');
+            });
+
+        });
+
+        function selectProduct(id, name) {
+            if (id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('distributor_inventory_get') }}",
+                    data: {
+                        product_id: id,
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        $("#suggestion_field").show();
+                        $("#suggestion_field").html(data);
+                        $('#product_id').val(id);
+                        $('#distributor_id').val(data.distributor_id);
+                        $('#sku').val(data.sku);
+                        $('#distributor_no').val(data.distributor_no);
+                        $('#unit_price').val(data.unit_price);
+                        $('#stock_count').val(data.stock_count);
+                        $('#expiry_date').val(data.expiry_date);
+                        $('#tax_exempt').val(data.tax_exempt);
+                        $('#btn_inventory').empty();
+                        $('#btn_inventory').append('UPDATE ' + name.toUpperCase());
+                        $('#product_name').empty();
+                        $('#product_name').append(name);
+                        $('#inventor_item').show();
+                    }
+                });
+
+                $("#search_field").val(name);
+                $("#suggestion_field").hide();
+            }
+        }
+
+    </script>
+{% endblock %}

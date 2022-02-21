@@ -32,6 +32,28 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @Route("/distributors/login", name="distributor_login")
+     */
+    public function daistributorLogin(AuthenticationUtils $authenticationUtils): Response
+    {
+        // if ($this->getUser()) {
+        //     return $this->redirectToRoute('target_path');
+        // }
+
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('security/login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error,
+            'csrf_token_intention' => 'authenticate',
+
+        ]);
+    }
+
+    /**
      * @Route("/logout", name="app_logout")
      */
     public function logout(): void

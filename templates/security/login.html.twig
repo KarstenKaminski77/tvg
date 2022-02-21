@@ -29,13 +29,12 @@
 {% block body %}
 <form method="post">
     <div class="row">
-
         <div class="logo-custom mb-5 col-12 mt-5">
             <img src="/images/logo.png" class="img-fluid" style="max-width: 250px">
         </div>
 
         {% if app.user %}
-            <div class="mb-3">
+            <div class="mb-3 text-center">
                 You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
             </div>
         {% endif %}

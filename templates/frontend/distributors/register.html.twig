@@ -1,0 +1,161 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Hello DistributorsController!{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <h1>Distributor Reg</h1>
+
+    {{form_start(form, {'attr': {'id': 'register_form'}})}}
+    <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
+
+    <div class="row mb-3">
+        <div class="col-12 col-sm-6">
+            {{ form_widget(form.distributorName,{id: 'distributor_name', 'attr': {
+                'class': 'form-control',
+                'placeholder': 'Distributor Name*',
+            }}) }}
+            <div class="hidden_msg" id="error_distributor_name">
+                Required Field
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12 col-sm-6">
+            {{ form_widget(form.firstName,{id: 'first_name', 'attr': {
+                'class': 'form-control',
+                'placeholder': 'First Name*',
+            }}) }}
+            <div class="hidden_msg" id="error_first_name">
+                Required Field
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6">
+            {{ form_widget(form.lastName,{id: 'last_name', 'attr': {
+                'class': 'form-control',
+                'placeholder': 'Last Name*',
+            }}) }}
+            <div class="hidden_msg" id="error_last_name">
+                Required Field
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12 col-sm-6">
+            {{ form_widget(form.email,{id: 'email', 'attr': {
+                'class': 'form-control',
+                'placeholder': 'Email*',
+            }}) }}
+            <div class="hidden_msg" id="error_email">
+                Required Field
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6">
+            {{ form_widget(form.telephone,{id: 'telephone', 'attr': {
+                'class': 'form-control',
+                'placeholder': 'Telephone*',
+            }}) }}
+            <div class="hidden_msg" id="error_telephone">
+                Required Field
+            </div>
+        </div>
+    </div>
+
+    <button id="form_save" type="submit" class="btn btn-primary float-end">SUBMIT</button>
+
+    {{ form_end(form, {render_rest: false}) }}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).ready(function (){
+
+            $(document).on('click','#form_save', function (e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var distributor_name = $('#distributor_name').val();
+                var first_name = $('#first_name').val();
+                var last_name = $('#last_name').val();
+                var email = $('#email').val();
+                var telephone = $('#telephone').val();
+                var error_distributor_name = $('#error_distributor_name');
+                var error_first_name = $('#error_first_name');
+                var error_last_name = $('#error_last_name');
+                var error_email = $('#error_email');
+                var error_telephone = $('#error_telephone');
+
+                error_distributor_name.hide();
+                error_first_name.hide();
+                error_last_name.hide();
+                error_email.hide();
+                error_telephone.hide();
+
+                if(distributor_name == '' || distributor_name == 'undefined'){
+
+                    error_distributor_name.show();
+                    is_valid = false;
+                }
+
+                if(first_name == '' || first_name == 'undefined'){
+
+                    error_first_name.show();
+                    is_valid = false;
+                }
+
+                if(last_name == '' || last_name == 'undefined'){
+
+                    error_last_name.show();
+                    is_valid = false;
+                }
+
+                if(email == '' || email == 'undefined'){
+
+                    error_email.show();
+                    is_valid = false;
+                }
+
+                if(telephone == '' || telephone == 'undefined'){
+
+                    error_telephone.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    $.ajax({
+                        url: "{{ path('distributor_create') }}",
+                        type: 'POST',
+                        data: {
+                            distributor_name: distributor_name,
+                            distributor_name: distributor_name,
+                            first_name: first_name,
+                            last_name: last_name,
+                            email: email,
+                            telephone: telephone,
+                        },
+                        success: function (response) {
+                            if(!response){
+
+                                $('#error_email').empty();
+                                $('#error_email').append('Email address exists.');
+                                $('#error_email').show();
+                            }
+                        }
+                    });
+                }
+            });
+
+        });
+
+    </script>
+{% endblock %}
