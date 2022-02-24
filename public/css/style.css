@@ -2,6 +2,10 @@ html {
     box-sizing: unset !important;
 }
 
+body, form-control {
+    font-size: 0.9rem;
+}
+
 h1,h2,h3,h4,h5,h6 {
     color: #555a5f;
     text-transform: capitalize;
@@ -9,6 +13,10 @@ h1,h2,h3,h4,h5,h6 {
 
 p {
     color: #555a5f;
+}
+
+a {
+    color: #7796a8;
 }
 
 .logo-custom{
@@ -132,3 +140,56 @@ label {
 .radio {
     color: #000;
 }
+
+.species-checkbox {
+    position: absolute;
+    left:5px;
+    top:5px;
+    z-index: -1;
+    display: none;
+}
+
+.species-icon {
+    font-size: 70px;
+}
+
+.t-header {
+    background: #e3e5e6;
+    color: #40525b;
+    padding: 8px;
+}
+
+.t-cell {
+    padding: 8px;
+}
+
+.t-row {
+    border-bottom: solid 1px #d3d3d4;
+    background: #f8f8f8;
+    border-left: solid 1px #d3d3d4;
+    border-right: solid 1px #d3d3d4;
+}
+
+.t-row:hover {
+    background: #f1faff;
+}
+
+.delete-icon {
+    color: #f00000;
+    margin-right: 24px;
+}
+
+.edit-icon {
+    margin-right: 16px;
+}
+
+.is-default-address-icon {
+    color: #eab308;
+    margin-right: 24px;
+}
+
+.address-icon {
+    color: #d5d5d6;
+    margin-right: 24px;
+}
+

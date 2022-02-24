@@ -1,0 +1,104 @@
+{{form_start(address_form, {'name': 'form_addresses', 'attr': {'id': 'form_addresses_' ~ address_id}})}}
+<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Create an Address</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="row mb-3">
+
+        {# Clinic Name #}
+        <div class="col-6">
+            {{ form_label(address_form.clinicName) }}
+            {{ form_widget(address_form.clinicName,{'id': 'address_clinic_name_' ~ address_id, 'attr':{
+                'class': 'form-control',
+                'placeholder': 'Clinic Name*'
+            }}) }}
+            <div class="hidden_msg" id="error_address_clinic_name">
+                Required Field
+            </div>
+        </div>
+
+        {# Telephone Number #}
+        <div class="col-6">
+            {{ form_label(address_form.telephone) }}
+            {{ form_widget(address_form.telephone,{'id': 'address_telephone', 'attr':{
+                'class': 'form-control',
+                'placeholder': '(123) 456-7890*'
+            }}) }}
+            <div class="hidden_msg" id="error_address_telephone">
+                Required Field
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+
+        {# Address Line 1 #}
+        <div class="col-6">
+            {{ form_label(address_form.address) }}
+            {{ form_widget(address_form.address,{'id': 'address_line_1', 'attr':{
+                'class': 'form-control',
+                'placeholder': 'Address Line 1*'
+            }}) }}
+            <div class="hidden_msg" id="error_address_line_1">
+                Required Field
+            </div>
+        </div>
+
+        {# Suite #}
+        <div class="col-6">
+            {{ form_label(address_form.suite) }}
+            {{ form_widget(address_form.suite,{'id': 'address_suite', 'attr':{
+                'class': 'form-control',
+                'placeholder': 'APT / Suite'
+            }}) }}
+            <div class="hidden_msg" id="error_address_suite">
+                Required Field
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+
+        {# Postal Code #}
+        <div class="col-4">
+            {{ form_label(address_form.postalCode) }}
+            {{ form_widget(address_form.postalCode,{'id': 'address_postal_code', 'attr':{
+                'class': 'form-control',
+                'placeholder': 'Postal Code*'
+            }}) }}
+            <div class="hidden_msg" id="error_address_postal_code">
+                Required Field
+            </div>
+        </div>
+
+        {# City #}
+        <div class="col-4">
+            {{ form_label(address_form.city) }}
+            {{ form_widget(address_form.city,{'id': 'address_city', 'attr':{
+                'class': 'form-control',
+                'placeholder': 'City*'
+            }}) }}
+            <div class="hidden_msg" id="error_address_city">
+                Required Field
+            </div>
+        </div>
+
+        {# State #}
+        <div class="col-4">
+            {{ form_label(address_form.state) }}
+            {{ form_widget(address_form.state,{'id': 'address_state', 'attr':{
+                'class': 'form-control',
+                'placeholder': 'State*'
+            }}) }}
+            <div class="hidden_msg" id="error_address_state">
+                Required Field
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="submit" class="btn btn-primary">Save changes</button>
+</div>
+{{ form_end(address_form, {render_rest: false}) }}

@@ -6,8 +6,10 @@ use App\Entity\ClinicUsers;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,19 +20,19 @@ class ClinicUsersFormType extends AbstractType
     {
         $builder
             ->add('firstName', TextType::class, [
-                'label' => 'First Name',
+                'label' => 'First Name*',
                 'required' => true
             ])
             ->add('lastName', TextType::class, [
-                'label' => 'Last Name',
+                'label' => 'Last Name*',
                 'required' => true
             ])
-            ->add('position', TextType::class, [
-                'label' => 'Position',
+            ->add('telephone', TextType::class, [
+                'label' => 'Phone Number*',
                 'required' => true
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'Email*',
                 'required' => true
             ])
             ->add(
@@ -44,6 +46,13 @@ class ClinicUsersFormType extends AbstractType
                     'data' => 'No',
                     'placeholder' => false,
                     'expanded' => true,
+                ]
+            )
+            ->add(
+                'password',
+                PasswordType::class,[
+                    'label' => 'Old Password',
+                    'required' => false
                 ]
             )
         ;
