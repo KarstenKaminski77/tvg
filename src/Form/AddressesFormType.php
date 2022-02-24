@@ -23,15 +23,15 @@ class AddressesFormType extends AbstractType
         $builder
             ->add('clinicName', TextType::class, [
                 'label' => 'Clinic Name*',
-                'required' => true,
+                'required' => false,
             ])
             ->add('telephone', TextType::class, [
                 'label' => 'Phone Number*',
-                'required' => true,
+                'required' => false,
             ])
             ->add('address', TextType::class, [
                 'label' => 'Address Line 1*',
-                'required' => true,
+                'required' => false,
             ])
             ->add('suite', TextType::class, [
                 'label' => 'APT / Suite',
@@ -39,15 +39,15 @@ class AddressesFormType extends AbstractType
             ])
             ->add('postalCode', TextType::class, [
                 'label' => 'Postal Code*',
-                'required' => true,
+                'required' => false,
             ])
             ->add('state', TextType::class, [
                 'label' => 'State*',
-                'required' => true,
+                'required' => false,
             ])
             ->add('city', TextType::class, [
                 'label' => 'City*',
-                'required' => true,
+                'required' => false,
             ])
         ;
     }

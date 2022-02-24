@@ -1,0 +1,1086 @@
+{% extends 'layout_clinic.html.twig' %}
+
+{% block title %}Hello DistributorsController!{% endblock %}
+
+{% block body %}
+    <div class="hidden users-flash" id="flash"></div>
+    <div class="container">
+
+        {# Account & Settings #}
+        <div class="row" id="account_settings">
+            <div class="col-12 mb-3 mt-5">
+                <h3>Account & Settings</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5>Clinic Information</h5>
+            </div>
+            {{form_start(form, {'name': 'form_clinic_information', 'attr': {'id': 'form_clinic_information'}})}}
+            <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
+
+            <div class="row mb-3">
+
+                {# First name #}
+                <div class="col-12 col-sm-12">
+                    <label>
+                        Clinic Name
+                    </label>
+                    {{ form_widget(form.clinicName,{id: 'clinic_name', 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Clinic Name*',
+                        'value': clinic.clinicName
+                    }}) }}
+                    <div class="hidden_msg" id="error_first_name">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+
+                {# Email #}
+                <div class="col-12 col-sm-6">
+                    <label>
+                        Clinic Email Address
+                    </label>
+                    {{ form_widget(form.email,{id: 'clinic_email', 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Clinic Email*',
+                        'value': clinic.email
+                    }}) }}
+                    <div class="hidden_msg" id="error_clinic_email">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Telephone #}
+                <div class="col-12 col-sm-6">
+                    <label>Enter Your Telephone*</label>
+                    {{ form_widget(form.telephone,{id: 'clinic_telephone', 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Telephone*',
+                        'value': clinic.telephone
+                    }}) }}
+                    <div class="hidden_msg" id="error_telephone">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5 mb-3">
+
+                <label class="mb-4 d-block">
+                    Select All Species Treated By Your Practice
+                </label>
+
+                {# Canine #}
+                <div class="col-md-2 text-center">
+                    <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                        <input type="checkbox" class="custom-control-input species-checkbox" id="species_canine">
+                        <label class="custom-control-label" for="species_canine">
+                            <i class="fa-solid fa-dog species-icon" id="icon_canine"></i>
+                        </label>
+                    </div>
+                </div>
+
+                {# Feline #}
+                <div class="col-md-2 text-center">
+                    <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                        <input type="checkbox" class="custom-control-input species-checkbox" id="species_feline">
+                        <label class="custom-control-label" for="species_feline">
+                            <i class="fa-solid fa-cat species-icon" id="icon_feline"></i>
+                        </label>
+                    </div>
+                </div>
+
+                {# Equine #}
+                <div class="col-md-2 text-center">
+                    <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                        <input type="checkbox" class="custom-control-input species-checkbox" id="species_equine">
+                        <label class="custom-control-label" for="species_equine">
+                            <i class="fa-solid fa-horse species-icon" id="icon_equine"></i>
+                        </label>
+                    </div>
+                </div>
+
+                {# Bovine #}
+                <div class="col-md-2 text-center">
+                    <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                        <input type="checkbox" class="custom-control-input species-checkbox" id="species_bovine">
+                        <label class="custom-control-label" for="species_bovine">
+                            <i class="fa-solid fa-hippo species-icon" id="icon_bovine"></i>
+                        </label>
+                    </div>
+                </div>
+
+                {# Porcine #}
+                <div class="col-md-2 text-center">
+                    <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                        <input type="checkbox" class="custom-control-input species-checkbox" id="species_porcine">
+                        <label class="custom-control-label" for="species_porcine">
+                            <i class="fa-solid fa-piggy-bank species-icon" id="icon_porcine"></i>
+                        </label>
+                    </div>
+                </div>
+
+                {# Exotic #}
+                <div class="col-md-2 text-center">
+                    <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                        <input type="checkbox" class="custom-control-input species-checkbox" id="species_exotic">
+                        <label class="custom-control-label" for="species_exotic">
+                            <i class="fa-solid fa-dragon species-icon" id="icon_exotic"></i>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-12 mt-3 mb-5">
+                    <button id="btn_personal_information" type="submit" class="btn btn-primary w-100">UPDATE CLINIC INFORMATION</button>
+                </div>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {# End Account & Settings #}
+
+        {# Users #}
+        <div class="row" id="users">
+            <div class="col-12 col-md-6 mb-3 mt-5">
+                <h3>Manage User Accounts</h3>
+            </div>
+            <div class="col-12 col-md-6 mb-3 mt-5">
+                {# Create New #}
+                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#modal_user_new">
+                    <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
+                </button>
+            </div>
+            <div class="col-12 mb-3 mt-2 info">
+                TVG supports having several users under a single clinic. Each user will have their own login, can
+                independently participate in the Vetcove discussions. You have full control over editing the permissions
+                of each user in your clinic. Use the table below to view the available permission levels.
+            </div>
+
+            <div class="row d-none d-md-flex">
+                <div class="col-md-2 t-header">
+                    First Name
+                </div>
+                <div class="col-md-2 t-header">
+                    Last Name
+                </div>
+                <div class="col-md-2 t-header">
+                    Username
+                </div>
+                <div class="col-md-2 t-header">
+                    Telephone
+                </div>
+                <div class="col-md-2 t-header">
+                    Permissions
+                </div>
+                <div class="col-md-2 t-header">
+                    Modified
+                </div>
+            </div>
+           {% for users in clinic.clinicUsers %}
+               <div class="row">
+                   <div class="col-md-2 t-cell t-cell-first">
+                       {{ users.firstName }}
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       {{ users.lastName }}
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       {{ users.email }}
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       {{ users.telephone }}
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       {% for role in users.roles %}
+                            {{ role }}
+                       {% endfor %}
+                   </div>
+                   <div class="col-md-2 t-cell t-cell-last">
+                       {{ users.modified|date('Y-m-d H:i:s') }}
+                   </div>
+               </div>
+            {% endfor %}
+
+            {# Modal #}
+            <div class="modal fade" id="modal_user_new" tabindex="-1" aria-labelledby="modal_user_new" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        {{form_start(form, {'name': 'form_users', 'attr': {'id': 'form_users'}})}}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="create_user_label">Create a User</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+
+                                {# First Name #}
+                                <div class="col-12 col-sm-6">
+                                    {{ form_label(user_form.firstName) }}
+                                    {{ form_widget(user_form.firstName,{'id': 'user_first_name', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'First Name*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_first_name">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                {# Last Name #}
+                                <div class="col-12 col-sm-6">
+                                    {{ form_label(user_form.lastName) }}
+                                    {{ form_widget(user_form.lastName,{'id': 'user_last_name', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Last Name*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_last_name">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+
+                                {# Telephone Number #}
+                                <div class="col-12 col-sm-6">
+                                    {{ form_label(user_form.email) }}
+                                    {{ form_widget(user_form.email,{'id': 'user_email', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Email Address'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_email">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                {# Telephone Number #}
+                                <div class="col-12 col-sm-6">
+                                    {{ form_label(user_form.telephone) }}
+                                    {{ form_widget(user_form.telephone,{'id': 'user_telephone', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': '(123) 456-7890*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_telephone">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                        {{ form_end(form, {render_rest: false}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# End Users #}
+
+        {# Addresses #}
+        <div class="row" id="addresses">
+            <div class="col-12 col-sm-6 mb-3 mt-5">
+                <h3>Manage Shipping Addresses</h3>
+            </div>
+            {# Create New #}
+            <div class="col-12 col-sm-6 mb-3 mt-5">
+                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#modal_address" id="address_new">
+                    <i class="fa-solid fa-circle-plus"></i> CREATE NEW ADDRESS
+                </button>
+            </div>
+            <div class="col-12 mb-3 mt-2 info">
+                Add or remove shipping addresses from the list below.
+                <strong>A valid address is required for purchasing Vetcove Commerce items and redeeming Vetcove rewards.</strong>
+            </div>
+
+            <div class="row d-none d-md-flex">
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-md-2 t-header">
+                            Name
+                        </div>
+                        <div class="col-md-2 t-header">
+                            Telephone
+                        </div>
+                        <div class="col-md-4 t-header">
+                            Address Line 1
+                        </div>
+                        <div class="col-md-2 t-header">
+                            City
+                        </div>
+                        <div class="col-md-2 t-header">
+                            State
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1 t-header">
+                    Zip
+                </div>
+                <div class="col-md-1 t-header">
+
+                </div>
+            </div>
+
+            <div id="address_list" style="width: calc(100% - 24px)">
+            {% for address in clinic.addresses %}
+                {% if address.isActive == 1 %}
+                <div class="row t-row">
+                    <div class="col-md-10" id="string_address_clinic_name_{{ address.id }}">
+                        <div class="row">
+                            <div class="col-md-2 t-cell text-truncate" id="string_address_clinic_name_{{ address.id }}">
+                                {{ address.clinicName }}
+                            </div>
+                            <div class="col-md-2 t-cell text-truncate" id="string_address_telephone_{{ address.id }}">
+                                {{ address.telephone }}
+                            </div>
+                            <div class="col-md-4 t-cell text-truncate" id="string_address_address_{{ address.id }}">
+                                {{ address.address }}
+                            </div>
+                            <div class="col-md-2 t-cell text-truncate" id="string_address_city_{{ address.id }}">
+                                {{ address.city }}
+                            </div>
+                            <div class="col-md-2 t-cell text-truncate" id="string_address_state_{{ address.id }}">
+                                {{ address.state }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2" id="string_address_postal)_code{{ address.id }}">
+                        <div class="row">
+                            <div class="col-md-4 t-cell text-truncate" id="string_address_postal)_code{{ address.id }}">
+                                {{ address.postalCode }}
+                            </div>
+                            <div class="col-md-8 t-cell">
+                                <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_address" id="address_update_{{ address.id }}">
+                                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                                </a>
+                                <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-value="{{ address.id }}" data-bs-target="#modal_address_delete" id="address_delete_{{ address.id }}">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                                {% set class = 'address-icon' %}
+                                {% if address.isDefault == 1 %}
+                                    {% set class = 'is-default-address-icon' %}
+                                {% endif %}
+                                <a href="#" id="address_default_{{ address.id }}">
+                                    <i class="fa-solid fa-star float-end {{ class }}"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+            </div>
+
+            {# Modal Manage Address #}
+            <div class="modal fade" id="modal_address" tabindex="-1" aria-labelledby="address_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        {{form_start(form, {'name': 'form_addresses', 'attr': {'id': 'form_addresses'}})}}
+                        <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="address_modal_label">Create an Address</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+
+                                {# Clinic Name #}
+                                <div class="col-6">
+                                    {{ form_label(address_form.clinicName) }}
+                                    {{ form_widget(address_form.clinicName,{'id': 'address_clinic_name', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Clinic Name*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_address_clinic_name">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                {# Telephone Number #}
+                                <div class="col-6">
+                                    {{ form_label(address_form.telephone) }}
+                                    {{ form_widget(address_form.telephone,{'id': 'address_telephone', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': '(123) 456-7890*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_address_telephone">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+
+                                {# Address Line 1 #}
+                                <div class="col-6">
+                                    {{ form_label(address_form.address) }}
+                                    {{ form_widget(address_form.address,{'id': 'address_line_1', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Address Line 1*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_address_line_1">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                {# Suite #}
+                                <div class="col-6">
+                                    {{ form_label(address_form.suite) }}
+                                    {{ form_widget(address_form.suite,{'id': 'address_suite', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'APT / Suite'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_address_suite">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+
+                                {# Postal Code #}
+                                <div class="col-4">
+                                    {{ form_label(address_form.postalCode) }}
+                                    {{ form_widget(address_form.postalCode,{'id': 'address_postal_code', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Postal Code*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_address_postal_code">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                {# City #}
+                                <div class="col-4">
+                                    {{ form_label(address_form.city) }}
+                                    {{ form_widget(address_form.city,{'id': 'address_city', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'City*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_address_city">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                {# State #}
+                                <div class="col-4">
+                                    {{ form_label(address_form.state) }}
+                                    {{ form_widget(address_form.state,{'id': 'address_state', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'State*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_address_state">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="submit" class="btn btn-primary">SAVE</button>
+                        </div>
+                        {{ form_end(form, {render_rest: false}) }}
+                    </div>
+                </div>
+            </div>
+
+            {# Modal Delete Address #}
+            <div class="modal fade" id="modal_address_delete" tabindex="-1" aria-labelledby="address_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="address_delete_label">Delete Address</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12 mb-0">
+                                    Are you sure you would like to delete this address? This action cannot be undone.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="button" class="btn btn-danger btn-sm" id="delete_address">DELETE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# End Addresses #}
+
+        {# Communication Methods #}
+        <div class="row" id="communication_methods">
+
+            <div class="col-12 col-sm-6 mb-3 mt-5">
+                <h3>Manage Communication Methods</h3>
+            </div>
+            {# Create New #}
+            <div class="col-12 col-sm-6 mb-3 mt-5">
+                <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#modal_address" id="address_new">
+                    <i class="fa-solid fa-circle-plus"></i> CREATE NEW COMMUNICATION METHOD
+                </button>
+            </div>
+            <div class="col-12 mb-3 mt-2 info">
+                <p>
+                    Add or remove communication methods from the list below.
+                </p>
+                {{ communication_methods_message|raw }}
+
+                <div class="row d-none d-md-flex">
+                    <div class="row">
+                        <div class="col-md-4 t-header">
+                            Method
+                        </div>
+                        <div class="col-md-4 t-header">
+                            Send To
+                        </div>
+                        <div class="col-md-4 t-header">
+
+                        </div>
+                    </div>
+
+                    <div id="communication_method_list" style="width: calc(100% - 24px)">
+                        {% for method in clinic.clinicCommunicationMethods %}
+                        <div class="row t-row">
+                            <div class="col-md-4 t-cell text-truncate" id="">
+                                {{ method.communicationMethod.method }}
+                            </div>
+                            <div class="col-md-4 t-cell text-truncate" id="">
+                                {{ method.sendTo }}
+                            </div>
+                            <div class="col-md-4 t-cell text-truncate" id="">
+                                <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_address" id="communication_method_update_{{ method.id }}">
+                                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                                </a>
+                                <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-value="{{ method.id }}" data-bs-target="#modal_address_delete" id="address_delete_{{ method.id }}">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# Modal Manage Communication Methods #}
+            <div class="modal fade" id="modal_communication_methods" tabindex="-1" aria-labelledby="communication_methods_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        {{form_start(form, {'name': 'form_communication_methods', 'attr': {'id': 'form_communication_methods'}})}}
+                        <input type="hidden" value="" name="communication_methods_form[communication_methods_id]" id="communication_methods_id">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="communication_methods_modal_label">Create a Communication Method</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+
+                                {# Clinic Name #}
+                                <div class="col-6">
+                                    {{ form_label(communication_methods_form.communicationMethod) }}
+                                    {{ form_widget(communication_methods_form.communicationMethod,{'id': 'communication_methods_type', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Clinic Name*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_address_clinic_name">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="submit" class="btn btn-primary">SAVE</button>
+                        </div>
+                        {{ form_end(form, {render_rest: false}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# End Communication Methods #}
+
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).ready(function(){
+
+            var account_settings = $('#account_settings');
+            var users = $('#users');
+            var addresses = $('#addresses');
+            var communication_methods = $('#communication_methods');
+
+            users.hide();
+            addresses.hide();
+            communication_methods.hide();
+
+            {# Account & Settings #}
+            $('#account_settings_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.show();
+                users.hide();
+                addresses.hide();
+                communication_methods.hide();
+            });
+            $('#form_clinic_information').submit(function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var clinic_name = $('#clinic_name').val()
+                var clinic_email = $('#clinic_email').val();
+                var clinic_telephone = $('#clinic_telephone').val();
+                var error_clinic_name = $('#error_clinic_name');
+                var error_clinic_email = $('#error_clinic_email');
+                var error_clinic_telephone = $('#error_clinic_telephone');
+
+                error_clinic_name.hide();
+                error_clinic_email.hide();
+                error_clinic_telephone.hide();
+
+                if(clinic_name == '' || clinic_name == 'undefined'){
+
+                    error_clinic_name.show();
+                    is_valid = false;
+                }
+
+                if(clinic_email == '' || clinic_email == 'undefined'){
+
+                    error_clinic_email.show();
+                    is_valid = false;
+                }
+
+                if(clinic_telephone == '' || clinic_telephone == 'undefined'){
+
+                    error_clinic_telephone.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    var data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('clinic_update_company_information') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                            $('#modal_address').modal('toggle');
+                            $('#modal_address').modal('hide');
+                            $('.modal-backdrop').removeClass('modal-backdrop');
+                            $('.fade').removeClass('fade');
+                        }
+                    });
+                }
+            });
+            {# End Account & Settings #}
+
+            {# Users #}
+            $('#users_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                users.show();
+                addresses.hide();
+                communication_methods.hide();
+            });
+
+            {# End Users #}
+
+            {# Addresses #}
+            $('#addresses_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                users.hide();
+                addresses.show();
+                communication_methods.hide();
+            });
+
+            $(document).on('click', '#address_new', function (){
+
+                $('#address_id').val(0);
+                $('#address_clinic_name').val('');
+                $('#address_telephone').val('');
+                $('#address_line_1').val('');
+                $('#address_suite').val('');
+                $('#address_postal_code').val('');
+                $('#address_city').val('');
+                $('#address_state').val('');
+                $('#address_modal_label').empty().append('Create An Address');
+            });
+
+            var address_id;
+
+            {% for address in clinic.addresses %}
+                {% if address.isActive == 1 %}
+                    $(document).on('click', '#address_update_{{ address.id }}', function () {
+
+                        $.ajax({
+                            url: "{{ path('clinic_get_address') }}",
+                            type: 'POST',
+                            data: {
+                                id: {{ address.id }}
+                            },
+                            success: function (response) {
+                                $('#address_clinic_name').val(response.clinic_name);
+                                $('#address_telephone').val(response.telephone);
+                                $('#address_line_1').val(response.address_line_1);
+                                $('#address_suite').val(response.suite);
+                                $('#address_postal_code').val(response.postal_code);
+                                $('#address_city').val(response.city);
+                                $('#address_state').val(response.state);
+                            }
+                        });
+
+                        $('#address_id').val({{ address.id }});
+                        $('#address_modal_label').empty().append('Update An Address');
+                    });
+
+                    $(document).on('click', '#address_delete_{{ address.id }}', function () {
+
+                        address_id = {{ address.id }};
+
+                        $(document).on('click', '#delete_address', function () {
+
+                            $.ajax({
+                                url: "{{ path('clinic_address_delete') }}",
+                                type: 'POST',
+                                data: {
+                                    id: address_id
+                                },
+                                success: function (response) {
+                                    $('#flash').addClass('alert-success');
+                                    $('#flash').removeClass('alert-danger');
+                                    $('#flash').addClass('alert');
+                                    $('#flash').addClass('text-center');
+                                    $('#flash').removeClass('users-flash');
+                                    $('#flash').addClass('users-flash');
+                                    $('#flash').empty();
+                                    $('#flash').append(response);
+                                    $('#flash').removeClass('hidden');
+                                    $('#modal_address_delete').modal('toggle');
+                                    $('#modal_address_delete').modal('hide');
+                                    $('.modal-backdrop').removeClass('modal-backdrop');
+                                    $('#modal_address_delete').addClass('fade');
+
+                                    $.ajax({
+                                        url: "{{ path('clinic_refresh_addresses') }}",
+                                        type: 'POST',
+                                        contentType: false,
+                                        processData: false,
+                                        cache: false,
+                                        timeout: 600000,
+                                        dataType: 'json',
+                                        success: function (response) {
+                                            $('#address_list').empty().append(response);
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    });
+
+                    $(document).on('click', '#address_default_{{ address.id }}', function (e) {
+
+                        e.preventDefault();
+
+                        address_id = {{ address.id }};
+
+                        $.ajax({
+                            url: "{{ path('clinic_address_default') }}",
+                            type: 'POST',
+                            data: {
+                                id: address_id
+                            },
+                            success: function (response) {
+                                $('#flash').addClass('alert-success');
+                                $('#flash').removeClass('alert-danger');
+                                $('#flash').addClass('alert');
+                                $('#flash').addClass('text-center');
+                                $('#flash').removeClass('users-flash');
+                                $('#flash').addClass('users-flash');
+                                $('#flash').empty();
+                                $('#flash').append(response);
+                                $('#flash').removeClass('hidden');
+
+                                $.ajax({
+                                    url: "{{ path('clinic_refresh_addresses') }}",
+                                    type: 'POST',
+                                    contentType: false,
+                                    processData: false,
+                                    cache: false,
+                                    timeout: 600000,
+                                    dataType: 'json',
+                                    success: function (response) {
+                                        $('#address_list').empty().append(response);
+                                    }
+                                });
+                            }
+                        });
+                    });
+                {% endif %}
+            {% endfor %}
+
+            $('#form_addresses').submit(function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var clinic_name = $('#address_clinic_name').val()
+                var telephone = $('#address_telephone').val();
+                var address_line_1 = $('#address_line_1').val();
+                var postal_code = $('#address_postal_code').val();
+                var city = $('#address_city').val();
+                var state = $('#address_state').val();
+                var error_clinic_name = $('#error_address_clinic_name');
+                var error_telephone = $('#error_address_telephone');
+                var error_address_line_1 = $('#error_address_line_1');
+                var error_postal_code = $('#error_address_postal_code');
+                var error_city = $('#error_address_city');
+                var error_state = $('#error_address_state');
+
+                error_clinic_name.hide();
+                error_telephone.hide();
+                error_address_line_1.hide();
+                error_postal_code.hide();
+                error_city.hide();
+                error_state.hide();
+
+                if(clinic_name == '' || clinic_name == 'undefined'){
+
+                    error_clinic_name.show();
+                    is_valid = false;
+                }
+
+                if(telephone == '' || telephone == 'undefined'){
+
+                    error_telephone.show();
+                    is_valid = false;
+                }
+
+                if(address_line_1 == '' || address_line_1 == 'undefined'){
+
+                    error_address_line_1.show();
+                    is_valid = false;
+                }
+
+                if(city == '' || city == 'undefined'){
+
+                    error_city.show();
+                    is_valid = false;
+                }
+
+                if(postal_code == '' || postal_code == 'undefined'){
+
+                    error_postal_code.show();
+                    is_valid = false;
+                }
+
+                if(state == '' || state == 'undefined'){
+
+                    error_state.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    var data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('clinic_addresses') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                            $('#modal_address').modal('toggle');
+                            $('#modal_address').modal('hide');
+                            $('.modal-backdrop').removeClass('modal-backdrop');
+                            $('.fade').removeClass('fade');
+                            $('#address_clinic_name').val('');
+                            $('#address_telephone').val('');
+                            $('#address_line_1').val('');
+                            $('#address_suite').val('');
+                            $('#address_postal_code').val('');
+                            $('#address_city').val('');
+                            $('#address_state').val('');
+
+                            $.ajax({
+                                url: "{{ path('clinic_refresh_addresses') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    $('#address_list').empty().append(response);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            {# End Addresses #}
+
+            {# Communivation Mrthods #}
+            $('#communication_methods_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                users.hide();
+                addresses.hide();
+                communication_methods.show();
+            });
+            {# End Communivation Mrthods #}
+
+            {# Clode Flash Message #}
+            $('#flash').click(function (){
+                $('#flash').addClass('hidden');
+            });
+
+            {# Species #}
+            $(document).on('click', '#icon_canine', function (){
+
+                var checkbox_canine = $('#species_canine');
+
+                if ($('#species_canine').is(':checked')) {
+
+                    checkbox_canine.attr('checked', true);
+                    $('#species_canine').hide();
+
+                } else {
+
+                    checkbox_canine.attr('checked', false);
+                    $('#species_canine').show();
+                }
+            });
+
+            $(document).on('click', '#icon_feline', function (){
+
+                var checkbox_feline = $('#species_feline');
+
+                if ($('#species_feline').is(':checked')) {
+
+                    checkbox_feline.attr('checked', true);
+                    $('#species_feline').hide();
+
+                } else {
+
+                    checkbox_feline.attr('checked', false);
+                    $('#species_feline').show();
+                }
+            });
+
+            $(document).on('click', '#icon_equine', function (){
+
+                var checkbox_equine = $('#species_equine');
+
+                if ($('#species_equine').is(':checked')) {
+
+                    checkbox_equine.attr('checked', true);
+                    $('#species_equine').hide();
+
+                } else {
+
+                    checkbox_equine.attr('checked', false);
+                    $('#species_equine').show();
+                }
+            });
+
+            $(document).on('click', '#icon_bovine', function (){
+
+                var checkbox_bovine = $('#species_bovine');
+
+                if ($('#species_bovine').is(':checked')) {
+
+                    checkbox_bovine.attr('checked', true);
+                    $('#species_bovine').hide();
+
+                } else {
+
+                    checkbox_bovine.attr('checked', false);
+                    $('#species_bovine').show();
+                }
+            });
+
+            $(document).on('click', '#icon_porcine', function (){
+
+                var checkbox_porcine = $('#species_porcine');
+
+                if ($('#species_porcine').is(':checked')) {
+
+                    checkbox_porcine.attr('checked', true);
+                    $('#species_porcine').hide();
+
+                } else {
+
+                    checkbox_porcine.attr('checked', false);
+                    $('#species_porcine').show();
+                }
+            });
+
+            $(document).on('click', '#icon_exotic', function (){
+
+                var checkbox_exotic = $('#species_exotic');
+
+                if ($('#species_exotic').is(':checked')) {
+
+                    checkbox_exotic.attr('checked', true);
+                    $('#species_exotic').hide();
+
+                } else {
+
+                    checkbox_exotic.attr('checked', false);
+                    $('#species_exotic').show();
+                }
+            });
+
+        });
+
+    </script>
+{% endblock %}

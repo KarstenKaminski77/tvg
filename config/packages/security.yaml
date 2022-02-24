@@ -17,6 +17,10 @@ security:
             entity:
                 class: App\Entity\Distributors
                 property: email
+        app_clinic_provider:
+            entity:
+                class: App\Entity\ClinicUsers
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -34,18 +38,18 @@ security:
                 path: app_logout
                 # where to redirect after logout
                 target: '/login'
-        distributor:
+        clinic:
             form_login:
-                login_path: distributor_login
-            access_denied_url: /distributors/login
+                login_path: clinic_login
+            access_denied_url: /clinics/login
             lazy: true
-            provider: app_distributor_provider
-            custom_authenticator: App\Security\DistributorsAuthenticator
-            entry_point: App\Security\DistributorsAuthenticator
+            provider: app_clinic_provider
+            custom_authenticator: App\Security\ClinicsAuthenticator
+            entry_point: App\Security\ClinicsAuthenticator
             logout:
                 path: app_logout
                 # where to redirect after logout
-                target: '/distributors/login'
+                target: '/clinics/login'
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -56,6 +60,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/clinics/dashboard, roles: ROLE_USER }
         - { path: ^/distributors/dashboard, roles: ROLE_USER }
         - { path: ^/admin, roles: ROLE_ADMIN }
 

@@ -77,6 +77,16 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $productReviews;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isPrimary;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $telephone;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -312,5 +322,29 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString(){
 
         return $this->getFirstName() .' '. $this->getLastName();
+    }
+
+    public function getIsPrimary(): ?bool
+    {
+        return $this->isPrimary;
+    }
+
+    public function setIsPrimary(bool $isPrimary): self
+    {
+        $this->isPrimary = $isPrimary;
+
+        return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(string $telephone): self
+    {
+        $this->telephone = $telephone;
+
+        return $this;
     }
 }

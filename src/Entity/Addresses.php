@@ -30,7 +30,7 @@ class Addresses
     private $address;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
     private $isDefault;
 
@@ -78,6 +78,11 @@ class Addresses
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $suite;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isActive;
 
     public function __construct()
     {
@@ -252,6 +257,18 @@ class Addresses
     public function setSuite(?string $suite): self
     {
         $this->suite = $suite;
+
+        return $this;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(?bool $isActive): self
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }
