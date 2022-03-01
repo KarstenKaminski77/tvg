@@ -40,6 +40,14 @@ class Species
      */
     private $created;
 
+    public function __construct()
+    {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+    }
+
     public function getId(): ?int
     {
         return $this->id;

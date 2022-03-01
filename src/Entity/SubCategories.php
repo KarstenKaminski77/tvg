@@ -46,6 +46,11 @@ class SubCategories
 
     public function __construct()
     {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+
         $this->products = new ArrayCollection();
     }
 

@@ -19,7 +19,7 @@ class ClinicsAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'clinic_login';
+    public const LOGIN_ROUTE = 'clinics_login';
 
     private UrlGeneratorInterface $urlGenerator;
 

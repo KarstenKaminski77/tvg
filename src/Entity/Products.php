@@ -74,14 +74,14 @@ class Products
     private $size;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $form;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $pack_type;
+    private $packType;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -94,7 +94,7 @@ class Products
     private $unitPrice;
 
     /**
-     * @ORM\Column(type="integer", length=255)
+     * @ORM\Column(type="integer")
      */
     private $stockCount;
 
@@ -135,6 +135,11 @@ class Products
 
     public function __construct()
     {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+
         $this->distributorProducts = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
         $this->productNotes = new ArrayCollection();
@@ -270,12 +275,12 @@ class Products
 
     public function getPackType(): ?string
     {
-        return $this->pack_type;
+        return $this->packType;
     }
 
-    public function setPackType(string $pack_type): self
+    public function setPackType(string $packType): self
     {
-        $this->pack_type = $pack_type;
+        $this->packType = $packType;
 
         return $this;
     }
@@ -309,7 +314,7 @@ class Products
         return $this->stockCount;
     }
 
-    public function setStockPrice(int $stockCount): self
+    public function setStockCount(int $stockCount): self
     {
         $this->stockCount = $stockCount;
 

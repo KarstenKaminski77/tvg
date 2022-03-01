@@ -21,19 +21,19 @@ class ClinicUsersFormType extends AbstractType
         $builder
             ->add('firstName', TextType::class, [
                 'label' => 'First Name*',
-                'required' => true
+                'required' => false
             ])
             ->add('lastName', TextType::class, [
                 'label' => 'Last Name*',
-                'required' => true
+                'required' => false
             ])
             ->add('telephone', TextType::class, [
                 'label' => 'Phone Number*',
-                'required' => true
+                'required' => false
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email*',
-                'required' => true
+                'required' => false
             ])
             ->add(
                 'roles',
@@ -52,6 +52,13 @@ class ClinicUsersFormType extends AbstractType
                 'password',
                 PasswordType::class,[
                     'label' => 'Old Password',
+                    'required' => false
+                ]
+            )
+            ->add(
+                'position',
+                TextType::class,[
+                    'label' => 'Position',
                     'required' => false
                 ]
             )

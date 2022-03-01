@@ -150,13 +150,13 @@
             </div>
             <div class="col-12 col-md-6 mb-3 mt-5">
                 {# Create New #}
-                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#modal_user_new">
+                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
                     <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
                 </button>
             </div>
             <div class="col-12 mb-3 mt-2 info">
                 TVG supports having several users under a single clinic. Each user will have their own login, can
-                independently participate in the Vetcove discussions. You have full control over editing the permissions
+                independently participate in the TVG discussions. You have full control over editing the permissions
                 of each user in your clinic. Use the table below to view the available permission levels.
             </div>
 
@@ -174,106 +174,154 @@
                     Telephone
                 </div>
                 <div class="col-md-2 t-header">
-                    Permissions
+                    Position
                 </div>
                 <div class="col-md-2 t-header">
-                    Modified
+
                 </div>
             </div>
-           {% for users in clinic.clinicUsers %}
-               <div class="row">
-                   <div class="col-md-2 t-cell t-cell-first">
-                       {{ users.firstName }}
+            <div id="users_list">
+               {% for users in clinic.clinicUsers %}
+                   <div class="list-width">
+                       <div class="row t-row">
+                           <div class="col-md-2 t-cell" id="string_user_first_name_{{ users.id }}">
+                               {{ users.firstName }}
+                           </div>
+                           <div class="col-md-2 t-cell" id="string_user_last_name_{{ users.id }}">
+                               {{ users.lastName }}
+                           </div>
+                           <div class="col-md-2 t-cell" id="string_user_email_{{ users.id }}">
+                               {{ users.email }}
+                           </div>
+                           <div class="col-md-2 t-cell" id="string_user_telephone_{{ users.id }}">
+                               {{ users.telephone }}
+                           </div>
+                           <div class="col-md-2 t-cell" id="string_user_position_{{ users.id }}">
+                               {{ users.position }}
+                           </div>
+                           <div class="col-md-2 t-cell">
+                               <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_{{ users.id }}">
+                                   <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                               </a>
+                               <a href="" class="delete-icon float-end" data-bs-toggle="modal"
+                                  data-value="{{ users.id }}" data-bs-target="#modal_user_delete" id="user_delete_{{ users.id }}">
+                                   <i class="fa-solid fa-trash-can"></i>
+                               </a>
+                           </div>
+                       </div>
                    </div>
-                   <div class="col-md-2 t-cell">
-                       {{ users.lastName }}
-                   </div>
-                   <div class="col-md-2 t-cell">
-                       {{ users.email }}
-                   </div>
-                   <div class="col-md-2 t-cell">
-                       {{ users.telephone }}
-                   </div>
-                   <div class="col-md-2 t-cell">
-                       {% for role in users.roles %}
-                            {{ role }}
-                       {% endfor %}
-                   </div>
-                   <div class="col-md-2 t-cell t-cell-last">
-                       {{ users.modified|date('Y-m-d H:i:s') }}
-                   </div>
-               </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
 
-            {# Modal #}
-            <div class="modal fade" id="modal_user_new" tabindex="-1" aria-labelledby="modal_user_new" aria-hidden="true">
+            {# Modal Manage Users #}
+            <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
                         {{form_start(form, {'name': 'form_users', 'attr': {'id': 'form_users'}})}}
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="create_user_label">Create a User</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row mb-3">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="user_modal_label"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-3">
 
-                                {# First Name #}
-                                <div class="col-12 col-sm-6">
-                                    {{ form_label(user_form.firstName) }}
-                                    {{ form_widget(user_form.firstName,{'id': 'user_first_name', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': 'First Name*'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_user_first_name">
-                                        Required Field
+                                    {# First Name #}
+                                    <div class="col-12 col-sm-6">
+                                        {{ form_label(user_form.firstName) }}
+                                        <input type="hidden" value="" name="clinic_users_form[user_id]" id="user_id">
+                                        {{ form_widget(user_form.firstName,{'id': 'user_first_name', 'attr':{
+                                            'class': 'form-control',
+                                            'placeholder': 'First Name*'
+                                        }}) }}
+                                        <div class="hidden_msg" id="error_user_first_name">
+                                            Required Field
+                                        </div>
+                                    </div>
+
+                                    {# Last Name #}
+                                    <div class="col-12 col-sm-6">
+                                        {{ form_label(user_form.lastName) }}
+                                        {{ form_widget(user_form.lastName,{'id': 'user_last_name', 'attr':{
+                                            'class': 'form-control',
+                                            'placeholder': 'Last Name*'
+                                        }}) }}
+                                        <div class="hidden_msg" id="error_user_last_name">
+                                            Required Field
+                                        </div>
                                     </div>
                                 </div>
 
-                                {# Last Name #}
-                                <div class="col-12 col-sm-6">
-                                    {{ form_label(user_form.lastName) }}
-                                    {{ form_widget(user_form.lastName,{'id': 'user_last_name', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': 'Last Name*'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_user_last_name">
-                                        Required Field
+                                <div class="row mb-3">
+
+                                    {# Email #}
+                                    <div class="col-12 col-sm-6">
+                                        {{ form_label(user_form.email) }}
+                                        {{ form_widget(user_form.email,{'id': 'user_email', 'attr':{
+                                            'class': 'form-control',
+                                            'placeholder': 'Email Address'
+                                        }}) }}
+                                        <div class="hidden_msg" id="error_user_email">
+                                            Required Field
+                                        </div>
+                                    </div>
+
+                                    {# Telephone Number #}
+                                    <div class="col-12 col-sm-6">
+                                        {{ form_label(user_form.telephone) }}
+                                        {{ form_widget(user_form.telephone,{'id': 'user_telephone', 'attr':{
+                                            'class': 'form-control',
+                                            'placeholder': '(123) 456-7890*'
+                                        }}) }}
+                                        <div class="hidden_msg" id="error_user_telephone">
+                                            Required Field
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+
+                                    {# Position #}
+                                    <div class="col-12">
+                                        {{ form_label(user_form.position) }}
+                                        {{ form_widget(user_form.position,{'id': 'user_position', 'attr':{
+                                            'class': 'form-control',
+                                            'placeholder': 'Position'
+                                        }}) }}
+                                        <div class="hidden_msg" id="error_user_telephone">
+                                            Required Field
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                                <button type="submit" class="btn btn-primary" id="create_user">SAVE</button>
+                            </div>
+                        {{ form_end(form, {render_rest: false}) }}
+                    </div>
+                </div>
+            </div>
 
-                            <div class="row mb-3">
-
-                                {# Telephone Number #}
-                                <div class="col-12 col-sm-6">
-                                    {{ form_label(user_form.email) }}
-                                    {{ form_widget(user_form.email,{'id': 'user_email', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': 'Email Address'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_user_email">
-                                        Required Field
-                                    </div>
-                                </div>
-
-                                {# Telephone Number #}
-                                <div class="col-12 col-sm-6">
-                                    {{ form_label(user_form.telephone) }}
-                                    {{ form_widget(user_form.telephone,{'id': 'user_telephone', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': '(123) 456-7890*'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_user_telephone">
-                                        Required Field
-                                    </div>
+            {# Modal Delete User #}
+            <div class="modal fade" id="modal_user_delete" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="user_delete_label">Delete User</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12 mb-0">
+                                    Are you sure you would like to delete this user? This action cannot be undone.
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
                         </div>
-                        {{ form_end(form, {render_rest: false}) }}
                     </div>
                 </div>
             </div>
@@ -293,7 +341,7 @@
             </div>
             <div class="col-12 mb-3 mt-2 info">
                 Add or remove shipping addresses from the list below.
-                <strong>A valid address is required for purchasing Vetcove Commerce items and redeeming Vetcove rewards.</strong>
+                <strong>A valid address is required for purchasing TVG Commerce items and redeeming TVG rewards.</strong>
             </div>
 
             <div class="row d-none d-md-flex">
@@ -521,7 +569,7 @@
             </div>
             {# Create New #}
             <div class="col-12 col-sm-6 mb-3 mt-5">
-                <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#modal_address" id="address_new">
+                <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#modal_communication_methods" id="communication_methods_new">
                     <i class="fa-solid fa-circle-plus"></i> CREATE NEW COMMUNICATION METHOD
                 </button>
             </div>
@@ -529,9 +577,14 @@
                 <p>
                     Add or remove communication methods from the list below.
                 </p>
-                {{ communication_methods_message|raw }}
 
-                <div class="row d-none d-md-flex">
+                {% if communication_methods_message|length > 0 %}
+
+                    {{ communication_methods_message|raw }}
+
+                {% else %}
+
+                    <div class="row d-none d-md-flex">
                     <div class="row">
                         <div class="col-md-4 t-header">
                             Method
@@ -546,48 +599,55 @@
 
                     <div id="communication_method_list" style="width: calc(100% - 24px)">
                         {% for method in clinic.clinicCommunicationMethods %}
-                        <div class="row t-row">
-                            <div class="col-md-4 t-cell text-truncate" id="">
-                                {{ method.communicationMethod.method }}
-                            </div>
-                            <div class="col-md-4 t-cell text-truncate" id="">
-                                {{ method.sendTo }}
-                            </div>
-                            <div class="col-md-4 t-cell text-truncate" id="">
-                                <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_address" id="communication_method_update_{{ method.id }}">
-                                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                                </a>
-                                <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-value="{{ method.id }}" data-bs-target="#modal_address_delete" id="address_delete_{{ method.id }}">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                            </div>
-                        </div>
+                            {% if method.isActive == 1 %}
+                                <div class="row t-row">
+                                    <div class="col-md-4 t-cell text-truncate" id="">
+                                        {{ method.communicationMethod.method }}
+                                    </div>
+                                    <div class="col-md-4 t-cell text-truncate" id="">
+                                        {{ method.sendTo }}
+                                    </div>
+                                    <div class="col-md-4 t-cell text-truncate" id="">
+                                        <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_communication_methods" id="communication_method_update_{{ method.id }}">
+                                            <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                                        </a>
+                                        <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-value="{{ method.id }}" data-bs-target="#modal_method_delete" id="method_delete_{{ method.id }}">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
 
             {# Modal Manage Communication Methods #}
-            <div class="modal fade" id="modal_communication_methods" tabindex="-1" aria-labelledby="communication_methods_delete_label" aria-hidden="true">
+            <div class="modal fade" id="modal_communication_methods" tabindex="-1" aria-labelledby="communication_methods_modal_label" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
                         {{form_start(form, {'name': 'form_communication_methods', 'attr': {'id': 'form_communication_methods'}})}}
-                        <input type="hidden" value="" name="communication_methods_form[communication_methods_id]" id="communication_methods_id">
+                        <input type="hidden" value="0" name="communication_method_id" id="communication_method_id">
                         <div class="modal-header">
                             <h5 class="modal-title" id="communication_methods_modal_label">Create a Communication Method</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="row mb-3">
-
-                                {# Clinic Name #}
-                                <div class="col-6">
+                                <div class="col-12" id="col_communication_method">
                                     {{ form_label(communication_methods_form.communicationMethod) }}
-                                    {{ form_widget(communication_methods_form.communicationMethod,{'id': 'communication_methods_type', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': 'Clinic Name*'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_address_clinic_name">
+                                    {{ form_widget(communication_methods_form.communicationMethod,{'id': 'communication_methods_type'}) }}
+                                    <div class="hidden_msg" id="error_communication_method">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                <div class="col-6" id="col_send_to">
+                                    <label id="label_send_to">
+                                    </label>
+                                    {{ form_widget(communication_methods_form.sendTo,{'id': 'send_to'}) }}
+                                    <div class="hidden_msg" id="error_send_to">
                                         Required Field
                                     </div>
                                 </div>
@@ -597,9 +657,33 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
-                            <button type="submit" class="btn btn-primary">SAVE</button>
+                            <button type="submit" class="btn btn-primary">CREATE COMMUNICATION METHOD</button>
                         </div>
                         {{ form_end(form, {render_rest: false}) }}
+                    </div>
+                </div>
+            </div>
+
+            {# Modal Delete Communication Method #}
+            <div class="modal fade" id="modal_method_delete" tabindex="-1" aria-labelledby="method_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+{#                        <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">#}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="method_delete_label">Delete Communication Method</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12 mb-0">
+                                    Are you sure you would like to delete this communication method? This action cannot be undone.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="button" class="btn btn-danger btn-sm" id="delete_method">DELETE</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -635,6 +719,7 @@
                 addresses.hide();
                 communication_methods.hide();
             });
+
             $('#form_clinic_information').submit(function(e){
 
                 e.preventDefault();
@@ -713,6 +798,197 @@
                 communication_methods.hide();
             });
 
+            {# Create User Btn #}
+            $('#user_new').click(function (){
+
+                $('#create_user').empty().append('CREATE USER');
+                $('#user_modal_label').empty().append('Create a User');
+                $('#user_id').val(0);
+                $('#user_first_name').val('');
+                $('#user_last_name').val('');
+                $('#user_email').val('');
+                $('#user_telephone').val('');
+                $('#user_position').val('');
+            });
+
+            {% for user in clinic.clinicUsers %}
+
+            {# Update User #}
+            $(document).on('click', '#user_update_{{ user.id }}', function () {
+
+                $('#create_user').empty().append('UPDATE USER');
+
+                $.ajax({
+                    url: "{{ path('clinic_get_user') }}",
+                    type: 'POST',
+                    data: {
+                        id: {{ user.id }}
+                    },
+                    success: function (response) {
+                        $('#user_first_name').val(response.first_name);
+                        $('#user_last_name').val(response.last_name);
+                        $('#user_email').val(response.email);
+                        $('#user_telephone').val(response.telephone);
+                        $('#user_position').val(response.position);
+                    }
+                });
+
+                $('#user_id').val({{ user.id }});
+                $('#user_modal_label').empty().append('Update a User');
+            });
+
+            {# Delete User #}
+            $(document).on('click', '#user_delete_{{ user.id }}', function () {
+
+                user_id = {{ user.id }};
+
+                $(document).on('click', '#delete_user', function () {
+
+                    $.ajax({
+                        url: "{{ path('clinic_user_delete') }}",
+                        type: 'POST',
+                        data: {
+                            id: user_id
+                        },
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                            $('#modal_user_delete').modal('toggle');
+                            $('#modal_user_delete').modal('hide');
+                            $('.modal-backdrop').removeClass('modal-backdrop');
+                            $('#modal_user_delete').addClass('fade');
+
+                            $.ajax({
+                                url: "{{ path('clinic_refresh_users') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                success: function (response) {
+                                    $('#users_list').empty().append(response);
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+            {% endfor %}
+
+            {# Create User #}
+            $('#form_users').submit(function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var user_first_name = $('#user_first_name').val()
+                var user_last_name = $('#user_last_name').val();
+                var user_email = $('#user_email').val();
+                var user_telephone = $('#user_telephone').val();
+                var error_user_first_name = $('#error_user_first_name');
+                var error_user_last_name = $('#error_user_last_name');
+                var error_user_email = $('#error_user_email');
+                var error_user_telephone = $('#error_user_telephone');
+
+                error_user_first_name.hide();
+                error_user_last_name.hide();
+                error_user_email.hide();
+                error_user_telephone.hide();
+
+                if(user_first_name == '' || user_first_name == 'undefined'){
+
+                    error_user_first_name.show();
+                    is_valid = false;
+                }
+
+                if(user_last_name == '' || user_last_name == 'undefined'){
+
+                    error_user_last_name.show();
+                    is_valid = false;
+                }
+
+                if(user_email == '' || user_email == 'undefined'){
+
+                    error_user_email.show();
+                    is_valid = false;
+                }
+
+                if(user_telephone == '' || user_telephone == 'undefined'){
+
+                    error_user_telephone.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    var data = new FormData(this);
+
+                    $('#create_user').empty().attr('disabled', true).append('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> PROCESSING...');
+
+                    $.ajax({
+                        url: "{{ path('clinic_users') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+
+                            if (response.response) {
+                                $('#flash').addClass('alert-success');
+                                $('#flash').removeClass('alert-danger');
+                                $('#flash').addClass('alert');
+                                $('#flash').addClass('text-center');
+                                $('#flash').removeClass('users-flash');
+                                $('#flash').addClass('users-flash');
+                                $('#flash').empty();
+                                $('#flash').append(response.message);
+                                $('#flash').removeClass('hidden');
+                                $('#modal_user').modal('toggle');
+                                $('#modal_user').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('.fade').removeClass('fade');
+                                $('#user_first_name').val('');
+                                $('#user_last_name').val('');
+                                $('#user_email').val('');
+                                $('#user_telephone').val('');
+                                $('#user_position').val('');
+                                $('#create_user').empty().append('SAVE').attr('disabled', false);
+
+                                $.ajax({
+                                    url: "{{ path('clinic_refresh_users') }}",
+                                    type: 'POST',
+                                    contentType: false,
+                                    processData: false,
+                                    cache: false,
+                                    timeout: 600000,
+                                    dataType: 'json',
+                                    data: data,
+                                    success: function (response) {
+                                        $('#users_list').empty().append(response);
+                                    }
+                                });
+                            } else {
+
+                                $('#error_user_email').empty();
+                                $('#error_user_email').append('Email address exists.');
+                                $('#error_user_email').show();
+                                $('#create_user').empty().append('SAVE').attr('disabled', false);
+                            }
+                        }
+                    });
+                }
+            });
             {# End Users #}
 
             {# Addresses #}
@@ -966,7 +1242,7 @@
             });
             {# End Addresses #}
 
-            {# Communivation Mrthods #}
+            {# Communivation Methods #}
             $('#communication_methods_link').click(function (e){
 
                 e.preventDefault();
@@ -975,6 +1251,220 @@
                 users.hide();
                 addresses.hide();
                 communication_methods.show();
+                $('#col_send_to').hide();
+            });
+
+            $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').change(function (){
+
+                $('#error_communication_method').hide();
+                $('#error_send_to').hide();
+
+                var communication_method = $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val();
+
+                if(communication_method == 0 || communication_method == 1){
+
+                    $('#col_send_to').hide();
+                    $('#col_communication_method').removeClass('col-6').removeClass('col-12').addClass('col-12');
+                }
+
+                if(communication_method == 2){
+
+                    $('#label_send_to').empty().append('Email Address').show();
+                    $('#send_to').attr('placeholder', 'Enter your email address');
+                }
+
+                if(communication_method == 3){
+
+                    $('#label_send_to').empty().append('Mobile Phone Number').show();
+                    $('#send_to').attr('placeholder', 'Enter your mobile number');
+                }
+
+                if(communication_method == 2 || communication_method == 3) {
+
+                    $('#col_communication_method').removeClass('col-12').addClass('col-6')
+                    $('#col_send_to').show();
+                    $('#send_to').show();
+                }
+            });
+
+            $('#communication_methods_new').click(function (){
+
+                $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="1"]').attr('selected',false);
+                $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="2"]').attr('selected',false);
+                $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="3"]').attr('selected',false);
+                $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="0"]').attr('selected','selected');
+                $('#send_to').val('').hide();
+                $('#label_send_to').hide();
+                $('#col_communication_method').removeClass('col-6').removeClass('col-12').addClass('col-12');
+                $('#communication_methods_modal_label').empty().append('Create A Communication Method');
+            });
+
+            {% for method in clinic.clinicCommunicationMethods %}
+            $(document).on('click', '#communication_method_update_{{ method.id }}', function () {
+
+                $.ajax({
+                    url: "{{ path('clinic_get_method') }}",
+                    type: 'POST',
+                    data: {
+                        id: {{ method.id }}
+                    },
+                    success: function (response) {
+                        $('#send_to').val(response.send_to);
+                        $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="'+ response.method_id +'"]').attr('selected',false);
+                        $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="'+ response.method_id +'"]').attr('selected','selected');
+                    }
+                });
+
+                var communication_method = '{{ method.communicationMethod.id }}';
+
+                if(communication_method == 0 || communication_method == 1){
+
+                    $('#col_send_to').hide();
+                    $('#label_send_to').hide();
+                    $('#col_communication_method').removeClass('col-6').removeClass('col-12').addClass('col-12');
+                }
+
+                if(communication_method == 2){
+
+                    $('#label_send_to').empty().append('Email Address').show();
+                    $('#send_to').attr('placeholder', 'Enter your email address').show();
+                }
+
+                if(communication_method == 3){
+
+                    $('#label_send_to').empty().append('Mobile Phone Number').show();
+                    $('#send_to').attr('placeholder', 'Enter your mobile number').show();
+                }
+
+                if(communication_method == 2 || communication_method == 3) {
+
+                    $('#col_communication_method').removeClass('col-12').addClass('col-6')
+                    $('#col_send_to').show();
+                }
+
+                $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="{{ method.communicationMethod.id }}"]').attr('selected',false);
+                $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="{{ method.communicationMethod.id }}"]').attr('selected','selected');
+                $('#communication_method_id').val({{ method.id }});
+                $('#communication_methods_modal_label').empty().append('Update A Communication Method');
+            });
+
+            $(document).on('click', '#method_delete_{{ method.id }}', function () {
+
+                var method_id = {{ method.id }};
+
+                $(document).on('click', '#delete_method', function () {
+
+                    $.ajax({
+                        url: "{{ path('clinic_method_delete') }}",
+                        type: 'POST',
+                        data: {
+                            id: method_id
+                        },
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                            $('#modal_method_delete').modal('toggle');
+                            $('#modal_method_delete').modal('hide');
+                            $('.modal-backdrop').removeClass('modal-backdrop');
+                            $('#modal_method_delete').addClass('fade');
+
+                            $.ajax({
+                                url: "{{ path('clinic_refresh_communication') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                success: function (response) {
+                                    $('#communication_method_list').empty().append(response);
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+
+            {% endfor %}
+
+            $('#form_communication_methods').submit(function(e){
+
+                e.preventDefault();
+
+                var is_valid = true;
+                var communication_method = $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val();
+                var send_to = $('#send_to').val();
+                var error_communication_method = $('#error_communication_method');
+                var error_send_to = $('#error_send_to');
+
+                error_communication_method.hide();
+                error_send_to.hide()
+
+                if(communication_method == '' || communication_method == 'undefined' || communication_method == 0){
+
+                    error_communication_method.show();
+                    is_valid = false;
+                }
+
+                if((send_to == '' || send_to == 'undefined') && (communication_method == 2 || communication_method == 3)){
+
+                    error_send_to.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    var data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('communication_methods') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                            $('#modal_communication_methods').modal('toggle');
+                            $('#modal_communication_methods').modal('hide');
+                            $('.modal-backdrop').removeClass('modal-backdrop');
+                            $('.fade').removeClass('fade');
+                            $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val('');
+                            $('#send_to').val('');
+
+                            $.ajax({
+                                url: "{{ path('clinic_refresh_communication') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    $('#communication_method_list').empty().append(response);
+                                }
+                            });
+                        }
+                    });
+                }
             });
             {# End Communivation Mrthods #}
 

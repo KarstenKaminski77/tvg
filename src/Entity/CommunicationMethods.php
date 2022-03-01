@@ -35,7 +35,7 @@ class CommunicationMethods
     private $created;
 
     /**
-     * @ORM\OneToMany(targetEntity=ClinicCommunicationMethods::class, mappedBy="communicationMethod")
+     * @ORM\OneToMany(targetEntity=ClinicCommunicationMethods::class, mappedBy="communicationMethod", cascade={"persist"})
      */
     private $clinicCommunicationMethods;
 

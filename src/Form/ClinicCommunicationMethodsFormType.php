@@ -24,9 +24,12 @@ class ClinicCommunicationMethodsFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('communicationMethod', CommunicationMethodsFormType::class, [
-                'label' => 'Clinic Name*',
+            ->add('communicationMethod', CommunicationMethodsFormType::class)
+            ->add('sendTo', TextType::class,[
                 'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ]
             ])
         ;
     }
@@ -34,7 +37,7 @@ class ClinicCommunicationMethodsFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => ClinicCommunicationMethods::class,
+            'data_class' => ClinicCommunicationMethods::class
         ]);
     }
 }
