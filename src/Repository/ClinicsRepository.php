@@ -33,6 +33,17 @@ class ClinicsRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
+    public function getClinicCommunicationMethods($clinic_id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->select('c,cm')
+            ->Join('c.clinicCommunicationMethods', 'cm')
+            ->andWhere('c.id = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
+            ->andWhere('cm.isActive = 1');
+        return $queryBuilder->getQuery()->getResult();
+    }
+
     public function getClinicDefaultAddresses($clinic_id, $address_id)
     {
         $sql = "

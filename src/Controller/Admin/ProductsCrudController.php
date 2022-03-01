@@ -43,7 +43,7 @@ class ProductsCrudController extends AbstractCrudController
             BooleanField::new('isPublished', 'Published')->setColumns(12),
             TextField::new('name', 'Name')->setColumns(6),
             AssociationField::new('productsSpecies', 'Species')
-                ->setColumns(6)->setRequired(true),
+                ->setColumns(6)->setRequired(true)->onlyOnForms(),
             AssociationField::new('category', 'Category')
                 ->setRequired(true)->setColumns(6),
             AssociationField::new('subCategory', 'Sub Category')
@@ -68,6 +68,10 @@ class ProductsCrudController extends AbstractCrudController
                 ->setUploadDir('/public/images/products')
                 ->setUploadedFileNamePattern('[contenthash]')->setColumns(6),
             IntegerField::new('stockCount', 'Stock')->setColumns(6),
+            ChoiceField::new('packType', 'Package Type')->setChoices([
+                'Bottle' => 'Bottle',
+                'Gel' => 'Del',
+            ])->onlyOnForms(),
             TextareaField::new('description', 'Description')
                 ->setFormType(CKEditorType::class)->onlyOnForms()->setColumns(12),
             DateTimeField::new('modified', 'Modified')->onlyOnIndex(),

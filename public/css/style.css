@@ -153,6 +153,10 @@ label {
     font-size: 70px;
 }
 
+.list-width {
+    width: calc(100% - 24px);
+}
+
 .t-header {
     background: #e3e5e6;
     color: #40525b;
@@ -193,3 +197,8 @@ label {
     margin-right: 24px;
 }
 
+.btn-primary:disabled {
+    color: #414d54;
+    background-color: #9ed4d9;
+    border-color: #9ed4d9;
+}
