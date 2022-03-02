@@ -159,6 +159,7 @@ class ClinicsController extends AbstractController
     #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
     public function clinicsDashboardAction(Request $request): Response
     {
+        //dd($this->get('security.token_storage')->getToken());
         if($this->get('security.token_storage')->getToken() == null){
 
             $this->addFlash('danger', 'Your session expired due to inactivity, please login.');

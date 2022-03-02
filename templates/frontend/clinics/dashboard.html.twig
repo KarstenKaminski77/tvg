@@ -700,10 +700,10 @@
 
         $(document).ready(function(){
 
-            var account_settings = $('#account_settings');
-            var users = $('#users');
-            var addresses = $('#addresses');
-            var communication_methods = $('#communication_methods');
+            let account_settings = $('#account_settings');
+            let users = $('#users');
+            let addresses = $('#addresses');
+            let communication_methods = $('#communication_methods');
 
             users.hide();
             addresses.hide();
@@ -724,13 +724,13 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var clinic_name = $('#clinic_name').val()
-                var clinic_email = $('#clinic_email').val();
-                var clinic_telephone = $('#clinic_telephone').val();
-                var error_clinic_name = $('#error_clinic_name');
-                var error_clinic_email = $('#error_clinic_email');
-                var error_clinic_telephone = $('#error_clinic_telephone');
+                let is_valid = true;
+                let clinic_name = $('#clinic_name').val()
+                let clinic_email = $('#clinic_email').val();
+                let clinic_telephone = $('#clinic_telephone').val();
+                let error_clinic_name = $('#error_clinic_name');
+                let error_clinic_email = $('#error_clinic_email');
+                let error_clinic_telephone = $('#error_clinic_telephone');
 
                 error_clinic_name.hide();
                 error_clinic_email.hide();
@@ -756,7 +756,7 @@
 
                 if(is_valid == true){
 
-                    var data = new FormData(this);
+                    let data = new FormData(this);
 
                     $.ajax({
                         url: "{{ path('clinic_update_company_information') }}",
@@ -888,15 +888,15 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var user_first_name = $('#user_first_name').val()
-                var user_last_name = $('#user_last_name').val();
-                var user_email = $('#user_email').val();
-                var user_telephone = $('#user_telephone').val();
-                var error_user_first_name = $('#error_user_first_name');
-                var error_user_last_name = $('#error_user_last_name');
-                var error_user_email = $('#error_user_email');
-                var error_user_telephone = $('#error_user_telephone');
+                let is_valid = true;
+                let user_first_name = $('#user_first_name').val()
+                let user_last_name = $('#user_last_name').val();
+                let user_email = $('#user_email').val();
+                let user_telephone = $('#user_telephone').val();
+                let error_user_first_name = $('#error_user_first_name');
+                let error_user_last_name = $('#error_user_last_name');
+                let error_user_email = $('#error_user_email');
+                let error_user_telephone = $('#error_user_telephone');
 
                 error_user_first_name.hide();
                 error_user_last_name.hide();
@@ -929,7 +929,7 @@
 
                 if(is_valid == true){
 
-                    var data = new FormData(this);
+                    let data = new FormData(this);
 
                     $('#create_user').empty().attr('disabled', true).append('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> PROCESSING...');
 
@@ -1015,7 +1015,7 @@
                 $('#address_modal_label').empty().append('Create An Address');
             });
 
-            var address_id;
+            let address_id;
 
             {% for address in clinic.addresses %}
                 {% if address.isActive == 1 %}
@@ -1131,19 +1131,19 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var clinic_name = $('#address_clinic_name').val()
-                var telephone = $('#address_telephone').val();
-                var address_line_1 = $('#address_line_1').val();
-                var postal_code = $('#address_postal_code').val();
-                var city = $('#address_city').val();
-                var state = $('#address_state').val();
-                var error_clinic_name = $('#error_address_clinic_name');
-                var error_telephone = $('#error_address_telephone');
-                var error_address_line_1 = $('#error_address_line_1');
-                var error_postal_code = $('#error_address_postal_code');
-                var error_city = $('#error_address_city');
-                var error_state = $('#error_address_state');
+                let is_valid = true;
+                let clinic_name = $('#address_clinic_name').val()
+                let telephone = $('#address_telephone').val();
+                let address_line_1 = $('#address_line_1').val();
+                let postal_code = $('#address_postal_code').val();
+                let city = $('#address_city').val();
+                let state = $('#address_state').val();
+                let error_clinic_name = $('#error_address_clinic_name');
+                let error_telephone = $('#error_address_telephone');
+                let error_address_line_1 = $('#error_address_line_1');
+                let error_postal_code = $('#error_address_postal_code');
+                let error_city = $('#error_address_city');
+                let error_state = $('#error_address_state');
 
                 error_clinic_name.hide();
                 error_telephone.hide();
@@ -1190,7 +1190,7 @@
 
                 if(is_valid == true){
 
-                    var data = new FormData(this);
+                    let data = new FormData(this);
 
                     $.ajax({
                         url: "{{ path('clinic_addresses') }}",
@@ -1259,7 +1259,7 @@
                 $('#error_communication_method').hide();
                 $('#error_send_to').hide();
 
-                var communication_method = $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val();
+                let communication_method = $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val();
 
                 if(communication_method == 0 || communication_method == 1){
 
@@ -1315,7 +1315,7 @@
                     }
                 });
 
-                var communication_method = '{{ method.communicationMethod.id }}';
+                let communication_method = '{{ method.communicationMethod.id }}';
 
                 if(communication_method == 0 || communication_method == 1){
 
@@ -1350,7 +1350,7 @@
 
             $(document).on('click', '#method_delete_{{ method.id }}', function () {
 
-                var method_id = {{ method.id }};
+                let method_id = {{ method.id }};
 
                 $(document).on('click', '#delete_method', function () {
 
@@ -1398,11 +1398,11 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var communication_method = $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val();
-                var send_to = $('#send_to').val();
-                var error_communication_method = $('#error_communication_method');
-                var error_send_to = $('#error_send_to');
+                let is_valid = true;
+                let communication_method = $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val();
+                let send_to = $('#send_to').val();
+                let error_communication_method = $('#error_communication_method');
+                let error_send_to = $('#error_send_to');
 
                 error_communication_method.hide();
                 error_send_to.hide()
@@ -1421,7 +1421,7 @@
 
                 if(is_valid == true){
 
-                    var data = new FormData(this);
+                    let data = new FormData(this);
 
                     $.ajax({
                         url: "{{ path('communication_methods') }}",
@@ -1476,7 +1476,7 @@
             {# Species #}
             $(document).on('click', '#icon_canine', function (){
 
-                var checkbox_canine = $('#species_canine');
+                let checkbox_canine = $('#species_canine');
 
                 if ($('#species_canine').is(':checked')) {
 
@@ -1492,7 +1492,7 @@
 
             $(document).on('click', '#icon_feline', function (){
 
-                var checkbox_feline = $('#species_feline');
+                let checkbox_feline = $('#species_feline');
 
                 if ($('#species_feline').is(':checked')) {
 
@@ -1508,7 +1508,7 @@
 
             $(document).on('click', '#icon_equine', function (){
 
-                var checkbox_equine = $('#species_equine');
+                let checkbox_equine = $('#species_equine');
 
                 if ($('#species_equine').is(':checked')) {
 
@@ -1524,7 +1524,7 @@
 
             $(document).on('click', '#icon_bovine', function (){
 
-                var checkbox_bovine = $('#species_bovine');
+                let checkbox_bovine = $('#species_bovine');
 
                 if ($('#species_bovine').is(':checked')) {
 
@@ -1540,7 +1540,7 @@
 
             $(document).on('click', '#icon_porcine', function (){
 
-                var checkbox_porcine = $('#species_porcine');
+                let checkbox_porcine = $('#species_porcine');
 
                 if ($('#species_porcine').is(':checked')) {
 
@@ -1556,7 +1556,7 @@
 
             $(document).on('click', '#icon_exotic', function (){
 
-                var checkbox_exotic = $('#species_exotic');
+                let checkbox_exotic = $('#species_exotic');
 
                 if ($('#species_exotic').is(':checked')) {
 

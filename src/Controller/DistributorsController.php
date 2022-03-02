@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\Addresses;
 use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
+use App\Entity\DistributorUsers;
 use App\Entity\Products;
 use App\Form\AddressesFormType;
 use App\Form\DistributorFormType;
 use App\Form\DistributorProductsFormType;
+use App\Form\DistributorUsersFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,7 +40,7 @@ class DistributorsController extends AbstractController
         ]);
     }
 
-    #[Route('/distributor/register', name: 'distributor_reg')]
+    #[Route('/distributors/register', name: 'distributor_reg')]
     public function distributorReg(Request $request): Response
     {
         $form = $this->createRegisterForm();
@@ -79,27 +81,41 @@ class DistributorsController extends AbstractController
 
         if($distributor == null) {
 
-            $distributor = new Distributors();
+            $distributors = new Distributors();
 
             $plain_text_pwd = $this->generatePassword();
-            $hashed_pwd = $passwordHasher->hashPassword($distributor, $plain_text_pwd);
 
             if (!empty($plain_text_pwd)) {
 
-                $distributor->setDistributorName($data->get('distributor_name'));
-                $distributor->setFirstName($data->get('first_name'));
-                $distributor->setLastName($data->get('last_name'));
-                $distributor->setEmail($data->get('email'));
-                $distributor->setTelephone($data->get('telephone'));
-                $distributor->setRoles(['ROLE_USER']);
-                $distributor->setPassword($hashed_pwd);
+                $distributors->setDistributorName($data->get('distributor_name'));
+                $distributors->setEmail($data->get('email'));
+                $distributors->setTelephone($data->get('telephone'));
 
-                $this->em->persist($distributor);
+                $this->em->persist($distributors);
+                $this->em->flush();
+
+                // Create user
+                $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $data->get('email')]);
+                $distributor_users = new DistributorUsers();
+
+                $hashed_pwd = $passwordHasher->hashPassword($distributor_users, $plain_text_pwd);
+
+                $distributor_users->setDistributor($distributor);
+                $distributor_users->setFirstName($data->get('first_name'));
+                $distributor_users->setLastName($data->get('last_name'));
+                $distributor_users->setPosition($data->get('position'));
+                $distributor_users->setEmail($data->get('email'));
+                $distributor_users->setTelephone($data->get('telephone'));
+                $distributor_users->setRoles(['ROLE_USER']);
+                $distributor_users->setPassword($hashed_pwd);
+                $distributor_users->setIsPrimary(1);
+
+                $this->em->persist($distributor_users);
                 $this->em->flush();
 
                 // Send Email
                 $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
-                $body .= '<tr><td colspan="2">Hi '. $distributor->getFirstName() .',</td></tr>';
+                $body .= '<tr><td colspan="2">Hi '. $data->get('first_name') .',</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
                 $body .= '<tr><td colspan="2">Please use the credentials below login to the TVG Backend.</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
@@ -109,7 +125,7 @@ class DistributorsController extends AbstractController
                 $body .= '</tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>Username: </b></td>';
-                $body .= '    <td>'. $distributor->getUsername() .'</td>';
+                $body .= '    <td>'. $data->get('email') .'</td>';
                 $body .= '</tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>Password: </b></td>';
@@ -146,18 +162,136 @@ class DistributorsController extends AbstractController
             return $this->redirectToRoute('distributor_login');
         }
 
-        $user_name = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
-        $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $user_name]);
+        $distributor = $this->getUser()->getDistributor();
+        $user = $this->getUser();
         $form = $this->createRegisterForm();
         $inventoryForm = $this->createDistributorInventoryForm();
         $addressForm = $this->createDistributorAddressesForm();
+        $user_form = $this->createDistributorUserForm()->createView();
 
         return $this->render('frontend/distributors/dashboard.html.twig',[
             'distributor' => $distributor,
+            'user' => $user,
             'form' => $form->createView(),
             'inventory_form' => $inventoryForm->createView(),
             'address_form' => $addressForm->createView(),
+            'user_form' => $user_form,
         ]);
+    }
+
+    #[Route('/distributors/get-user', name: 'distributor_get_user')]
+    public function distributorGetUserAction(Request $request): Response
+    {
+        $user = $this->em->getRepository(DistributorUsers::class)->find($request->request->get('id'));
+
+        $response = [
+
+            'id' => $user->getId(),
+            'first_name' => $user->getFirstName(),
+            'last_name' => $user->getLastName(),
+            'email' => $user->getEmail(),
+            'telephone' => $user->getTelephone(),
+            'position' => $user->getPosition(),
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/distributors/users', name: 'distributor_users')]
+    public function distributorUsersAction(Request $request, UserPasswordHasherInterface $passwordHasher, MailerInterface $mailer): Response
+    {
+        $data = $request->request->get('distributor_users_form');
+        $distributor = $this->get('security.token_storage')->getToken()->getUser()->getDistributor();
+        $user = $this->em->getRepository(DistributorUsers::class)->findBy(['email' => $data['email']]);
+        $user_id = $data['user_id'];
+
+        if(count($user) > 0){
+
+            $response = [
+                'response' => false
+            ];
+
+            return new JsonResponse($response);
+        }
+
+        if($user_id == 0){
+
+            $distributor_user = new DistributorUsers();
+
+            $plain_text_pwd = $this->generatePassword();
+
+            if (!empty($plain_text_pwd)) {
+
+                $hashed_pwd = $passwordHasher->hashPassword($distributor_user, $plain_text_pwd);
+
+                $distributor_user->setRoles(['ROLE_USER']);
+                $distributor_user->setPassword($hashed_pwd);
+
+                // Send Email
+                $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
+                $body .= '<tr><td colspan="2">Hi '. $data['firstName'] .',</td></tr>';
+                $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+                $body .= '<tr><td colspan="2">Please use the credentials below login to the TVG Backend.</td></tr>';
+                $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>URL: </b></td>';
+                $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/distributors/login">https://'. $_SERVER['HTTP_HOST'] .'/distributors/login</a></td>';
+                $body .= '</tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>Username: </b></td>';
+                $body .= '    <td>'. $data['email'] .'</td>';
+                $body .= '</tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>Password: </b></td>';
+                $body .= '    <td>'. $plain_text_pwd .'</td>';
+                $body .= '</tr>';
+                $body .= '</table>';
+
+                $email = (new Email())
+                    ->from($this->getParameter('app.email_from'))
+                    ->addTo($data['email'])
+                    ->subject('TVG Login Credentials')
+                    ->html($body);
+
+                $mailer->send($email);
+            }
+
+            $message = '<b><i class="fas fa-check-circle"></i> User details successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        } else {
+
+            $distributor_user = $this->em->getRepository(DistributorUsers::class)->find($user_id);
+
+            $distributor_user->setIsPrimary(0);
+
+            $message = '<b><i class="fas fa-check-circle"></i> User successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        }
+
+        $distributor_user->setDistributor($distributor);
+        $distributor_user->setFirstName($data['firstName']);
+        $distributor_user->setLastName($data['lastName']);
+        $distributor_user->setEmail($data['email']);
+        $distributor_user->setTelephone($data['telephone']);
+        $distributor_user->setPosition($data['position']);
+        $distributor_user->setIsPrimary(0);
+
+        $this->em->persist($distributor_user);
+        $this->em->flush();
+
+        $response = [
+
+            'response' => true,
+            'message' => $message
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    public function createDistributorUserForm()
+    {
+        $distributor_users = new DistributorUsers();
+
+        return $this->createForm(DistributorUsersFormType::class, $distributor_users);
     }
 
     #[Route('/distributor/update/personal-information', name: 'distributor_update_personal_information')]
@@ -187,24 +321,62 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/distributors/users-refresh', name: 'distributor_refresh_users')]
+    public function distributorRefreshUsersAction(Request $request): Response
+    {
+        $distributor_id = $this->get('security.token_storage')->getToken()->getUser()->getDistributor()->getId();
+        $users = $this->em->getRepository(Distributors::class)->getDistributorUsers($distributor_id);
+
+        $html = '';
+
+        foreach($users[0]->getDistributorUsers() as $user){
+
+            $html .= '<div class="list-width">
+                       <div class="row t-row">
+                           <div class="col-md-2 t-cell" id="string_user_first_name_'. $user->getId() .'">
+                               '. $user->getFirstName() .'
+                           </div>
+                           <div class="col-md-2 t-cell" id="string_user_last_name_'. $user->getId() .'">
+                               '. $user->getLastName() .'
+                           </div>
+                           <div class="col-md-2 t-cell" id="string_user_email_'. $user->getId() .'">
+                               '. $user->getEmail() .'
+                           </div>
+                           <div class="col-md-2 t-cell" id="string_user_telephone_'. $user->getId() .'">
+                               '. $user->getEmail() .'
+                           </div>
+                           <div class="col-md-2 t-cell" id="string_user_position_'. $user->getId() .'">
+                               '. $user->getPosition() .'
+                           </div>
+                           <div class="col-md-2 t-cell">
+                               <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_{{ users.id }}">
+                                   <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                               </a>
+                               <a href="" class="delete-icon float-end" data-bs-toggle="modal"
+                                  data-value="{{ users.id }}" data-bs-target="#modal_user_delete" id="user_delete_{{ users.id }}">
+                                   <i class="fa-solid fa-trash-can"></i>
+                               </a>
+                           </div>
+                       </div>
+                   </div>';
+        }
+
+        return new JsonResponse($html);
+    }
+
     #[Route('/distributor/update/company-information', name: 'distributor_update_company_information')]
     public function distributorUpdateCompanyInformationAction(Request $request): Response
     {
         $data = $request->request->get('distributor_form');
-        $username = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
-        $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $username]);
+        $distributor = $this->getUser()->getDistributor();
+        $logo = '';
 
         if($distributor != null) {
 
-            if(!empty($data['distributorName'])) {
-
-                $distributor->setDistributorName($data['distributorName']);
-            }
-
-            if(!empty($data['website'])) {
-
-                $distributor->setWebsite($data['website']);
-            }
+            $distributor->setDistributorName($data['distributorName']);
+            $distributor->setTelephone($data['telephone']);
+            $distributor->setEmail($data['email']);
+            $distributor->setWebsite($data['website']);
 
             if(!empty($_FILES['distributor_form']['name']['logo'])) {
 
@@ -215,18 +387,24 @@ class DistributorsController extends AbstractController
                 if (move_uploaded_file($_FILES['distributor_form']['tmp_name']['logo'], $target_file)) {
 
                     $distributor->setLogo($file);
+                    $logo = $file;
                 }
             }
 
             $this->em->persist($distributor);
             $this->em->flush();
 
-            $response = '<b><i class="fa-solid fa-circle-check"></i></i></b> Company details successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $message = '<b><i class="fa-solid fa-circle-check"></i></i></b> Company details successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         } else {
 
-            $response = '<b><i class="fas fa-check-circle"></i> Personal details successfully updated.';
+            $message = '<b><i class="fas fa-check-circle"></i> Personal details successfully updated.';
         }
+
+        $response = [
+            'message' => $message,
+            'logo' => $logo,
+        ];
 
         return new JsonResponse($response);
     }
@@ -235,8 +413,7 @@ class DistributorsController extends AbstractController
     public function distributorUpdateAboutUsAction(Request $request): Response
     {
         $data = $request->request;
-        $username = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
-        $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $username]);
+        $distributor = $this->getUser()->getDistributor();
 
         if($distributor != null) {
 
@@ -377,16 +554,17 @@ class DistributorsController extends AbstractController
             $response['expiry_date'] = '';
             $response['tax_exempt'] = 0;
 
-            $distributor_product = $this->em->getRepository(DistributorProducts::class)->findOneBy(['distributor' => $distributor->getId()]);
+            $distributor_product = $this->em->getRepository(Distributors::class)
+                ->getDistributorProduct($distributor->getId(), $request->get('product_id'));
 
-            if($distributor_product != null){
+            if(!empty($distributor_product)){
 
-                $response['sku'] = $distributor_product->getSku();
-                $response['distributor_no'] = $distributor_product->getDistributorNo();
-                $response['unit_price'] = $distributor_product->getUnitPrice();
-                $response['stock_count'] = $distributor_product->getStockCount();
-                $response['expiry_date'] = $distributor_product->getExpiryDate()->format('Y-m-d');
-                $response['tax_exempt'] = $distributor_product->getTaxExempt();
+                $response['sku'] = $distributor_product[0]['distributorProducts'][0]['sku'];
+                $response['distributor_no'] = $distributor_product[0]['distributorProducts'][0]['distributorNo'];
+                $response['unit_price'] = $distributor_product[0]['distributorProducts'][0]['unitPrice'];
+                $response['stock_count'] = $distributor_product[0]['distributorProducts'][0]['stockCount'];
+                $response['expiry_date'] = $distributor_product[0]['distributorProducts'][0]['expiryDate']->format('Y-m-d');
+                $response['tax_exempt'] = $distributor_product[0]['distributorProducts'][0]['taxExempt'];
             }
 
         } else {
@@ -426,6 +604,7 @@ class DistributorsController extends AbstractController
             $distributor_products->setUnitPrice($data['unitPrice']);
             $distributor_products->setStockCount($data['stockCount']);
             $distributor_products->setExpiryDate(\DateTime::createFromFormat('Y-m-d', $data['expiryDate']));
+            $distributor_products->setTaxExempt($data['taxExempt']);
 
             $tax_exempt = 0;
 
@@ -439,12 +618,34 @@ class DistributorsController extends AbstractController
             $this->em->persist($distributor_products);
             $this->em->flush();
 
+            // Update parent stock level
+            $stock_count = $this->em->getRepository(DistributorProducts::class)->getProductStockCount($product->getId());
+
+            $product->setStockCount($stock_count[0][1]);
+
+            $this->em->persist($product);
+            $this->em->flush();
+
             $response = '<b><i class="fa-solid fa-circle-check"></i></i></b> '. $product->getName() .' successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         } else {
 
             $response = 'An error occurred';
         }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/distributors/user/delete', name: 'distributor_user_delete')]
+    public function distributorDeleteUser(Request $request): Response
+    {
+        $user_id = $request->request->get('id');
+        $user = $this->em->getRepository(DistributorUsers::class)->find($user_id);
+
+        $this->em->remove($user);
+        $this->em->flush();
+
+        $response = '<b><i class="fas fa-check-circle"></i> User successfully deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         return new JsonResponse($response);
     }

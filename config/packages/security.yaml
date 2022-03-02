@@ -15,7 +15,7 @@ security:
                 property: email
         app_distributor_provider:
             entity:
-                class: App\Entity\Distributors
+                class: App\Entity\DistributorUsers
                 property: email
         app_clinic_provider:
             entity:
@@ -26,8 +26,10 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            pattern: ^/admin
             form_login:
                 login_path: app_login
+                check_path: app_login
             #pattern: ^/login
             access_denied_url: /login
             lazy: true
@@ -39,8 +41,10 @@ security:
                 # where to redirect after logout
                 target: '/login'
         clinic:
+            pattern: ^/clinics
             form_login:
                 login_path: clinic_login
+                check_path: clinic_login
             access_denied_url: /clinics/login
             lazy: true
             provider: app_clinic_provider
@@ -50,6 +54,20 @@ security:
                 path: app_logout
                 # where to redirect after logout
                 target: '/clinics/login'
+        distributor:
+            pattern: ^/distributors
+            form_login:
+                login_path: distributor_login
+                check_path: distributor_login
+            access_denied_url: /distributors/login
+            lazy: true
+            provider: app_distributor_provider
+            custom_authenticator: App\Security\DistributorsAuthenticator
+            entry_point: App\Security\DistributorsAuthenticator
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                target: '/distributors/login'
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -60,7 +78,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/clinics/dashboard, roles: ROLE_USER }
+        - { path: ^/clinics/dashboard, roles: ROLE_CLINIC }
+        - { path: ^/clinics/inventory, roles: ROLE_CLINIC }
         - { path: ^/distributors/dashboard, roles: ROLE_USER }
         - { path: ^/admin, roles: ROLE_ADMIN }
 

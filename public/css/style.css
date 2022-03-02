@@ -6,6 +6,26 @@ body, form-control {
     font-size: 0.9rem;
 }
 
+.navbar .megamenu{ padding: 1rem; }
+/* ============ desktop view ============ */
+@media all and (min-width: 992px) {
+
+    .navbar .has-megamenu{position:static!important;}
+    .navbar .megamenu{left:0; right:0; width:100%; margin-top:0;  }
+
+}
+/* ============ desktop view .end// ============ */
+
+/* ============ mobile view ============ */
+@media(max-width: 991px){
+    .navbar.fixed-top .navbar-collapse, .navbar.sticky-top .navbar-collapse{
+        overflow-y: auto;
+        max-height: 90vh;
+        margin-top:10px;
+    }
+}
+/* ============ mobile view .end// ============ */
+
 h1,h2,h3,h4,h5,h6 {
     color: #555a5f;
     text-transform: capitalize;
@@ -49,10 +69,28 @@ select:-webkit-autofill:focus {
 body {
     background: none !important;
 }
+
+.form-control {
+    color: #464646cc;
+}
+
+.radio-label {
+    margin-top: 10px;
+}
+
+.radio-text {
+    color: #464646cc !important;
+    font-size: 1rem !important;
+}
+
 .form-control:focus {
     border: solid 1px #7796a8;
     outline: none;
     box-shadow: none;
+}
+
+.input-group-text {
+    color: #666666;
 }
 
 .btn-primary {
@@ -122,7 +160,7 @@ label {
 
 #product_list li{padding: 10px; background: #f0f0f0; border-bottom: #bbb9b9 1px solid;}
 
-#product_list li:hover{background:#ece3d2;cursor: pointer;}
+#product_list li:hover{background:#f1faff;cursor: pointer;}
 
 #suggestion_field {
     position: relative;
@@ -165,6 +203,12 @@ label {
 
 .t-cell {
     padding: 8px;
+    color: #464646cc;
+}
+
+.t-row-header {
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 .t-row {
@@ -201,4 +245,29 @@ label {
     color: #414d54;
     background-color: #9ed4d9;
     border-color: #9ed4d9;
+}
+
+.btn-check:focus+.btn-primary, .btn-primary:focus {
+    box-shadow: none;
+}
+
+.btn-check:active+.btn-primary:focus, .btn-check:checked+.btn-primary:focus, .btn-primary.active:focus, .btn-primary:active:focus, .show>.btn-primary.dropdown-toggle:focus {
+    box-shadow: none;
+}
+
+.form-check-input:checked {
+    background-color: #7796a8;
+    border-color: #7796a8;
+}
+
+.form-check-input:focus {
+    border-color: #7796a8;
+    outline: 0;
+    box-shadow: none;
+}
+
+.img-icon {
+    font-size: 40px;
+    color: #7796a8;
+    margin-top: 19px;
 }

@@ -21,14 +21,6 @@ class DistributorFormType extends AbstractType
                 'label' => 'Company Name',
                 'required' => false,
             ])
-            ->add('firstName', TextType::class, [
-                'label' => 'First Name',
-                'required' => false,
-            ])
-            ->add('lastName', TextType::class, [
-                'label' => 'Last Name',
-                'required' => false,
-            ])
             ->add('logo', FileType::class, [
                 'label' => 'Logo',
                 'required' => false,
@@ -43,10 +35,6 @@ class DistributorFormType extends AbstractType
             ])
             ->add('website', TextType::class, [
                 'label' => 'Website',
-                'required' => false,
-            ])
-            ->add('position', TextType::class, [
-                'label' => 'Position',
                 'required' => false,
             ])
             ->add('about', CKEditorType::class, [
@@ -84,30 +72,10 @@ class DistributorFormType extends AbstractType
                 ]
             ])
             ->add(
-                'roles',
-                ChoiceType::class,
-                [
-                    'choices' => [
-                        'Accounts' => 'ROLE_USER_',
-                        'Orders' => 'ROLE_ORDERS'
-                    ],
-                    'data' => 'No',
-                    'placeholder' => false,
-                    'expanded' => true,
-                ]
-            )
-            ->add(
                 'logo',
                 FileType::class,
                 [
                     'required' => false,
-                ]
-            )
-            ->add(
-                'password',
-                PasswordType::class,[
-                    'label' => 'Old Password',
-                    'required' => false
                 ]
             )
         ;
