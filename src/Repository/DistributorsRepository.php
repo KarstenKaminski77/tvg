@@ -19,32 +19,25 @@ class DistributorsRepository extends ServiceEntityRepository
         parent::__construct($registry, Distributors::class);
     }
 
-    // /**
-    //  * @return Distributors[] Returns an array of Distributors objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getDistributorProduct($distributor_id, $product_id): array
     {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('d.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('d,dp')
+            ->Join('d.distributorProducts', 'dp')
+            ->andWhere('dp.product = :product_id')
+            ->setParameter('product_id', $product_id)
+            ->andWhere('dp.distributor = :distributor_id ')
+            ->setParameter('distributor_id', $distributor_id);
+        return $queryBuilder->getQuery()->getArrayResult();
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Distributors
+    public function getDistributorUsers($distributor_id): array
     {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('d,du')
+            ->Join('d.distributorUsers', 'du')
+            ->where('d.id = :distributor_id')
+            ->setParameter('distributor_id', $distributor_id);
+        return $queryBuilder->getQuery()->getResult();
     }
-    */
 }

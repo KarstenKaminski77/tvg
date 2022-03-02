@@ -11,82 +11,6 @@
             <div class="col-12 mb-3 mt-5">
                 <h3>Account & Settings</h3>
             </div>
-            <div class="col-12 mb-3 mt-2">
-                <h5>PersonaL Information</h5>
-            </div>
-            {{form_start(form, {'name': 'form_personal_information', 'attr': {'id': 'form_personal_information'}})}}
-            <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
-
-            <div class="row mb-3">
-
-                {# First name #}
-                <div class="col-12 col-sm-6">
-                    <label>
-                        First Name
-                    </label>
-                    {{ form_widget(form.firstName,{id: 'first_name', 'attr': {
-                        'class': 'form-control',
-                        'placeholder': 'First Name*',
-                        'value': distributor.firstName
-                    }}) }}
-                    <div class="hidden_msg" id="error_first_name">
-                        Required Field
-                    </div>
-                </div>
-
-                {# Last name #}
-                <div class="col-12 col-sm-6">
-                    <label>
-                        Last Name
-                    </label>
-                    {{ form_widget(form.lastName,{id: 'last_name', 'attr': {
-                        'class': 'form-control',
-                        'placeholder': 'Last Name*',
-                        'value': distributor.lastName
-                    }}) }}
-                    <div class="hidden_msg" id="error_last_name">
-                        Required Field
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-
-                {# Telephone #}
-                <div class="col-12 col-sm-6">
-                    <label>
-                        Contact Number
-                    </label>
-                    {{ form_widget(form.telephone,{id: 'telephone', 'attr': {
-                        'class': 'form-control',
-                        'placeholder': 'Telephone*',
-                        'value': distributor.telephone
-                    }}) }}
-                    <div class="hidden_msg" id="error_telephone">
-                        Required Field
-                    </div>
-                </div>
-
-                {# position #}
-                <div class="col-12 col-sm-6">
-                    <label>
-                        Position (i.e. Inventory Manager, Doctor)
-                    </label>
-                    {{ form_widget(form.position,{id: 'position', 'attr': {
-                        'class': 'form-control',
-                        'placeholder': 'Position*',
-                        'value': distributor.position
-                    }}) }}
-                    <div class="hidden_msg" id="error_position">
-                        Required Field
-                    </div>
-                </div>
-
-                <div class="col-12 mt-3 mb-5">
-                    <button id="btn_personal_information" type="submit" class="btn btn-primary w-100">UPDATE PERSONAL INFORMATION</button>
-                </div>
-            </div>
-            {{ form_end(form, {render_rest: false}) }}
 
             {{form_start(form, {'name': 'form_company_information', 'attr': {'id': 'form_company_information'}})}}
                 <div class="col-12 mb-3 mt-2">
@@ -115,18 +39,60 @@
                         <label>
                             Website
                         </label>
-                        {{ form_widget(form.website,{id: 'website', 'attr': {
-                            'class': 'form-control',
-                            'placeholder': 'Website',
-                            'value': distributor.website
-                        }}) }}
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">https://</span>
+                            {{ form_widget(form.website,{id: 'website', 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Website',
+                                'value': distributor.website
+                            }}) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# Email #}
+                    <div class="col-12 col-sm-6">
+                        <label>
+                            Email Address
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-phone"></i></span>
+                            {{ form_widget(form.email,{id: 'email', 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Email*',
+                                'value': distributor.email
+                            }}) }}
+                        </div>
+                        <div class="hidden_msg" id="error_email">
+                            Required Field
+                        </div>
+                    </div>
+
+                    {# Telephone #}
+                    <div class="col-12 col-sm-6">
+                        <label>
+                            Email Address
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">@</span>
+                            {{ form_widget(form.telephone,{id: 'telephone', 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Telephone*',
+                                'value': distributor.telephone
+                            }}) }}
+                        </div>
+                        <div class="hidden_msg" id="error_telephone">
+                            Required Field
+                        </div>
                     </div>
                 </div>
 
                 <div class="row mb-3">
 
                     {# Logo #}
-                    <div class="col-12">
+                    <div class="col-12" id="logo_file">
                         <label>
                             Logo
                         </label>
@@ -136,6 +102,11 @@
                             'value': distributor.logo
                         }}) }}
                     </div>
+                    <div class="col-1 hidden" id="logo_col">
+                        <a href="" data-bs-toggle="modal" data-bs-target="#modal_logo">
+                            <i class="fa-solid fa-image img-icon float-end"></i>
+                        </a>
+                    </div>
                 </div>
 
                 <div class="col-12 mt-3 mb-5">
@@ -143,90 +114,24 @@
                 </div>
             {{ form_end(form, {render_rest: false}) }}
 
-            <form id="form_password" method="post">
-                <div class="col-12 mb-3 mt-2">
-                    <h5>Update Password</h5>
-                    <span class="info">
-                        If you need to update your password, you may do so using the form below. Your new password must be at least 6 characters.
-                    </span>
-                </div>
-
-                <div class="row mb-3">
-
-                    {# Password #}
-                    <div class="col-12">
-                        <label>
-                            Old Password
-                        </label>
-                        <input type="password" class="form-control" id="old_password" name="old_password">
-                        <div class="hidden_msg" id="error_password">
-                            Required Field
+            {# Modal Logo #}
+            <div class="modal fade" id="modal_logo" tabindex="-1" aria-labelledby="product_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <input type="hidden" value="" name="product_id" id="product_id">
+                        <div class="modal-header" style="border: none; padding-bottom: 0">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" style="padding: 0">
+                            <div class="row">
+                                <div class="col-12 mb-0 text-center">
+                                    <img src="{{ asset('images/logos/' ~ distributor.logo) }}" id="logo_img" class="img-fluid">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="row mb-3">
-
-                    {# New password #}
-                    <div class="col-12 col-md-6">
-                        <label>
-                            New Password
-                        </label>
-                        <input type="password" class="form-control" id="new_password" name="new_password">
-                        <div class="hidden_msg" id="error_new_password">
-                            Required Field
-                        </div>
-                    </div>
-
-                    {# Old password #}
-                    <div class="col-12 col-md-6">
-                        <label>
-                            Repeat Password
-                        </label>
-                        <input type="password" class="form-control" id="repeat_password" name="repeat_password">
-                        <div class="hidden_msg" id="error_repeat_password">
-                            Required Field
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 mt-3 mb-5">
-                    <button id="btn_password" type="submit" class="btn btn-primary w-100">UPDATE PASSWORD</button>
-                </div>
-            </form>
-
-            {{form_start(form, {'attr': {'id': 'form'}})}}
-            <div class="col-12 mb-3 mt-2">
-                <h5>Update Email</h5>
-                <span class="info">
-                    If you need to update the email address associated with your account, you may do so using the form below.
-                    Your email address is used to log in and receive important Vetcove notifications. Your current password is
-                    required to change your email address.
-                </span>
             </div>
-
-            <div class="row mb-3">
-
-                {# Email #}
-                <div class="col-12">
-                    <label>
-                        Email Address
-                    </label>
-                    {{ form_widget(form.email,{id: 'email', 'attr': {
-                        'class': 'form-control',
-                        'placeholder': 'Email*',
-                        'value': distributor.email
-                    }}) }}
-                    <div class="hidden_msg" id="error_email">
-                        Required Field
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 mt-3 mb-5">
-                <button id="btn_email" type="submit" class="btn btn-primary w-100">UPDATE EMAIL ADDRESS</button>
-            </div>
-            {{ form_end(form, {render_rest: false}) }}
         </div>
         {# End Account & Settings #}
 
@@ -355,246 +260,398 @@
         {# End Sales Tax Policy #}
 
         {# Invenory / Distributor Products #}
-        <div class="row mb-3" id="inventory_search">
-            <div class="col-12 mb-3 mt-5">
-                <h3>Inventory</h3>
+        <div id="inventory">
+            <div class="row mb-3" id="inventory_search">
+                <div class="col-12 col-sm-6 mb-3 mt-5">
+                    <h3>Inventory</h3>
+                </div>
+                <div class="col-12 col-sm-6 mb-3 mt-5">
+                    <button type="button" id="inventory_clear" class="btn btn-primary float-end">
+                        <i class="fa-solid fa-circle-xmark me-2"></i>
+                        CLEAR SEARCH
+                    </button>
+                </div>
+                <div class="col-12 mb-3 mt-2">
+                    <h5 id="product_name">Manage Your Inventory</h5>
+                </div>
+                <div class="col-12 mb-4">
+                    <input type="text" id="search_field" class="form-control" placeholder="Inventory Item" autocomplete="off" />
+                    <div id="suggestion_field"></div>
+                </div>
             </div>
-            <div class="col-12 mb-3 mt-2">
-                <h5 id="product_name">Manage Your Inventory</h5>
-            </div>
-            <div class="col-12">
-                <input type="text" id="search_field" class="form-control" placeholder="Inventory Item" autocomplete="off" />
-                <div id="suggestion_field"></div>
-            </div>
-        </div>
-        <div class="row" id="inventor_item">
-            {{form_start(form, {'name': 'form_inventory_item', 'attr': {'id': 'form_inventory_item'}})}}
-                {{ form_widget(inventory_form.product,{'id': 'product_id'}) }}
-                {{ form_widget(inventory_form.distributor,{'id': 'distributor_id'}) }}
-                <div class="row mb-3">
+            <div class="row" id="inventory_item">
+                {{form_start(form, {'name': 'form_inventory_item', 'attr': {'id': 'form_inventory_item'}})}}
+                    {{ form_widget(inventory_form.product,{'id': 'product_id'}) }}
+                    {{ form_widget(inventory_form.distributor,{'id': 'distributor_id'}) }}
+                    <div class="row mb-3">
 
-                    {# SKU #}
-                    <div class="col-6">
-                        <label>
-                            #SKU
-                        </label>
-                        {{ form_widget(inventory_form.sku,{'id': 'sku', 'attr':{
-                            'class': 'form-control',
-                            'placeholder': 'SKU'
-                        }}) }}
-                        <div class="hidden_msg" id="error_sku">
-                            Required Field
+                        {# SKU #}
+                        <div class="col-6">
+                            <label>
+                                #SKU
+                            </label>
+                            {{ form_widget(inventory_form.sku,{'id': 'sku', 'attr':{
+                                'class': 'form-control',
+                                'placeholder': 'SKU'
+                            }}) }}
+                            <div class="hidden_msg" id="error_sku">
+                                Required Field
+                            </div>
+                        </div>
+
+                        {# Serial Number #}
+                        <div class="col-6">
+                            <label>
+                                Serial Number
+                            </label>
+                            {{ form_widget(inventory_form.distributorNo,{'id': 'distributor_no', 'attr':{
+                                'class': 'form-control',
+                                'placeholder': 'Serial Number'
+                            }}) }}
+                            <div class="hidden_msg" id="error_distributor_no">
+                                Required Field
+                            </div>
                         </div>
                     </div>
 
-                    {# Serial Number #}
-                    <div class="col-6">
-                        <label>
-                            Serial Number
-                        </label>
-                        {{ form_widget(inventory_form.distributorNo,{'id': 'distributor_no', 'attr':{
-                            'class': 'form-control',
-                            'placeholder': 'Serial Number'
-                        }}) }}
-                        <div class="hidden_msg" id="error_distributor_no">
-                            Required Field
+                    <div class="row mb-3">
+
+                        {# Unit Price #}
+                        <div class="col-6">
+                            <label>
+                                Unit Price
+                            </label>
+                            {{ form_widget(inventory_form.unitPrice,{'id': 'unit_price', 'attr':{
+                                'class': 'form-control',
+                                'placeholder': 'Unit Price'
+                            }}) }}
+                            <div class="hidden_msg" id="error_unit_price">
+                                Required Field
+                            </div>
+                        </div>
+
+                        {# Stock Level #}
+                        <div class="col-6">
+                            <label>
+                                Stock Level
+                            </label>
+                            {{ form_widget(inventory_form.stockCount,{'id': 'stock_count', 'attr':{
+                                'class': 'form-control',
+                                'placeholder': 'Stock Level'
+                            }}) }}
+                            <div class="hidden_msg" id="error_stock_count">
+                                Required Field
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="row mb-3">
+                    <div class="row mb-3">
 
-                    {# Unit Price #}
-                    <div class="col-6">
-                        <label>
-                            Unit Price
-                        </label>
-                        {{ form_widget(inventory_form.unitPrice,{'id': 'unit_price', 'attr':{
-                            'class': 'form-control',
-                            'placeholder': 'Unit Price'
-                        }}) }}
-                        <div class="hidden_msg" id="error_unit_price">
-                            Required Field
+                        {# Expiry Date #}
+                        <div class="col-6">
+                            <label>
+                                Expiry Date
+                            </label>
+                            {{ form_widget(inventory_form.expiryDate,{'id': 'expiry_date', 'attr':{
+                                'class': 'form-control',
+                            }}) }}
+                        </div>
+
+                        {# Tax Empt #}
+                        <div class="col-6">
+                            <label class="d-block">
+                                Tax Exempt
+                            </label>
+                            <div class="form-check form-check-inline radio-label">
+                                <input type="radio" class="form-check-input" id="taxExempt_1" name="distributor_products_form[taxExempt]" value="1">
+                                <label for="distributor_products_form_taxExempt_1" class="radio-text">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline radio-label">
+                                <input type="radio" class="form-check-input" id="taxExempt_0" name="distributor_products_form[taxExempt]" value="0">
+                                <label for="distributor_products_form_taxExempt_0" class="radio-text">No</label>
+                            </div>
                         </div>
                     </div>
 
-                    {# Stock Level #}
-                    <div class="col-6">
-                        <label>
-                            Stock Level
-                        </label>
-                        {{ form_widget(inventory_form.stockCount,{'id': 'stock_count', 'attr':{
-                            'class': 'form-control',
-                            'placeholder': 'Stock Level'
-                        }}) }}
-                        <div class="hidden_msg" id="error_stock_count">
-                            Required Field
+                    <div class="row mb-3">
+                        <div class="col-12 mt-3 mb-5">
+                            <button id="btn_inventory" type="submit" class="btn btn-primary w-100"></button>
                         </div>
                     </div>
-                </div>
-
-                <div class="row mb-3">
-
-                    {# Expiry Date #}
-                    <div class="col-6">
-                        <label>
-                            Expiry Date
-                        </label>
-                        {{ form_widget(inventory_form.expiryDate,{'id': 'expiry_date', 'attr':{
-                            'class': 'form-control',
-                        }}) }}
-                    </div>
-
-                    {# Tax Empt #}
-                    <div class="col-6">
-                        <label>
-                            Expiry Date
-                        </label>
-                        {{ form_widget(inventory_form.taxExempt,{'id': 'tax_exempt', 'attr':{
-                            'class': 'radio',
-                        }}) }}
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-12 mt-3 mb-5">
-                        <button id="btn_inventory" type="submit" class="btn btn-primary w-100"></button>
-                    </div>
-                </div>
-            {{ form_end(form, {render_rest: false}) }}
-        </div>
-        {# End Invenory / Distributor Products #}
-
-        {# Addresses #}
-        <div class="row" id="addresses">
-            <div class="col-12 mb-3 mt-5">
-                <h3>Manage Shipping Addresses</h3>
+                {{ form_end(form, {render_rest: false}) }}
             </div>
-            <div class="col-12 mb-3 mt-2">
-                Add or remove shipping addresses from the list below.
-                <strong>A valid address is required for purchasing Vetcove Commerce items and redeeming Vetcove rewards.</strong>
+
+
+            <div class="row d-none d-md-flex t-row-header">
+                <div class="col-md-3 t-header">
+                    Name
+                </div>
+                <div class="col-md-2 t-header">
+                    #SKU
+                </div>
+                <div class="col-md-2 t-header">
+                    Serial No.
+                </div>
+                <div class="col-md-1 t-header">
+                    Price
+                </div>
+                <div class="col-md-1 t-header">
+                    Stock
+                </div>
+                <div class="col-md-1 t-header">
+                    Expiry Date
+                </div>
+                <div class="col-md-2 t-header">
+
+                </div>
+            </div>
+            <div class="row mb-5">
+                {% for product in distributor.distributorProducts %}
+                    <div class="col-12">
+                        <div class="row t-row">
+                            <div class="col-md-3 t-cell">
+                                {{ product.product.name }}
+                            </div>
+                            <div class="col-md-2 t-cell">
+                                {{ product.sku }}
+                            </div>
+                            <div class="col-md-2 t-cell">
+                                {{ product.distributorNo }}
+                            </div>
+                            <div class="col-md-1 t-cell">
+                                {{ product.unitPrice }}
+                            </div>
+                            <div class="col-md-1 t-cell">
+                                {{ product.stockCount }}
+                            </div>
+                            <div class="col-md-1 t-cell">
+                                {{ product.expiryDate|date('Y-m-d') }}
+                            </div>
+                            <div class="col-md-2 t-cell">
+                                <a href="" class="float-end" id="product_update_{{ product.id }}">
+                                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                                </a>
+                                <a href="" class="delete-icon float-end" data-bs-toggle="modal"
+                                   data-value="{{ product.id }}" data-bs-target="#modal_product_delete" id="product_delete_{{ product.id }}">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
 
-        {# Create New #}
-        <div class="col-12 mb-3 mt-5">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                <i class="fa-solid fa-circle-plus"></i> CREATE NEW ADDRESS
-            </button>
-        </div>
-
-        {# Modal #}
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+        {# Modal Delete Product #}
+        <div class="modal fade" id="modal_product_delete" tabindex="-1" aria-labelledby="product_delete_label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
+                    <input type="hidden" value="" name="product_id" id="product_id">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Create an Address</h5>
+                        <h5 class="modal-title" id="product_delete_label">Delete Product</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        {{form_start(form, {'name': 'form_addresses', 'attr': {'id': 'form_addresses'}})}}
-                        <div class="row mb-3">
-
-                            {# Clinic Name #}
-                            <div class="col-6">
-                                {{ form_label(address_form.clinicName) }}
-                                {{ form_widget(address_form.clinicName,{'id': 'address_clinic_name', 'attr':{
-                                    'class': 'form-control',
-                                    'placeholder': 'Clinic Name*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_address_clinic_name">
-                                    Required Field
-                                </div>
-                            </div>
-
-                            {# Telephone Number #}
-                            <div class="col-6">
-                                {{ form_label(address_form.telephone) }}
-                                {{ form_widget(address_form.telephone,{'id': 'address_telephone', 'attr':{
-                                    'class': 'form-control',
-                                    'placeholder': '(123) 456-7890*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_address_telephone">
-                                    Required Field
-                                </div>
+                        <div class="row">
+                            <div class="col-12 mb-0">
+                                Are you sure you would like to delete this product? This action cannot be undone.
                             </div>
                         </div>
-
-                        <div class="row mb-3">
-
-                            {# Address Line 1 #}
-                            <div class="col-6">
-                                {{ form_label(address_form.address) }}
-                                {{ form_widget(address_form.address,{'id': 'address_line_1', 'attr':{
-                                    'class': 'form-control',
-                                    'placeholder': 'Address Line 1*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_address_line_1">
-                                    Required Field
-                                </div>
-                            </div>
-
-                            {# Suite #}
-                            <div class="col-6">
-                                {{ form_label(address_form.suite) }}
-                                {{ form_widget(address_form.suite,{'id': 'address_suite', 'attr':{
-                                    'class': 'form-control',
-                                    'placeholder': 'APT / Suite'
-                                }}) }}
-                                <div class="hidden_msg" id="error_address_suite">
-                                    Required Field
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-
-                            {# Postal Code #}
-                            <div class="col-4">
-                                {{ form_label(address_form.postalCode) }}
-                                {{ form_widget(address_form.postalCode,{'id': 'address_postal_code', 'attr':{
-                                    'class': 'form-control',
-                                    'placeholder': 'Postal Code*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_address_postal_code">
-                                    Required Field
-                                </div>
-                            </div>
-
-                            {# City #}
-                            <div class="col-4">
-                                {{ form_label(address_form.city) }}
-                                {{ form_widget(address_form.city,{'id': 'address_city', 'attr':{
-                                    'class': 'form-control',
-                                    'placeholder': 'City*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_address_city">
-                                    Required Field
-                                </div>
-                            </div>
-
-                            {# State #}
-                            <div class="col-4">
-                                {{ form_label(address_form.state) }}
-                                {{ form_widget(address_form.state,{'id': 'address_state', 'attr':{
-                                    'class': 'form-control',
-                                    'placeholder': 'State*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_address_state">
-                                    Required Field
-                                </div>
-                            </div>
-                        </div>
-                        {{ form_end(form, {render_rest: false}) }}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                        <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
                     </div>
                 </div>
             </div>
         </div>
-        {# End Addresses #}
+        {# End Invenory / Distributor Products #}
+
+        {# Users #}
+        <div class="row" id="users">
+            <div class="col-12 col-md-6 mb-3 mt-5">
+                <h3>Manage User Accounts</h3>
+            </div>
+            <div class="col-12 col-md-6 mb-3 mt-5">
+                {# Create New #}
+                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
+                    <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
+                </button>
+            </div>
+            <div class="col-12 mb-3 mt-2 info">
+                TVG supports having several users under a single clinic. Each user will have their own login, can
+                independently participate in the TVG discussions. You have full control over editing the permissions
+                of each user in your clinic. Use the table below to view the available permission levels.
+            </div>
+
+            <div class="row d-none d-md-flex">
+                <div class="col-md-2 t-header">
+                    First Name
+                </div>
+                <div class="col-md-2 t-header">
+                    Last Name
+                </div>
+                <div class="col-md-2 t-header">
+                    Username
+                </div>
+                <div class="col-md-2 t-header">
+                    Telephone
+                </div>
+                <div class="col-md-2 t-header">
+                    Position
+                </div>
+                <div class="col-md-2 t-header">
+
+                </div>
+            </div>
+            <div id="users_list">
+                {% for users in distributor.distributorUsers %}
+                    <div class="list-width">
+                        <div class="row t-row">
+                            <div class="col-md-2 t-cell" id="string_user_first_name_{{ users.id }}">
+                                {{ users.firstName }}
+                            </div>
+                            <div class="col-md-2 t-cell" id="string_user_last_name_{{ users.id }}">
+                                {{ users.lastName }}
+                            </div>
+                            <div class="col-md-2 t-cell" id="string_user_email_{{ users.id }}">
+                                {{ users.email }}
+                            </div>
+                            <div class="col-md-2 t-cell" id="string_user_telephone_{{ users.id }}">
+                                {{ users.telephone }}
+                            </div>
+                            <div class="col-md-2 t-cell" id="string_user_position_{{ users.id }}">
+                                {{ users.position }}
+                            </div>
+                            <div class="col-md-2 t-cell">
+                                <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_{{ users.id }}">
+                                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                                </a>
+                                <a href="" class="delete-icon float-end" data-bs-toggle="modal"
+                                   data-value="{{ users.id }}" data-bs-target="#modal_user_delete" id="user_delete_{{ users.id }}">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {# Modal Manage Users #}
+            <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        {{form_start(form, {'name': 'form_users', 'attr': {'id': 'form_users'}})}}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="user_modal_label"></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+
+                                {# First Name #}
+                                <div class="col-12 col-sm-6">
+                                    {{ form_label(user_form.firstName) }}
+                                    <input type="hidden" value="" name="distributor_users_form[user_id]" id="user_id">
+                                    {{ form_widget(user_form.firstName,{'id': 'user_first_name', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'First Name*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_first_name">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                {# Last Name #}
+                                <div class="col-12 col-sm-6">
+                                    {{ form_label(user_form.lastName) }}
+                                    {{ form_widget(user_form.lastName,{'id': 'user_last_name', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Last Name*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_last_name">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+
+                                {# Email #}
+                                <div class="col-12 col-sm-6">
+                                    {{ form_label(user_form.email) }}
+                                    {{ form_widget(user_form.email,{'id': 'user_email', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Email Address'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_email">
+                                        Required Field
+                                    </div>
+                                </div>
+
+                                {# Telephone Number #}
+                                <div class="col-12 col-sm-6">
+                                    {{ form_label(user_form.telephone) }}
+                                    {{ form_widget(user_form.telephone,{'id': 'user_telephone', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': '(123) 456-7890*'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_telephone">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+
+                                {# Position #}
+                                <div class="col-12">
+                                    {{ form_label(user_form.position) }}
+                                    {{ form_widget(user_form.position,{'id': 'user_position', 'attr':{
+                                        'class': 'form-control',
+                                        'placeholder': 'Position'
+                                    }}) }}
+                                    <div class="hidden_msg" id="error_user_telephone">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="submit" class="btn btn-primary" id="create_user">SAVE</button>
+                        </div>
+                        {{ form_end(form, {render_rest: false}) }}
+                    </div>
+                </div>
+            </div>
+
+            {# Modal Delete User #}
+            <div class="modal fade" id="modal_user_delete" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="user_delete_label">Delete User</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12 mb-0">
+                                    Are you sure you would like to delete this user? This action cannot be undone.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# End Users #}
+
     </div>
 {% endblock %}
 
@@ -605,22 +662,26 @@
 
         $(document).ready(function(){
 
-            var account_settings = $('#account_settings');
-            var about = $('#about');
-            var operating_hours = $('#operating_hours');
-            var refund_policy = $('#refund_policy');
-            var sales_tax_policy = $('#sales_tax_policy');
-            var inventory_search = $('#inventory_search');
-            var inventor_item = $('#inventor_item');
-            var addresses = $('#addresses');
+            let account_settings = $('#account_settings');
+            let about = $('#about');
+            let operating_hours = $('#operating_hours');
+            let refund_policy = $('#refund_policy');
+            let sales_tax_policy = $('#sales_tax_policy');
+            let inventory = $('#inventory');
+            let inventory_search = $('#inventory_search');
+            let inventory_item = $('#inventory_item');
+            let users = $('#users');
+            let inventory_clear = $('#inventory_clear');
 
             about.hide();
             operating_hours.hide();
             refund_policy.hide();
             sales_tax_policy.hide();
+            inventory.hide();
             inventory_search.hide();
-            inventor_item.hide();
-            addresses.hide();
+            inventory_item.hide();
+            users.hide();
+            inventory_clear.hide();
 
             {# Account & Settings #}
             $('#account_settings_link').click(function (e){
@@ -632,9 +693,10 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                inventory.hide();
                 inventory_search.hide();
-                inventor_item.hide();
-                addresses.hide();
+                inventory_item.hide();
+                users.hide();
             });
 
             {# About #}
@@ -647,9 +709,10 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                inventory.hide();
                 inventory_search.hide();
-                inventor_item.hide();
-                addresses.hide();
+                inventory_item.hide();
+                users.hide();
             });
 
             {# Operating Hours #}
@@ -662,9 +725,10 @@
                 operating_hours.show();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                inventory.hide();
                 inventory_search.hide();
-                inventor_item.hide();
-                addresses.hide();
+                inventory_item.hide();
+                users.hide();
             });
 
             {# Refund Policy #}
@@ -677,9 +741,10 @@
                 operating_hours.hide();
                 refund_policy.show();
                 sales_tax_policy.hide();
+                inventory.hide();
                 inventory_search.hide();
-                inventor_item.hide();
-                addresses.hide();
+                inventory_item.hide();
+                users.hide();
             });
 
             {# Sales Tax Policy #}
@@ -692,9 +757,10 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.show();
+                inventory.hide();
                 inventory_search.hide();
-                inventor_item.hide();
-                addresses.hide();
+                inventory_item.hide();
+                users.hide();
             });
 
             {# Inventory #}
@@ -707,13 +773,14 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                inventory.show();
                 inventory_search.show();
-                inventor_item.hide();
-                addresses.hide();
+                inventory_item.hide();
+                users.hide();
             });
 
-            {# Addresses #}
-            $('#addresses_link').click(function (e){
+            {# Users #}
+            $('#users_link').click(function (e){
 
                 e.preventDefault();
 
@@ -722,9 +789,10 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                inventory.hide();
                 inventory_search.hide();
-                inventor_item.hide();
-                addresses.show();
+                inventory_item.hide();
+                users.show();
             });
 
             {# Update Personal Information #}
@@ -732,15 +800,15 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var first_name = $('#first_name').val();
-                var last_name = $('#last_name').val();
-                var position = $('#position').val();
-                var telephone = $('#telephone').val();
-                var error_first_name = $('#error_first_name');
-                var error_last_name = $('#error_last_name');
-                var error_position = $('#error_position');
-                var error_telephone = $('#error_telephone');
+                let is_valid = true;
+                let first_name = $('#first_name').val();
+                let last_name = $('#last_name').val();
+                let position = $('#position').val();
+                let telephone = $('#telephone').val();
+                let error_first_name = $('#error_first_name');
+                let error_last_name = $('#error_last_name');
+                let error_position = $('#error_position');
+                let error_telephone = $('#error_telephone');
 
                 error_first_name.hide();
                 error_last_name.hide();
@@ -799,17 +867,29 @@
             {# End Update Personal Information #}
 
             {# Update Company Information #}
-            $('#btn_company_information').on('click', function (e) {
+            let logo = '{{ distributor.logo }}';
+
+            if(logo != null || logo != ''){
+
+                $('#logo_file').removeClass('col-12').addClass('col-11');
+                $('#logo_col').removeClass('hidden');
+            }
+
+            $('#form_company_information').submit(function (e) {
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var company_name = $('#distributor_name').val();
-                var website = $('#website').val();
-                var logo = $('#logo').val();
-                var error_company_name = $('#error_distributor_name');
+                let is_valid = true;
+                let company_name = $('#distributor_name').val();
+                let email = $('#email').val();
+                let telephone = $('#telephone').val();
+                let error_company_name = $('#error_distributor_name');
+                let error_email = $('#error_email');
+                let error_telephone = $('#error_telephone');
 
                 error_company_name.hide();
+                error_email.hide();
+                error_telephone.hide();
 
                 if(company_name == '' || company_name == 'undefined'){
 
@@ -817,11 +897,22 @@
                     is_valid = false;
                 }
 
+                if(email == '' || email == 'undefined'){
+
+                    error_email.show();
+                    is_valid = false;
+                }
+
+                if(telephone == '' || telephone == 'undefined'){
+
+                    error_telephone.show();
+                    is_valid = false;
+                }
+
                 if(is_valid == true){
 
                     // Create an FormData object
-                    var form = $('#form_company_information')[0];
-                    var data = new FormData(form);
+                    let data = new FormData(this);
 
                     $.ajax({
                         url: "{{ path('distributor_update_company_information') }}",
@@ -838,8 +929,13 @@
                             $('#flash').removeClass('users-flash');
                             $('#flash').addClass('users-flash');
                             $('#flash').empty();
-                            $('#flash').append(response);
+                            $('#flash').append(response.message);
                             $('#flash').removeClass('hidden');
+
+                            if(response.logo != null && response.logo != ''){
+
+                                $('#logo_img').attr('src', '/images/logos/' + response.logo);
+                            }
                         }
                     });
                 }
@@ -847,13 +943,13 @@
             {# End Update Company Information #}
 
             {# About Us #}
-            $(document).on('click', '#btn_about_us', function(e){
+            $('#form_about_us').submit(function(e){
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var about_us = CKEDITOR.instances.about_us.getData();
-                var error_about_us = $('#error_about_us');
+                let is_valid = true;
+                let about_us = CKEDITOR.instances.about_us.getData();
+                let error_about_us = $('#error_about_us');
 
                 error_about_us.hide();
 
@@ -865,12 +961,13 @@
 
                 if(is_valid == true){
 
+                    // Create an FormData object
+                    let data = new FormData(this);
+
                     $.ajax({
                         url: "{{ path('distributor_update_about_us') }}",
                         type: 'POST',
-                        data: {
-                            about_us: about_us
-                        },
+                        data: data,
                         dataType: 'json',
                         success: function (response) {
                             $('#flash').addClass('alert-success');
@@ -893,9 +990,9 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var operating_hours = CKEDITOR.instances.operating_hours_field.getData();
-                var error_operating_hours = $('#error_operating_hours');
+                let is_valid = true;
+                let operating_hours = CKEDITOR.instances.operating_hours_field.getData();
+                let error_operating_hours = $('#error_operating_hours');
 
                 error_operating_hours.hide();
 
@@ -935,9 +1032,9 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var refund_policy = CKEDITOR.instances.refund_policy_field.getData();
-                var error_refund_policy = $('#error_about_us');
+                let is_valid = true;
+                let refund_policy = CKEDITOR.instances.refund_policy_field.getData();
+                let error_refund_policy = $('#error_about_us');
 
                 error_refund_policy.hide();
 
@@ -977,9 +1074,9 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var sales_tax_policy = CKEDITOR.instances.sales_tax_policy_field.getData();
-                var error_sales_tax_policy = $('#error_sales_tax_policy');
+                let is_valid = true;
+                let sales_tax_policy = CKEDITOR.instances.sales_tax_policy_field.getData();
+                let error_sales_tax_policy = $('#error_sales_tax_policy');
 
                 error_sales_tax_policy.hide();
 
@@ -1019,9 +1116,9 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var unit_price = $('#unit_price');
-                var error_unit_price = $('#error_unit_price');
+                let is_valid = true;
+                let unit_price = $('#unit_price');
+                let error_unit_price = $('#error_unit_price');
 
                 error_unit_price.hide();
 
@@ -1033,7 +1130,7 @@
 
                 if(is_valid == true){
 
-                    var data = new FormData(this);
+                    let data = new FormData(this);
 
                     $.ajax({
                         url: "{{ path('distributor_inventory_update') }}",
@@ -1073,90 +1170,82 @@
             });
             {# End Invenory / Distributor Products #}
 
-            {# Addresses #}
-            $('#form_addresses').submit(function(e){
+            {# Users #}
+            $('#users_link').click(function (e){
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var clinic_name = $('#address_clinic_name');
-                var telephone = $('#address_telephone');
-                var address_line_1 = $('#address_line_1');
-                var suite = $('#address_suite');
-                var postal_code = $('#address_postal_code');
-                var city = $('#address_city');
-                var state = $('#address_state');
-                var error_clinic_name = $('#error_address_clinic_name');
-                var error_telephone = $('#error_address_telephone');
-                var error_address_line_1 = $('#error_address_line_1');
-                var error_suite = $('#error_address_suite');
-                var error_postal_code = $('#error_address_postal_code');
-                var error_city = $('#error_address_city');
-                var error_state = $('#error_address_state');
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                inventory_search.hide();
+                inventory_item.hide();
+                users.show();
+            });
 
-                error_clinic_name.hide();
-                error_telephone.hide();
-                error_address_line_1.hide();
-                error_suite.hide();
-                error_postal_code.hide();
-                error_city.hide();
-                error_state.hide();
+            {# Clear Search #}
+            $(document).on('click', '#inventory_clear', function (){
 
-                if(clinic_name == '' || clinic_name == 'undefined'){
+                $('#search_field').val('');
+                $('#product_name').empty().append('Manage Your Inventory');
+                $('#inventory_item').hide();
+                inventory_clear.hide();
+            });
 
-                    error_clinic_name.show();
-                    is_valid = false;
-                }
+            {# Create User Btn #}
+            $('#user_new').click(function (){
 
-                if(telephone == '' || telephone == 'undefined'){
+                $('#create_user').empty().append('CREATE USER');
+                $('#user_modal_label').empty().append('Create a User');
+                $('#user_id').val(0);
+                $('#user_first_name').val('');
+                $('#user_last_name').val('');
+                $('#user_email').val('');
+                $('#user_telephone').val('');
+                $('#user_position').val('');
+            });
 
-                    error_clinic_name.show();
-                    is_valid = false;
-                }
+            {% for user in distributor.DistributorUsers %}
 
-                if(address_line_1 == '' || address_line_1 == 'undefined'){
+            {# Update User #}
+            $(document).on('click', '#user_update_{{ user.id }}', function () {
 
-                    error_address_line_1.show();
-                    is_valid = false;
-                }
+                $('#create_user').empty().append('UPDATE USER');
 
-                if(suite == '' || suite == 'undefined'){
+                $.ajax({
+                    url: "{{ path('distributor_get_user') }}",
+                    type: 'POST',
+                    data: {
+                        id: {{ user.id }}
+                    },
+                    success: function (response) {
+                        $('#user_first_name').val(response.first_name);
+                        $('#user_last_name').val(response.last_name);
+                        $('#user_email').val(response.email);
+                        $('#user_telephone').val(response.telephone);
+                        $('#user_position').val(response.position);
+                    }
+                });
 
-                    error_suite.show();
-                    is_valid = false;
-                }
+                $('#user_id').val({{ user.id }});
+                $('#user_modal_label').empty().append('Update a User');
+            });
 
-                if(city == '' || city == 'undefined'){
+            {# Delete User #}
+            $(document).on('click', '#user_delete_{{ user.id }}', function () {
 
-                    error_city.show();
-                    is_valid = false;
-                }
+                user_id = {{ user.id }};
 
-                if(postal_code == '' || postal_code == 'undefined'){
-
-                    error_postal_code.show();
-                    is_valid = false;
-                }
-
-                if(state == '' || state == 'undefined'){
-
-                    error_state.show();
-                    is_valid = false;
-                }
-
-                if(is_valid == true){
-
-                    var data = new FormData(this);
+                $(document).on('click', '#delete_user', function () {
 
                     $.ajax({
-                        url: "{{ path('distributor_inventory_update') }}",
+                        url: "{{ path('distributor_user_delete') }}",
                         type: 'POST',
-                        contentType: false,
-                        processData: false,
-                        cache: false,
-                        timeout: 600000,
-                        dataType: 'json',
-                        data: data,
+                        data: {
+                            id: user_id
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');
@@ -1167,17 +1256,141 @@
                             $('#flash').empty();
                             $('#flash').append(response);
                             $('#flash').removeClass('hidden');
+                            $('#modal_user_delete').modal('toggle');
+                            $('#modal_user_delete').modal('hide');
+                            $('.modal-backdrop').removeClass('modal-backdrop');
+                            $('#modal_user_delete').addClass('fade');
+
+                            $.ajax({
+                                url: "{{ path('distributor_refresh_users') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                success: function (response) {
+                                    $('#users_list').empty().append(response);
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+            {% endfor %}
+
+            {# Create User #}
+            $('#form_users').submit(function(e){
+
+                e.preventDefault();
+
+                let is_valid = true;
+                let user_first_name = $('#user_first_name').val()
+                let user_last_name = $('#user_last_name').val();
+                let user_email = $('#user_email').val();
+                let user_telephone = $('#user_telephone').val();
+                let error_user_first_name = $('#error_user_first_name');
+                let error_user_last_name = $('#error_user_last_name');
+                let error_user_email = $('#error_user_email');
+                let error_user_telephone = $('#error_user_telephone');
+
+                error_user_first_name.hide();
+                error_user_last_name.hide();
+                error_user_email.hide();
+                error_user_telephone.hide();
+
+                if(user_first_name == '' || user_first_name == 'undefined'){
+
+                    error_user_first_name.show();
+                    is_valid = false;
+                }
+
+                if(user_last_name == '' || user_last_name == 'undefined'){
+
+                    error_user_last_name.show();
+                    is_valid = false;
+                }
+
+                if(user_email == '' || user_email == 'undefined'){
+
+                    error_user_email.show();
+                    is_valid = false;
+                }
+
+                if(user_telephone == '' || user_telephone == 'undefined'){
+
+                    error_user_telephone.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    let data = new FormData(this);
+
+                    $('#create_user').empty().attr('disabled', true).append('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> PROCESSING...');
+
+                    $.ajax({
+                        url: "{{ path('distributor_users') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+
+                            if (response.response) {
+                                $('#flash').addClass('alert-success');
+                                $('#flash').removeClass('alert-danger');
+                                $('#flash').addClass('alert');
+                                $('#flash').addClass('text-center');
+                                $('#flash').removeClass('users-flash');
+                                $('#flash').addClass('users-flash');
+                                $('#flash').empty();
+                                $('#flash').append(response.message);
+                                $('#flash').removeClass('hidden');
+                                $('#modal_user').modal('toggle');
+                                $('#modal_user').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('.fade').removeClass('fade');
+                                $('#user_first_name').val('');
+                                $('#user_last_name').val('');
+                                $('#user_email').val('');
+                                $('#user_telephone').val('');
+                                $('#user_position').val('');
+                                $('#create_user').empty().append('SAVE').attr('disabled', false);
+
+                                $.ajax({
+                                    url: "{{ path('distributor_refresh_users') }}",
+                                    type: 'POST',
+                                    contentType: false,
+                                    processData: false,
+                                    cache: false,
+                                    timeout: 600000,
+                                    dataType: 'json',
+                                    data: data,
+                                    success: function (response) {
+                                        $('#users_list').empty().append(response);
+                                    }
+                                });
+                            } else {
+
+                                $('#error_user_email').empty();
+                                $('#error_user_email').append('Email address exists.');
+                                $('#error_user_email').show();
+                                $('#create_user').empty().append('SAVE').attr('disabled', false);
+                            }
                         }
                     });
                 }
             });
-            {# End Addresses #}
+            {# End Users #}
 
             {# Clode Flash Message #}
             $('#flash').click(function (){
                 $('#flash').addClass('hidden');
             });
-
         });
 
         function selectProduct(id, name) {
@@ -1189,7 +1402,7 @@
                         product_id: id,
                     },
                     success: function (data) {
-                        console.log(data);
+
                         $("#suggestion_field").show();
                         $("#suggestion_field").html(data);
                         $('#product_id').val(id);
@@ -1199,12 +1412,24 @@
                         $('#unit_price').val(data.unit_price);
                         $('#stock_count').val(data.stock_count);
                         $('#expiry_date').val(data.expiry_date);
-                        $('#tax_exempt').val(data.tax_exempt);
                         $('#btn_inventory').empty();
                         $('#btn_inventory').append('UPDATE ' + name.toUpperCase());
                         $('#product_name').empty();
                         $('#product_name').append(name);
-                        $('#inventor_item').show();
+                        $('#inventory_item').show();
+                        $('#inventory_clear').show();
+
+                        $('#taxExempt_0').attr('checked', false);
+                        $('#taxExempt_1').attr('checked', false);
+
+                        if(data.tax_exempt == 0){
+
+                            $('#taxExempt_0').attr('checked', true);
+
+                        } else {
+
+                            $('#taxExempt_1').attr('checked', true);
+                        }
                     }
                 });
 
@@ -1212,6 +1437,5 @@
                 $("#suggestion_field").hide();
             }
         }
-
     </script>
 {% endblock %}

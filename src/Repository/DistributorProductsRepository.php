@@ -19,32 +19,14 @@ class DistributorProductsRepository extends ServiceEntityRepository
         parent::__construct($registry, DistributorProducts::class);
     }
 
-    // /**
-    //  * @return DistributorProducts[] Returns an array of DistributorProducts objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getProductStockCount($product_id): array
     {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('d.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('sum(d.stockCount)')
+            ->andWhere('d.product = :product_id')
+            ->setParameter('product_id', $product_id)
+            ->groupBy('d.product')
+            ->setMaxResults(1);
+        return $queryBuilder->getQuery()->getResult();
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?DistributorProducts
-    {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

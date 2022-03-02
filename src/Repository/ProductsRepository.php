@@ -33,6 +33,18 @@ class ProductsRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findByKeystring($keywords): object
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->addSelect("MATCH_AGAINST (p.*, :searchterm 'IN NATURAL MODE') as score")
+            ->add('where', 'MATCH_AGAINST(p.name, p.activeIngredient, p.description, :search_term) > 0.8')
+            ->setParameter('search_term', $keywords)
+            ->orderBy('score', 'desc')
+            ->getQuery()
+            ->getResult();
+        return $queryBuilder->getQuery();
+    }
+
     /*
     public function findOneBySomeField($value): ?Products
     {

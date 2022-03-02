@@ -68,6 +68,9 @@ class DistributorProductsFormType extends AbstractType
                     'placeholder' => false,
                     'required' => false,
                     'expanded' => true,
+                    'attr' => [
+                        'class' => 'form-check-input',
+                    ]
                 ]
             )
         ;
