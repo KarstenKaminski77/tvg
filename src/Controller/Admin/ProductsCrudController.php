@@ -63,15 +63,17 @@ class ProductsCrudController extends AbstractCrudController
             MoneyField::new('unitPrice', 'Price')->setCurrency('USD')->setColumns(6),
 //            TextField::new('containerType', 'Container Type')
 //                ->onlyOnForms()->setColumns(6),
-            ImageField::new('image', 'Image')
-                ->setBasePath('/images/products')
-                ->setUploadDir('/public/images/products')
-                ->setUploadedFileNamePattern('[contenthash]')->setColumns(6),
+
             IntegerField::new('stockCount', 'Stock')->setColumns(6),
             ChoiceField::new('packType', 'Package Type')->setChoices([
                 'Bottle' => 'Bottle',
                 'Gel' => 'Del',
-            ])->onlyOnForms(),
+            ])->onlyOnForms()->setColumns(6),
+            TextField::new('form', 'Form')->onlyOnForms()->setColumns(6),
+            ImageField::new('image', 'Image')
+                ->setBasePath('/images/products')
+                ->setUploadDir('/public/images/products')
+                ->setUploadedFileNamePattern('[contenthash]')->setColumns(6),
             TextareaField::new('description', 'Description')
                 ->setFormType(CKEditorType::class)->onlyOnForms()->setColumns(12),
             DateTimeField::new('modified', 'Modified')->onlyOnIndex(),

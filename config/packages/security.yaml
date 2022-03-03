@@ -30,8 +30,7 @@ security:
             form_login:
                 login_path: app_login
                 check_path: app_login
-            #pattern: ^/login
-            access_denied_url: /login
+            access_denied_url: /admin/login
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\AppAuthenticator
@@ -39,7 +38,7 @@ security:
             logout:
                 path: app_logout
                 # where to redirect after logout
-                target: '/login'
+                target: '/admin/login'
         clinic:
             pattern: ^/clinics
             form_login:
@@ -51,7 +50,7 @@ security:
             custom_authenticator: App\Security\ClinicsAuthenticator
             entry_point: App\Security\ClinicsAuthenticator
             logout:
-                path: app_logout
+                path: clinics_logout
                 # where to redirect after logout
                 target: '/clinics/login'
         distributor:
@@ -65,7 +64,7 @@ security:
             custom_authenticator: App\Security\DistributorsAuthenticator
             entry_point: App\Security\DistributorsAuthenticator
             logout:
-                path: app_logout
+                path: distributors_logout
                 # where to redirect after logout
                 target: '/distributors/login'
 
@@ -81,7 +80,9 @@ security:
         - { path: ^/clinics/dashboard, roles: ROLE_CLINIC }
         - { path: ^/clinics/inventory, roles: ROLE_CLINIC }
         - { path: ^/distributors/dashboard, roles: ROLE_USER }
-        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/distributors/inventory-get, roles: ROLE_USER }
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_USER }
 
 when@test:
     security:

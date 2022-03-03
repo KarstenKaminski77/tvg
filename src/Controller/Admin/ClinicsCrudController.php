@@ -57,14 +57,9 @@ class ClinicsCrudController extends AbstractCrudController
     {
         return [
             IntegerField::new('id', '#ID')->onlyOnIndex(),
-            TextField::new('clinicName', 'Clinic Name')->setColumns(6),
-            ImageField::new('logo', 'Logo')
-                ->setBasePath('/images/logos')
-                ->setUploadDir('/public/images/logos')
-                ->setUploadedFileNamePattern('[contenthash]')
-                ->setColumns(6),
+            TextField::new('clinicName', 'Clinic Name')->setColumns(12),
             EmailField::new('email', 'Email')->setColumns(6),
-            TextField::new('telephone', 'Telephone'),
+            TextField::new('telephone', 'Telephone')->setColumns(6),
             DateTimeField::new('modified', 'Modified')->onlyOnIndex(),
             DateTimeField::new('created', 'Created')->onlyOnIndex(),
             CollectionField::new('clinicUsers', 'User Accounts')

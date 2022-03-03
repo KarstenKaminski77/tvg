@@ -22,6 +22,7 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
 use function PHPUnit\Framework\throwException;
 
 class DistributorsController extends AbstractController
@@ -526,8 +527,27 @@ class DistributorsController extends AbstractController
 
             $id = $product->getId();
             $name = $product->getName();
+            $dosage = '';
+            $size = '';
 
-            $select .= "<li onClick=\"selectProduct('$id', '$name');\">$name</li>";
+            if(!empty($product->getDosage())) {
+
+                $unit = '';
+
+                if(!empty($product->getUnit())) {
+
+                    $unit = $product->getUnit();
+                }
+
+                $dosage = ' | '. $product->getDosage() . $unit;
+            }
+
+            if(!empty($product->getSize())) {
+
+                $size = ' | '. $product->getSize();
+            }
+
+            $select .= "<li onClick=\"selectProduct('$id', '$name');\">$name$dosage$size</li>";
         }
 
         $select .= '</ul>';
@@ -535,36 +555,50 @@ class DistributorsController extends AbstractController
         return new Response($select);
     }
 
-    #[Route('/distributor/inventory-get', name: 'distributor_inventory_get')]
-    public function distributorGetInventoryAction(Request $request): Response
+    #[Route('/distributors/inventory-get', name: 'distributor_inventory_get')]
+    public function distributorGetInventoryAction(Request $request,TokenStorageInterface $tokenStorage): Response
     {
         $products = $this->em->getRepository(Products::class)->find($request->get('product_id'));
 
         if($products != null){
 
             $username = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
+
             $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $username]);
             $response = [];
-
-            $response['distributor_id'] = $distributor->getId();
-            $response['sku'] = '';
-            $response['distributor_no'] = '';
-            $response['unit_price'] = '';
-            $response['stock_count'] = 0;
-            $response['expiry_date'] = '';
-            $response['tax_exempt'] = 0;
 
             $distributor_product = $this->em->getRepository(Distributors::class)
                 ->getDistributorProduct($distributor->getId(), $request->get('product_id'));
 
-            if(!empty($distributor_product)){
+            if($distributor_product != null){
 
+                $response['distributor_id'] = $distributor->getId();
                 $response['sku'] = $distributor_product[0]['distributorProducts'][0]['sku'];
                 $response['distributor_no'] = $distributor_product[0]['distributorProducts'][0]['distributorNo'];
                 $response['unit_price'] = $distributor_product[0]['distributorProducts'][0]['unitPrice'];
                 $response['stock_count'] = $distributor_product[0]['distributorProducts'][0]['stockCount'];
                 $response['expiry_date'] = $distributor_product[0]['distributorProducts'][0]['expiryDate']->format('Y-m-d');
                 $response['tax_exempt'] = $distributor_product[0]['distributorProducts'][0]['taxExempt'];
+                $response['product'] = $distributor_product[0]['distributorProducts'][0]['product'];
+
+            } else {
+
+                $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
+
+                $response['distributor_id'] = $distributor->getId();
+                $response['sku'] = '';
+                $response['distributor_no'] = '';
+                $response['unit_price'] = '';
+                $response['stock_count'] = '';
+                $response['expiry_date'] = '';
+                $response['tax_exempt'] = 0;
+                $response['product'] = [
+                    'dosage' => $product->getDosage(),
+                    'size' => $product->getSize(),
+                    'packType' => $product->getPackType(),
+                    'unit' => $product->getUnit(),
+                    'activeIngredient' => $product->getActiveIngredient(),
+                ];
             }
 
         } else {
