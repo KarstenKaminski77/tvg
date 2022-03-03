@@ -658,6 +658,14 @@ class ClinicsController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/clinics/get-inventory', name: 'clinic_get_inventory')]
+    public function clinicsGetInventoryAction(Request $request): Response
+    {
+        $products = $this->em->getRepository(Products::class)->findByKeystring($request->get('keyword'));
+
+        return new JsonResponse($products);
+    }
+
     private function generatePassword()
     {
         $sets = [];

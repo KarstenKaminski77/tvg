@@ -23,7 +23,6 @@
             <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
             <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-            <link rel="stylesheet" href="{{ asset('css/suggestion-box.min.css') }}">
 
             <script type="text/javascript">
                 document.addEventListener("DOMContentLoaded", function(){
@@ -46,10 +45,30 @@
             <!-- jQuery -->
             <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
             <script src="{{ asset('js/bootstrap.min.js') }}"></script>
-            <script src="{{ asset('js/suggestion-box.min.js') }}"
 
             <script>
-                $('#mySearch').suggestionBox({url : 'path/to/script'});
+
+                $(document).ready(function (){
+
+                    $(document).on('click','#search_btn',function (e){
+
+                        e.preventDefault();
+
+                        let keyword = $('#search_field').val();
+
+                        $.ajax({
+                            url: "{{ path('clinic_get_inventory') }}",
+                            type: 'POST',
+                            data: {
+                                keyword: keyword
+                            },
+                            success: function (response) {
+
+                            }
+                        });
+                    });
+                });
+
             </script>
         {% endblock %}
     </body>

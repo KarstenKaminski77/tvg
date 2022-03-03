@@ -8,6 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table(name="products",indexes={
+ *          @ORM\Index(name="name", columns={"name"}, flags={"fulltext"}),
+ *          @ORM\Index(name="active_ingredient", columns={"active_ingredient"}, flags={"fulltext"}),
+ *          @ORM\Index(name="description", columns={"description"}, flags={"fulltext"}),
+ *        })
  * @ORM\Entity(repositoryClass=ProductsRepository::class)
  */
 class Products

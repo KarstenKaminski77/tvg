@@ -56,7 +56,14 @@
                         </div> <!-- dropdown-mega-menu.// -->
                     </li>
                     <li class="nav-item">
-                        <input type="text" id="mySearch" />
+                        <form name="search_form" id="search_form">
+                            <div class="input-group">
+                                <input type="text" id="search_field" class="form-control" placeholder="Search by item, sku, manufacturer, ingredient, size..." />
+                                <button type="submit" class="btn btn-secondary" id="search_btn">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </form>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">

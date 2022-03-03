@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Products;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -33,16 +34,16 @@ class ProductsRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findByKeystring($keywords): object
+    public function findByKeyString($keywords): array
     {
         $queryBuilder = $this->createQueryBuilder('p')
-            ->addSelect("MATCH_AGAINST (p.*, :searchterm 'IN NATURAL MODE') as score")
-            ->add('where', 'MATCH_AGAINST(p.name, p.activeIngredient, p.description, :search_term) > 0.8')
-            ->setParameter('search_term', $keywords)
-            ->orderBy('score', 'desc')
+            ->select('p','dp')
+            ->Join('p.distributorProducts', 'dp')
+            ->where("MATCH_AGAINST(p.name,p.activeIngredient,p.description) AGAINST(:search_term boolean) > 0")
+            ->setParameter('search_term', $keywords.'*')
             ->getQuery()
-            ->getResult();
-        return $queryBuilder->getQuery();
+            ->getArrayResult();
+        return $queryBuilder;
     }
 
     /*
