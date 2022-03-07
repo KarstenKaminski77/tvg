@@ -9,6 +9,8 @@ use App\Entity\ClinicUsers;
 use App\Entity\CommunicationMethods;
 use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
+use App\Entity\ListItems;
+use App\Entity\Lists;
 use App\Entity\Products;
 use App\Form\AddressesFormType;
 use App\Form\ClinicCommunicationMethodsFormType;
@@ -28,6 +30,7 @@ use function Sodium\add;
 
 class ClinicsController extends AbstractController
 {
+    const ITEMS_PER_PAGE = 12;
     private $em;
 
     public function __construct(EntityManagerInterface $em) {
@@ -656,6 +659,235 @@ class ClinicsController extends AbstractController
         ];
 
         return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/get-lists', name: 'inventory_get_lists')]
+    public function clinicsGetListsAction(Request $request): Response
+    {
+        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
+        $lists = $this->em->getRepository(Lists::class)->getClinicLists($clinic->getId());
+        $product_id = $request->request->get('id');
+
+        $response = '<h3 class="pb-3 pt-3">Shopping Lists</h3>';
+
+        if(count($lists) == 0){
+
+            $response = '<h3 class="pb-3 pt-3">Shopping Lists</h3><p id="lists_no_data">You do not currently have any 
+            shopping lists on TVG<br><br>Have shopping lists with your suppliers? We\'ll import them! Send us a message 
+            using the chat icon in the lower right corner and we will help import you lists! You can also create new lists 
+            using the Create List button below</p>';
+
+        } else {
+
+            for($i = 0; $i < count($lists); $i++){
+             
+                if(isset($lists[$i]['listItems'][0]['id']) && count($lists[$i]['listItems']) > 0){
+                    dd($lists[2]['listItems'][0]['list']);
+                    if($lists[$i]['listItems'][0]['id'] == $product_id) {
+
+                        $icon = '<a href="" class="list_remove_item" data-value="' . $lists[$i]['listItems'][0]['id'] . '" id="list_remove_item_' . $lists[$i]['listItems'][0]['id'] . '">
+                                <i class="fa-solid fa-circle-check pe-2 list-icon list-icon-checked"></i>
+                            </a>';
+
+                    } else {
+
+                        $icon = '<a href="" id="list_add_item_'. $product_id .'">
+                                <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                            </a>';
+                    }
+
+                } else {
+
+                    $icon = '<a href="" id="list_add_item_'. $product_id .'">
+                                <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                            </a>';
+                }
+
+                $response .= '
+                <div class="row p-2">
+                    <div class="col-8 col-sm-10 ps-1 d-flex flex-column">
+                        <table style="height: 30px;">
+                            <tr>
+                                <td class="align-middle" width="50px">
+                                    '. $icon .'
+                                </td>
+                                <td class="align-middle info">
+                                    '. $lists[$i]['name'] .'
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-4 col-sm-2">
+                        <a href="" class="float-end">View List</a>
+                    </div>
+                </div>
+            ';
+            }
+        }
+
+        $response .= $this->listCreateNew($product_id);
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/remove-list-item', name: 'inventory_remove_list_item')]
+    public function clinicsRemoveListsItemAction(Request $request): Response
+    {
+        $item_id = $request->request->get('id');
+        $list_item = $this->em->getRepository(ListItems::class)->find($item_id);
+
+        $this->em->remove($list_item);
+        $this->em->flush();
+
+        $response = $this->clinicsGetListsAction($request);
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/remove-list-item', name: 'inventory_remove_list_item')]
+    public function clinicsAddListsItemAction(Request $request): Response
+    {
+        $item_id = $request->request->get('id');
+        $list_item = $this->em->getRepository(ListItems::class)->find($item_id);
+
+        $this->em->remove($list_item);
+        $this->em->flush();
+
+        $response = $this->clinicsGetListsAction($request);
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/manage-list', name: 'inventory_manage_list')]
+    public function clinicsManageListAction(Request $request): Response
+    {
+        $data = $request->request;
+        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
+        $products = $this->em->getRepository(Products::class)->find($data->get('product_id'));
+
+        $product_id = (int) $data->get('product_id');
+        $list_id = (int) $data->get('list_id');
+        $list_type = $data->get('list_type');
+        $list_name = $data->get('list_name');
+
+        if($list_id == 0){
+
+            $list = new Lists();
+
+            $list->setItemCount(1);
+            $list->setListType($list_type);
+            $list->setClinic($clinic);
+
+        }
+
+        // List
+        $list->setName($list_name);
+
+        $this->em->persist($list);
+        $this->em->flush();
+
+        // List item
+        $list_item = new ListItems();
+
+        $list_item->setList($list);
+        $list_item->setProduct($products);
+        $list_item->setName($products->getName());
+
+        $this->em->persist($list_item);
+        $this->em->flush();
+
+        $lists = $this->em->getRepository(Lists::class)->getClinicLists($clinic->getId($data->get('product_id')));
+
+        $html = '<h3 class="pb-3 pt-3">Shopping Lists</h3>';
+        $jquery = "\n\n";
+        $i = 0;
+
+        foreach($lists as $list){
+
+            if(!empty($list['listItems'])){
+
+                $list_product_id = $list['listItems'][$i]['product']['id'];
+
+                $icon = '<a href="" id="list_remove_item_'. $list['listItems'][$i]['id'] .'">
+                                <i class="fa-solid fa-circle-check pe-2 list-icon list-icon-checked"></i>
+                            </a>';
+
+            } else {
+
+                $icon = '<a href="" id="list_add_item_'. $product_id .'">
+                                <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                            </a>';
+            }
+
+            $html .= '
+                <div class="row p-2">
+                    <div class="col-8 col-sm-10 ps-1 d-flex flex-column">
+                        <table style="height: 30px;">
+                            <tr>
+                                <td class="align-middle" width="50px">
+                                    '. $icon .'
+                                </td>
+                                <td class="align-middle">
+                                    '. $list['name'] .'
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-4 col-sm-2">
+                        <a href="" class="float-end">View List</a>
+                    </div>
+                </div>
+            ';
+
+//            $jquery .= "$(document).on('click', '#list_remove_item_". $list['listItems'][0]['id'] ."', function (e){
+//
+//                e.preventDefault();
+//
+//                alert(". $list['listItems'][0]['id'] .");
+//            });" . "\n\n";
+        }
+
+        $html .= $this->listCreateNew($product_id);
+
+        $response = [
+            'html_code' => $html,
+            'jquery_code' => $jquery,
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    private function listCreateNew($product_id)
+    {
+        return '
+            <div class="row mt-4">
+                <div class="col-12 col-sm-6">
+                    <form name="form_list_'. $product_id .'" id="form_list_'. $product_id .'" method="post">
+                        <input type="hidden" name="product_id" value="'. $product_id .'">
+                        <input type="hidden" name="list_id" value="0">
+                        <input type="hidden" name="list_type" value="custom">
+                        <div class="row">
+                            <div class="col-12 col-sm-8">
+                                <input type="text" name="list_name" id="list_name_'. $product_id .'" class="form-control">
+                                <div class="hidden_msg" id="error_list_name_'. $product_id .'">
+                                    Required Field
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-4">
+                                <button type="submit" class="btn btn-primary" id="list_create_new_'. $product_id .'">
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                    &nbsp;CREATE NEW
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <a href="" class="btn btn-secondary float-end">
+                        VIEW AND MANAGE YOUR LISTS 
+                    </a>
+                </div>
+            </div>';
     }
 
     #[Route('/clinics/get-inventory', name: 'clinic_get_inventory')]

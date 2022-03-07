@@ -37,8 +37,10 @@ class ProductsRepository extends ServiceEntityRepository
     public function findByKeyString($keywords): array
     {
         $queryBuilder = $this->createQueryBuilder('p')
-            ->select('p','dp')
+            ->select('p','dp','d','li')
             ->Join('p.distributorProducts', 'dp')
+            ->join('dp.distributor', 'd')
+            ->leftJoin('p.listItems', 'li')
             ->where("MATCH_AGAINST(p.name,p.activeIngredient,p.description) AGAINST(:search_term boolean) > 0")
             ->setParameter('search_term', $keywords.'*')
             ->getQuery()

@@ -657,6 +657,11 @@ class DistributorsController extends AbstractController
 
             $product->setStockCount($stock_count[0][1]);
 
+            // Get the lowest price
+            $lowest_price = $this->em->getRepository(DistributorProducts::class)->getLowestPrice($product->getId());
+
+            $product->setUnitPrice($lowest_price[0]['unitPrice']);
+
             $this->em->persist($product);
             $this->em->flush();
 

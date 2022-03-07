@@ -11,15 +11,379 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container-fluid">
+    <div class="container mt-5">
         <div class="row">
-            <div class="col-12 text-center">
+            <div class="col-12" id="inventory">
+                {% for product in products %}
+                    <div class="row mb-4 prd-container pb-0 pt-0">
+                        {# Product main container #}
+                        <div class="col-12 col-sm-9">
+                            <div class="row">
+                                {# Thumbnail #}
+                                <div class="col-12 col-sm-2 pt-3">
+                                    <img src="{{ asset('images/products/'~ product.image) }}" class="img-fluid prd-img">
+                                </div>
+                                {# Description #}
+                                <div class="col-12 col-sm-10 pt-3 pb-3">
+                                    <h4>{{ product.name }}: {{ product.dosage ~ product.unit }}, {{ product.size }} Count</h4>
+                                    {% set price_from = product.unitPrice / product.size %}
+                                    <p>From ${{ price_from|number_format(2, '.', ',') }} / {{ product.form|lower }}</p>
+                                    {# Product rating #}
+                                    <div id="parent_{{ product.id }}" class="mb-3 mt-2">
+                                        <i class="star star-under fa fa-star">
+                                            <i class="star star-over fa fa-star"></i>
+                                        </i>
+                                        <i class="star star-under fa fa-star">
+                                            <i class="star star-over fa fa-star"></i>
+                                        </i>
+                                        <i class="star star-under fa fa-star">
+                                            <i class="star star-over fa fa-star"></i>
+                                        </i>
+                                        <i class="star star-under fa fa-star">
+                                            <i class="star star-over fa fa-star"></i>
+                                        </i>
+                                        <i class="star star-under fa fa-star">
+                                            <i class="star star-over fa fa-star"></i>
+                                        </i>
+                                    </div>
+                                </div>
 
+                                {# Collapsable panels #}
+                                <div class="col-12 search-panels-header">
+                                    {# Description #}
+                                    <button class="btn btn-sm btn-light info ps-0 pe-5 pe-sm-0" type="button" id="btn_details_{{ product.id }}">
+                                        <i class="fa-regular fa-circle-question"></i> <span class="d-none d-sm-inline">Details</span>
+                                    </button>
+                                    {# Shopping lists #}
+                                    <button class="btn btn-sm btn-light info pe-4 pe-sm-0" type="button" id="btn_lists_{{ product.id }}">
+                                        <i class="fa-solid fa-list"></i> <span class="d-none d-sm-inline">Lists</span>
+                                    </button>
+                                    {# Tracking #}
+                                    <button class="btn btn-sm btn-light info pe-4 pe-sm-0" type="button" id="btn_track_{{ product.id }}">
+                                        <i class="fa-regular fa-eye"></i> <span class="d-none d-sm-inline">Track</span>
+                                    </button>
+                                    {# Notes #}
+                                    <button class="btn btn-sm btn-light info pe-4 pe-sm-0" type="button" id="btn_notes_{{ product.id }}">
+                                        <i class="fa-solid fa-pencil"></i> <span class="d-none d-sm-inline">Notes</span>
+                                    </button>
+                                    {# Reviews #}
+                                    <button class="btn btn-sm btn-light info pe-4 pe-sm-0" type="button" id="btn_reviews_{{ product.id }}">
+                                        <i class="fa-regular fa-star"></i> <span class="d-none d-sm-inline">Reviews</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Distributors #}
+                        <div class="col-12 col-sm-3 mt-0 pt-3 search-result-distributors">
+                            {% for distributor in product.distributorProducts %}
+                                <div class="row distributor-store-row">
+                                    <div class="col-12 col-sm-6">
+                                        <img src="{{ asset('images/logos/' ~ distributor.distributor.logo) }}" class="img-fluid mh-30">
+                                    </div>
+                                    <div class="col-12 col-sm-6 text-end">
+                                        <p>${{ distributor.unitPrice|number_format(2, '.', ',') }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {# Panels #}
+                        <div class="col-12">
+                            {# Description #}
+                            <div class="col-12 search-panels-container mb-4" id="search_panels_container_{{ product.id }}">
+                                <div class="hidden" id="details_{{ product.id }}">
+                                    <h3 class="pb-3 pt-3">Item Description</h3>
+                                    {{ product.description|raw }}
+                                </div>
+                                {# Shopping lists #}
+                                <div class="collapse" id="lists_{{ product.id }}">
+                                    <h3 class="pb-3 pt-3">Shopping Lists</h3>
+                                    <p id="lists_no_data_{{ product.id }}">
+                                        You do not currently have any shopping lists on TVG
+                                        <br><br>
+                                        Have shopping lists with your suppliers? We'll import them!
+                                        Send us a message using the chat icon in the lower right corner and we will
+                                        help import you lists!
+
+                                        You can also create new lists using the Create List button below
+                                    </p>
+                                </div>
+                                {# Track #}
+                                <div class="collapse" id="track_{{ product.id }}">
+                                    <h3 class="pb-3 pt-3">Availability Tracker</h3>
+                                    <p id="track_no_data">
+                                        Create custom alerts when a backordered item comes back in stock. Set a notification
+                                        for how you would like to be notified and which suppliers you would like to track.
+                                        Once an item comes back in stock and you are notified, the tracker will automatically
+                                        turn off. You can also view a list of all tracked items in your shopping list.
+                                        Note: TVG cannot track the availability of items that are drop shipped directly
+                                        from the vendor.
+                                    </p>
+                                </div>
+                                {# Notes #}
+                                <div class="collapse" id="notes_{{ product.id }}">
+                                    <h3 class="pb-3 pt-3">Item Notes</h3>
+                                </div>
+                                {# Reviews #}
+                                <div class="collapse" id="reviews_{{ product.id }}">
+                                    <h3 class="pb-3 pt-3">Reviews</h3>
+                                    <h5>No reviews yet!</h5>
+                                    <p id="reviews_no_data">Reviews help thousands of veterinary purchasers know about your experience
+                                        with this. Submit your review below.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        var rating1 = 2.5;
+                        rateStyle(rating1, 'parent_{{ product.id }}');
+                        // javascript
+                        function rateStyle(num, divID) {
+                            var ratingRounded = Math.floor(num);
+                            var starArray = document.getElementById(divID).querySelectorAll(".star-over");
+                            console.log(starArray);
+                            for (var i = 0; i < ratingRounded; i++) {
+                                starArray[i].classList.add("star-visible");
+                            }
+                            var finalStar = Math.round((num-ratingRounded)*100);
+                            if (finalStar != 0) {
+                                starArray[ratingRounded].classList.add("star-visible");
+                                starArray[ratingRounded].style.width=finalStar+"%";
+                            }
+                        }
+                    </script>
+                {% endfor %}
             </div>
         </div>
-    </div>
+    </div> {{ dump(products) }}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+
+    <script id="jquery">
+
+        $(document).ready(function (){
+
+            {% for product in products %}
+
+                $('#search_panels_container_{{ product.id }}').hide();
+
+                {# Details #}
+                $(document).on('click', '#btn_details_{{ product.id }}', function(){
+                    if($('#details_{{ product.id }}:visible').length) {
+
+                        $('#details_{{ product.id }}').hide(700);
+                        $('#search_panels_container_{{ product.id }}').hide(700);
+                        $('#btn_details_{{ product.id }}').removeClass('active').removeClass('active');
+
+                    } else {
+
+                        $('#search_panels_container_{{ product.id }}').show();
+                        $('#details_{{ product.id }}').show(700);
+                        $('#lists_{{ product.id }}').hide(700);
+                        $('#track_{{ product.id }}').hide(700);
+                        $('#notes_{{ product.id }}').hide(700);
+                        $('#reviews_{{ product.id }}').hide(700);
+                        $('#btn_details_{{ product.id }}').addClass('active');
+                        $('#btn_lists_{{ product.id }}').removeClass('active');
+                        $('#btn_track_{{ product.id }}').removeClass('active');
+                        $('#btn_notes_{{ product.id }}').removeClass('active');
+                        $('#btn_reviews_{{ product.id }}').removeClass('active');
+                    }
+                });
+
+                {# Shopping Lists #}
+                $(document).on('click', '#btn_lists_{{ product.id }}', function(){
+
+                    if($('#lists_{{ product.id }}:visible').length) {
+
+                        $('#lists_{{ product.id }}').hide(700);
+                        $('#search_panels_container_{{ product.id }}').hide(700);
+                        $('#btn_lists_{{ product.id }}').removeClass('active').removeClass('active');
+
+                    } else {
+
+                        $.ajax({
+                            url: "{{ path('inventory_get_lists') }}",
+                            type: 'POST',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: {
+                                id: '{{ product.id }}'
+                            },
+                            success: function (response) {
+                                $('#lists_{{ product.id }}').empty();
+                                $('#lists_{{ product.id }}').append(response);
+
+                            }
+                        });
+
+                        {% for item in product['listItems'] %}
+                            $(document).on('click', '#list_remove_item_{{ item.id }}', function (e){
+
+                                e.preventDefault();
+
+                                alert('#list_remove_item_{{ item.id }}');
+                            });
+                        {% endfor %}
+
+                        $('#search_panels_container_{{ product.id }}').show();
+                        $('#details_{{ product.id }}').hide(700);
+                        $('#lists_{{ product.id }}').show(700);
+                        $('#track_{{ product.id }}').hide(700);
+                        $('#notes_{{ product.id }}').hide(700);
+                        $('#reviews_{{ product.id }}').hide(700);
+                        $('#btn_details_{{ product.id }}').removeClass('active');
+                        $('#btn_lists_{{ product.id }}').addClass('active');
+                        $('#btn_track_{{ product.id }}').removeClass('active');
+                        $('#btn_notes_{{ product.id }}').removeClass('active');
+                        $('#btn_reviews_{{ product.id }}').removeClass('active');
+                    }
+                });
+
+                $(document).on('submit', '#form_list_{{ product.id }}', function (e){
+
+                    e.preventDefault();
+
+                    let list_name_{{ product.id }} = $('#list_name_{{ product.id }}').val();
+                    let list_name_error_{{ product.id }} = $('#error_list_name_{{ product.id }}');
+                    let data = new FormData(this);
+                    let is_valid = true;
+
+                    list_name_error_{{ product.id }}.hide()
+
+                    if(list_name_{{ product.id }} == '' || list_name_{{ product.id }} == 'undefined'){
+
+                        list_name_error_{{ product.id }}.show();
+                        is_valid = false;
+                    }
+
+                    if(is_valid) {
+
+                        $.ajax({
+                            url: "{{ path('inventory_manage_list') }}",
+                            type: 'POST',
+                            contentType: false,
+                            processData: false,
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: data,
+                            success: function (response) {
+                                $('#lists_{{ product.id }}').empty().append(response.html_code);
+                                $('#jquery').append(response.jquery_code);
+                            }
+                        });
+                    }
+                });
+
+                {# Tracking #}
+                $(document).on('click', '#btn_track_{{ product.id }}', function(){
+                    if($('#track_{{ product.id }}:visible').length) {
+
+                        $('#track_{{ product.id }}').hide(700);
+                        $('#search_panels_container_{{ product.id }}').hide(700);
+                        $('#btn_track_{{ product.id }}').removeClass('active').removeClass('active');
+
+                    } else {
+
+                        $('#search_panels_container_{{ product.id }}').show();
+                        $('#details_{{ product.id }}').hide(700);
+                        $('#lists_{{ product.id }}').hide(700);
+                        $('#track_{{ product.id }}').show(700);
+                        $('#notes_{{ product.id }}').hide(700);
+                        $('#reviews_{{ product.id }}').hide(700);
+                        $('#btn_details_{{ product.id }}').removeClass('active');
+                        $('#btn_lists_{{ product.id }}').removeClass('active');
+                        $('#btn_track_{{ product.id }}').addClass('active');
+                        $('#btn_notes_{{ product.id }}').removeClass('active');
+                        $('#btn_reviews_{{ product.id }}').removeClass('active');
+                    }
+                });
+
+                $(document).on('click', '#btn_notes_{{ product.id }}', function(){
+                    if($('#notes_{{ product.id }}:visible').length) {
+
+                        $('#notes_{{ product.id }}').hide(700);
+                        $('#search_panels_container_{{ product.id }}').hide(700);
+                        $('#btn_notes_{{ product.id }}').removeClass('active').removeClass('active');
+
+                    } else {
+
+                        $('#search_panels_container_{{ product.id }}').show();
+                        $('#details_{{ product.id }}').hide(700);
+                        $('#lists_{{ product.id }}').hide(700);
+                        $('#track_{{ product.id }}').hide(700);
+                        $('#notes_{{ product.id }}').show(700);
+                        $('#reviews_{{ product.id }}').hide(700);
+                        $('#btn_details_{{ product.id }}').removeClass('active');
+                        $('#btn_lists_{{ product.id }}').removeClass('active');
+                        $('#btn_track_{{ product.id }}').removeClass('active');
+                        $('#btn_notes_{{ product.id }}').addClass('active');
+                        $('#btn_reviews_{{ product.id }}').removeClass('active');
+                    }
+                });
+
+                $(document).on('click', '#btn_reviews_{{ product.id }}', function(){
+                    if($('#reviews_{{ product.id }}:visible').length) {
+
+                        $('#reviews_{{ product.id }}').hide(700);
+                        $('#search_panels_container_{{ product.id }}').hide(700);
+                        $('#btn_reviews_{{ product.id }}').removeClass('active').removeClass('active');
+
+                    } else {
+
+                        $('#search_panels_container_{{ product.id }}').show();
+                        $('#details_{{ product.id }}').hide(700);
+                        $('#lists_{{ product.id }}').hide(700);
+                        $('#track_{{ product.id }}').hide(700);
+                        $('#notes_{{ product.id }}').hide(700);
+                        $('#reviews_{{ product.id }}').show(700);
+                        $('#btn_details_{{ product.id }}').removeClass('active');
+                        $('#btn_lists_{{ product.id }}').removeClass('active');
+                        $('#btn_track_{{ product.id }}').removeClass('active');
+                        $('#btn_notes_{{ product.id }}').removeClass('active');
+                        $('#btn_reviews_{{ product.id }}').addClass('active');
+                    }
+                });
+
+            {% endfor %}
+
+            $(document).on('click','#search_btn',function (e){
+
+                e.preventDefault();
+
+                let keyword = $('#search_field').val();
+
+                $.ajax({
+                    url: "{{ path('clinic_get_inventory') }}",
+                    type: 'POST',
+                    data: {
+                        keyword: keyword
+                    },
+                    success: function (response) {
+                        $('#inventory').empty().append(response[0].name);
+                    }
+                });
+            });
+        });
+
+        var url = new URL('http://demourl.com/path?id=100');
+        var search_params = url.searchParams;
+
+        // add "topic" parameter
+        search_params.set('topic', 'main');
+
+        url.search = search_params.toString();
+
+        var new_url = url.toString();
+
+        // output : http://demourl.com/path?id=100&topic=main
+        console.log(new_url);
+    </script>
 {% endblock %}

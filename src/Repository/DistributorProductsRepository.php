@@ -29,4 +29,15 @@ class DistributorProductsRepository extends ServiceEntityRepository
             ->setMaxResults(1);
         return $queryBuilder->getQuery()->getResult();
     }
+
+    public function getLowestPrice($product_id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('d.unitPrice')
+            ->andWhere('d.product = :product_id')
+            ->setParameter('product_id', $product_id)
+            ->orderBy('d.unitPrice', 'ASC')
+            ->setMaxResults(1);
+        return $queryBuilder->getQuery()->getResult();
+    }
 }
