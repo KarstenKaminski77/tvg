@@ -2,8 +2,24 @@ html {
     box-sizing: unset !important;
 }
 
+body {
+    background-color: #f4f4f4 !important;
+    color: #787d82;
+}
+
 body, form-control {
     font-size: 0.9rem;
+}
+
+a, a:hover {
+    text-decoration: none;
+    color: #9ed4d9;
+}
+
+a.note-link {
+    display: block;
+    width: 100%;
+    color: #523e02;
 }
 
 .navbar .megamenu{ padding: 1rem; }
@@ -32,7 +48,7 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 p {
-    color: #555a5f;
+    color: #787d82;
 }
 
 a {
@@ -66,12 +82,9 @@ select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
 }
-body {
-    background: none !important;
-}
 
 .form-control {
-    color: #464646cc;
+    color: #464646cc !important;
 }
 
 .radio-label {
@@ -93,12 +106,6 @@ body {
     color: #666666;
 }
 
-.btn-primary {
-    background: #7796a8;
-    border-color: #7796a8;
-    color: #fff;
-}
-
 .bg-primary, .btn-check:focus+.btn-primary, .btn-primary:focus, .btn-primary:active, .show>.btn-primary.dropdown-toggle,
 .btn-check:active+.btn-primary, .btn-check:checked+.btn-primary, .btn-primary.active {
     background: #7796a8 !important;
@@ -112,6 +119,11 @@ label {
 .info {
     color: #82898f;
     font-size: 14px;
+}
+
+.info-sm {
+    color: #82898f;
+    font-size: 12px;
 }
 
 .btn-primary:hover {
@@ -247,6 +259,23 @@ label {
     border-color: #9ed4d9;
 }
 
+.btn-primary {
+    background: #7796a8;
+    border-color: #7796a8;
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #9ed4d9;
+    border-color: #9ed4d9;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #7796a8!important;
+    border-color: #7796a8!important;
+}
+
 .btn-check:focus+.btn-primary, .btn-primary:focus {
     box-shadow: none;
 }
@@ -270,4 +299,143 @@ label {
     font-size: 40px;
     color: #7796a8;
     margin-top: 19px;
+}
+
+.prd-img {
+    max-height: 100px;
+}
+
+.prd-container {
+    border: 1px solid #e2e7eb;
+    padding-: 0;
+    padding-bottom: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    background: #fff;
+}
+
+.prd-container:hover {
+    box-shadow: -5px 6px 19px -2px rgba(156,156,156,0.75);
+    -webkit-box-shadow: -5px 6px 19px -2px rgba(156,156,156,0.75);
+    -moz-box-shadow: -5px 6px 19px -2px rgba(156,156,156,0.75);
+}
+
+.bg-grey {
+    background: #f9fafb;
+}
+
+.star {
+    position: relative;
+    display: inline-block;
+    font-size: 20px;
+}
+
+.star-under {
+    color: #ddd;
+}
+
+.star-over {
+    color: #9ed4d9;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+}
+
+.star-visible {
+    display: inline-block;
+}
+
+.search-panels-header {
+    border-top: 1px dashed #e2e7eb;
+    justify-self: flex-start;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    -ms-flex-wrap: wrap-reverse;
+    flex-wrap: wrap-reverse;
+}
+
+.search-panels-container {
+    justify-self: flex-start;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    -ms-flex-wrap: wrap-reverse;
+    flex-wrap: wrap-reverse;
+    border-top: 1px solid #e2e7eb;
+}
+
+.search-result-distributors {
+    background: #fcfdfd;
+    border-left: 1px solid #e2e7eb;
+}
+
+.card {
+    background: transparent;
+    border: none;
+}
+
+.btn-check:focus+.btn-light, .btn-light:focus  {
+    box-shadow: none !important;
+}
+
+.btn-check:active+.btn-light:focus, .btn-check:checked+.btn-light:focus, .btn-check:focus+.btn-light, .btn-light.active:focus, .btn-light:active:focus, .btn-light:focus, .show>.btn-light.dropdown-toggle:focus {
+    outline: 0;
+    box-shadow: none;
+}
+.btn-check:focus+.btn-light, .btn-light:focus {
+    outline: 0;
+    box-shadow: none;
+}
+.btn-check:focus+.btn, .btn:focus {
+    outline: 0;
+    box-shadow: none;
+}
+
+.btn-check:focus+.btn-light, .btn-light:focus {
+    color: #82898f;
+}
+
+.btn-light:hover {
+    color: #7796a8;
+}
+
+.active {
+    color: #7796a8 !important;
+}
+
+.info[aria-expanded=true] {
+    color: #7796a8;
+}
+
+.mh-30 {
+    max-height: 30px !important;
+}
+
+.distributor-store-row {
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.list-icon {
+    font-size: 30px;
+}
+
+.list-icon-checked {
+    color: #9ed4d9;
+}
+
+.list-icon-unchecked {
+    color: #ccc;
+}
+
+.list-copy-row {
+    line-height: 30px;
+}
+
+.text-primary {
+    color: #7796a8 !important;
+}
+
+.star-lg {
+    font-size: 40px !important;
 }

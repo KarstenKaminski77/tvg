@@ -22,8 +22,9 @@ class DistributorsRepository extends ServiceEntityRepository
     public function getDistributorProduct($distributor_id, $product_id): array
     {
         $queryBuilder = $this->createQueryBuilder('d')
-            ->select('d,dp')
+            ->select('d,dp,p')
             ->Join('d.distributorProducts', 'dp')
+            ->Join('dp.product', 'p')
             ->andWhere('dp.product = :product_id')
             ->setParameter('product_id', $product_id)
             ->andWhere('dp.distributor = :distributor_id ')

@@ -118,7 +118,6 @@
             <div class="modal fade" id="modal_logo" tabindex="-1" aria-labelledby="product_delete_label" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
-                        <input type="hidden" value="" name="product_id" id="product_id">
                         <div class="modal-header" style="border: none; padding-bottom: 0">
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -285,6 +284,52 @@
                     {{ form_widget(inventory_form.distributor,{'id': 'distributor_id'}) }}
                     <div class="row mb-3">
 
+                        {# Dosage #}
+                        <div class="col-6">
+                            <label>
+                                Dosage
+                            </label>
+                            <input type="text" class="form-control" id="dosage" disabled value="">
+                        </div>
+
+                        {# Size #}
+                        <div class="col-6">
+                            <label>
+                                Size
+                            </label>
+                            <input type="text" class="form-control" id="size" disabled value="">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+
+                        {# Active Ingredient #}
+                        <div class="col-6">
+                            <label>
+                                Active Ingredient
+                            </label>
+                            <input type="text" class="form-control" id="active_ingredient" disabled value="">
+                        </div>
+
+                        {# Pack Type #}
+                        <div class="col-6">
+                            <label>
+                                Pack Type
+                            </label>
+                            <input type="text" class="form-control" id="pack_type" disabled value="">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+
+                        {# Unit #}
+                        <div class="col-6">
+                            <label>
+                                Unit
+                            </label>
+                            <input type="text" class="form-control" id="unit" disabled value="">
+                        </div>
+
                         {# SKU #}
                         <div class="col-6">
                             <label>
@@ -298,6 +343,9 @@
                                 Required Field
                             </div>
                         </div>
+                    </div>
+
+                    <div class="row mb-3">
 
                         {# Serial Number #}
                         <div class="col-6">
@@ -312,9 +360,6 @@
                                 Required Field
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row mb-3">
 
                         {# Unit Price #}
                         <div class="col-6">
@@ -329,6 +374,9 @@
                                 Required Field
                             </div>
                         </div>
+                    </div>
+
+                    <div class="row mb-3">
 
                         {# Stock Level #}
                         <div class="col-6">
@@ -343,9 +391,6 @@
                                 Required Field
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row mb-3">
 
                         {# Expiry Date #}
                         <div class="col-6">
@@ -356,9 +401,12 @@
                                 'class': 'form-control',
                             }}) }}
                         </div>
+                    </div>
+
+                    <div class="row mb-3">
 
                         {# Tax Empt #}
-                        <div class="col-6">
+                        <div class="col-12">
                             <label class="d-block">
                                 Tax Exempt
                             </label>
@@ -379,90 +427,6 @@
                         </div>
                     </div>
                 {{ form_end(form, {render_rest: false}) }}
-            </div>
-
-
-            <div class="row d-none d-md-flex t-row-header">
-                <div class="col-md-3 t-header">
-                    Name
-                </div>
-                <div class="col-md-2 t-header">
-                    #SKU
-                </div>
-                <div class="col-md-2 t-header">
-                    Serial No.
-                </div>
-                <div class="col-md-1 t-header">
-                    Price
-                </div>
-                <div class="col-md-1 t-header">
-                    Stock
-                </div>
-                <div class="col-md-1 t-header">
-                    Expiry Date
-                </div>
-                <div class="col-md-2 t-header">
-
-                </div>
-            </div>
-            <div class="row mb-5">
-                {% for product in distributor.distributorProducts %}
-                    <div class="col-12">
-                        <div class="row t-row">
-                            <div class="col-md-3 t-cell">
-                                {{ product.product.name }}
-                            </div>
-                            <div class="col-md-2 t-cell">
-                                {{ product.sku }}
-                            </div>
-                            <div class="col-md-2 t-cell">
-                                {{ product.distributorNo }}
-                            </div>
-                            <div class="col-md-1 t-cell">
-                                {{ product.unitPrice }}
-                            </div>
-                            <div class="col-md-1 t-cell">
-                                {{ product.stockCount }}
-                            </div>
-                            <div class="col-md-1 t-cell">
-                                {{ product.expiryDate|date('Y-m-d') }}
-                            </div>
-                            <div class="col-md-2 t-cell">
-                                <a href="" class="float-end" id="product_update_{{ product.id }}">
-                                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                                </a>
-                                <a href="" class="delete-icon float-end" data-bs-toggle="modal"
-                                   data-value="{{ product.id }}" data-bs-target="#modal_product_delete" id="product_delete_{{ product.id }}">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        {# Modal Delete Product #}
-        <div class="modal fade" id="modal_product_delete" tabindex="-1" aria-labelledby="product_delete_label" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <input type="hidden" value="" name="product_id" id="product_id">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="product_delete_label">Delete Product</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-12 mb-0">
-                                Are you sure you would like to delete this product? This action cannot be undone.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
-                        <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
-                    </div>
-                </div>
             </div>
         </div>
         {# End Invenory / Distributor Products #}
@@ -1412,10 +1376,15 @@
                         $('#unit_price').val(data.unit_price);
                         $('#stock_count').val(data.stock_count);
                         $('#expiry_date').val(data.expiry_date);
+                        $('#dosage').val(data.product.dosage);
+                        $('#size').val(data.product.size);
+                        $('#pack_type').val(data.product.packType);
+                        $('#unit').val(data.product.unit);
+                        $('#active_ingredient').val(data.product.activeIngredient);
                         $('#btn_inventory').empty();
                         $('#btn_inventory').append('UPDATE ' + name.toUpperCase());
                         $('#product_name').empty();
-                        $('#product_name').append(name);
+                        $('#product_name').append(name + data.product.dosage + data.product.unit + data.product.size);
                         $('#inventory_item').show();
                         $('#inventory_clear').show();
 

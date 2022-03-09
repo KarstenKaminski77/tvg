@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ListsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -25,7 +27,7 @@ class Lists
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $listTyps;
+    private $listType;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -47,6 +49,20 @@ class Lists
      */
     private $created;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ListItems::class, mappedBy="list")
+     */
+    private $listItems;
+
+    public function __construct()
+    {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+        $this->listItems = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,14 +80,14 @@ class Lists
         return $this;
     }
 
-    public function getListTyps(): ?string
+    public function getListType(): ?string
     {
-        return $this->listTyps;
+        return $this->listType;
     }
 
-    public function setListTyps(string $listTyps): self
+    public function setListType(string $listType): self
     {
-        $this->listTyps = $listTyps;
+        $this->listType = $listType;
 
         return $this;
     }
@@ -120,6 +136,36 @@ class Lists
     public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ListItems>
+     */
+    public function getListItems(): Collection
+    {
+        return $this->listItems;
+    }
+
+    public function addListItem(ListItems $listItem): self
+    {
+        if (!$this->listItems->contains($listItem)) {
+            $this->listItems[] = $listItem;
+            $listItem->setList($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListItem(ListItems $listItem): self
+    {
+        if ($this->listItems->removeElement($listItem)) {
+            // set the owning side to null (unless already changed)
+            if ($listItem->getList() === $this) {
+                $listItem->setList(null);
+            }
+        }
 
         return $this;
     }

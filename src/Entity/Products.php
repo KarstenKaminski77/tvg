@@ -8,6 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table(name="products",indexes={
+ *          @ORM\Index(name="name", columns={"name"}, flags={"fulltext"}),
+ *          @ORM\Index(name="active_ingredient", columns={"active_ingredient"}, flags={"fulltext"}),
+ *          @ORM\Index(name="description", columns={"description"}, flags={"fulltext"}),
+ *        })
  * @ORM\Entity(repositoryClass=ProductsRepository::class)
  */
 class Products
@@ -133,6 +138,11 @@ class Products
      */
     private $availabilityTrackers;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ListItems::class, mappedBy="product")
+     */
+    private $listItems;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -146,6 +156,7 @@ class Products
         $this->productReviews = new ArrayCollection();
         $this->availabilityTrackers = new ArrayCollection();
         $this->productsSpecies = new ArrayCollection();
+        $this->listItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -517,6 +528,36 @@ class Products
     {
         if ($this->productsSpecies->removeElement($productsSpecies)) {
             $productsSpecies->removeProducts($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ListItems>
+     */
+    public function getListItems(): Collection
+    {
+        return $this->listItems;
+    }
+
+    public function addListItem(ListItems $listItem): self
+    {
+        if (!$this->listItems->contains($listItem)) {
+            $this->listItems[] = $listItem;
+            $listItem->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListItem(ListItems $listItem): self
+    {
+        if ($this->listItems->removeElement($listItem)) {
+            // set the owning side to null (unless already changed)
+            if ($listItem->getProduct() === $this) {
+                $listItem->setProduct(null);
+            }
         }
 
         return $this;

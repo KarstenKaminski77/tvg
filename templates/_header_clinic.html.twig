@@ -56,13 +56,20 @@
                         </div> <!-- dropdown-mega-menu.// -->
                     </li>
                     <li class="nav-item">
-                        <input type="text" id="mySearch" />
+                        <form name="search_form" id="search_form">
+                            <div class="input-group">
+                                <input type="text" id="search_field" class="form-control" placeholder="Search by item, sku, manufacturer, ingredient, size..." />
+                                <button type="submit" class="btn btn-secondary" id="search_btn">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </form>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#"> Menu item </a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link  dropdown-toggle" href="{{ path('app_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
+                        <a class="nav-link  dropdown-toggle" href="{{ path('clinics_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a href="#" class="dropdown-item" id="account_settings_link">
@@ -85,7 +92,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ path('app_logout') }}" class="dropdown-item">
+                                <a href="{{ path('clinics_logout') }}" class="dropdown-item">
                                     <i class="fa-solid fa-ban"></i>&nbsp;&nbsp;Sign Out
                                 </a>
                             </li>

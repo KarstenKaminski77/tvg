@@ -16,8 +16,6 @@ doctrine:
                 prefix: 'App\Entity'
                 alias: App
         dql:
-            numeric_functions:
-                GEO_DISTANCE: 'App\DQL\GeoDistanceFunction'
             string_functions:
                 MATCH_AGAINST: App\Extensions\Doctrine\MatchAgainst
 

@@ -59,7 +59,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#"> Menu item </a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link  dropdown-toggle" href="{{ path('app_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
+                        <a class="nav-link  dropdown-toggle" href="{{ path('distributors_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a href="#" class="dropdown-item" id="account_settings_link">
@@ -97,7 +97,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="{{ path('app_logout') }}">
+                                <a class="dropdown-item" href="{{ path('distributors_logout') }}">
                                     <i class="fa-solid fa-ban"></i>&nbsp;&nbsp;Sign Out
                                 </a>
                             </li>

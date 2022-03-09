@@ -19,32 +19,24 @@ class ListsRepository extends ServiceEntityRepository
         parent::__construct($registry, Lists::class);
     }
 
-    // /**
-    //  * @return Lists[] Returns an array of Lists objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getClinicLists($clinic_id): array
     {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('l.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $queryBuilder = $this->createQueryBuilder('l')
+            ->select('l,li')
+            ->leftJoin('l.listItems', 'li')
+            ->andWhere('l.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id);
+        return $queryBuilder->getQuery()->getResult();
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Lists
+    public function getLastList($clinic_id): object
     {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $queryBuilder = $this->createQueryBuilder('l')
+            ->select('l')
+            ->andWhere('l.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
+            ->orderBy('l.id', 'DESC')
+            ->setMaxResults(1);
+        return $queryBuilder->getQuery()->getResult();
     }
-    */
 }
