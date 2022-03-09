@@ -90,7 +90,7 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $username;
+    private $reviewUsername;
 
     public function __construct()
     {
@@ -353,9 +353,14 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function setUsername(?string $username): self
+    public function getReviewUsername(): ?string
     {
-        $this->username = $username;
+        return $this->reviewUsername;
+    }
+
+    public function setReviewUsername(?string $reviewUsername): self
+    {
+        $this->reviewUsername = $reviewUsername;
 
         return $this;
     }

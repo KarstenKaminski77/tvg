@@ -218,7 +218,7 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <div class="col-12 col-sm-8 mb-0 ps-5">
+                                        <div class="col-12 col-sm-8 mb-0 ps-3 ps-sm-5">
                                             <h5>Write a review for:</h5>
                                             <h6 class="text-primary">Terbinafine Tablets: 250mg, 100 Count</h6>
                                             <br>
@@ -413,21 +413,6 @@
                 $('#star-over-4').fadeIn(700);
                 $('#star-over-5').fadeOut(700);
             });
-
-            // javascript
-            function rateStyle(num, divID) {
-                var ratingRounded = Math.floor(num);
-                var starArray = document.getElementById(divID).querySelectorAll(".star-over");
-                console.log(starArray);
-                for (var i = 0; i < ratingRounded; i++) {
-                    starArray[i].classList.add("star-visible");
-                }
-                var finalStar = Math.round((num-ratingRounded)*100);
-                if (finalStar != 0) {
-                    starArray[ratingRounded].classList.add("star-visible");
-                    starArray[ratingRounded].style.width=finalStar+"%";
-                }
-            }
 
             {% for product in products %}
 
@@ -704,7 +689,9 @@
                             timeout: 600000,
                             dataType: 'json',
                             success: function (response) {
-                                $('#reviews_{{ product.id }}').empty().append(response);
+                                if(response != false) {
+                                    $('#reviews_{{ product.id }}').empty().append(response);
+                                }
                             }
                         });
                     }
@@ -999,7 +986,7 @@
         function rateStyle(num, divID) {
             var ratingRounded = Math.floor(num);
             var starArray = document.getElementById(divID).querySelectorAll(".star-over");
-            console.log(starArray);
+
             for (var i = 0; i < ratingRounded; i++) {
                 starArray[i].classList.add("star-visible");
             }

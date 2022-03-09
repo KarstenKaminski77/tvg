@@ -40,7 +40,7 @@ class ProductReviewsController extends AbstractController
         $this->em->persist($review);
         $this->em->flush();
 
-        $user[0]->setUsername($data->get('review_username'));
+        $user[0]->setReviewUsername($data->get('review_username'));
 
         $this->em->persist($user[0]);
         $this->em->flush();
@@ -59,7 +59,7 @@ class ProductReviewsController extends AbstractController
 
         $response = [
             'review_count' => $review[0][2],
-            'review_average' => $review[0][1]
+            'review_average' => number_format($review[0][1],1)
         ];
 
         return new JsonResponse($response);
@@ -70,51 +70,190 @@ class ProductReviewsController extends AbstractController
     {
         $product_id = $request->get('product_id');
         $product = $this->em->getRepository(Products::class)->find($product_id);
-        $reviews = $this->em->getRepository(ProductReviews::class)->findBy(['product' => $product],['id' => 'DESC',2]);
-        $response = '<h3 class="pb-3 pt-3">Reviews</h3><h5>Showing the 3 most popular reviews</h5>';
+        $reviews = $this->em->getRepository(ProductReviews::class)->findBy(['product' => $product],['id' => 'DESC']);
+        $rating_1 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),1);
+        $rating_2 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),2);
+        $rating_3 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),3);
+        $rating_4 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),4);
+        $rating_5 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),5);
+        $response = '<h3 class="pb-3 pt-3">Reviews</h3><h5 class="pb-4">Showing the 3 most recent reviews</h5>';
 
-        foreach($reviews as $review){
+        if(empty($rating_1)){
+
+            $rating_1[0]['total'] = 0;
+        }
+
+        if(empty($rating_2)){
+
+            $rating_2[0]['total'] = 0;
+        }
+
+        if(empty($rating_3)){
+
+            $rating_3[0]['total'] = 0;
+        }
+
+        if(empty($rating_4)){
+
+            $rating_4[0]['total'] = 0;
+        }
+
+        if(empty($rating_5)){
+
+            $rating_5[0]['total'] = 0;
+        }
+
+        $total = $rating_1[0]['total'] + $rating_2[0]['total'] + $rating_3[0]['total'] + $rating_4[0]['total'] + $rating_5[0]['total'];
+
+        $star_1 = 0;
+        $star_2 = 0;
+        $star_3 = 0;
+        $star_4 = 0;
+        $star_5 = 0;
+
+        if($rating_1[0]['total'] > 0){
+
+            $star_1 = round($rating_1[0]['total'] / $total * 100);
+        }
+
+        if($rating_2[0]['total'] > 0){
+
+            $star_2 = round($rating_2[0]['total'] / $total * 100);
+        }
+
+        if($rating_3[0]['total'] > 0){
+
+            $star_3 = round($rating_3[0]['total'] / $total * 100);
+        }
+
+        if($rating_4[0]['total'] > 0){
+
+            $star_4 = round($rating_4[0]['total'] / $total * 100);
+        }
+
+        if($rating_5[0]['total'] > 0){
+
+            $star_5 = round($rating_5[0]['total'] / $total * 100);
+        }
+
+        if($reviews != null) {
 
             $response .= '<div class="row">
-                            <div class="col-12">
-                                <div id="review_detail_'. $review->getId() .'" class="mb-3 mt-2 d-inline-block">
-                                    <i class="star star-under fa fa-star">
-                                        <i class="star star-over fa fa-star star-visible"></i>
-                                    </i>
-                                    <i class="star star-under fa fa-star">
-                                        <i class="star star-over fa fa-star star-visible"></i>
-                                    </i>
-                                    <i class="star star-under fa fa-star">
-                                        <i class="star star-over fa fa-star star-visible"></i>
-                                    </i>
-                                    <i class="star star-under fa fa-star">
-                                        <i class="star star-over fa fa-star star-visible"></i>
-                                    </i>
-                                    <i class="star star-under fa fa-star">
-                                        <i class="star star-over fa fa-star star-visible" style="width: 33%;"></i>
-                                    </i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>'. $product->getName() .'</h5>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
+                                <div class="col-12 col-sm-6 text-center">
+                                    <div class="star-raiting-container">
+                                        <div class="star-rating-col-sm info">
+                                            5 Star
+                                        </div>
+                                        <div class="star-rating-col-lg info">
+                                            <div class="progress-outer">
+                                                <div class="progress-inner" style="width: '. $star_5 .'%;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="star-rating-col-sm info text-start">
+                                            '. $star_5 .'%
+                                        </div>
+                                    </div>
+                                    <div class="star-raiting-container">
+                                        <div class="star-rating-col-sm info">
+                                            4 Star
+                                        </div>
+                                        <div class="star-rating-col-lg info">
+                                            <div class="progress-outer">
+                                                <div class="progress-inner" style="width: '. $star_4 .'%;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="star-rating-col-sm info text-start">
+                                            '. $star_4 .'%
+                                        </div>
+                                    </div>
+                                    <div class="star-raiting-container">
+                                        <div class="star-rating-col-sm info">
+                                            3 Star
+                                        </div>
+                                        <div class="star-rating-col-lg info">
+                                            <div class="progress-outer">
+                                                <div class="progress-inner" style="width: '. $star_3 .'%;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="star-rating-col-sm info text-start">
+                                            '. $star_3 .'%
+                                        </div>
+                                    </div>
+                                    <div class="star-raiting-container">
+                                        <div class="star-rating-col-sm info">
+                                            2 Star
+                                        </div>
+                                        <div class="star-rating-col-lg info">
+                                            <div class="progress-outer">
+                                                <div class="progress-inner" style="width: '. $star_2 .'%;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="star-rating-col-sm info text-start">
+                                            '. $star_2 .'%
+                                        </div>
+                                    </div>
+                                    <div class="star-raiting-container">
+                                        <div class="star-rating-col-sm info">
+                                            1 Star
+                                        </div>
+                                        <div class="star-rating-col-lg info">
+                                            <div class="progress-outer">
+                                                <div class="progress-inner" style="width: '. $star_1 .'%;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="star-rating-col-sm info text-start">
+                                            '. $star_1 .'%
+                                        </div>
+                                    </div>
+                                        </div>
+                                        <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0">
+                                            <h6>Help other TVG clinics</h6>
+                                            <p>Let thousands of veterinary purchasers know about<br> your experience with this product</p>
+                                            <a href="" class="btn btn-primary btn_create_review" data-bs-toggle="modal" data-product-id="1" data-bs-target="#modal_review">
+                                                WRITE A REVIEW
+                                            </a>
+                                        </div>
+                                    </div>';
 
-                            </div>
+            foreach ($reviews as $review) {
+
+                $response .= '<div class="row">
+                            <div class="col-12">
+                                <div class="mb-3 mt-2 d-inline-block">
+                ';
+
+                for($i = 0; $i < $review->getRating(); $i++){
+
+                    $response .= '<i class="star star-over fa fa-star star-visible position-relative"></i>';
+                }
+
+                for($i = 0; $i < (5 - $review->getRating()); $i++) {
+
+                    $response .= '<i class="star star-under fa fa-star"></i>';
+                }
+
+                $response .='    </div>
                         </div>
-                        
-                        <script>
-                            rateStyle('. $review->getRating() .', "review_detail_'. $review->getId() .'");
-                        </script>';
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <h5>'. $review->getSubject() .'</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            Written on '. $review->getCreated()->format('d M Y') .'by <b>'. $review->getClinicUser()->getReviewUsername() .', '. $review->getPosition() .'</b>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <p>' . $review->getReview() . '</p>
+                        </div>
+                    </div>';
+            }
+        } else {
+
+            $response = false;
         }
 
         return new JsonResponse($response);

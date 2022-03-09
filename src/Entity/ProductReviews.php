@@ -62,6 +62,11 @@ class ProductReviews
      */
     private $created;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $position;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -179,6 +184,18 @@ class ProductReviews
     public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
+
+        return $this;
+    }
+
+    public function getPosition(): ?string
+    {
+        return $this->position;
+    }
+
+    public function setPosition(string $position): self
+    {
+        $this->position = $position;
 
         return $this;
     }
