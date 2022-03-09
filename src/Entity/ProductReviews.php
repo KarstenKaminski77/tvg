@@ -28,11 +28,6 @@ class ProductReviews
     private $clinicUser;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $parentId;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $subject;
@@ -48,7 +43,7 @@ class ProductReviews
     private $clinic;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $likes;
 
@@ -66,6 +61,14 @@ class ProductReviews
      * @ORM\Column(type="datetime")
      */
     private $created;
+
+    public function __construct()
+    {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+    }
 
     public function getId(): ?int
     {
@@ -92,18 +95,6 @@ class ProductReviews
     public function setClinicUser(?ClinicUsers $clinicUser): self
     {
         $this->clinicUser = $clinicUser;
-
-        return $this;
-    }
-
-    public function getParentId(): ?int
-    {
-        return $this->parentId;
-    }
-
-    public function setParentId(int $parentId): self
-    {
-        $this->parentId = $parentId;
 
         return $this;
     }

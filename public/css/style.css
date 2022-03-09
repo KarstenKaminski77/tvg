@@ -4,6 +4,7 @@ html {
 
 body {
     background-color: #f4f4f4 !important;
+    color: #787d82;
 }
 
 body, form-control {
@@ -12,6 +13,13 @@ body, form-control {
 
 a, a:hover {
     text-decoration: none;
+    color: #9ed4d9;
+}
+
+a.note-link {
+    display: block;
+    width: 100%;
+    color: #523e02;
 }
 
 .navbar .megamenu{ padding: 1rem; }
@@ -76,7 +84,7 @@ select:-webkit-autofill:focus {
 }
 
 .form-control {
-    color: #464646cc;
+    color: #464646cc !important;
 }
 
 .radio-label {
@@ -111,6 +119,11 @@ label {
 .info {
     color: #82898f;
     font-size: 14px;
+}
+
+.info-sm {
+    color: #82898f;
+    font-size: 12px;
 }
 
 .btn-primary:hover {
@@ -417,4 +430,12 @@ label {
 
 .list-copy-row {
     line-height: 30px;
+}
+
+.text-primary {
+    color: #7796a8 !important;
+}
+
+.star-lg {
+    font-size: 40px !important;
 }

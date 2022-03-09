@@ -18,11 +18,6 @@ class ListItems
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Lists::class, inversedBy="listItems")
-     */
-    private $list;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Products::class, inversedBy="listItems")
      */
     private $product;
@@ -47,6 +42,11 @@ class ListItems
      */
     private $created;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Lists::class, inversedBy="listItems")
+     */
+    private $list;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -58,18 +58,6 @@ class ListItems
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getList(): ?Lists
-    {
-        return $this->list;
-    }
-
-    public function setList(?Lists $list): self
-    {
-        $this->list = $list;
-
-        return $this;
     }
 
     public function getProduct(): ?Products
@@ -128,6 +116,18 @@ class ListItems
     public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
+
+        return $this;
+    }
+
+    public function getList(): ?Lists
+    {
+        return $this->list;
+    }
+
+    public function setList(?Lists $list): self
+    {
+        $this->list = $list;
 
         return $this;
     }

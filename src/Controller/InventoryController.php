@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
+use App\Entity\Lists;
+use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;

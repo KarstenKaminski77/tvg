@@ -26,7 +26,7 @@ class ListsRepository extends ServiceEntityRepository
             ->leftJoin('l.listItems', 'li')
             ->andWhere('l.clinic = :clinic_id')
             ->setParameter('clinic_id', $clinic_id);
-        return $queryBuilder->getQuery()->getArrayResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function getLastList($clinic_id): object

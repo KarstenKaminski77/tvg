@@ -11,6 +11,7 @@ use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
 use App\Entity\ListItems;
 use App\Entity\Lists;
+use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Form\AddressesFormType;
 use App\Form\ClinicCommunicationMethodsFormType;
@@ -162,7 +163,6 @@ class ClinicsController extends AbstractController
     #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
     public function clinicsDashboardAction(Request $request): Response
     {
-        //dd($this->get('security.token_storage')->getToken());
         if($this->get('security.token_storage')->getToken() == null){
 
             $this->addFlash('danger', 'Your session expired due to inactivity, please login.');
@@ -429,6 +429,25 @@ class ClinicsController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/clinics/get-product-notes', name: 'clinic_get_product_notes')]
+    public function clinicGetProductNotes(Request $request): Response
+    {
+        $product_id = $request->request->get('product_id');
+        $clinic_id = $this->get('security.token_storage')->getToken()->getUser()->getClinic()->getId();
+        $notes = $this->em->getRepository(ProductNotes::class)->findNotes($product_id, $clinic_id);
+        $response = false;
+
+        if(!empty($notes)) {
+
+            $response = [
+                'note' => $notes[0]->getNote(),
+                'from' => $notes[0]->getClinicUser()->getFirstName() .' '. $notes[0]->getClinicUser()->getLastName(),
+            ];
+        }
+
+        return new JsonResponse($response);
+    }
+
     #[Route('/clinics/user/delete', name: 'clinic_user_delete')]
     public function clinicDeleteUser(Request $request): Response
     {
@@ -666,7 +685,8 @@ class ClinicsController extends AbstractController
     {
         $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
         $lists = $this->em->getRepository(Lists::class)->getClinicLists($clinic->getId());
-        $product_id = $request->request->get('id');
+
+        $product_id = (int) $request->request->get('id');
 
         $response = '<h3 class="pb-3 pt-3">Shopping Lists</h3>';
 
@@ -680,27 +700,39 @@ class ClinicsController extends AbstractController
         } else {
 
             for($i = 0; $i < count($lists); $i++){
-             
-                if(isset($lists[$i]['listItems'][0]['id']) && count($lists[$i]['listItems']) > 0){
-                    dd($lists[2]['listItems'][0]['list']);
-                    if($lists[$i]['listItems'][0]['id'] == $product_id) {
 
-                        $icon = '<a href="" class="list_remove_item" data-value="' . $lists[$i]['listItems'][0]['id'] . '" id="list_remove_item_' . $lists[$i]['listItems'][0]['id'] . '">
-                                <i class="fa-solid fa-circle-check pe-2 list-icon list-icon-checked"></i>
-                            </a>';
+                if(count($lists[$i]->getListItems()) > 0) {
+
+                    $item_id = $lists[$i]->getListItems()[0]->getList()->getListItems()[0]->getId();
+                    $is_selected = false;
+
+                    for($c = 0; $c < count($lists[$i]->getListItems()); $c++){
+
+                        if($lists[$i]->getListItems()[$c]->getProduct()->getId() == $product_id){
+
+                            $is_selected = true;
+                            break;
+                        }
+                    }
+
+                    if($is_selected) {
+
+                        $icon = '<a href="" class="list_remove_item" data-id="' . $product_id . '" data-value="' . $item_id . '">
+                            <i class="fa-solid fa-circle-check pe-2 list-icon list-icon-checked"></i>
+                        </a>';
 
                     } else {
 
-                        $icon = '<a href="" id="list_add_item_'. $product_id .'">
-                                <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
-                            </a>';
+                        $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
+                            <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                        </a>';
                     }
 
                 } else {
 
-                    $icon = '<a href="" id="list_add_item_'. $product_id .'">
-                                <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
-                            </a>';
+                    $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
+                            <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                        </a>';
                 }
 
                 $response .= '
@@ -712,7 +744,7 @@ class ClinicsController extends AbstractController
                                     '. $icon .'
                                 </td>
                                 <td class="align-middle info">
-                                    '. $lists[$i]['name'] .'
+                                    '. $lists[$i]->getName() .'
                                 </td>
                             </tr>
                         </table>
@@ -770,6 +802,7 @@ class ClinicsController extends AbstractController
         $list_type = $data->get('list_type');
         $list_name = $data->get('list_name');
 
+        // List
         if($list_id == 0){
 
             $list = new Lists();
@@ -778,13 +811,15 @@ class ClinicsController extends AbstractController
             $list->setListType($list_type);
             $list->setClinic($clinic);
 
+            $list->setName($list_name);
+
+            $this->em->persist($list);
+            $this->em->flush();
+
+        } else {
+
+            $list = $this->em->getRepository(Lists::class)->find($list_id);
         }
-
-        // List
-        $list->setName($list_name);
-
-        $this->em->persist($list);
-        $this->em->flush();
 
         // List item
         $list_item = new ListItems();
@@ -798,28 +833,45 @@ class ClinicsController extends AbstractController
 
         $lists = $this->em->getRepository(Lists::class)->getClinicLists($clinic->getId($data->get('product_id')));
 
-        $html = '<h3 class="pb-3 pt-3">Shopping Lists</h3>';
-        $jquery = "\n\n";
-        $i = 0;
+        $response = '<h3 class="pb-3 pt-3">Shopping Lists</h3>';
 
-        foreach($lists as $list){
+        for($i = 0; $i < count($lists); $i++){
 
-            if(!empty($list['listItems'])){
+            if(count($lists[$i]->getListItems()) > 0) {
 
-                $list_product_id = $list['listItems'][$i]['product']['id'];
+                $item_id = $lists[$i]->getListItems()[0]->getList()->getListItems()[0]->getId();
+                $is_selected = false;
 
-                $icon = '<a href="" id="list_remove_item_'. $list['listItems'][$i]['id'] .'">
-                                <i class="fa-solid fa-circle-check pe-2 list-icon list-icon-checked"></i>
-                            </a>';
+                for($c = 0; $c < count($lists[$i]->getListItems()); $c++){
+                    dump($lists[$i]->getListItems()[$c]->getProduct()->getId(),$product_id);
+                    if($lists[$i]->getListItems()[$c]->getProduct()->getId() == $product_id){
+
+                        $is_selected = true;
+                        break;
+                    }
+                }
+
+                if($is_selected) {
+
+                    $icon = '<a href="" class="list_remove_item" data-id="' . $product_id . '" data-value="' . $item_id . '">
+                            <i class="fa-solid fa-circle-check pe-2 list-icon list-icon-checked"></i>
+                        </a>';
+
+                } else {
+
+                    $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
+                            <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                        </a>';
+                }
 
             } else {
 
-                $icon = '<a href="" id="list_add_item_'. $product_id .'">
-                                <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
-                            </a>';
+                $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
+                            <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                        </a>';
             }
 
-            $html .= '
+            $response .= '
                 <div class="row p-2">
                     <div class="col-8 col-sm-10 ps-1 d-flex flex-column">
                         <table style="height: 30px;">
@@ -827,8 +879,8 @@ class ClinicsController extends AbstractController
                                 <td class="align-middle" width="50px">
                                     '. $icon .'
                                 </td>
-                                <td class="align-middle">
-                                    '. $list['name'] .'
+                                <td class="align-middle info">
+                                    '. $lists[$i]->getName() .'
                                 </td>
                             </tr>
                         </table>
@@ -838,21 +890,87 @@ class ClinicsController extends AbstractController
                     </div>
                 </div>
             ';
-
-//            $jquery .= "$(document).on('click', '#list_remove_item_". $list['listItems'][0]['id'] ."', function (e){
-//
-//                e.preventDefault();
-//
-//                alert(". $list['listItems'][0]['id'] .");
-//            });" . "\n\n";
         }
 
-        $html .= $this->listCreateNew($product_id);
+        $response .= $this->listCreateNew($product_id);
 
-        $response = [
-            'html_code' => $html,
-            'jquery_code' => $jquery,
-        ];
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/delete-list-item', name: 'inventory_delete_list_item')]
+    public function clinicsDeleteListItemAction(Request $request): Response
+    {
+        $data = $request->request;
+        $product_id = (int) $data->get('product_id');
+        $list_id = (int) $data->get('list_id');
+        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
+        $list_item = $this->em->getRepository(ListItems::class)->find($list_id);
+        
+        $this->em->remove($list_item);
+        $this->em->flush();
+
+        $lists = $this->em->getRepository(Lists::class)->getClinicLists($clinic->getId());
+
+        $response = '<h3 class="pb-3 pt-3">Shopping Lists</h3>';
+
+        for($i = 0; $i < count($lists); $i++){
+
+            if(count($lists[$i]->getListItems()) > 0) {
+
+                $item_id = $lists[$i]->getListItems()[0]->getList()->getListItems()[0]->getId();
+                $is_selected = false;
+
+                for($c = 0; $c < count($lists[$i]->getListItems()); $c++){
+                    dump($lists[$i]->getListItems()[$c]->getProduct()->getId(),$product_id);
+                    if($lists[$i]->getListItems()[$c]->getProduct()->getId() == $product_id){
+
+                        $is_selected = true;
+                        break;
+                    }
+                }
+
+                if($is_selected) {
+
+                    $icon = '<a href="" class="list_remove_item" data-id="' . $product_id . '" data-value="' . $item_id . '">
+                            <i class="fa-solid fa-circle-check pe-2 list-icon list-icon-checked"></i>
+                        </a>';
+
+                } else {
+
+                    $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
+                            <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                        </a>';
+                }
+
+            } else {
+
+                $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
+                            <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                        </a>';
+            }
+
+            $response .= '
+                <div class="row p-2">
+                    <div class="col-8 col-sm-10 ps-1 d-flex flex-column">
+                        <table style="height: 30px;">
+                            <tr>
+                                <td class="align-middle" width="50px">
+                                    '. $icon .'
+                                </td>
+                                <td class="align-middle info">
+                                    '. $lists[$i]->getName() .'
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-4 col-sm-2">
+                        <a href="" class="float-end">View List</a>
+                    </div>
+                </div>
+            ';
+        }
+
+        $response .= $this->listCreateNew($product_id);
 
         return new JsonResponse($response);
     }
@@ -888,6 +1006,162 @@ class ClinicsController extends AbstractController
                     </a>
                 </div>
             </div>';
+    }
+
+    private function noteCreateNew($product_id)
+    {
+        return '
+            <div class="row mt-4">
+                <div class="col-12">
+                    <form name="form_note_'. $product_id .'" id="form_note_'. $product_id .'" method="post">
+                        <input type="hidden" name="product_id" value="'. $product_id .'">
+                        <input type="hidden" name="note_id" id="note_id_'. $product_id .'" value="0">
+                        <div class="row">
+                            <div class="col-12 col-sm-10">
+                                <input type="text" name="note" id="note_'. $product_id .'" class="form-control">
+                                <div class="hidden_msg" id="error_note_'. $product_id .'">
+                                    Required Field
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-2">
+                                <button type="submit" class="btn btn-primary float-end" id="note_create_new_'. $product_id .'">
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                    &nbsp;ADD NEW NOTE
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>';
+    }
+
+    #[Route('/clinics/inventory/get-notes', name: 'inventory_get_notes')]
+    public function clinicsGetNotesAction(Request $request): Response
+    {
+        $product_id = (int) $request->request->get('id');
+        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
+        $product = $this->em->getRepository(Products::class)->find($product_id);
+        $product_notes = $this->em->getRepository(ProductNotes::class)->findBy([
+            'clinic' => $clinic,
+            'product' => $product,
+        ]);
+
+        $response = '<h3 class="pb-3 pt-3">Item Notes</h3>';
+
+        foreach($product_notes as $note){
+
+            $response .= '<div class="row">
+                            <div class="col-10">
+                                <h6>'. $note->getNote() .'</h6>
+                            </div>
+                            <div class="col-2">
+                                <a href="" class="float-end note_update" data-id="'. $note->getId() .'">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+                                <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-note-id="'. $note->getId() .'" data-product-id="'. $product->getId() .'" data-bs-target="#modal_note_delete" id="note_delete_'. $note->getId() .'">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-12 info-sm">
+                                '. $note->getClinicUser()->getFirstName() .' '. $note->getClinicUser()->getLastName() .' . '. $note->getCreated()->format('M d Y H:i') .'
+                            </div>
+                        </div>';
+        }
+
+        $response .= $this->noteCreateNew($product_id);
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/manage-note', name: 'inventory_manage_note')]
+    public function clinicsManageNoteAction(Request $request): Response
+    {
+        $data = $request->request;
+        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
+        $product = $this->em->getRepository(Products::class)->find($data->get('product_id'));
+        $delete = $data->get('delete_id');
+        $note_id = (int)$data->get('note_id');
+
+        if($delete){
+
+            $note = $this->em->getRepository(ProductNotes::class)->find($note_id);
+
+            $this->em->remove($note);
+            $this->em->flush();
+
+        } else {
+
+            $user_name = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
+            $clinic_user = $this->em->getRepository(ClinicUsers::class)->findBy(['email' => $user_name]);
+
+            $note_string = $data->get('note');
+
+            // List
+            if ($note_id == 0) {
+
+                $note = new ProductNotes();
+
+            } else {
+
+                $note = $this->em->getRepository(ProductNotes::class)->find($note_id);
+            }
+
+            $note->setProduct($product);
+            $note->setClinic($clinic);
+            $note->setClinicUser($clinic_user[0]);
+            $note->setNote($note_string);
+
+            $this->em->persist($note);
+            $this->em->flush();
+        }
+
+        // Get the updated list
+        $product_notes = $this->em->getRepository(ProductNotes::class)->findBy([
+            'clinic' => $clinic,
+            'product' => $product,
+        ]);
+        $response = '';
+
+        foreach($product_notes as $note){
+
+            $response .= '<div class="row">
+                            <div class="col-10">
+                                <h6>'. $note->getNote() .'</h6>
+                            </div>
+                            <div class="col-2">
+                                <a href="" class="float-end note_update" data-id="'. $note->getId() .'">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+                                <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-note-id="'. $note->getId() .'" data-product-id="'. $product->getId() .'" data-bs-target="#modal_note_delete" id="note_delete_'. $note->getId() .'">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-12 info-sm">
+                                '. $note->getClinicUser()->getFirstName() .' '. $note->getClinicUser()->getLastName() .' . '. $note->getCreated()->format('M d Y H:i') .'
+                            </div>
+                        </div>';
+        }
+
+        $response .= $this->noteCreateNew($product->getId());
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/get-note', name: 'inventory_get_note')]
+    public function clinicsGetNoteAction(Request $request): Response
+    {
+        $note = $this->em->getRepository(ProductNotes::class)->find($request->request->get('id'));
+
+        $response = [
+            'note' => $note->getNote(),
+            'product_id' => $note->getProduct()->getId(),
+        ];
+
+        return new JsonResponse($response);
     }
 
     #[Route('/clinics/get-inventory', name: 'clinic_get_inventory')]

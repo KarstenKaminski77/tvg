@@ -19,22 +19,23 @@ class ProductNotesRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductNotes::class);
     }
 
-    // /**
-    //  * @return ProductNotes[] Returns an array of ProductNotes objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+    * @return ProductNotes[] Returns an array of ProductNotes objects
+    */
+
+    public function findNotes($product_id, $clinic_id) :array
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
+            ->andWhere('p.product = :product_id')
+            ->setParameter('product_id', $product_id)
+            ->andWhere('p.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
 
     /*
     public function findOneBySomeField($value): ?ProductNotes
