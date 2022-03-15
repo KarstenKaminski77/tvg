@@ -34,17 +34,15 @@ class ProductsRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findByKeyString($keywords): array
+    public function findByKeyString($keywords)
     {
         $queryBuilder = $this->createQueryBuilder('p')
-            ->select('p','dp','d','li')
+            ->select('p','dp','d')
             ->Join('p.distributorProducts', 'dp')
             ->join('dp.distributor', 'd')
-            ->leftJoin('p.listItems', 'li')
             ->where("MATCH_AGAINST(p.name,p.activeIngredient,p.description) AGAINST(:search_term boolean) > 0")
             ->setParameter('search_term', $keywords.'*')
-            ->getQuery()
-            ->getArrayResult();
+            ->getQuery();
         return $queryBuilder;
     }
 

@@ -34,4 +34,20 @@ class ProductReviewsRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    public function getProductRating($product_id, $rating)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.rating, COUNT(p.id) AS total')
+            ->andWhere('p.product = :product_id')
+            ->setParameter('product_id', $product_id)
+            ->andWhere('p.rating = :rating')
+            ->setParameter('rating', $rating)
+            ->orderBy('p.rating', 'DESC')
+            ->groupBy('p.rating')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

@@ -17,13 +17,12 @@ class PaginationManager
      */
     public function paginate($query, Request $request, int $limit): Paginator
     {
-        $currentPage = $request->query->getInt('p') ?: 1;
+        $currentPage = (int) $request->get('page_no') ?: 1;
         $paginator = new Paginator($query);
         $paginator
             ->getQuery()
             ->setFirstResult($limit * ($currentPage - 1))
             ->setMaxResults($limit);
-
         return $paginator;
     }
 
