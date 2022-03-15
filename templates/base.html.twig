@@ -34,6 +34,21 @@
                     })
                 });
                 // DOMContentLoaded  end
+
+                {# Rating #}
+                function rateStyle(num, divID) {
+                    var ratingRounded = Math.floor(num);
+                    var starArray = document.getElementById(divID).querySelectorAll(".star-over");
+
+                    for (var i = 0; i < ratingRounded; i++) {
+                        starArray[i].classList.add("star-visible");
+                    }
+                    var finalStar = Math.round((num-ratingRounded)*100);
+                    if (finalStar != 0) {
+                        starArray[ratingRounded].classList.add("star-visible");
+                        starArray[ratingRounded].style.width=finalStar+"%";
+                    }
+                }
             </script>
         {% endblock %}
     </head>
@@ -44,31 +59,836 @@
         {% block javascripts %}
             <!-- jQuery -->
             <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
-
             <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+            <script src="{{ asset('js/jquery.session.min.js') }}"></script>
 
             <script>
+                $(document).ready(function (){
 
-                {#$(document).ready(function (){#}
+                    let response = false;
+                    let page_no = 1;
 
-                {#    $(document).on('click','#search_btn',function (e){#}
+                    $(document).on('click','.page-link',function (e){
 
-                {#        e.preventDefault();#}
+                        page_no = $(this).data('page-id');
+                    });
 
-                {#        let keyword = $('#search_field').val();#}
+                    $(document).on('click','#search_btn, .page-link',function (e){
 
-                {#        $.ajax({#}
-                {#            url: "{{ path('clinic_get_inventory') }}",#}
-                {#            type: 'POST',#}
-                {#            data: {#}
-                {#                keyword: keyword#}
-                {#            },#}
-                {#            success: function (response) {#}
+                        e.preventDefault();
 
-                {#            }#}
-                {#        });#}
-                {#    });#}
-                {#});#}
+                        let keyword = $('#search_field').val();
+
+                        $.ajax({
+                            url: "{{ path('search_inventory') }}",
+                            type: 'POST',
+                            data: {
+                                keyword: keyword,
+                                page_no: page_no
+                            },
+                            success: function (response) {
+                                $('#inventory').empty().append(response);
+                                $('.container').removeClass('mt-5').addClass('mt-5');
+                                document.title = 'Fluid';
+                                window.history.pushState({"html":response.html,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/inventory/'+ page_no);
+                                $.session.set('search_key', keyword);
+                            }
+                        });
+                    });
+                });
+
+                $(window).on('load', function(){
+
+                    if($.session.get('search_key').length > 0){
+
+                        let page_no = 1;
+                        let keyword = $.session.get('search_key');
+
+                        $.ajax({
+                            url: "{{ path('search_inventory') }}",
+                            type: 'POST',
+                            data: {
+                                keyword: keyword,
+                                page_no: page_no
+                            },
+                            success: function (response) {
+
+                                if(window.location.pathname.substr(-1) >= 1) {
+
+                                    page_no = window.location.pathname.substr(-1)
+
+                                    $('#inventory').empty().append(response);
+                                    $('.container').removeClass('mt-5').addClass('mt-5');
+                                    document.title = 'Fluid';
+                                    window.history.pushState({
+                                        "html": response.html,
+                                        "pageTitle": 'Fluid'
+                                    }, "", 'https://127.0.0.1:8000/clinics/inventory/'+ page_no);
+                                    $.session.set('search_key', keyword);
+                                }
+                            }
+                        });
+                    }
+                });
+
+                $(document).ready(function (){
+
+                    let rating = 0;
+                    let product_id = 0;
+                    let note_id = 0;
+                    let basket_product_id = 0
+                    let distributor_id = 0;
+
+                    {# Panels #}
+                    {# Details #}
+                    $(document).on('click', '.btn_details', function(){
+
+                        product_id = $(this).data('product-id');
+                        $('.panel_lists').empty();
+
+                        if($('#details_'+ product_id +':visible').length) {
+
+                            $('#details_'+ product_id).hide(700);
+                            $('#search_panels_container_'+ product_id).hide(700);
+                            $('#btn_details_'+ product_id).removeClass('active').removeClass('active');
+
+                        } else {
+
+                            $('#search_panels_container_'+ product_id).show();
+                            $('#details_'+ product_id).show(700);
+                            $('#lists_'+ product_id).hide(700);
+                            $('#track_'+ product_id).hide(700);
+                            $('#notes_'+ product_id).hide(700);
+                            $('#reviews_'+ product_id).hide(700);
+                            $('#btn_details_'+ product_id).addClass('active');
+                            $('#btn_lists_'+ product_id).removeClass('active');
+                            $('#btn_track_'+ product_id).removeClass('active');
+                            $('#btn_notes_'+ product_id).removeClass('active');
+                            $('#btn_reviews_'+ product_id).removeClass('active');
+                        }
+                    });
+                    {# End Details #}
+
+                    {# Shopping Lists #}
+                    $(document).on('click', '.btn_lists', function(){
+
+                        product_id = $(this).data('product-id');
+
+                        if($('#lists_'+ product_id +':visible').length) {
+
+                            $('#lists_'+ product_id).hide(700);
+                            $('#search_panels_container_'+ product_id).hide(700);
+                            $('#btn_lists_'+ product_id).removeClass('active').removeClass('active');
+
+                        } else {
+
+                            $.ajax({
+                                url: "{{ path('inventory_get_lists') }}",
+                                type: 'POST',
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: {
+                                    id: product_id
+                                },
+                                success: function (response) {
+                                    $('#lists_'+ product_id).empty();
+                                    $('#lists_'+ product_id).append(response);
+
+                                }
+                            });
+
+                            $('#search_panels_container_'+ product_id).show();
+                            $('#details_'+ product_id).hide(700);
+                            $('#lists_'+ product_id).show(700);
+                            $('#track_'+ product_id).hide(700);
+                            $('#notes_'+ product_id).hide(700);
+                            $('#reviews_'+ product_id).hide(700);
+                            $('#btn_details_'+ product_id).removeClass('active');
+                            $('#btn_lists_'+ product_id).addClass('active');
+                            $('#btn_track_'+ product_id).removeClass('active');
+                            $('#btn_notes_'+ product_id).removeClass('active');
+                            $('#btn_reviews_'+ product_id).removeClass('active');
+                        }
+                    });
+                    $(document).on('click', ".list_add_item", function (e){
+
+                        e.preventDefault();
+
+                        let list_id = $(this).data("value");
+                        let product_id = $(this).data("id");
+                        let is_valid = true;
+
+                        if(list_id == '' || list_id == 'undefined' || product_id == '' || product_id == 'undefined'){
+
+                            is_valid = false;
+                        }
+
+                        if(is_valid){
+
+                            $.ajax({
+                                url: "{{ path('inventory_manage_list') }}",
+                                type: 'POST',
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: {
+                                    product_id: product_id,
+                                    list_id: list_id,
+
+                                },
+                                success: function (response) {
+                                    $('#lists_'+ product_id).empty().append(response);
+
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', ".list_remove_item", function (e){
+
+                        e.preventDefault();
+
+                        let list_id = $(this).data("value");
+                        let product_id = $(this).data("id");
+                        let is_valid = true;
+
+                        if(list_id == '' || list_id == 'undefined' || product_id == '' || product_id == 'undefined'){
+
+                            is_valid = false;
+                        }
+
+                        if(is_valid){
+
+                            $.ajax({
+                                url: "{{ path('inventory_delete_list_item') }}",
+                                type: 'POST',
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: {
+                                    product_id: product_id,
+                                    list_id: list_id,
+
+                                },
+                                success: function (response) {
+                                    $('#lists_'+ product_id).empty().append(response);
+
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('submit', '#form_list', function (e){
+
+                        e.preventDefault();
+
+                        let list_name = $('#list_name').val();
+                        let list_name_error = $('#error_list_name');
+                        let data = new FormData(this);
+                        let is_valid = true;
+
+                        list_name_error.hide()
+
+                        if(list_name == '' || list_name == 'undefined'){
+
+                            list_name_error.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid) {
+
+                            $.ajax({
+                                url: "{{ path('inventory_manage_list') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    $('#lists_'+ product_id).empty().append(response);
+                                }
+                            });
+                        }
+                    });
+                    {# End Shopping Lists #}
+
+                    {# Tracking #}
+                    $(document).on('click', '.btn_track', function(){
+
+                        product_id = $(this).data('product-id');
+
+                        if($('#track_'+ product_id +':visible').length) {
+
+                            $('#track_'+ product_id).hide(700);
+                            $('#search_panels_container_'+ product_id).hide(700);
+                            $('#btn_track_'+ product_id).removeClass('active').removeClass('active');
+
+                        } else {
+
+                            $('#search_panels_container_'+ product_id).show();
+                            $('#details_'+ product_id).hide(700);
+                            $('#lists_'+ product_id).hide(700);
+                            $('#track_'+ product_id).show(700);
+                            $('#notes_'+ product_id).hide(700);
+                            $('#reviews_'+ product_id).hide(700);
+                            $('#btn_details_'+ product_id).removeClass('active');
+                            $('#btn_lists_'+ product_id).removeClass('active');
+                            $('#btn_track_'+ product_id).addClass('active');
+                            $('#btn_notes_'+ product_id).removeClass('active');
+                            $('#btn_reviews_'+ product_id).removeClass('active');
+                        }
+                    });
+                    {# End Tracking #}
+
+                    {# Notes #}
+                    $(document).on('click', '.btn_notes, .note_link', function(e){
+
+                        product_id = $(this).data('product-id');
+
+                        e.preventDefault();
+
+                        if($('#notes_'+ product_id +':visible').length) {
+
+                            $('#notes_'+ product_id).hide(700);
+                            $('#search_panels_container_'+ product_id).hide(700);
+                            $('#btn_notes_'+ product_id).removeClass('active').removeClass('active');
+
+                        } else {
+
+                            $.ajax({
+                                url: "{{ path('inventory_get_notes') }}",
+                                type: 'POST',
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: {
+                                    id: product_id
+                                },
+                                success: function (response) {
+
+                                    $('#notes_'+ product_id).empty();
+                                    $('#notes_'+ product_id).append(response);
+
+                                }
+                            });
+
+                            $('#search_panels_container_'+ product_id).show();
+                            $('#details_'+ product_id).hide(700);
+                            $('#lists_'+ product_id).hide(700);
+                            $('#track_'+ product_id).hide(700);
+                            $('#notes_'+ product_id).show(700);
+                            $('#reviews_'+ product_id).hide(700);
+                            $('#btn_details_'+ product_id).removeClass('active');
+                            $('#btn_lists_'+ product_id).removeClass('active');
+                            $('#btn_track_'+ product_id).removeClass('active');
+                            $('#btn_notes_'+ product_id).addClass('active');
+                            $('#btn_reviews_'+ product_id).removeClass('active');
+                        }
+                    });
+                    $.ajax({
+                        url: "{{ path('clinic_get_product_notes') }}",
+                        type: 'POST',
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: {
+                            product_id: product_id
+                        },
+                        success: function (response) {
+
+                            if(response){
+                                $('#product_notes_label_'+ product_id).append('<a class="note-link" id="note_link_'+ product_id +'" href=""><i class="fa-solid fa-pen-to-square"></i> <b>Notes From '+ response.from +':</b> '+ response.note +'</a>');
+                                $('#'+ product_id).removeClass('hidden_msg');
+                            }
+                        }
+                    });
+                    $(document).on('submit', '.form_note', function (e){
+
+                        product_id = $(this).data('product-id');
+
+                        e.preventDefault();
+
+                        let note = $('#note_'+ product_id).val();
+                        let note_error = $('#error_note_'+ product_id);
+                        let data = new FormData(this);
+                        let is_valid = true;
+
+                        note_error.hide()
+
+                        if(note == '' || note == 'undefined'){
+
+                            note_error.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid) {
+
+                            $.ajax({
+                                url: "{{ path('inventory_manage_note') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    $('#notes_'+ product_id).empty().append(response);
+
+                                    $.ajax({
+                                        url: "{{ path('clinic_get_product_notes') }}",
+                                        type: 'POST',
+                                        cache: false,
+                                        timeout: 600000,
+                                        dataType: 'json',
+                                        data: {
+                                            product_id: ''+ product_id
+                                        },
+                                        success: function (response) {
+
+                                            if(response){
+                                                $('#product_notes_label_'+ product_id).empty().append('<i class="fa-solid fa-pen-to-square"></i> <b>Notes From '+ response.from +':</b> '+ response.note);
+                                                $('#product_notes_label_'+ product_id).removeClass('hidden_msg');
+
+                                            } else {
+                                                $('#product_notes_label_'+ product_id).addClass('hidden_msg');
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.note_update', function (e){
+
+                        e.preventDefault();
+
+                        let note_id = $(this).data("id")
+
+                        $.ajax({
+                            url: "{{ path('inventory_get_note') }}",
+                            type: 'POST',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: {
+                                id: note_id
+                            },
+                            success: function (response) {
+                                $('#note_create_new_'+ response.product_id).empty().append('<i class="fa-solid fa-circle-plus"></i> &nbsp;UPDATE NOTE');
+                                $('#note_id_'+ response.product_id).val(note_id);
+                                $('#note_'+ response.product_id).empty().val(response.note);
+                            }
+                        });
+                    });
+                    $(document).on('click', '#delete_note', function (e){
+
+                        e.preventDefault();
+
+                        $.ajax({
+                            url: "{{ path('inventory_manage_note') }}",
+                            type: 'POST',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: {
+                                delete_id: true,
+                                note_id: note_id,
+                                product_id: product_id
+                            },
+                            success: function (response) {
+                                $('#notes_'+ product_id).empty().append(response);
+                                $('#modal_note_delete').modal('toggle');
+                                $('#modal_note_delete').modal('hide');
+
+                                $.ajax({
+                                    url: "{{ path('clinic_get_product_notes') }}",
+                                    type: 'POST',
+                                    cache: false,
+                                    timeout: 600000,
+                                    dataType: 'json',
+                                    data: {
+                                        product_id: product_id
+                                    },
+                                    success: function (response) {
+
+                                        if(response){
+                                            $('#product_notes_label_'+ product_id).empty().append('<i class="fa-solid fa-pen-to-square"></i> <b>Notes From '+ response.from +':</b> '+ response.note);
+                                            $('#product_notes_label_'+ product_id).removeClass('hidden_msg');
+
+                                        } else {
+                                            $('#product_notes_label_'+ product_id).addClass('hidden_msg');
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    $(document).on('click', '.delete-icon', function (e){
+
+                        e.preventDefault();
+
+                        note_id = $(this).data("note-id");
+                        product_id = $(this).data("product-id");
+
+                        $('#delete_note').attr('data-delete-note-id', note_id);
+                        $('#delete_note').attr('data-delete-product-id', product_id);
+                        $('.modal-backdrop').addClass('modal-backdrop');
+                        $('.fade').addClass('fade');
+
+                    });
+                    {# End Notes #}
+
+                    {# Reviews #}
+                    $(document).on('click', '#star-over-1', function (){
+                        $('#rating').val(0);
+                        $('#star-over-1').fadeOut(700);
+                        $('#star-over-2').fadeOut(700);
+                        $('#star-over-3').fadeOut(700);
+                        $('#star-over-4').fadeOut(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '#star-under-1', function (){
+                        $('#rating').val(1);
+                        $('#star-over-1').fadeIn(700);
+                        $('#star-over-2').fadeOut(700);
+                        $('#star-over-3').fadeOut(700);
+                        $('#star-over-4').fadeOut(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '#star-under-2', function (){
+                        $('#rating').val(2);
+                        $('#star-over-1').fadeIn(700);
+                        $('#star-over-2').fadeIn(700);
+                        $('#star-over-3').fadeOut(700);
+                        $('#star-over-4').fadeOut(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '#star-over-2', function (){
+                        $('#rating').val(1);
+                        $('#star-over-2').fadeOut(700);
+                        $('#star-over-3').fadeOut(700);
+                        $('#star-over-4').fadeOut(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '#star-under-3', function (){
+                        $('#rating').val(3);
+                        $('#star-over-1').fadeIn(700);
+                        $('#star-over-2').fadeIn(700);
+                        $('#star-over-3').fadeIn(700);
+                        $('#star-over-4').fadeOut(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '#star-over-3', function (){
+                        $('#rating').val(2);
+                        $('#star-over-1').fadeIn(700);
+                        $('#star-over-2').fadeIn(700);
+                        $('#star-over-3').fadeOut(700);
+                        $('#star-over-4').fadeOut(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '#star-under-4', function (){
+                        $('#rating').val(4);
+                        $('#star-over-1').fadeIn(700);
+                        $('#star-over-2').fadeIn(700);
+                        $('#star-over-3').fadeIn(700);
+                        $('#star-over-4').fadeIn(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '#star-over-4', function (){
+                        $('#rating').val(3);
+                        $('#star-over-1').fadeIn(700);
+                        $('#star-over-2').fadeIn(700);
+                        $('#star-over-3').fadeIn(700);
+                        $('#star-over-4').fadeOut(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '#star-under-5', function (){
+                        $('#rating').val(5);
+                        $('#star-over-1').fadeIn(700);
+                        $('#star-over-2').fadeIn(700);
+                        $('#star-over-3').fadeIn(700);
+                        $('#star-over-4').fadeIn(700);
+                        $('#star-over-5').fadeIn(700);
+                    });
+                    $(document).on('click', '#star-over-5', function (){
+                        $('#rating').val(4);
+                        $('#star-over-1').fadeIn(700);
+                        $('#star-over-2').fadeIn(700);
+                        $('#star-over-3').fadeIn(700);
+                        $('#star-over-4').fadeIn(700);
+                        $('#star-over-5').fadeOut(700);
+                    });
+                    $(document).on('click', '.btn_reviews', function(){
+
+                        product_id = $(this).data('product-id');
+
+                        if($('#reviews_'+ product_id +':visible').length) {
+
+                            $('#reviews_'+ product_id).hide(700);
+                            $('#search_panels_container_'+ product_id).hide(700);
+                            $('#btn_reviews_'+ product_id).removeClass('active').removeClass('active');
+
+                        } else {
+
+                            $('#search_panels_container_'+ product_id).show();
+                            $('#details_'+ product_id).hide(700);
+                            $('#lists_'+ product_id).hide(700);
+                            $('#track_'+ product_id).hide(700);
+                            $('#notes_'+ product_id).hide(700);
+                            $('#reviews_'+ product_id).show(700);
+                            $('#btn_details_'+ product_id).removeClass('active');
+                            $('#btn_lists_'+ product_id).removeClass('active');
+                            $('#btn_track_'+ product_id).removeClass('active');
+                            $('#btn_notes_'+ product_id).removeClass('active');
+                            $('#btn_reviews_'+ product_id).addClass('active');
+
+                            $.ajax({
+                                url: '/clinics/get-review-details/'+ product_id,
+                                type: 'GET',
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                success: function (response) {
+                                    if(response != false) {
+                                        $('#reviews_'+ product_id).empty().append(response);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.btn_create_review', function (){
+
+                        $('#review_product_id').val($(this).data("product-id"))
+                    });
+                    $(document).on('submit', '#form_review', function (e){
+
+                        e.preventDefault();
+
+                        let rating = $('#rating').val();
+                        let title = $('#review_title').val();
+                        let review = $('#review').val();
+                        let username = $('#review_username').val();
+                        let position = $('#review_position').val();
+                        let error_rating = $('#error_rating');
+                        let error_title = $('#error_review_title');
+                        let error_review = $('#error_review');
+                        let error_username = $('#error_review_username');
+                        let error_position = $('#error_review_position');
+                        let data = new FormData(this);
+                        let is_valid = true;
+
+                        error_rating.hide();
+                        error_title.hide();
+                        error_review.hide();
+                        error_username.hide();
+                        error_position.hide();
+
+                        if(rating == 0 || rating == 'undefined' || rating == ''){
+
+                            error_rating.show();
+                            is_valid = false;
+                        }
+
+                        if(title == '' || title == 'undefined'){
+
+                            error_title.show();
+                            is_valid = false;
+                        }
+
+                        if(review == '' || review == 'undefined'){
+
+                            error_review.show();
+                            is_valid = false;
+                        }
+
+                        if(username == '' || username == 'undefined'){
+
+                            error_username.show();
+                            is_valid = false;
+                        }
+
+                        if(position == '' || position == 'undefined'){
+
+                            error_position.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid) {
+
+                            $.ajax({
+                                url: "{{ path('create_review') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    $('#flash').addClass('alert-success');
+                                    $('#flash').removeClass('alert-danger');
+                                    $('#flash').addClass('alert');
+                                    $('#flash').addClass('text-center');
+                                    $('#flash').removeClass('users-flash');
+                                    $('#flash').addClass('users-flash');
+                                    $('#flash').empty();
+                                    $('#flash').append(response);
+                                    $('#flash').removeClass('hidden');
+                                    $('#modal_review').modal('toggle');
+                                    $('#modal_review').modal('hide');
+                                    $('.modal-backdrop').removeClass('modal-backdrop');
+                                    $('.fade').removeClass('fade');
+
+                                    let product_id = $('#review_product_id').val();
+
+                                    $.ajax({
+                                        url: '/clinics/get-reviews/'+ product_id,
+                                        type: 'POST',
+                                        cache: false,
+                                        timeout: 600000,
+                                        dataType: 'json',
+                                        data: {
+                                            product_id: product_id
+                                        },
+                                        success: function (response) {
+
+                                            if(response.review_count > 0) {
+
+                                                rateStyle(response.review_average, 'parent_'+ product_id);
+                                                $('#review_count_'+ product_id).empty().append('<p>(' + response.review_count + ' Reviews)</p>');
+                                            }
+
+                                            $.ajax({
+                                                url: '/clinics/get-review-details/'+ product_id,
+                                                type: 'GET',
+                                                cache: false,
+                                                timeout: 600000,
+                                                dataType: 'json',
+                                                success: function (response) {
+                                                    if(response != false) {
+                                                        $('#reviews_'+ product_id).empty().append(response);
+                                                    }
+                                                }
+                                            });
+
+                                            $('#review_title').val('');
+                                            $('#review').val('');
+                                            $('#review_username').val('');
+                                            $('#review_position').val('');
+                                            $('#star-over-1').hide();
+                                            $('#star-over-2').hide();
+                                            $('#star-over-3').hide();
+                                            $('#star-over-4').hide();
+                                            $('#star-over-5').hide();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                    {# End Reviews #}
+
+                    {# Basket Panels #}
+                    $(document).on('click','.basket_link', function (e){
+
+                        e.preventDefault();
+
+                        $('.btn-basket-panel-active').removeClass('btn-basket-panel-active');
+                        $('.btn_item_facts').addClass('btn-basket-panel-active');
+
+                        distributor_id = $(this).data('distributor-id');
+                        product_id = $(this).data('product-id');
+
+                        $('#panel_item_facts_'+ product_id +'_'+ distributor_id).show();
+                        $('#btn_item_facts_'+ product_id +'_'+ distributor_id).addClass('btn-basket-panel-active');
+                        $('#panel_shipping_'+ product_id +'_'+ distributor_id).hide();
+                        $('#panel_taxes_'+ product_id +'_'+ distributor_id).hide();
+                    });
+
+                    {# Item Facts #}
+                    $(document).on('click', '.btn_item_facts', function(e){
+
+                        e.preventDefault();
+
+                        $('.btn-basket-panel-active').removeClass('btn-basket-panel-active');
+
+                        if($('#panel_item_facts_'+ product_id +'_'+ distributor_id +':visible').length) {
+
+                            $('#panel_item_facts_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_shipping_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_taxes_'+ product_id +'_'+ distributor_id).hide(700);
+
+                        } else {
+
+                            $('#panel_item_facts_'+ product_id +'_'+ distributor_id).show(700);
+                            $('#panel_shipping_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_taxes_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('.btn_item_facts').addClass('btn-basket-panel-active');
+                        }
+                    });
+
+                    {# Shipping #}
+                    $(document).on('click', '.btn_shipping', function(e){
+
+                        e.preventDefault();
+
+                        $('.btn-basket-panel-active').removeClass('btn-basket-panel-active');
+
+                        if($('#panel_shipping_'+ product_id +'_'+ distributor_id +':visible').length) {
+
+                            $('#panel_item_facts_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_shipping_'+ product_id +'_'+ distributor_id).show(700);
+                            $('#panel_taxes_'+ product_id +'_'+ distributor_id).hide(700);
+
+
+                        } else {
+
+                            $('#panel_item_facts_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_shipping_'+ product_id +'_'+ distributor_id).show(700);
+                            $('#panel_taxes_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('.btn_shipping').addClass('btn-basket-panel-active');
+                        }
+                    });
+
+                    {# Taxes #}
+                    $(document).on('click', '.btn_taxes', function(e){
+
+                        e.preventDefault();
+
+                        $('.btn-basket-panel-active').removeClass('btn-basket-panel-active');
+
+                        if($('#panel_taxes_'+ product_id +'_'+ distributor_id +':visible').length) {
+
+                            $('#panel_item_facts_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_shipping_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_taxes_'+ product_id +'_'+ distributor_id).show(700);
+
+
+                        } else {
+
+                            $('#panel_item_facts_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_shipping_'+ product_id +'_'+ distributor_id).hide(700);
+                            $('#panel_taxes_'+ product_id +'_'+ distributor_id).show(700);
+                            $('.btn_taxes').addClass('btn-basket-panel-active');
+                        }
+                    });
+                    {# End Basket Panels #}
+
+                    $(document).on('change', '#qty', function (){
+
+                        if($('#qty').val() == 'Enter Quantity') {
+
+                            $('#qty').val('');
+                        }
+                    });
+                });
+
+                {# Clode Flash Message #}
+                $('#flash').click(function (){
+                    $('#flash').addClass('hidden');
+                });
             </script>
         {% endblock %}
     </body>

@@ -980,19 +980,19 @@ class ClinicsController extends AbstractController
         return '
             <div class="row mt-4">
                 <div class="col-12 col-sm-6">
-                    <form name="form_list_'. $product_id .'" id="form_list_'. $product_id .'" method="post">
+                    <form name="form_list" id="form_list" method="post">
                         <input type="hidden" name="product_id" value="'. $product_id .'">
                         <input type="hidden" name="list_id" value="0">
                         <input type="hidden" name="list_type" value="custom">
                         <div class="row">
                             <div class="col-12 col-sm-8">
-                                <input type="text" name="list_name" id="list_name_'. $product_id .'" class="form-control">
-                                <div class="hidden_msg" id="error_list_name_'. $product_id .'">
+                                <input type="text" name="list_name" id="list_name" class="form-control mb-3 mb-sm-0">
+                                <div class="hidden_msg" id="error_list_name">
                                     Required Field
                                 </div>
                             </div>
                             <div class="col-12 col-sm-4">
-                                <button type="submit" class="btn btn-primary" id="list_create_new_'. $product_id .'">
+                                <button type="submit" class="btn btn-primary mb-3 mb-sm-0 w-100 w-sm-100" id="list_create_new">
                                     <i class="fa-solid fa-circle-plus"></i>
                                     &nbsp;CREATE NEW
                                 </button>
@@ -1001,7 +1001,7 @@ class ClinicsController extends AbstractController
                     </form>
                 </div>
                 <div class="col-12 col-sm-6">
-                    <a href="" class="btn btn-secondary float-end">
+                    <a href="" class="btn btn-secondary float-end w-100 w-sm-100">
                         VIEW AND MANAGE YOUR LISTS 
                     </a>
                 </div>
@@ -1013,18 +1013,18 @@ class ClinicsController extends AbstractController
         return '
             <div class="row mt-4">
                 <div class="col-12">
-                    <form name="form_note_'. $product_id .'" id="form_note_'. $product_id .'" method="post">
+                    <form name="form_note_'. $product_id .'" class="form_note" id="form_note_'. $product_id .'" method="post"  data-product-id="'. $product_id .'">
                         <input type="hidden" name="product_id" value="'. $product_id .'">
                         <input type="hidden" name="note_id" id="note_id_'. $product_id .'" value="0">
                         <div class="row">
-                            <div class="col-12 col-sm-10">
+                            <div class="col-12 col-sm-10 mb-3 mb-sm-0">
                                 <input type="text" name="note" id="note_'. $product_id .'" class="form-control">
                                 <div class="hidden_msg" id="error_note_'. $product_id .'">
                                     Required Field
                                 </div>
                             </div>
                             <div class="col-12 col-sm-2">
-                                <button type="submit" class="btn btn-primary float-end" id="note_create_new_'. $product_id .'">
+                                <button type="submit" class="btn btn-primary float-end w-100">
                                     <i class="fa-solid fa-circle-plus"></i>
                                     &nbsp;ADD NEW NOTE
                                 </button>
@@ -1051,10 +1051,10 @@ class ClinicsController extends AbstractController
         foreach($product_notes as $note){
 
             $response .= '<div class="row">
-                            <div class="col-10">
+                            <div class="col-9">
                                 <h6>'. $note->getNote() .'</h6>
                             </div>
-                            <div class="col-2">
+                            <div class="col-3">
                                 <a href="" class="float-end note_update" data-id="'. $note->getId() .'">
                                     <i class="fa-solid fa-pencil"></i>
                                 </a>
@@ -1162,14 +1162,6 @@ class ClinicsController extends AbstractController
         ];
 
         return new JsonResponse($response);
-    }
-
-    #[Route('/clinics/get-inventory', name: 'clinic_get_inventory')]
-    public function clinicsGetInventoryAction(Request $request): Response
-    {
-        $products = $this->em->getRepository(Products::class)->findByKeystring($request->get('keyword'));
-
-        return new JsonResponse($products);
     }
 
     private function generatePassword()

@@ -65,12 +65,25 @@ class ProductReviewsController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('clinics/get-reviews-on-load/{product_id}', name: 'get_reviews_on_load')]
+    public function getReviewsOnLoadAction(Request $request): Response
+    {
+        $product_id = $request->get('product_id');
+
+        $review = $this->em->getRepository(ProductReviews::class)->getAverageRating($product_id);
+
+        $response = '<div id="review_count_'. $product_id .'" class="d-inline-block">'. $review[0][2] .' Reviews</div>';
+        $response .= "<script>rateStyle('". number_format($review[0][1],1) ."', 'parent_". $product_id ."');</script>";
+
+        return new Response($response);
+    }
+
     #[Route('clinics/get-review-details/{product_id}', name: 'get_review_details')]
     public function getReviewDetailsAction(Request $request): Response
     {
         $product_id = $request->get('product_id');
         $product = $this->em->getRepository(Products::class)->find($product_id);
-        $reviews = $this->em->getRepository(ProductReviews::class)->findBy(['product' => $product],['id' => 'DESC']);
+        $reviews = $this->em->getRepository(ProductReviews::class)->findBy(['product' => $product],['id' => 'DESC'], 3);
         $rating_1 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),1);
         $rating_2 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),2);
         $rating_3 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),3);
@@ -209,7 +222,7 @@ class ProductReviewsController extends AbstractController
                                         <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0">
                                             <h6>Help other TVG clinics</h6>
                                             <p>Let thousands of veterinary purchasers know about<br> your experience with this product</p>
-                                            <a href="" class="btn btn-primary btn_create_review" data-bs-toggle="modal" data-product-id="1" data-bs-target="#modal_review">
+                                            <a href="" class="btn btn-primary btn_create_review w-100 w-sm-100" data-bs-toggle="modal" data-product-id="'. $product_id .'" data-bs-target="#modal_review">
                                                 WRITE A REVIEW
                                             </a>
                                         </div>
@@ -224,7 +237,7 @@ class ProductReviewsController extends AbstractController
 
                 for($i = 0; $i < $review->getRating(); $i++){
 
-                    $response .= '<i class="star star-over fa fa-star star-visible position-relative"></i>';
+                    $response .= '<i class="star star-over fa fa-star star-visible position-relative start-sm-over"></i>';
                 }
 
                 for($i = 0; $i < (5 - $review->getRating()); $i++) {
@@ -242,7 +255,7 @@ class ProductReviewsController extends AbstractController
                     </div>
                     <div class="row">
                         <div class="col-12 mb-2">
-                            Written on '. $review->getCreated()->format('d M Y') .'by <b>'. $review->getClinicUser()->getReviewUsername() .', '. $review->getPosition() .'</b>
+                            Written on '. $review->getCreated()->format('d M Y') .' by <b>'. $review->getClinicUser()->getReviewUsername() .', '. $review->getPosition() .'</b>
                         </div>
                     </div>
                     <div class="row">
