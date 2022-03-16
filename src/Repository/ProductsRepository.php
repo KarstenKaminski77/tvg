@@ -40,8 +40,9 @@ class ProductsRepository extends ServiceEntityRepository
             ->select('p','dp','d')
             ->Join('p.distributorProducts', 'dp')
             ->join('dp.distributor', 'd')
-            ->where("MATCH_AGAINST(p.name,p.activeIngredient,p.description) AGAINST(:search_term boolean) > 0")
-            ->setParameter('search_term', $keywords.'*')
+            ->andWhere("MATCH_AGAINST(p.name,p.activeIngredient,p.description) AGAINST(:search_term boolean) > 0")
+            ->setParameter('search_term', '*'.$keywords.'*')
+            ->andWhere('p.isPublished = 1')
             ->getQuery();
         return $queryBuilder;
     }

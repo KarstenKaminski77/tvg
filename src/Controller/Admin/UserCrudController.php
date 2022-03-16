@@ -119,7 +119,7 @@ class UserCrudController extends AbstractCrudController
                 $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
                 $body .= '<tr><td colspan="2">Hi '. $user->getFirstName() .',</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
-                $body .= '<tr><td colspan="2">Please use the credentials below login to the TVG Backend.</td></tr>';
+                $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>URL: </b></td>';
@@ -138,7 +138,7 @@ class UserCrudController extends AbstractCrudController
                 $email = (new Email())
                     ->from($this->getParameter('app.email_from'))
                     ->addTo($user->getUsername())
-                    ->subject('TVG Login Credentials')
+                    ->subject('Fluid Login Credentials')
                     ->html($body);
 
                 $this->mailer->send($email);

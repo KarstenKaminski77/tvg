@@ -220,7 +220,7 @@ class ProductReviewsController extends AbstractController
                                     </div>
                                         </div>
                                         <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0">
-                                            <h6>Help other TVG clinics</h6>
+                                            <h6>Help other Fluid clinics</h6>
                                             <p>Let thousands of veterinary purchasers know about<br> your experience with this product</p>
                                             <a href="" class="btn btn-primary btn_create_review w-100 w-sm-100" data-bs-toggle="modal" data-product-id="'. $product_id .'" data-bs-target="#modal_review">
                                                 WRITE A REVIEW

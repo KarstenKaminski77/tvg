@@ -118,7 +118,7 @@ class DistributorsController extends AbstractController
                 $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
                 $body .= '<tr><td colspan="2">Hi '. $data->get('first_name') .',</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
-                $body .= '<tr><td colspan="2">Please use the credentials below login to the TVG Backend.</td></tr>';
+                $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>URL: </b></td>';
@@ -137,7 +137,7 @@ class DistributorsController extends AbstractController
                 $email = (new Email())
                     ->from($this->getParameter('app.email_from'))
                     ->addTo($data->get('email'))
-                    ->subject('TVG Login Credentials')
+                    ->subject('Fluid Login Credentials')
                     ->html($body);
 
                 $mailer->send($email);
@@ -232,7 +232,7 @@ class DistributorsController extends AbstractController
                 $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
                 $body .= '<tr><td colspan="2">Hi '. $data['firstName'] .',</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
-                $body .= '<tr><td colspan="2">Please use the credentials below login to the TVG Backend.</td></tr>';
+                $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>URL: </b></td>';
@@ -251,7 +251,7 @@ class DistributorsController extends AbstractController
                 $email = (new Email())
                     ->from($this->getParameter('app.email_from'))
                     ->addTo($data['email'])
-                    ->subject('TVG Login Credentials')
+                    ->subject('Fluid Login Credentials')
                     ->html($body);
 
                 $mailer->send($email);

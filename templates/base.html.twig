@@ -63,14 +63,20 @@
             <script src="{{ asset('js/jquery.session.min.js') }}"></script>
 
             <script>
+
+                {# Inventory Search #}
                 $(document).ready(function (){
 
-                    let response = false;
-                    let page_no = 1;
+                    let page_no = 0;
 
                     $(document).on('click','.page-link',function (e){
 
                         page_no = $(this).data('page-id');
+                    });
+
+                    $(document).on('click','#search_btn',function (e){
+
+                        page_no = 1;
                     });
 
                     $(document).on('click','#search_btn, .page-link',function (e){
@@ -96,7 +102,6 @@
                         });
                     });
                 });
-
                 $(window).on('load', function(){
 
                     if($.session.get('search_key').length > 0){
@@ -130,6 +135,46 @@
                         });
                     }
                 });
+                {# End Inventory Search #}
+
+                {# Add To Basket #}
+                $(document).on('submit', 'form[name="form_add_to_basket"]', function (e){
+
+                    e.preventDefault();
+
+                    let data = new FormData(this);
+                    let product_id = data.get('product_id');
+                    let distributor_id = data.get('distributor_id');
+                    let qty = data.get('qty');
+                    let qty_error = $('#error_qty_'+ product_id +'_'+ distributor_id);
+                    let is_valid = true;
+                    alert(distributor_id);
+                    qty_error.hide()
+
+                    if(qty == '' || qty == 'undefined'){
+
+                        qty_error.show();
+                        is_valid = false;
+                    }
+
+                    if(is_valid) {
+
+                        $.ajax({
+                            url: "{{ path('inventory_add_to_basket') }}",
+                            type: 'POST',
+                            contentType: false,
+                            processData: false,
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: data,
+                            success: function (response) {
+                                alert(product_id);
+                            }
+                        });
+                    }
+                });
+                {# End Add To Basket #}
 
                 $(document).ready(function (){
 

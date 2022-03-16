@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Baskets;
+use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
+use App\Entity\Distributors;
 use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Services\PaginationManager;
@@ -25,11 +28,30 @@ class ProductsController extends AbstractController
         $this->em = $entityManager;
     }
 
-    #[Route('/clinics/inventory/{page_no}', name: 'frontend', requirements: ['page' => '\i+'])]
+    #[Route('/clinics/inventory/inventory-add-to-basket', name: 'inventory_add_to_basket')]
+    public function addToBasketAction(Request $request): Response
+    {
+        $clinic = $this->em->getRepository(Clinics::class)->find($this->getUser()->getClinic()->getId());
+        $distributor = $this->em->getRepository(Distributors::class)->find($request->get('distributor_id'));
+        $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
+        $basket = $this->em->getRepository(Baskets::class)->findBy(['clinic' => $this->getUser()->getClinic()->getId()]);
+
+        if($basket == null){
+
+            $basket = new Baskets();
+        }
+
+        $basket->setClinic($clinic);
+        $basket->setDistributor($distributor);
+
+        return new JsonResponse($basket);
+    }
+
+    #[Route('/clinics/inventory/{page_no}', name: 'search_results', requirements: ['page' => '\i+'])]
     public function index(Request $request): Response
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
-        $response = '';
+        $response = 'Please use the search bar above....';
 
         return $this->render('frontend/inventory/inventory.html.twig',[
             'user' => $user,
@@ -48,9 +70,9 @@ class ProductsController extends AbstractController
             $products = $this->em->getRepository(Products::class)->findByKeystring($request->get('keyword'));
             $results = $this->page_manager->paginate($products, $request, self::ITEMS_PER_PAGE);
 
-            foreach($results->getQuery()->getArrayResult() as $product){
+            foreach($results->getQuery()->getResult() as $product){
 
-                $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product['id'], $user->getClinic()->getId());
+                $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
                 $note = '';
                 $class = '';
 
@@ -72,20 +94,20 @@ class ProductsController extends AbstractController
                 $response .= '<div class="row mb-4 prd-container p-0 ms-1 ms-sm-0 me-1 me-sm-0">';
 
                 $response .= '
-                                <div class="alert-warning p-2 '. $class .'" id="product_notes_label_'. $product['id'] .'">'. $note .'</div>
+                                <div class="alert-warning p-2 '. $class .'" id="product_notes_label_'. $product->getId() .'">'. $note .'</div>
                                 <!-- Product main container -->
                                 <div class="col-12 col-sm-9 ps-3 text-center text-sm-start">
                                     <div class="row">
                                         <!-- Thumbnail -->
-                                        <div class="col-12 col-sm-2 pt-3">
-                                            <img src="/images/products/'. $product['image'] .'" class="img-fluid prd-img">
+                                        <div class="col-12 col-sm-2 pt-3 text-center">
+                                            <img src="/images/products/'. $product->getImage() .'" class="img-fluid prd-img">
                                         </div>
                                         <!-- Description -->
                                         <div class="col-12 col-sm-10 pt-3 pb-3">
-                                           <h4>'. $product['name'] .': '. $product['dosage'] . $product['unit'] .', '. $product['size'] .' Count</h4>
-                                           <p>From $'. number_format($product['unitPrice'] / $product['size'], 2) .' / '. strtolower($product['form']) .'</p>
+                                           <h4>'. $product->getName() .': '. $product->getDosage() . $product->getUnit() .', '. $product->getSize() .' Count</h4>
+                                           <p>From $'. number_format($product->getUnitPrice() / $product->getSize(), 2) .' / '. strtolower($product->getForm()) .'</p>
                                             <!-- Product rating -->
-                                            <div id="parent_'. $product['id'] .'" class="mb-3 mt-2 d-inline-block">
+                                            <div id="parent_'. $product->getId() .'" class="mb-3 mt-2 d-inline-block">
                                                 <i class="star star-under fa fa-star">
                                                     <i class="star star-over fa fa-star"></i>
                                                 </i>
@@ -103,30 +125,30 @@ class ProductsController extends AbstractController
                                                 </i>
                                             </div>
                                             '. $this->forward('App\Controller\ProductReviewsController::getReviewsOnLoadAction', [
-                                                'product_id' => $product['id']
+                                                'product_id' => $product->getId()
                                             ])->getContent() .'
                                         </div>
         
                                         <!-- Collapsable panel buttons -->
                                         <div class="col-12 search-panels-header">
                                             <!-- Description -->
-                                            <button class="btn btn-sm btn-light info ps-0 pe-4 pe-sm-0 btn_details" type="button" data-product-id="'. $product['id'] .'">
+                                            <button class="btn btn-sm btn-light info ps-0 pe-4 pe-sm-0 btn_details" type="button" data-product-id="'. $product->getId() .'">
                                                 <i class="fa-regular fa-circle-question"></i> <span class="d-none d-sm-inline">Details</span>
                                             </button>
                                             <!-- Shopping lists -->
-                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_lists" type="button" data-product-id="'. $product['id'] .'">
+                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_lists" type="button" data-product-id="'. $product->getId() .'">
                                                 <i class="fa-solid fa-list"></i> <span class="d-none d-sm-inline">Lists</span>
                                             </button>
                                             <!-- Tracking -->
-                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_track" type="button" data-product-id="'. $product['id'] .'">
+                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_track" type="button" data-product-id="'. $product->getId() .'">
                                                 <i class="fa-regular fa-eye"></i> <span class="d-none d-sm-inline">Track</span>
                                             </button>
                                             <!-- Notes -->
-                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_notes" type="button" data-product-id="'. $product['id'] .'">
+                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_notes" type="button" data-product-id="'. $product->getId() .'">
                                                 <i class="fa-solid fa-pencil"></i> <span class="d-none d-sm-inline">Notes</span>
                                             </button>
                                             <!-- Reviews -->
-                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_reviews" type="button" data-product-id="'. $product['id'] .'">
+                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_reviews" type="button" data-product-id="'. $product->getId() .'">
                                                 <i class="fa-regular fa-star"></i> <span class="d-none d-sm-inline">Reviews</span>
                                             </button>
                                             <div class="d-inline-block float-end text-end">
@@ -139,299 +161,304 @@ class ProductsController extends AbstractController
                                 <!-- Distributors -->
                                 <div class="col-12 col-sm-3 mt-0 pt-3 pe-4 search-result-distributors">';
 
-                foreach($product['distributorProducts'] as $distributor) {
-                    $product_id = $product['id'];
-                    $distributor_id = $distributor['distributor']['id'];
+                foreach($product->getDistributorProducts() as $distributor) {
+                    $product_id = $product->getId();
+                    $distributor_id = $distributor->getDistributor()->getId();
                     $response .= '<a href=""
-                                           class="basket_link"
-                                           data-product-id="' . $product['id'] . '"
-                                           data-distributor-id="' . $distributor_id . '"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#modal_add_to_basket_' . $product_id . '_' . $distributor_id . '"
-                                        >
-                                            <div class="row distributor-store-row">
-                                                <div class="col-4">
-                                                    <img src="/images/logos/' . $distributor['distributor']['logo'] . '" class="img-fluid mh-30">
-                                                </div>
-                                                <div class="col-4 text-center">
-                                                    <i class="fas fa-truck-fast mh-30 stock-icon in-stock"></i>
-                                                </div>
-                                                <div class="col-4 text-end">
-                                                    <p>$' . number_format($distributor['unitPrice'], 2) . '</p>
-                                                </div>
+                       class="basket_link"
+                       data-product-id="' . $product->getId() . '"
+                       data-distributor-id="' . $distributor_id . '"
+                       data-bs-toggle="modal"
+                       data-bs-target="#modal_add_to_basket_' . $product_id . '_' . $distributor_id . '"
+                    >
+                        <div class="row distributor-store-row">
+                            <div class="col-4">
+                                <img src="/images/logos/' . $distributor->getDistributor()->getLogo() . '" class="img-fluid mh-30">
+                            </div>
+                            <div class="col-4 text-center">
+                                <i class="fas fa-truck-fast mh-30 stock-icon in-stock"></i>
+                            </div>
+                            <div class="col-4 text-end">
+                                <p>$' . number_format($distributor->getUnitPrice(), 2) . '</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Modal Add To Basket -->
+                    <div class="modal fade" action="" id="modal_add_to_basket_' . $product_id . '_' . $distributor_id . '" tabindex="-1" aria-labelledby="basket_label" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header basket-modal-header">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form name="form_add_to_basket" id="form_add_to_basket_' . $product_id . '_' . $distributor_id . '" method="post">
+                                    <input type="hidden" name="product_id" value="'. $product->getId() .'">
+                                    <input type="hidden" name="distributor_id" value="'. $product->getDistributorProducts()[0]->getDistributor()->getId() .'">
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-12 col-sm-5 text-center" id="basket_thumbnail text-center">
+                                                <img src="/images/products/' . $product->getImage() . '" class="text-center" style="max-height: 250px !important;">
                                             </div>
-                                        </a>
-        
-                                        <!-- Modal Add To Basket -->
-                                        <div class="modal fade" id="modal_add_to_basket_' . $product_id . '_' . $distributor_id . '" tabindex="-1" aria-labelledby="basket_label" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                <div class="modal-content">
-                                                    <div class="modal-header basket-modal-header">
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <div class="col-12 col-sm-7 text-center text-sm-start mt-3 mt-sm-0">
+                                                <h4 id="basket_item_name">
+                                                    ' . $product->getName() . ': ' . $product->getDosage() . $product->getUnit() . ', ' . $product->getSize() . ' Count
+                                                </h4>
+                                                <h5 id="basket_item_price" class="text-primary modal_price text-center text-sm-start">
+                                                    $' . $product->getDistributorProducts()[0]->getUnitPrice() . '
+                                                </h5>
+                                                <div class="modal_availability">
+                                                    <span class="is_available">In Stock</span> This item is in stock and ready to ship
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <input type="text" list="qty_list_' . $product_id . '_' . $distributor_id . '" name="qty" id="qty_' . $product_id . '_' . $distributor_id . '" class="form-control" />
+                                                        <datalist id="qty_list_' . $product_id . '_' . $distributor_id . '">
+                                                            <option>1</option>
+                                                            <option>2</option>
+                                                            <option>3</option>
+                                                            <option>4</option>
+                                                            <option>5</option>
+                                                            <option>6</option>
+                                                            <option>7</option>
+                                                            <option>8</option>
+                                                            <option>9</option>
+                                                            <option>10</option>
+                                                            <option>11</option>
+                                                            <option>12</option>
+                                                            <option>13</option>
+                                                            <option>14</option>
+                                                            <option>15</option>
+                                                            <option>16</option>
+                                                            <option>17</option>
+                                                            <option>18</option>
+                                                            <option>19</option>
+                                                            <option>20</option>
+                                                            <option id="qty_custom">Enter Quantity</option>
+                                                        </datalist>
+                                                        <div class="hidden_msg" id="error_qty_' . $product_id . '_' . $distributor_id . '">
+                                                            Required Field
+                                                        </div>
                                                     </div>
-                                                    <form name="form_add_to_basket" id="form_add_to_basket_' . $product_id . '_' . $distributor_id . '" method="post">
-                                                        <div class="modal-body">
-                                                            <div class="row">
-                                                                <div class="col-12 col-sm-5 text-center" id="basket_thumbnail">
-                                                                    <img src="/images/products/' . $product['image'] . '" class="text-center prd-basket-img-sm">
-                                                                </div>
-                                                                <div class="col-12 col-sm-7 text-center text-sm-start mt-3 mt-sm-0">
-                                                                    <h4 id="basket_item_name">
-                                                                        ' . $product['name'] . ': ' . $product['dosage'] . $product['unit'] . ', ' . $product['size'] . ' Count
-                                                                    </h4>
-                                                                    <h5 id="basket_item_price" class="text-primary modal_price text-center text-sm-start">
-                                                                        $' . $product['distributorProducts'][0]['unitPrice'] . '
-                                                                    </h5>
-                                                                    <div class="modal_availability">
-                                                                        <span class="is_available">In Stock</span> This item is in stock and ready to ship
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-6">
-                                                                            <input type="text" list="qty_list_' . $product_id . '_' . $distributor_id . '" id="qty_' . $product_id . '_' . $distributor_id . '" class="form-control" />
-                                                                            <datalist id="qty_list_' . $product_id . '_' . $distributor_id . '">
-                                                                                <option>1</option>
-                                                                                <option>2</option>
-                                                                                <option>3</option>
-                                                                                <option>4</option>
-                                                                                <option>5</option>
-                                                                                <option>6</option>
-                                                                                <option>7</option>
-                                                                                <option>8</option>
-                                                                                <option>9</option>
-                                                                                <option>10</option>
-                                                                                <option>11</option>
-                                                                                <option>12</option>
-                                                                                <option>13</option>
-                                                                                <option>14</option>
-                                                                                <option>15</option>
-                                                                                <option>16</option>
-                                                                                <option>17</option>
-                                                                                <option>18</option>
-                                                                                <option>19</option>
-                                                                                <option>20</option>
-                                                                                <option id="qty_custom">Enter Quantity</option>
-                                                                            </datalist>
-                                                                        </div>
-                                                                        <div class="col-6">
-                                                                            <button type="submit" class="btn btn-primary w-100">ADD TO BASKET</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer d-block">
-                                                            <div class="row">
-                                                                <div class="col-12 col-sm-6 text-start" style="padding-bottom: 0.75rem">
-                                                                    <a href="" class="me-4 d-inline-block btn_item_facts">
-                                                                        Item Facts
-                                                                    </a>
-                                                                    <a href="" class="me-4 d-inline-block btn_shipping">
-                                                                        Shipping
-                                                                    </a>
-                                                                    <a href="" class="d-inline-block btn_taxes">
-                                                                        Taxes
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 text-end" style="padding-bottom: 0.75rem">
-                                                                    <i class="fa-regular fa-user me-3"></i> <b>' . $distributor_id . ' - ' . $distributor['distributor']['distributorName'] . '</b>
-                                                                </div>
-        
-                                                                <!-- Panel Item Facts -->
-                                                                <div class="col-12 modal_availability" id="panel_item_facts_' . $product_id . '_' . $distributor_id . '">
-                                                                    <div class="row mt-sm-4">
-                                                                        <div class="col-12 col-sm-5">
-                                                                            <div class="row">
-                                                                                <div class="col-6 fw-bold">
-                                                                                    Unit Price
-                                                                                </div>
-                                                                                <div class="col-6 text-end">
-                                                                                    $' . number_format($distributor['unitPrice'] / $product['size'], 2) . '
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="d-none d-sm-block col-sm-2"></div>
-                                                                        <div class="col-12 col-sm-5">
-                                                                            <div class="row">
-                                                                                <div class="col-6 fw-bold">
-                                                                                    Manufacturer
-                                                                                </div>
-                                                                                <div class="col-6 text-end">
-                                                                                    ' . $distributor['distributor']['distributorName'] . '
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-        
-                                                                    <div class="row mt-sm-4">
-                                                                        <div class="col-12 col-sm-5">
-                                                                            <div class="row">
-                                                                                <div class="col-6 fw-bold">
-                                                                                    TVG ID
-                                                                                </div>
-                                                                                <div class="col-6 text-end">
-                                                                                    $' . $distributor['distributor']['id'] . '
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="d-none d-sm-block col-sm-2"></div>
-                                                                        <div class="col-12 col-sm-5">
-                                                                            <div class="row">
-                                                                                <div class="col-6 fw-bold">
-                                                                                    Man No
-                                                                                </div>
-                                                                                <div class="col-6 text-end">
-                                                                                    ' . $distributor['distributorNo'] . '
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-        
-                                                                    <div class="row mt-sm-4">
-                                                                        <div class="col-12 col-sm-5">
-                                                                            <div class="row">
-                                                                                <div class="col-6 fw-bold">
-                                                                                    SKU
-                                                                                </div>
-                                                                                <div class="col-6 text-end">
-                                                                                    ' . $distributor['sku'] . '
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="d-none d-sm-block col-sm-2"></div>
-                                                                        <div class="col-12 col-sm-5">
-                                                                            <div class="row">
-                                                                                <div class="col-6 fw-bold">
-                                                                                    Seller Profile
-                                                                                </div>
-                                                                                <div class="col-6 text-end">
-                                                                                    <a href="">' . $distributor['distributor']['distributorName'] . '</a>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-        
-                                                                    <div class="row mt-sm-4">
-                                                                        <div class="col-12 col-sm-5">
-                                                                            <div class="row">
-                                                                                <div class="col-6 fw-bold">
-                                                                                    List Price
-                                                                                </div>
-                                                                                <div class="col-6 text-end">
-                                                                                    $' . number_format($distributor['unitPrice'], 2) . '
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-        
-                                                                <!-- Panel shipping -->
-                                                                <div class="col-12" id="panel_shipping_' . $product_id . '_' . $distributor_id . '">
-                                                                    <div class="row">
-                                                                        <div class="col-12 modal_availability">
-                                                                            Standard shipping transit times vary depending on location.
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-4 fw-bold">
-                                                                            Shipping Speed
-                                                                        </div>
-                                                                        <div class="col-4 fw-bold">
-                                                                            Cost
-                                                                        </div>
-                                                                        <div class="col-4 fw-bold">
-                                                                            Free Over
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row mb-4">
-                                                                        <div class="col-4">
-                                                                            Default
-                                                                        </div>
-                                                                        <div class="col-4">
-                                                                            $6.99
-                                                                        </div>
-                                                                        <div class="col-4">
-                                                                            $100
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-        
-                                                                <!-- Panel Taxes -->
-                                                                <div class="col-12 modal_availability border-bottom-0" id="panel_taxes_' . $product_id . '_' . $distributor_id . '">
-                                                                    Med-Vet Collects Sales Tax in states where we have physical
-                                                                    presence (or nexus), including but not limited to Alabama,
-                                                                    Colorado, Connecticut, Hawaii, Illinois, Indiana, Kentucky,
-                                                                    Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi,
-                                                                    New Jersey, North Carolina, North Dakota, Ohio, Oklahoma,
-                                                                    Pennsylvania, Rhode Island, South Dakota, Vermont, & Wisconsin.
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </form>
+                                                    <div class="col-6">
+                                                        <button type="submit" class="btn btn-primary w-100">ADD TO BASKET</button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>';
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer d-block">
+                                        <div class="row">
+                                            <div class="col-12 col-sm-6 text-start" style="padding-bottom: 0.75rem">
+                                                <a href="" class="me-4 d-inline-block btn_item_facts">
+                                                    Item Facts
+                                                </a>
+                                                <a href="" class="me-4 d-inline-block btn_shipping">
+                                                    Shipping
+                                                </a>
+                                                <a href="" class="d-inline-block btn_taxes">
+                                                    Taxes
+                                                </a>
+                                            </div>
+                                            <div class="col-12 col-sm-6 text-end" style="padding-bottom: 0.75rem">
+                                                <i class="fa-regular fa-user me-3"></i> <b>' . $distributor_id . ' - ' . $distributor->getDistributor()->getDistributorName() . '</b>
+                                            </div>
+
+                                            <!-- Panel Item Facts -->
+                                            <div class="col-12 modal_availability" id="panel_item_facts_' . $product_id . '_' . $distributor_id . '">
+                                                <div class="row mt-sm-4">
+                                                    <div class="col-12 col-sm-5">
+                                                        <div class="row">
+                                                            <div class="col-6 fw-bold">
+                                                                Unit Price
+                                                            </div>
+                                                            <div class="col-6 text-end">
+                                                                $' . number_format($distributor->getUnitPrice() / $product->getSize(), 2) . '
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-none d-sm-block col-sm-2"></div>
+                                                    <div class="col-12 col-sm-5">
+                                                        <div class="row">
+                                                            <div class="col-6 fw-bold">
+                                                                Manufacturer
+                                                            </div>
+                                                            <div class="col-6 text-end">
+                                                                ' . $distributor->getDistributor()->getDistributorName() . '
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mt-sm-4">
+                                                    <div class="col-12 col-sm-5">
+                                                        <div class="row">
+                                                            <div class="col-6 fw-bold">
+                                                                Fluid ID
+                                                            </div>
+                                                            <div class="col-6 text-end">
+                                                                $' . $distributor->getDistributor()->getId() . '
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-none d-sm-block col-sm-2"></div>
+                                                    <div class="col-12 col-sm-5">
+                                                        <div class="row">
+                                                            <div class="col-6 fw-bold">
+                                                                Man No
+                                                            </div>
+                                                            <div class="col-6 text-end">
+                                                                ' . $distributor->getDistributorNo() . '
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mt-sm-4">
+                                                    <div class="col-12 col-sm-5">
+                                                        <div class="row">
+                                                            <div class="col-6 fw-bold">
+                                                                SKU
+                                                            </div>
+                                                            <div class="col-6 text-end">
+                                                                ' . $distributor->getSku() . '
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-none d-sm-block col-sm-2"></div>
+                                                    <div class="col-12 col-sm-5">
+                                                        <div class="row">
+                                                            <div class="col-6 fw-bold">
+                                                                Seller Profile
+                                                            </div>
+                                                            <div class="col-6 text-end">
+                                                                <a href="">' . $distributor->getDistributor()->getDistributorName() . '</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mt-sm-4">
+                                                    <div class="col-12 col-sm-5">
+                                                        <div class="row">
+                                                            <div class="col-6 fw-bold">
+                                                                List Price
+                                                            </div>
+                                                            <div class="col-6 text-end">
+                                                                $' . number_format($distributor->getUnitPrice(), 2) . '
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Panel shipping -->
+                                            <div class="col-12" id="panel_shipping_' . $product_id . '_' . $distributor_id . '">
+                                                <div class="row">
+                                                    <div class="col-12 modal_availability">
+                                                        Standard shipping transit times vary depending on location.
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-4 fw-bold">
+                                                        Shipping Speed
+                                                    </div>
+                                                    <div class="col-4 fw-bold">
+                                                        Cost
+                                                    </div>
+                                                    <div class="col-4 fw-bold">
+                                                        Free Over
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-4">
+                                                    <div class="col-4">
+                                                        Default
+                                                    </div>
+                                                    <div class="col-4">
+                                                        $6.99
+                                                    </div>
+                                                    <div class="col-4">
+                                                        $100
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Panel Taxes -->
+                                            <div class="col-12 modal_availability border-bottom-0" id="panel_taxes_' . $product_id . '_' . $distributor_id . '">
+                                                Med-Vet Collects Sales Tax in states where we have physical
+                                                presence (or nexus), including but not limited to Alabama,
+                                                Colorado, Connecticut, Hawaii, Illinois, Indiana, Kentucky,
+                                                Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi,
+                                                New Jersey, North Carolina, North Dakota, Ohio, Oklahoma,
+                                                Pennsylvania, Rhode Island, South Dakota, Vermont, & Wisconsin.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>';
                 }
                 $response .= '
-                                </div>
-        
-                                <!-- Panels -->
-                                <div class="col-12 ps-3 pe-3">
-                                    <div class="col-12 search-panels-container" id="search_panels_container_'. $product['id'] .'" style="display:none;">
-        
-                                        <!-- Description -->
-                                        <div class="hidden" id="details_'. $product['id'] .'">
-                                            <h3 class="pb-3 pt-3">Item Description</h3>
-                                            '. $product['description'] .'
-                                        </div>
-        
-                                        <!-- Shopping lists -->
-                                        <div class="collapse panel_lists" id="lists_'. $product['id'] .'">
-                                            <h3 class="pb-3 pt-3">Shopping Lists</h3>
-                                            <p id="lists_no_data_'. $product['id'] .'">
-                                                You do not currently have any shopping lists on TVG
-                                                <br><br>
-                                                Have shopping lists with your suppliers? We\'ll import them!
-                                                Send us a message using the chat icon in the lower right corner and we will
-                                                help import you lists!
-        
-                                                You can also create new lists using the Create List button below
-                                            </p>
-                                        </div>
-        
-                                        <!-- Track -->
-                                        <div class="collapse" id="track_'. $product['id'] .'">
-                                            <h3 class="pb-3 pt-3">Availability Tracker</h3>
-                                            <p id="track_no_data">
-                                                Create custom alerts when a backordered item comes back in stock. Set a notification
-                                                for how you would like to be notified and which suppliers you would like to track.
-                                                Once an item comes back in stock and you are notified, the tracker will automatically
-                                                turn off. You can also view a list of all tracked items in your shopping list.
-                                                Note: TVG cannot track the availability of items that are drop shipped directly
-                                                from the vendor.
-                                            </p>
-                                        </div>
-        
-                                        <!-- Notes -->
-                                        <div class="collapse" id="notes_'. $product['id'] .'">
-                                            <h3 class="pb-3 pt-3">Item Notes</h3>
-                                        </div>
-        
-                                        <!-- Reviews -->
-                                        <div class="collapse" id="reviews_'. $product['id'] .'">
-                                            <h3 class="pb-3 pt-3">Reviews</h3>
-                                            <h5>No reviews yet!</h5>
-                                            <p id="reviews_no_data">Reviews help thousands of veterinary purchasers know about your experience
-                                                with this. Submit your review below.
-                                                <br><br>
-                                                <a href="" class="btn btn-primary btn_create_review" data-bs-toggle="modal" data-product-id="'. $product['id'] .'" data-bs-target="#modal_review">
-                                                    WRITE A REVIEW
-                                                </a>
-                                            </p>
-                                        </div>
-                                        <br>
-                                    </div>
-                                </div>
-                            </div>';
+                    </div>
+    
+                    <!-- Panels -->
+                    <div class="col-12 ps-3 pe-3">
+                        <div class="col-12 search-panels-container" id="search_panels_container_'. $product->getId() .'" style="display:none;">
+    
+                            <!-- Description -->
+                            <div class="hidden" id="details_'. $product->getId() .'">
+                                <h3 class="pb-3 pt-3">Item Description</h3>
+                                '. $product->getDescription() .'
+                            </div>
+    
+                            <!-- Shopping lists -->
+                            <div class="collapse panel_lists" id="lists_'. $product->getId() .'">
+                                <h3 class="pb-3 pt-3">Shopping Lists</h3>
+                                <p id="lists_no_data_'. $product->getId() .'">
+                                    You do not currently have any shopping lists on Fluid
+                                    <br><br>
+                                    Have shopping lists with your suppliers? We\'ll import them!
+                                    Send us a message using the chat icon in the lower right corner and we will
+                                    help import you lists!
+    
+                                    You can also create new lists using the Create List button below
+                                </p>
+                            </div>
+    
+                            <!-- Track -->
+                            <div class="collapse" id="track_'. $product->getId() .'">
+                                <h3 class="pb-3 pt-3">Availability Tracker</h3>
+                                <p id="track_no_data">
+                                    Create custom alerts when a backordered item comes back in stock. Set a notification
+                                    for how you would like to be notified and which suppliers you would like to track.
+                                    Once an item comes back in stock and you are notified, the tracker will automatically
+                                    turn off. You can also view a list of all tracked items in your shopping list.
+                                    Note: Fluid cannot track the availability of items that are drop shipped directly
+                                    from the vendor.
+                                </p>
+                            </div>
+    
+                            <!-- Notes -->
+                            <div class="collapse" id="notes_'. $product->getId() .'">
+                                <h3 class="pb-3 pt-3">Item Notes</h3>
+                            </div>
+    
+                            <!-- Reviews -->
+                            <div class="collapse" id="reviews_'. $product->getId() .'">
+                                <h3 class="pb-3 pt-3">Reviews</h3>
+                                <h5>No reviews yet!</h5>
+                                <p id="reviews_no_data">Reviews help thousands of veterinary purchasers know about your experience
+                                    with this. Submit your review below.
+                                    <br><br>
+                                    <a href="" class="btn btn-primary btn_create_review" data-bs-toggle="modal" data-product-id="'. $product->getId() .'" data-bs-target="#modal_review">
+                                        WRITE A REVIEW
+                                    </a>
+                                </p>
+                            </div>
+                            <br>
+                        </div>
+                    </div>
+                </div>';
             }
 
             $current_page = $request->request->get('page_no');
@@ -450,32 +477,48 @@ class ProductsController extends AbstractController
 
                 $response .= '
                     <nav class="custom-pagination">
-                        <ul class="pagination">';
-                            if($current_page > 1){
-                                $response .= '<li class="page-item"><a class="page-link" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">Previous</a></li>';
-                            }
+                        <ul class="pagination justify-content-center">
+                ';
 
-                            for($i = 1; $i <= $last_page; $i++) {
+                $disabled = 'disabled';
+                $data_disabled = 'true';
 
-                                $active = '';
+                if($current_page > 1){
 
-                                if($i == (int) $current_page){
+                    $disabled = '';
+                    $data_disabled = 'false';
+                }
 
-                                    $active = 'active';
-                                }
+                $response .= '<li class="page-item '. $disabled .'"><a class="page-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'"><span aria-hidden="true">&laquo;</span> Previous</a></li>';
 
-                                $response .= '
-                                <li class="page-item '. $active .'"><a class="page-link" data-page-id="'. $i .'" href="'. $url . $i .'">'. $i .'</a></li>';
-                            }
+                for($i = 1; $i <= $last_page; $i++) {
 
-                            if($current_page < $last_page) {
-                                $response .= '
-                                <li class="page-item"><a class="page-link" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">Next</a></li>';
-                            }
-                            $response .= '
-                                </ul>
-                        </nav>
-                    </div>';
+                    $active = '';
+
+                    if($i == (int) $current_page){
+
+                        $active = 'active';
+                    }
+
+                    $response .= '
+                    <li class="page-item '. $active .'"><a class="page-link" data-page-id="'. $i .'" href="'. $url . $i .'">'. $i .'</a></li>';
+                }
+
+                $disabled = 'disabled';
+                $data_disabled = 'true';
+
+                if($current_page < $last_page) {
+
+                    $disabled = '';
+                    $data_disabled = 'false';
+                }
+
+                $response .= '<li class="page-item '. $disabled .'"><a class="page-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">Next <span aria-hidden="true">&raquo;</span></a></li>';
+
+                $response .= '
+                        </ul>
+                    </nav>
+                </div>';
             }
 
             $response .= '
@@ -527,7 +570,7 @@ class ProductsController extends AbstractController
                                                 <li>
                                                     <b>Be Honest</b> - In order to preserve the integrity of our reviews, content
                                                     should be an accurate representation of your experience with this item.
-                                                    TVG strictly forbids commercial solicitations or compensation in exchange
+                                                    Fluid strictly forbids commercial solicitations or compensation in exchange
                                                     for positive reviews.
                                                     <br>
                                                     <br>
@@ -638,6 +681,10 @@ class ProductsController extends AbstractController
                         </div>
                     </div>
                 </div>';
+
+        } else {
+
+            $response = 'Please use the search bar above';
         }
 
         return new JsonResponse($response);
