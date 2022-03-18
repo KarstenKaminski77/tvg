@@ -95,6 +95,8 @@
                             success: function (response) {
                                 $('#inventory').empty().append(response);
                                 $('.container').removeClass('mt-5').addClass('mt-5');
+                                $('#basket_container').empty().hide();
+                                $('#inventory_container').show();
                                 document.title = 'Fluid';
                                 window.history.pushState({"html":response.html,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/inventory/'+ page_no);
                                 $.session.set('search_key', keyword);
@@ -137,6 +139,7 @@
                 });
                 {# End Inventory Search #}
 
+                {# Basket #}
                 {# Add To Basket #}
                 $(document).on('submit', 'form[name="form_add_to_basket"]', function (e){
 
@@ -148,7 +151,7 @@
                     let qty = data.get('qty');
                     let qty_error = $('#error_qty_'+ product_id +'_'+ distributor_id);
                     let is_valid = true;
-                    alert(distributor_id);
+                  
                     qty_error.hide()
 
                     if(qty == '' || qty == 'undefined'){
@@ -169,12 +172,188 @@
                             dataType: 'json',
                             data: data,
                             success: function (response) {
-                                alert(product_id);
+                                $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
+                                $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(response.message).removeClass('hidden');
+                                $('#basket_count').empty().append('('+ response.basket_count +')');
+                                $('#modal_add_to_basket_'+ response.product_id +'_'+ response.distributor_id).modal('toggle').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('.fade').removeClass('fade');
                             }
                         });
                     }
                 });
                 {# End Add To Basket #}
+
+                {# Update Basket #}
+                $(document).on('click', '.basket-qty', function (){
+
+                    $(this).val('');
+                });
+                $(document).on('change', '.basket-qty', function (){
+
+                    let item_id = $(this).data('basket-item-id');
+                    let qty = $(this).val();
+                    let is_valid = true;
+
+                    if(is_valid) {
+
+                        $.ajax({
+                            url: "{{ path('inventory_update_basket') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                item_id: item_id,
+                                qty: qty
+                            },
+                            beforeSend: function (){
+                                $("div.spanner").addClass("show");
+                                $("div.overlay").addClass("show");
+                            },
+                            success: function (response) {
+                                $('#inventory_container').fadeOut(900);
+
+                                let basket_id = response.basket_id;
+
+                                $.ajax({
+                                    url: "{{ path('get_basket') }}",
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: {
+                                        basket_id: basket_id
+                                    },
+                                    success: function (response) {
+                                        $('#inventory_container').hide();
+                                        $('#basket_container').empty().append(response).fadeIn(900);
+                                        $("div.spanner").removeClass("show");
+                                        $("div.overlay").removeClass("show");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+                $(document).on('click', '.remove-item', function (e){
+
+                    e.preventDefault();
+
+                    let item_id = $(this).data('item-id');
+
+                    if(item_id > 0) {
+
+                        $.ajax({
+                            url: "{{ path('inventory_remove_basket_item') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                item_id: item_id
+                            },
+                            beforeSend: function (){
+                                $("div.spanner").addClass("show");
+                                $("div.overlay").addClass("show");
+                            },
+                            success: function (response) {
+                                $('#inventory_container').hide();
+
+                                let basket_id = response.basket_id;
+
+                                $.ajax({
+                                    url: "{{ path('get_basket') }}",
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: {
+                                        basket_id: basket_id
+                                    },
+                                    success: function (response) {
+                                        $('#inventory_container').hide();
+                                        $('#basket_container').empty().append(response).fadeIn(900);
+                                        $("div.spanner").removeClass("show");
+                                        $("div.overlay").removeClass("show");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+                $(document).on('click', '.clear-basket', function (e){
+
+                    e.preventDefault();
+
+                    let basket_id = $(this).data('basket-id');
+
+                    if(basket_id > 0) {
+
+                        $.ajax({
+                            url: "{{ path('inventory_clear_basket') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                basket_id: basket_id
+                            },
+                            beforeSend: function (){
+                                $("div.spanner").addClass("show");
+                                $("div.overlay").addClass("show");
+                            },
+                            success: function (response) {
+                                $('#inventory_container').hide();
+
+                                let basket_id = response.basket_id;
+
+                                $.ajax({
+                                    url: "{{ path('get_basket') }}",
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: {
+                                        basket_id: basket_id
+                                    },
+                                    success: function (response) {
+                                        $('#inventory_container').hide();
+                                        $('#basket_container').empty().append(response).fadeIn(900);
+                                        $("div.spanner").removeClass("show");
+                                        $("div.overlay").removeClass("show");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+                {# End Update Basket #}
+
+                {# Get Basket #}
+                $(document).on('click', '.basket-link', function (e){
+
+                    e.preventDefault();
+
+                    let basket_id = $(this).data('basket-id');
+
+                    if(basket_id > 0) {
+
+                        $.ajax({
+                            url: "{{ path('get_basket') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                basket_id: basket_id
+                            },
+                            success: function (response) {
+                                $('#inventory_container').hide();
+                                $('#basket_container').empty().append(response).show();
+                            }
+                        });
+                    }
+                });
+                {# End Get Basket #}
+
+                {# Back To Search #}
+                $(document).on('click', '#return_to_search', function (e){
+
+                    e.preventDefault();
+
+                    $('#basket_container').empty().hide();
+                    $('#inventory_container').show();
+                });
+                {# End Back To Search #}
+                {# End Basket #}
+
 
                 $(document).ready(function (){
 
@@ -929,6 +1108,12 @@
                         }
                     });
                 });
+
+                {# Popovers #}
+                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+                var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                    return new bootstrap.Popover(popoverTriggerEl)
+                })
 
                 {# Clode Flash Message #}
                 $('#flash').click(function (){

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\BasketItems;
 use App\Entity\Baskets;
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
@@ -10,6 +11,7 @@ use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +36,10 @@ class ProductsController extends AbstractController
         $clinic = $this->em->getRepository(Clinics::class)->find($this->getUser()->getClinic()->getId());
         $distributor = $this->em->getRepository(Distributors::class)->find($request->get('distributor_id'));
         $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
-        $basket = $this->em->getRepository(Baskets::class)->findBy(['clinic' => $this->getUser()->getClinic()->getId()]);
+        $basket = $this->em->getRepository(Baskets::class)->findOneBy([
+            'clinic' => $this->getUser()->getClinic()->getId(),
+            'status' => 'active'
+        ]);
 
         if($basket == null){
 
@@ -43,8 +48,401 @@ class ProductsController extends AbstractController
 
         $basket->setClinic($clinic);
         $basket->setDistributor($distributor);
+        $basket->setName($request->get('basket_name'));
+        $basket->setStatus($request->get('status'));
+        $basket->setSavedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
 
-        return new JsonResponse($basket);
+        $this->em->persist($basket);
+        $this->em->flush();
+
+        $basket_item = $this->em->getRepository(BasketItems::class)->findOneBy([
+            'basket' => $basket,
+            'product' => $product,
+            'distributor' => $distributor
+        ]);
+
+        if($basket_item == null){
+
+            $basket_item = new BasketItems();
+        }
+
+        $basket_item->setBasket($basket);
+        $basket_item->setDistributor($distributor);
+        $basket_item->setProduct($product);
+        $basket_item->setName($product->getName());
+        $basket_item->setQty($request->get('qty'));
+        $basket_item->setUnitPrice($request->get('price'));
+        $basket_item->setTotal($request->get('qty') * $request->get('price'));
+
+        $this->em->persist($basket_item);
+        $this->em->flush();
+
+        // Get total items in basket
+        $totals = $this->em->getRepository(BasketItems::class)->getTotalItems($basket->getId());
+
+        $basket->setTotal($totals[0]['total']);
+
+        $this->em->persist($basket);
+        $this->em->flush();
+
+        $response = [
+            'message' => '<b><i class="fas fa-check-circle"></i> '. $product->getName() .' added to your basket.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>',
+            'basket_count' => $totals[0]['item_count'],
+            'product_id' => $product->getId(),
+            'distributor_id' => $distributor->getId(),
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/inventory-update-basket', name: 'inventory_update_basket')]
+    public function updateBasketAction(Request $request): Response
+    {
+        $basket_item = $this->em->getRepository(BasketItems::class)->find($request->request->get('item_id'));
+        $basket_id = $basket_item->getBasket()->getId();
+        $basket = $this->em->getRepository(Baskets::class)->find($basket_id);
+
+        if($basket_item != null){
+
+            $basket_item->setQty($request->request->get('qty'));
+            $basket_item->setTotal($basket_item->getUnitPrice() * $request->request->get('qty'));
+
+            $this->em->persist($basket_item);
+            $this->em->flush();
+        }
+
+        $totals = $this->em->getRepository(BasketItems::class)->getTotalItems($basket_id);
+
+        if($basket != null){
+
+            $basket->setTotal(number_format($totals[0]['total'],2));
+
+            $this->em->persist($basket);
+            $this->em->flush();
+
+        }
+
+        $response = [
+
+            'message' => '<b><i class="fas fa-check-circle"></i> '. $basket_item->getProduct()->getName() .' updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>',
+            'basket_id' => $basket_id,
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/inventory-remove-basket-item', name: 'inventory_remove_basket_item')]
+    public function removeBasketItemAction(Request $request): Response
+    {
+        $basket_item = $this->em->getRepository(BasketItems::class)->find($request->request->get('item_id'));
+        $basket_id = $basket_item->getBasket()->getId();
+        $basket = $this->em->getRepository(Baskets::class)->find($basket_id);
+
+        if($basket_item != null){
+
+            $this->em->remove($basket_item);
+            $this->em->flush();
+        }
+
+        $totals = $this->em->getRepository(BasketItems::class)->getTotalItems($basket_id);
+
+        if($basket != null){
+
+            $basket->setTotal(number_format($totals[0]['total'],2));
+
+            $this->em->persist($basket);
+            $this->em->flush();
+
+        }
+
+        $response = [
+
+            'message' => '<b><i class="fas fa-check-circle"></i> '. $basket_item->getProduct()->getName() .' removed.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>',
+            'basket_id' => $basket_id,
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/inventory-clear-basket', name: 'inventory_clear_basket')]
+    public function clearBasketAction(Request $request): Response
+    {
+        $basket_id = $request->request->get('basket_id');
+        $basket_items = $this->em->getRepository(BasketItems::class)->findAll(['basket' => $basket_id]);
+        $basket = $this->em->getRepository(Baskets::class)->find($basket_id);
+
+        if($basket_items != null){
+
+            foreach($basket_items as $item) {
+
+                $this->em->remove($item);
+                $this->em->flush();
+            }
+        }
+
+        $totals = $this->em->getRepository(BasketItems::class)->getTotalItems($basket_id);
+
+        if($basket != null){
+
+            $basket->setTotal($total = number_format($totals[0]['total'] ?? 0,2));
+
+            $this->em->persist($basket);
+            $this->em->flush();
+
+        }
+
+        $response = [
+
+            'message' => '<b><i class="fas fa-check-circle"></i> All items removed from basket.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>',
+            'basket_id' => $basket_id,
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/get-basket', name: 'get_basket')]
+    public function getBasketAction(Request $request): Response
+    {
+        $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
+        $basket = $this->em->getRepository(Baskets::class)->find($request->request->get('basket_id'));
+        $clinic_totals = $this->em->getRepository(Baskets::class)->getClinicTotalItems($this->getUser()->getClinic()->getId());
+
+        $total_clinic = number_format($clinic_totals[0]['total'] ?? 0,2);
+        $count_clinic = $clinic_totals[0]['item_count'] ?? 0;
+        $bg_primary = '';
+
+        if($count_clinic > 0){
+
+            $bg_primary = 'bg-primary';
+        }
+
+        $response = '<div class="row">
+            <!-- Left Column -->
+            <div class="col-12 col-md-2 col-100">
+                <div class="row border-bottom text-center pt-2 pb-2">
+                    <b>All Baskets</b>
+                </div>
+                <div class="row" style="background: #f4f8fe">
+                    <div class="col-6 border-bottom pt-1 pb-1 text-center">
+                        <span class="d-block text-primary">'. $count_clinic .'</span>
+                        <span class="d-block text-truncate">Items</span>
+                    </div>
+                    <div class="col-6 border-bottom pt-1 pb-1 text-center">
+                        <span class="d-block text-primary">$'. $total_clinic .'</span>
+                        <span class="d-block text-truncate">Subtotal</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 border-bottom">
+                        <a href="#" data-basket-id="5" class=" pt-3 pb-3 d-block basket-link">
+                            <span class="d-inline-block align-baseline">All Baskets</span>
+                            <span class="float-end basket-item-count-empty '. $bg_primary .'">
+                                '. $count_clinic .'
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 border-bottom">
+                        <a href="#" data-basket-id="5" class=" pt-3 pb-3 d-block basket-link">
+                            <span class="d-inline-block align-baseline">Fluid</span>
+                            <span class="float-end basket-item-count-empty '. $bg_primary .'">
+                                '. $count_clinic .'
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4 col-sm-12 col-md-4 pt-3 pb-3 saved-baskets">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                    </div>
+                    <div class="col-8 col-sm-12 col-md-8 pt-3 pb-3">
+                        <h6 class="text-primary">Saved Baskets</h6>
+                        <span class="info">View baskets</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column -->
+            <div class="col-12 col-md-10 col-100 border-left">
+                <!-- Basket Name -->
+                <div class="row">
+                    <div class="col-12 bg-primary text-center pt-3 pb-3">
+                        <h4 class="text-white">All Baskets</h4>
+                        <span class="text-white">
+                            Manage All Your Shopping Carts In One Place
+                        </span>
+                    </div>
+                </div>
+                <!-- Basket Actions Upper Row -->
+                <div class="row">
+                    <div class="col-12 text-center border-bottom pt-3 pb-3">
+                        <a href="#">
+                            <i class="fa-solid fa-arrow-rotate-right me-5 me-sm-2"></i><span class=" d-none d-sm-inline-block pe-3">Refresh Basket</span>
+                        </a>
+                        <a href="#">
+                            <i class="fa-solid fa-print me-5 me-sm-2"></i><span class=" d-none d-sm-inline-block pe-3">Print</span>
+                        </a>
+                        <a href="#">
+                            <i class="fa-solid fa-basket-shopping me-0 me-sm-2"></i><span class=" d-none d-sm-inline-block pe-3">Saved Baskets</span>
+                        </a>
+                        <a href="#" id="return_to_search">
+                            <i class="fa-solid fa-magnifying-glass me-0 me-sm-2"></i><span class=" d-none d-sm-inline-block pe-3">Back To Search</span>
+                        </a>
+                    </div>
+                </div>';
+
+        if(count($basket->getBasketItems()) > 0) {
+
+            $response .= '
+                <!-- Basket Actions Lower Row -->
+                <div class="row">
+                    <div class="col-12 text-center border-bottom pt-3 pb-3">
+                        <a href="#">
+                            <i class="fa-regular fa-bookmark me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Save All For Later</span>
+                        </a>
+                        <a href="#" class="clear-basket" data-basket-id="' . $basket->getId() . '">
+                            <i class="fa-solid fa-trash-can me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Clear Basket</span>
+                        </a>
+                        <a href="#">
+                            <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Refresh Basket</span>
+                        </a>
+                        <a href="#">
+                            <i class="fa-solid fa-clock-rotate-left me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Restore Basket</span>
+                        </a>
+                        <a href="#">
+                            <i class="fa-solid fa-basket-shopping me-0 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Save Basket</span>
+                        </a>
+                    </div>
+                </div>';
+        }
+
+        $response .= '
+                <!-- Basket Items -->
+                <div class="row col-container d-flex border-0 m-0">
+                    <div class="col-12 col-md-9 col-cell border-right">';
+
+            $i = -1;
+
+            if(count($basket->getBasketItems()) > 0) {
+
+                foreach ($basket->getBasketItems() as $item) {
+
+                    $i++;
+                    $product = $basket->getBasketItems()[$i]->getProduct();
+
+                    $response .= '
+                    <div class="row">
+                        <!-- Thumbnail -->
+                        <div class="col-12 col-sm-2 text-center pt-3 pb-3">
+                            <img class="img-fluid basket-img" src="/images/products/' . $product->getImage() . '">
+                        </div>
+                        <div class="col-12 col-sm-10 pt-3 pb-3">
+                            <!-- Product Name and Qty -->
+                            <div class="row">
+                                <!-- Product Name -->
+                                <div class="col-12 col-sm-7 pt-3 pb-3">
+                                    <h6 class="fw-bold text-center text-sm-start text-primary lh-base">
+                                        ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
+                                    </h6>
+                                </div>
+                                <!-- Product Quantity -->
+                                <div class="col-12 col-sm-5 pt-3 pb-3">
+                                    <div class="row">
+                                        <div class="col-4 text-center text-sm-end">$' . $item->getUnitPrice() . '</div>
+                                        <div class="col-4">
+                                            <input type="text" list="qty_list_' . $product->getId() . '" data-basket-item-id="' . $item->getId() . '" name="qty" class="form-control basket-qty" value="' . $item->getQty() . '">
+                                            <datalist id="qty_list_' . $product->getId() . '">
+                                                <option>1</option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                                <option>6</option>
+                                                <option>7</option>
+                                                <option>8</option>
+                                                <option>9</option>
+                                                <option>10</option>
+                                                <option>11</option>
+                                                <option>12</option>
+                                                <option>13</option>
+                                                <option>14</option>
+                                                <option>15</option>
+                                                <option>16</option>
+                                                <option>17</option>
+                                                <option>18</option>
+                                                <option>19</option>
+                                                <option>20</option>
+                                                <option id="qty_custom">Enter Quantity</option>
+                                            </datalist>
+                                        </div>
+                                        <div class="col-4 text-center text-sm-start fw-bold">$' . $item->getTotal() . '</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Item Actions -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <!-- In Stock -->
+                                    <span class="badge bg-success me-2">In Stock</span>
+                                    <!-- Shipping Policy -->
+                                    <span class="badge bg-secondary" class="btn btn-secondary" data-bs-trigger="hover"
+                                          data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top"
+                                          data-bs-content="Top popover">Shipping Policy</span>
+                                    <!-- Remove Item -->
+                                    <span class="badge bg-danger float-end">
+                                        <a href="#" class="remove-item text-white" data-item-id="' . $item->getId() . '">Remove</a>
+                                    </span>
+                                    <!-- Save Item -->
+                                    <span class="badge badge-light float-end me-2">
+                                        <a href="#" class="link-secondary">Save Item For later</a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>';
+                }
+            } else {
+
+                $response .= '
+                    <div class="row">
+                        <div class="col-12 text-center pt-4">
+                            <p>
+                            <h5>Your basket at Fluid Commerce is currently empty </h5><br>
+                            Were you expecting to see items here? View copies of the items most recently added<br> 
+                            to your basket and restore a basket if needed.
+                            </p>
+                        </div>
+                    </div>';
+            }
+
+            $response .= '
+                    </div>
+                    <!-- Basket Summary -->
+                    <div class="col-12 col-md-3 pt-3 pb-3 pe-0 col-cell">
+                        <div class="row">
+                            <div class="col-12 text-truncate">
+                                <span class="info">Subtotal:</span>
+                                <h5 class="d-inline-block text-primary float-end">$'. $basket->getTotal() .'</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 info">
+                                Shipping: <span class="float-end fw-bold">$6.99</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 pt-4 text-center">
+                                <a href="" class="btn btn-primary w-100">
+                                    PROCEED TO CHECKOUT <i class="fa-solid fa-circle-right ps-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>';
+
+        return new JsonResponse($response);
     }
 
     #[Route('/clinics/inventory/{page_no}', name: 'search_results', requirements: ['page' => '\i+'])]
@@ -73,6 +471,8 @@ class ProductsController extends AbstractController
             foreach($results->getQuery()->getResult() as $product){
 
                 $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
+                $baskets = $this->em->getRepository(Baskets::class)->findBy(['clinic' => $user->getClinic()->getId()]);
+
                 $note = '';
                 $class = '';
 
@@ -194,6 +594,9 @@ class ProductsController extends AbstractController
                                 <form name="form_add_to_basket" id="form_add_to_basket_' . $product_id . '_' . $distributor_id . '" method="post">
                                     <input type="hidden" name="product_id" value="'. $product->getId() .'">
                                     <input type="hidden" name="distributor_id" value="'. $product->getDistributorProducts()[0]->getDistributor()->getId() .'">
+                                    <input type="hidden" name="price" value="'. $product->getDistributorProducts()[0]->getUnitPrice() .'">
+                                    <input type="hidden" name="status" value="active">
+                                    <input type="hidden" name="basket_name" value="Fluid Commerce">
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-12 col-sm-5 text-center" id="basket_thumbnail text-center">

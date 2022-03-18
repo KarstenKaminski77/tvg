@@ -12,12 +12,21 @@
 
 {% block body %}
     <div class="hidden users-flash" id="flash"></div>
-    <div class="container mt-5">
+    <div class="container mt-5" id="inventory_container">
         <div class="row">
             <div class="col-12" id="inventory">
                 {{ response|raw }}
             </div>
         </div>
+    </div>
+
+    <div class="col-container container" id="basket_container">
+    </div>
+
+    <div class="overlay"></div>
+    <div class="spanner">
+        <div class="loader"></div>
+        <p>Uploading music file, please be patient.</p>
     </div>
 {% endblock %}
 

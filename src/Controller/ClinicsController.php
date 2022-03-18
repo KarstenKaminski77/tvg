@@ -779,7 +779,7 @@ class ClinicsController extends AbstractController
     #[Route('/clinics/inventory/remove-list-item', name: 'inventory_remove_list_item')]
     public function clinicsAddListsItemAction(Request $request): Response
     {
-        $item_id = $request->request->get('id');
+        $item_id = $request->request->get('item_id');
         $list_item = $this->em->getRepository(ListItems::class)->find($item_id);
 
         $this->em->remove($list_item);

@@ -143,6 +143,11 @@ class Products
      */
     private $listItems;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BasketItems::class, mappedBy="product")
+     */
+    private $basketItems;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -157,6 +162,7 @@ class Products
         $this->availabilityTrackers = new ArrayCollection();
         $this->productsSpecies = new ArrayCollection();
         $this->listItems = new ArrayCollection();
+        $this->basketItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -557,6 +563,36 @@ class Products
             // set the owning side to null (unless already changed)
             if ($listItem->getProduct() === $this) {
                 $listItem->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BasketItems>
+     */
+    public function getBasketItems(): Collection
+    {
+        return $this->basketItems;
+    }
+
+    public function addBasketItem(BasketItems $basketItem): self
+    {
+        if (!$this->basketItems->contains($basketItem)) {
+            $this->basketItems[] = $basketItem;
+            $basketItem->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBasketItem(BasketItems $basketItem): self
+    {
+        if ($this->basketItems->removeElement($basketItem)) {
+            // set the owning side to null (unless already changed)
+            if ($basketItem->getProduct() === $this) {
+                $basketItem->setProduct(null);
             }
         }
 
