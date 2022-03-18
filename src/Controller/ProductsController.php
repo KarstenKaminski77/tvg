@@ -204,7 +204,8 @@ class ProductsController extends AbstractController
     public function getBasketAction(Request $request): Response
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
-        $basket = $this->em->getRepository(Baskets::class)->find($request->request->get('basket_id'));
+        $basket_id = $request->request->get('basket_id');
+        $basket = $this->em->getRepository(Baskets::class)->find($basket_id);
         $clinic_totals = $this->em->getRepository(Baskets::class)->getClinicTotalItems($this->getUser()->getClinic()->getId());
 
         $total_clinic = number_format($clinic_totals[0]['total'] ?? 0,2);
@@ -252,7 +253,7 @@ class ProductsController extends AbstractController
                         </a>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row border-bottom">
                     <div class="col-4 col-sm-12 col-md-4 pt-3 pb-3 saved-baskets">
                         <i class="fa-solid fa-basket-shopping"></i>
                     </div>
@@ -300,10 +301,10 @@ class ProductsController extends AbstractController
                         <a href="#">
                             <i class="fa-regular fa-bookmark me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Save All For Later</span>
                         </a>
-                        <a href="#" class="clear-basket" data-basket-id="' . $basket->getId() . '">
+                        <a href="#" class="clear-basket" data-basket-id="' . $basket_id . '">
                             <i class="fa-solid fa-trash-can me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Clear Basket</span>
                         </a>
-                        <a href="#">
+                        <a href="#" class="refresh-basket" data-basket-id="'. $basket_id .'">
                             <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Refresh Basket</span>
                         </a>
                         <a href="#">
@@ -329,6 +330,15 @@ class ProductsController extends AbstractController
 
                     $i++;
                     $product = $basket->getBasketItems()[$i]->getProduct();
+
+                    if($product->getStockCount() > 0){
+
+                        $stock_badge = '<span class="badge bg-success me-2">In Stock</span>';
+
+                    } else {
+
+                        $stock_badge = '<span class="badge bg-danger me-2">Out Of Stock</span>';
+                    }
 
                     $response .= '
                     <div class="row">
@@ -383,7 +393,7 @@ class ProductsController extends AbstractController
                             <div class="row">
                                 <div class="col-12">
                                     <!-- In Stock -->
-                                    <span class="badge bg-success me-2">In Stock</span>
+                                    '. $stock_badge .'
                                     <!-- Shipping Policy -->
                                     <span class="badge bg-secondary" class="btn btn-secondary" data-bs-trigger="hover"
                                           data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top"

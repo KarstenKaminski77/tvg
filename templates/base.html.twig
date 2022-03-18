@@ -316,6 +316,34 @@
                         });
                     }
                 });
+                $(document).on('click', '.refresh-basket', function (e){
+
+                    e.preventDefault();
+
+                    let basket_id = $(this).data('basket-id');
+
+                    if(basket_id > 0) {
+
+                        $.ajax({
+                            url: "{{ path('get_basket') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                basket_id: basket_id
+                            },
+                            beforeSend: function (){
+                                $("div.spanner").addClass("show");
+                                $("div.overlay").addClass("show");
+                            },
+                            success: function (response) {
+
+                                $('#basket_container').empty().append(response).fadeIn(900);
+                                $("div.spanner").removeClass("show");
+                                $("div.overlay").removeClass("show");
+                            }
+                        });
+                    }
+                });
                 {# End Update Basket #}
 
                 {# Get Basket #}
