@@ -125,7 +125,7 @@ class ClinicsController extends AbstractController
                 $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
                 $body .= '<tr><td colspan="2">Hi '. $clinic_users->getFirstName() .',</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
-                $body .= '<tr><td colspan="2">Please use the credentials below login to the TVG Backend.</td></tr>';
+                $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>URL: </b></td>';
@@ -144,7 +144,7 @@ class ClinicsController extends AbstractController
                 $email = (new Email())
                     ->from($this->getParameter('app.email_from'))
                     ->addTo($data->get('email'))
-                    ->subject('TVG Login Credentials')
+                    ->subject('Fluid Login Credentials')
                     ->html($body);
 
                 $mailer->send($email);
@@ -325,7 +325,7 @@ class ClinicsController extends AbstractController
                 $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
                 $body .= '<tr><td colspan="2">Hi '. $data['firstName'] .',</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
-                $body .= '<tr><td colspan="2">Please use the credentials below login to the TVG Backend.</td></tr>';
+                $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>URL: </b></td>';
@@ -344,7 +344,7 @@ class ClinicsController extends AbstractController
                 $email = (new Email())
                     ->from($this->getParameter('app.email_from'))
                     ->addTo($data['email'])
-                    ->subject('TVG Login Credentials')
+                    ->subject('Fluid Login Credentials')
                     ->html($body);
 
                 $mailer->send($email);
@@ -693,7 +693,7 @@ class ClinicsController extends AbstractController
         if(count($lists) == 0){
 
             $response = '<h3 class="pb-3 pt-3">Shopping Lists</h3><p id="lists_no_data">You do not currently have any 
-            shopping lists on TVG<br><br>Have shopping lists with your suppliers? We\'ll import them! Send us a message 
+            shopping lists on Fluid<br><br>Have shopping lists with your suppliers? We\'ll import them! Send us a message 
             using the chat icon in the lower right corner and we will help import you lists! You can also create new lists 
             using the Create List button below</p>';
 
@@ -779,7 +779,7 @@ class ClinicsController extends AbstractController
     #[Route('/clinics/inventory/remove-list-item', name: 'inventory_remove_list_item')]
     public function clinicsAddListsItemAction(Request $request): Response
     {
-        $item_id = $request->request->get('id');
+        $item_id = $request->request->get('item_id');
         $list_item = $this->em->getRepository(ListItems::class)->find($item_id);
 
         $this->em->remove($list_item);

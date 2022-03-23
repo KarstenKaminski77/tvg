@@ -19,22 +19,33 @@ class BasketsRepository extends ServiceEntityRepository
         parent::__construct($registry, Baskets::class);
     }
 
-    // /**
-    //  * @return Baskets[] Returns an array of Baskets objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getClinicTotalItems($clinic_id)
     {
         return $this->createQueryBuilder('b')
-            ->andWhere('b.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('b.id', 'ASC')
-            ->setMaxResults(10)
+            ->select('SUM(bi.qty) AS item_count, SUM(bi.total) AS total')
+            ->join('b.basketItems', 'bi')
+            ->andWhere('b.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
+            ->groupBy('b.clinic')
+            ->setMaxResults(1)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getArrayResult()
+            ;
     }
-    */
+
+    public function getBasketTotalItems($basket_id)
+    {
+        return $this->createQueryBuilder('b')
+            ->select('SUM(bi.qty) AS item_count, SUM(bi.total) AS total')
+            ->join('b.basketItems', 'bi')
+            ->andWhere('b.id = :basket_id')
+            ->setParameter('basket_id', $basket_id)
+            ->groupBy('b.id')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getArrayResult()
+            ;
+    }
 
     /*
     public function findOneBySomeField($value): ?Baskets

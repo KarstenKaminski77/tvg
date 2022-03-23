@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BasketsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -43,7 +45,7 @@ class Baskets
     private $savedBy;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Status::class, inversedBy="baskets")
+     * @ORM\Column(type="string", length=255)
      */
     private $status;
 
@@ -56,6 +58,21 @@ class Baskets
      * @ORM\Column(type="datetime")
      */
     private $created;
+
+    /**
+     * @ORM\OneToMany(targetEntity=BasketItems::class, mappedBy="basket")
+     */
+    private $basketItems;
+
+    public function __construct()
+    {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+
+        $this->basketItems = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -122,12 +139,12 @@ class Baskets
         return $this;
     }
 
-    public function getStatus(): ?Status
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function setStatus(?Status $status): self
+    public function setStatus(string $status): self
     {
         $this->status = $status;
 
@@ -154,6 +171,36 @@ class Baskets
     public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BasketItems>
+     */
+    public function getBasketItems(): Collection
+    {
+        return $this->basketItems;
+    }
+
+    public function addBasketItem(BasketItems $basketItem): self
+    {
+        if (!$this->basketItems->contains($basketItem)) {
+            $this->basketItems[] = $basketItem;
+            $basketItem->setBasket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBasketItem(BasketItems $basketItem): self
+    {
+        if ($this->basketItems->removeElement($basketItem)) {
+            // set the owning side to null (unless already changed)
+            if ($basketItem->getBasket() === $this) {
+                $basketItem->setBasket(null);
+            }
+        }
 
         return $this;
     }

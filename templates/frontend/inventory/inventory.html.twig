@@ -1,6 +1,6 @@
 {% extends 'layout_clinic.html.twig' %}
 
-{% block meta_title %}TVG Inventory Search{% endblock %}
+{% block meta_title %}Fluid Inventory Search{% endblock %}
 
 {% block meta_decription %}
     <meta name="description" content="">
@@ -11,13 +11,22 @@
 {% endblock %}
 
 {% block body %}
-    <div class="hidden users-flash" id="flash"></div>
-    <div class="container mt-5">
+    <div class="hidden users-flash m-0 save-all-items" id="flash"></div>
+    <div class="container mt-5" id="inventory_container">
         <div class="row">
             <div class="col-12" id="inventory">
                 {{ response|raw }}
             </div>
         </div>
+    </div>
+
+    <div class="col-container container mb-5" id="basket_container">
+    </div>
+
+    <div class="overlay"></div>
+    <div class="spanner">
+        <div class="loader"></div>
+        <p>Loading...</p>
     </div>
 {% endblock %}
 

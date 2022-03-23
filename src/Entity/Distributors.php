@@ -119,6 +119,16 @@ class Distributors
      */
     private $listItems;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BasketItems::class, mappedBy="distributor")
+     */
+    private $basketItems;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ClinicProducts::class, mappedBy="distributor")
+     */
+    private $clinicProducts;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -134,6 +144,8 @@ class Distributors
         $this->eventLogs = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
         $this->listItems = new ArrayCollection();
+        $this->basketItems = new ArrayCollection();
+        $this->clinicProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -501,6 +513,66 @@ class Distributors
             // set the owning side to null (unless already changed)
             if ($listItem->getDistributor() === $this) {
                 $listItem->setDistributor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BasketItems>
+     */
+    public function getBasketItems(): Collection
+    {
+        return $this->basketItems;
+    }
+
+    public function addBasketItem(BasketItems $basketItem): self
+    {
+        if (!$this->basketItems->contains($basketItem)) {
+            $this->basketItems[] = $basketItem;
+            $basketItem->setDistributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBasketItem(BasketItems $basketItem): self
+    {
+        if ($this->basketItems->removeElement($basketItem)) {
+            // set the owning side to null (unless already changed)
+            if ($basketItem->getDistributor() === $this) {
+                $basketItem->setDistributor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClinicProducts>
+     */
+    public function getClinicProducts(): Collection
+    {
+        return $this->clinicProducts;
+    }
+
+    public function addClinicProduct(ClinicProducts $clinicProduct): self
+    {
+        if (!$this->clinicProducts->contains($clinicProduct)) {
+            $this->clinicProducts[] = $clinicProduct;
+            $clinicProduct->setDistributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClinicProduct(ClinicProducts $clinicProduct): self
+    {
+        if ($this->clinicProducts->removeElement($clinicProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($clinicProduct->getDistributor() === $this) {
+                $clinicProduct->setDistributor(null);
             }
         }
 

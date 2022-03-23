@@ -56,7 +56,6 @@ class Status
 
     public function __construct()
     {
-        $this->baskets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->eventLogs = new ArrayCollection();
     }
@@ -110,36 +109,6 @@ class Status
     public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Baskets[]
-     */
-    public function getBaskets(): Collection
-    {
-        return $this->baskets;
-    }
-
-    public function addBasket(Baskets $basket): self
-    {
-        if (!$this->baskets->contains($basket)) {
-            $this->baskets[] = $basket;
-            $basket->setStatus($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBasket(Baskets $basket): self
-    {
-        if ($this->baskets->removeElement($basket)) {
-            // set the owning side to null (unless already changed)
-            if ($basket->getStatus() === $this) {
-                $basket->setStatus(null);
-            }
-        }
 
         return $this;
     }
