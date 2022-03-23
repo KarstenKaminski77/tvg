@@ -99,6 +99,11 @@ class Clinics
      */
     private $availabilityTrackers;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ClinicProducts::class, mappedBy="clinic")
+     */
+    private $clinicProducts;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -117,6 +122,7 @@ class Clinics
         $this->lists = new ArrayCollection();
         $this->productNotes = new ArrayCollection();
         $this->availabilityTrackers = new ArrayCollection();
+        $this->clinicProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -480,6 +486,36 @@ class Clinics
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClinicProducts>
+     */
+    public function getClinicProducts(): Collection
+    {
+        return $this->clinicProducts;
+    }
+
+    public function addClinicProduct(ClinicProducts $clinicProduct): self
+    {
+        if (!$this->clinicProducts->contains($clinicProduct)) {
+            $this->clinicProducts[] = $clinicProduct;
+            $clinicProduct->setClinic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClinicProduct(ClinicProducts $clinicProduct): self
+    {
+        if ($this->clinicProducts->removeElement($clinicProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($clinicProduct->getClinic() === $this) {
+                $clinicProduct->setClinic(null);
+            }
+        }
 
         return $this;
     }

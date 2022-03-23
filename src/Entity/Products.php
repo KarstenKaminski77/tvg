@@ -148,6 +148,11 @@ class Products
      */
     private $basketItems;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ClinicProducts::class, mappedBy="product")
+     */
+    private $clinicProducts;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -163,6 +168,7 @@ class Products
         $this->productsSpecies = new ArrayCollection();
         $this->listItems = new ArrayCollection();
         $this->basketItems = new ArrayCollection();
+        $this->clinicProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -593,6 +599,36 @@ class Products
             // set the owning side to null (unless already changed)
             if ($basketItem->getProduct() === $this) {
                 $basketItem->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClinicProducts>
+     */
+    public function getClinicProducts(): Collection
+    {
+        return $this->clinicProducts;
+    }
+
+    public function addClinicProduct(ClinicProducts $clinicProduct): self
+    {
+        if (!$this->clinicProducts->contains($clinicProduct)) {
+            $this->clinicProducts[] = $clinicProduct;
+            $clinicProduct->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClinicProduct(ClinicProducts $clinicProduct): self
+    {
+        if ($this->clinicProducts->removeElement($clinicProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($clinicProduct->getProduct() === $this) {
+                $clinicProduct->setProduct(null);
             }
         }
 

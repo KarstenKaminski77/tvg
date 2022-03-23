@@ -124,6 +124,11 @@ class Distributors
      */
     private $basketItems;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ClinicProducts::class, mappedBy="distributor")
+     */
+    private $clinicProducts;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -140,6 +145,7 @@ class Distributors
         $this->orderItems = new ArrayCollection();
         $this->listItems = new ArrayCollection();
         $this->basketItems = new ArrayCollection();
+        $this->clinicProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -537,6 +543,36 @@ class Distributors
             // set the owning side to null (unless already changed)
             if ($basketItem->getDistributor() === $this) {
                 $basketItem->setDistributor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClinicProducts>
+     */
+    public function getClinicProducts(): Collection
+    {
+        return $this->clinicProducts;
+    }
+
+    public function addClinicProduct(ClinicProducts $clinicProduct): self
+    {
+        if (!$this->clinicProducts->contains($clinicProduct)) {
+            $this->clinicProducts[] = $clinicProduct;
+            $clinicProduct->setDistributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClinicProduct(ClinicProducts $clinicProduct): self
+    {
+        if ($this->clinicProducts->removeElement($clinicProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($clinicProduct->getDistributor() === $this) {
+                $clinicProduct->setDistributor(null);
             }
         }
 

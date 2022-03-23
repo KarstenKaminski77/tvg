@@ -596,6 +596,10 @@ a.page-link {
     border-bottom: 1px solid #e2e7eb;
 }
 
+.border-bottom-dashed {
+    border-bottom: 1px dashed #e2e7eb !important;
+}
+
 .cell-inner {
     width: calc(100% - 30px);
     padding: 0 15px;
@@ -726,6 +730,25 @@ a.page-link {
 
 .spanner.show, .overlay.show {
     opacity: 1
+}
+
+.restore-all {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+}
+
+.active-basket {
+    background: #f4f8fe;
+    color: #9ed4d9;
+}
+
+.bg-secondary {
+    background: #f4f8fe !important;
+}
+
+.bg-dark-grey{
+    background: #6c757d!important
 }
 
 @media (min-width: 576px) {
