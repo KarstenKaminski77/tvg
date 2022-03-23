@@ -685,24 +685,24 @@
                         },
                         success: function (response) {
 
+                            $('#saved_basket_panel_'+ basket_id).empty().append(response);
                             $("div.spanner").removeClass("show");
                             $("div.overlay").removeClass("show");
-                            $('#saved_basket_panel_'+ basket_id).empty().append(response);
+
+                            $('.saved_basket_header').removeClass('bg-secondary');
+
+                            if($('#saved_basket_panel_'+ basket_id +':visible').length) {
+
+                                $('#saved_basket_panel_' + basket_id).hide(700);
+
+
+                            } else {
+
+                                $('#saved_basket_panel_' + basket_id).show(700);
+                                $('#saved_basket_header_'+ basket_id).addClass('bg-secondary');
+                            }
                         }
                     });
-
-                    $('.saved_basket_header').removeClass('bg-secondary');
-
-                    if($('#saved_basket_panel_'+ basket_id +':visible').length) {
-
-                        $('#saved_basket_panel_' + basket_id).hide(700);
-
-
-                    } else {
-
-                        $('#saved_basket_panel_' + basket_id).show(700);
-                        $('#saved_basket_header_'+ basket_id).addClass('bg-secondary');
-                    }
                 });
                 $(document).on('click', '.basket-delete', function (e){
 
