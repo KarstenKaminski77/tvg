@@ -47,15 +47,16 @@ class ProductsRepository extends ServiceEntityRepository
         return $queryBuilder;
     }
 
-    /*
-    public function findOneBySomeField($value): ?Products
+    public function findByListId($product_ids)
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->select('p','dp','d')
+            ->Join('p.distributorProducts', 'dp')
+            ->join('dp.distributor', 'd')
+            ->andWhere("p.id IN (:product_ids)")
+            ->setParameter('product_ids', $product_ids)
+            ->andWhere('p.isPublished = 1')
+            ->getQuery();
+        return $queryBuilder;
     }
-    */
 }

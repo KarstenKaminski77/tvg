@@ -750,7 +750,7 @@ class ClinicsController extends AbstractController
                         </table>
                     </div>
                     <div class="col-4 col-sm-2">
-                        <a href="" class="float-end">View List</a>
+                        <a href="" class="float-end view-list" data-list-id="'. $lists[$i]->getId() .'">View List</a>
                     </div>
                 </div>
             ';

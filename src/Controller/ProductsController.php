@@ -8,6 +8,8 @@ use App\Entity\ClinicProducts;
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
 use App\Entity\Distributors;
+use App\Entity\ListItems;
+use App\Entity\Lists;
 use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Services\PaginationManager;
@@ -1163,7 +1165,7 @@ class ProductsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/clinics/inventory/{page_no}', name: 'search_results', requirements: ['page' => '\i+'])]
+    #[Route('/clinics/inventory', name: 'search_results')]
     public function index(Request $request): Response
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
@@ -1180,10 +1182,31 @@ class ProductsController extends AbstractController
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
         $response = '';
+        $list_id = '';
 
-        if($request->get('keyword') != null) {
+        if($request->get('keyword') != null || $request->get('list_id') != null) {
 
-            $products = $this->em->getRepository(Products::class)->findByKeystring($request->get('keyword'));
+            if($request->get('keyword') != null) {
+
+                $products = $this->em->getRepository(Products::class)->findByKeystring($request->get('keyword'));
+
+            } elseif($request->get('list_id') != null){
+
+                $list_items = $this->em->getRepository(ListItems::class)->findBy([
+                    'list' => $request->get('list_id')
+                ]);
+
+                $list_id = 'data-list-id="'. $request->get('list_id') .'"';
+                $product_ids = [];
+
+                foreach($list_items as $item){
+
+                    $product_ids[] = $item->getProduct()->getId();
+                }
+
+                $products = $this->em->getRepository(Products::class)->findByListId($product_ids);
+            }
+
             $results = $this->page_manager->paginate($products, $request, self::ITEMS_PER_PAGE);
 
             foreach($results->getQuery()->getResult() as $product){
@@ -1604,13 +1627,19 @@ class ProductsController extends AbstractController
                 $disabled = 'disabled';
                 $data_disabled = 'true';
 
+                // Previous Link
                 if($current_page > 1){
 
                     $disabled = '';
                     $data_disabled = 'false';
                 }
 
-                $response .= '<li class="page-item '. $disabled .'"><a class="page-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'"><span aria-hidden="true">&laquo;</span> Previous</a></li>';
+                $response .= '
+                <li class="page-item '. $disabled .'">
+                    <a class="page-link" '. $list_id .' aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
+                        <span aria-hidden="true">&laquo;</span> Previous
+                    </a>
+                </li>';
 
                 for($i = 1; $i <= $last_page; $i++) {
 
@@ -1622,7 +1651,9 @@ class ProductsController extends AbstractController
                     }
 
                     $response .= '
-                    <li class="page-item '. $active .'"><a class="page-link" data-page-id="'. $i .'" href="'. $url . $i .'">'. $i .'</a></li>';
+                    <li class="page-item '. $active .'">
+                        <a class="page-link" '. $list_id .' data-page-id="'. $i .'" href="'. $url . $i .'">'. $i .'</a>
+                    </li>';
                 }
 
                 $disabled = 'disabled';
@@ -1634,7 +1665,12 @@ class ProductsController extends AbstractController
                     $data_disabled = 'false';
                 }
 
-                $response .= '<li class="page-item '. $disabled .'"><a class="page-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">Next <span aria-hidden="true">&raquo;</span></a></li>';
+                $response .= '
+                <li class="page-item '. $disabled .'">
+                    <a class="page-link" '. $list_id .' aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">
+                        Next <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>';
 
                 $response .= '
                         </ul>

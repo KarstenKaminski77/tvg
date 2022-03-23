@@ -79,18 +79,39 @@
                         page_no = 1;
                     });
 
-                    $(document).on('click','#search_btn, .page-link',function (e){
+                    $(document).on('click','.view-list',function (e){
 
                         e.preventDefault();
 
-                        let keyword = $('#search_field').val();
+                        $('#search_field').val('');
+                    });
+
+                    $(document).on('click','#search_btn, .page-link, .view-list',function (e){
+
+                        e.preventDefault();
+
+                        let keyword = '';
+                        let list_id = '';
+                        let page_id = $(this).data('page-id');
+
+                        if($('#search_field').val() != '' || $('#search_field').val() != 'undefined') {
+
+                            keyword = $('#search_field').val();
+                        }
+
+                        if($(this).data('list-id') != '' || $(this).data('list-id') != 'undefined'){
+
+                            list_id = $(this).data('list-id');
+                        }
 
                         $.ajax({
                             url: "{{ path('search_inventory') }}",
                             type: 'POST',
                             data: {
                                 keyword: keyword,
-                                page_no: page_no
+                                list_id: list_id,
+                                page_no: page_no,
+                                page_id: page_id,
                             },
                             success: function (response) {
                                 $('#inventory').empty().append(response);
@@ -98,7 +119,7 @@
                                 $('#basket_container').empty().hide();
                                 $('#inventory_container').show();
                                 document.title = 'Fluid';
-                                window.history.pushState({"html":response.html,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/inventory/'+ page_no);
+                                window.history.pushState({"html":response.html,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/inventory');
                                 $.session.set('search_key', keyword);
                             }
                         });
@@ -130,7 +151,7 @@
                                     window.history.pushState({
                                         "html": response.html,
                                         "pageTitle": 'Fluid'
-                                    }, "", 'https://127.0.0.1:8000/clinics/inventory/'+ page_no);
+                                    }, "", 'https://127.0.0.1:8000/clinics/inventory');
                                     $.session.set('search_key', keyword);
                                 }
                             }
@@ -685,24 +706,24 @@
                         },
                         success: function (response) {
 
+                            $('#saved_basket_panel_'+ basket_id).empty().append(response);
                             $("div.spanner").removeClass("show");
                             $("div.overlay").removeClass("show");
-                            $('#saved_basket_panel_'+ basket_id).empty().append(response);
+
+                            $('.saved_basket_header').removeClass('bg-secondary');
+
+                            if($('#saved_basket_panel_'+ basket_id +':visible').length) {
+
+                                $('#saved_basket_panel_' + basket_id).hide(700);
+
+
+                            } else {
+
+                                $('#saved_basket_panel_' + basket_id).show(700);
+                                $('#saved_basket_header_'+ basket_id).addClass('bg-secondary');
+                            }
                         }
                     });
-
-                    $('.saved_basket_header').removeClass('bg-secondary');
-
-                    if($('#saved_basket_panel_'+ basket_id +':visible').length) {
-
-                        $('#saved_basket_panel_' + basket_id).hide(700);
-
-
-                    } else {
-
-                        $('#saved_basket_panel_' + basket_id).show(700);
-                        $('#saved_basket_header_'+ basket_id).addClass('bg-secondary');
-                    }
                 });
                 $(document).on('click', '.basket-delete', function (e){
 
