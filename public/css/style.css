@@ -115,7 +115,7 @@ select:-webkit-autofill:focus {
 
 .bg-primary, .btn-check:focus+.btn-primary, .btn-primary:focus, .btn-primary:active, .show>.btn-primary.dropdown-toggle,
 .btn-check:active+.btn-primary, .btn-check:checked+.btn-primary, .btn-primary.active {
-    background: #7796a8 !important;
+    background: #7796a8;
 }
 
 label {

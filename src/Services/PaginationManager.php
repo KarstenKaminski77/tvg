@@ -17,7 +17,7 @@ class PaginationManager
      */
     public function paginate($query, Request $request, int $limit): Paginator
     {
-        $currentPage = (int) $request->get('page_no') ?: 1;
+        $currentPage = (int) $request->request->get('page_id') ?: 1;
         $paginator = new Paginator($query);
         $paginator
             ->getQuery()
