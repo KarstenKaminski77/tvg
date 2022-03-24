@@ -751,6 +751,10 @@ a.page-link {
     background: #6c757d!important
 }
 
+.disabled {
+    color: #ccc;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {

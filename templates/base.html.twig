@@ -65,6 +65,38 @@
             <script>
 
                 {# Inventory Search #}
+                $(window).on('load', function(){
+
+                    if($.session.get('search_key').length > 0){
+
+                        let page_no = 1;
+                        let keyword = $.session.get('search_key');
+
+                        $.ajax({
+                            url: "{{ path('search_inventory') }}",
+                            type: 'POST',
+                            data: {
+                                keyword: keyword,
+                                page_no: page_no
+                            },
+                            success: function (response) {
+
+                                if(window.location.pathname == '/clinics/inventory') {
+
+                                    $('#search_field').val(keyword);
+                                    $('#inventory').empty().append(response);
+                                    $('.container').removeClass('mt-5').addClass('mt-5');
+                                    document.title = 'Fluid';
+                                    window.history.pushState({
+                                        "html": response.html,
+                                        "pageTitle": 'Fluid'
+                                    }, "", 'https://127.0.0.1:8000/clinics/inventory');
+                                    $.session.set('search_key', keyword);
+                                }
+                            }
+                        });
+                    }
+                });
                 $(document).ready(function (){
 
                     let page_no = 0;
@@ -124,475 +156,469 @@
                             }
                         });
                     });
-                });
-                $(window).on('load', function(){
+                    {# End Inventory Search #}
 
-                    if($.session.get('search_key').length > 0){
+                    {# Basket #}
+                    {# Add To Basket #}
+                    $(document).on('submit', 'form[name="form_add_to_basket"]', function (e){
 
-                        let page_no = 1;
-                        let keyword = $.session.get('search_key');
+                        e.preventDefault();
 
-                        $.ajax({
-                            url: "{{ path('search_inventory') }}",
-                            type: 'POST',
-                            data: {
-                                keyword: keyword,
-                                page_no: page_no
-                            },
-                            success: function (response) {
+                        let data = new FormData(this);
+                        let product_id = data.get('product_id');
+                        let distributor_id = data.get('distributor_id');
+                        let qty = data.get('qty');
+                        let qty_error = $('#error_qty_'+ product_id +'_'+ distributor_id);
+                        let is_valid = true;
 
-                                if(window.location.pathname.substr(-1) >= 1) {
+                        qty_error.hide()
 
-                                    page_no = window.location.pathname.substr(-1)
+                        if(qty == '' || qty == 'undefined'){
 
-                                    $('#inventory').empty().append(response);
-                                    $('.container').removeClass('mt-5').addClass('mt-5');
-                                    document.title = 'Fluid';
-                                    window.history.pushState({
-                                        "html": response.html,
-                                        "pageTitle": 'Fluid'
-                                    }, "", 'https://127.0.0.1:8000/clinics/inventory');
-                                    $.session.set('search_key', keyword);
+                            qty_error.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid) {
+
+                            $.ajax({
+                                url: "{{ path('inventory_add_to_basket') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
+                                    $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(response.message).removeClass('hidden');
+                                    $('#basket_count').empty().append('('+ response.basket_count +')');
+                                    $('#modal_add_to_basket_'+ response.product_id +'_'+ response.distributor_id).modal('toggle').modal('hide');
+                                    $('.modal-backdrop').removeClass('modal-backdrop');
+                                    $('.fade').removeClass('fade');
                                 }
-                            }
-                        });
-                    }
-                });
-                {# End Inventory Search #}
-
-                {# Basket #}
-                {# Add To Basket #}
-                $(document).on('submit', 'form[name="form_add_to_basket"]', function (e){
-
-                    e.preventDefault();
-
-                    let data = new FormData(this);
-                    let product_id = data.get('product_id');
-                    let distributor_id = data.get('distributor_id');
-                    let qty = data.get('qty');
-                    let qty_error = $('#error_qty_'+ product_id +'_'+ distributor_id);
-                    let is_valid = true;
-                  
-                    qty_error.hide()
-
-                    if(qty == '' || qty == 'undefined'){
-
-                        qty_error.show();
-                        is_valid = false;
-                    }
-
-                    if(is_valid) {
-
-                        $.ajax({
-                            url: "{{ path('inventory_add_to_basket') }}",
-                            type: 'POST',
-                            contentType: false,
-                            processData: false,
-                            cache: false,
-                            timeout: 600000,
-                            dataType: 'json',
-                            data: data,
-                            success: function (response) {
-                                $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
-                                $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(response.message).removeClass('hidden');
-                                $('#basket_count').empty().append('('+ response.basket_count +')');
-                                $('#modal_add_to_basket_'+ response.product_id +'_'+ response.distributor_id).modal('toggle').modal('hide');
-                                $('.modal-backdrop').removeClass('modal-backdrop');
-                                $('.fade').removeClass('fade');
-                            }
-                        });
-                    }
-                });
-                {# End Add To Basket #}
-
-                {# Update Basket #}
-                function getBasket(basket_id){
-                    $.ajax({
-                        url: "{{ path('get_basket') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            basket_id: basket_id
-                        },
-                        success: function (response) {
-                            $('#inventory_container').hide();
-                            $('#basket_container').empty().append(response).fadeIn(500);
-                            $('#saved_items_container').hide();
-                            $("div.spanner").removeClass("show");
-                            $("div.overlay").removeClass("show");
-
-                            popOver();
+                            });
                         }
                     });
-                }
-                function getFlash(flash){
-                    $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
-                    $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(flash).removeClass('hidden');
+                    {# End Add To Basket #}
 
-                    setTimeout(function() {
-                        $('#flash').removeClass('alert-success').removeClass('alert').removeClass('text-center');
-                        $('#flash').removeClass('users-flash').empty().addClass('hidden');
-                    }, 5000);
-                }
-                function getSavedBaskets(e){
-
-                    e.preventDefault();
-
-                    $.ajax({
-                        url: "{{ path('get_saved_baskets') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            basket_id: 10
-                        },
-                        beforeSend: function () {
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
-                        },
-                        success: function (response) {
-
-                            let basket_id = 10;
-                            //let flash = response.message;
-
-                            $("div.spanner").removeClass("show");
-                            $("div.overlay").removeClass("show");
-                            $('#basket_items').empty().append(response);
-                            //getFlash(flash);
-                        }
-                    });
-                }
-                $(document).on('click', '.basket-qty', function (){
-
-                    $(this).val('');
-                });
-                $(document).on('change', '.basket-qty', function (){
-
-                    let item_id = $(this).data('basket-item-id');
-                    let qty = $(this).val();
-                    let is_valid = true;
-
-                    if(is_valid) {
-
+                    {# Update Basket #}
+                    function getBasket(basket_id){
                         $.ajax({
-                            url: "{{ path('inventory_update_basket') }}",
+                            url: "{{ path('get_basket') }}",
                             type: 'POST',
                             dataType: 'json',
                             data: {
-                                item_id: item_id,
-                                qty: qty
-                            },
-                            beforeSend: function (){
-                                $("div.spanner").addClass("show");
-                                $("div.overlay").addClass("show");
-                            },
-                            success: function (response) {
-                                $('#inventory_container').fadeOut(900);
-
-                                let basket_id = response.basket_id;
-
-                                getBasket(basket_id);
-                            }
-                        });
-                    }
-                });
-                $(document).on('click', '.remove-item', function (e){
-
-                    e.preventDefault();
-
-                    let item_id = $(this).data('item-id');
-
-                    if(item_id > 0) {
-
-                        $.ajax({
-                            url: "{{ path('inventory_remove_basket_item') }}",
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                item_id: item_id
-                            },
-                            beforeSend: function (){
-                                $("div.spanner").addClass("show");
-                                $("div.overlay").addClass("show");
+                                basket_id: basket_id
                             },
                             success: function (response) {
                                 $('#inventory_container').hide();
+                                $('#basket_container').empty().append(response).fadeIn(500);
+                                $('#saved_items_container').hide();
+                                $("div.spanner").removeClass("show");
+                                $("div.overlay").removeClass("show");
 
-                                let basket_id = response.basket_id;
-
-                                getBasket(basket_id);
+                                popOver();
                             }
                         });
                     }
-                });
-                $(document).on('click', '.clear-basket', function (e){
+                    function getFlash(flash){
+                        $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
+                        $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(flash).removeClass('hidden');
 
-                    e.preventDefault();
+                        setTimeout(function() {
+                            $('#flash').removeClass('alert-success').removeClass('alert').removeClass('text-center');
+                            $('#flash').removeClass('users-flash').empty().addClass('hidden');
+                        }, 5000);
+                    }
+                    function getSavedBaskets(e){
 
-                    let basket_id = $(this).data('basket-id');
-
-                    if(basket_id > 0) {
+                        e.preventDefault();
 
                         $.ajax({
-                            url: "{{ path('inventory_clear_basket') }}",
+                            url: "{{ path('get_saved_baskets') }}",
                             type: 'POST',
                             dataType: 'json',
                             data: {
-                                basket_id: basket_id
+                                basket_id: 10
                             },
-                            beforeSend: function (){
+                            beforeSend: function () {
                                 $("div.spanner").addClass("show");
                                 $("div.overlay").addClass("show");
                             },
                             success: function (response) {
-                                $('#inventory_container').hide();
 
-                                let basket_id = response.basket_id;
+                                let basket_id = 10;
+                                //let flash = response.message;
 
-                                getBasket(basket_id);
+                                $("div.spanner").removeClass("show");
+                                $("div.overlay").removeClass("show");
+                                $('#basket_items').empty().append(response);
+                                //getFlash(flash);
                             }
                         });
                     }
-                });
-                $(document).on('click', '.refresh-basket', function (e){
+                    $(document).on('click', '.basket-qty', function (){
 
-                    e.preventDefault();
-
-                    let basket_id = $(this).data('basket-id');
-
-                    if(basket_id > 0) {
-
-                        let flash = '<b><i class="fas fa-check-circle"></i> Basket updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-                        getBasket(basket_id);
-                        getFlash(flash);
-                    }
-                });
-                $(document).on('click', '#print_basket', function(e) {
-
-                    $('.basket-qty').each(function (){
-                        $(this).replaceWith($(this).val())
+                        $(this).val('');
                     });
+                    $(document).on('change', '.basket-qty', function (){
 
-                    $('#btn_checkout').hide();
+                        let item_id = $(this).data('basket-item-id');
+                        let qty = $(this).val();
+                        let is_valid = true;
 
-                    let basket = $('#basket_items').html();
-                    let htm = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Fluid Inventory Search</title>';
-                    htm += '<link rel="stylesheet" media="all" href="{{ asset('css/bootstrap.min.css') }}"><link rel="stylesheet" media="all" href="{{ asset('css/style.min.css') }}">';
-                    htm += '<style type="text/css" media="print">@page { size: landscape; }</style>';
-                    htm += '<link rel="stylesheet" href="/css/fontawesome/css/all.min.css"></head><body><div class="container-fluid">'+ basket;
-                    htm += '</container></body></html>';
+                        if(is_valid) {
 
-                    let w = window.open( '', "Customer Listing", "menubar=0,location=0,height=670,width=700" );
-                    w.document.write(htm);
+                            $.ajax({
+                                url: "{{ path('inventory_update_basket') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    item_id: item_id,
+                                    qty: qty
+                                },
+                                beforeSend: function (){
+                                    $("div.spanner").addClass("show");
+                                    $("div.overlay").addClass("show");
+                                },
+                                success: function (response) {
+                                    $('#inventory_container').fadeOut(900);
 
-                    w.print();
+                                    let basket_id = response.basket_id;
 
-                    w.close();
-                });
-                $(document).on('click', '.save-item', function(e) {
+                                    getBasket(basket_id);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.remove-item', function (e){
 
-                    e.preventDefault();
+                        e.preventDefault();
 
-                    let product_id = $(this).data('product-id');
-                    let distributor_id = $(this).data('distributor-id');
-                    let item_id = $(this).data('item-id');
+                        let item_id = $(this).data('item-id');
 
-                    if(distributor_id > 0 && product_id > 0) {
+                        if(item_id > 0) {
 
-                        $.ajax({
-                            url: "{{ path('save_item') }}",
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                product_id: product_id,
-                                distributor_id: distributor_id,
-                                item_id: item_id
-                            },
-                            beforeSend: function (){
-                                $("div.spanner").addClass("show");
-                                $("div.overlay").addClass("show");
-                            },
-                            success: function (response) {
+                            $.ajax({
+                                url: "{{ path('inventory_remove_basket_item') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    item_id: item_id
+                                },
+                                beforeSend: function (){
+                                    $("div.spanner").addClass("show");
+                                    $("div.overlay").addClass("show");
+                                },
+                                success: function (response) {
+                                    $('#inventory_container').hide();
 
-                                let basket_id = response.basket_id;
-                                let flash = response.message;
+                                    let basket_id = response.basket_id;
 
-                                getBasket(basket_id);
-                                getFlash(flash);
-                            }
+                                    getBasket(basket_id);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.clear-basket', function (e){
+
+                        e.preventDefault();
+
+                        let basket_id = $(this).data('basket-id');
+
+                        if(basket_id > 0) {
+
+                            $.ajax({
+                                url: "{{ path('inventory_clear_basket') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    basket_id: basket_id
+                                },
+                                beforeSend: function (){
+                                    $("div.spanner").addClass("show");
+                                    $("div.overlay").addClass("show");
+                                },
+                                success: function (response) {
+                                    $('#inventory_container').hide();
+
+                                    let basket_id = response.basket_id;
+
+                                    getBasket(basket_id);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.refresh-basket', function (e){
+
+                        e.preventDefault();
+
+                        let basket_id = $(this).data('basket-id');
+
+                        if(basket_id > 0) {
+
+                            let flash = '<b><i class="fas fa-check-circle"></i> Basket updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+                            getBasket(basket_id);
+                            getFlash(flash);
+                        }
+                    });
+                    $(document).on('click', '#print_basket', function(e) {
+
+                        $('.basket-qty').each(function (){
+                            $(this).replaceWith($(this).val())
                         });
-                    }
-                });
-                $(document).on('click', '.restore-item', function(e) {
 
-                    e.preventDefault();
+                        $('#btn_checkout').hide();
 
-                    let product_id = $(this).data('product-id');
-                    let distributor_id = $(this).data('distributor-id');
-                    let item_id = $(this).data('item-id');
-                    let basket_id = $(this).data('basket-id');
+                        let basket = $('#basket_items').html();
+                        let htm = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Fluid Inventory Search</title>';
+                        htm += '<link rel="stylesheet" media="all" href="{{ asset('css/bootstrap.min.css') }}"><link rel="stylesheet" media="all" href="{{ asset('css/style.min.css') }}">';
+                        htm += '<style type="text/css" media="print">@page { size: landscape; }</style>';
+                        htm += '<link rel="stylesheet" href="/css/fontawesome/css/all.min.css"></head><body><div class="container-fluid">'+ basket;
+                        htm += '</container></body></html>';
 
-                    if(distributor_id > 0 && product_id > 0) {
+                        let w = window.open( '', "Customer Listing", "menubar=0,location=0,height=670,width=700" );
+                        w.document.write(htm);
 
-                        $.ajax({
-                            url: "{{ path('restore_item') }}",
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                product_id: product_id,
-                                distributor_id: distributor_id,
-                                item_id: item_id,
-                                basket_id: basket_id
-                            },
-                            beforeSend: function (){
-                                $("div.spanner").addClass("show");
-                                $("div.overlay").addClass("show");
-                            },
-                            success: function (response) {
+                        w.print();
 
-                                let basket_id = response.basket_id;
-                                let flash = response.message;
+                        w.close();
+                    });
+                    $(document).on('click', '.save-item', function(e) {
 
-                                getBasket(basket_id);
-                                getFlash(flash);
-                            }
-                        });
-                    }
-                });
-                $(document).on('click', '.remove-saved-item', function(e) {
+                        e.preventDefault();
 
-                    e.preventDefault();
+                        let product_id = $(this).data('product-id');
+                        let distributor_id = $(this).data('distributor-id');
+                        let item_id = $(this).data('item-id');
 
-                    let item_id = $(this).data('item-id');
+                        if(distributor_id > 0 && product_id > 0) {
 
-                    if(item_id > 0) {
+                            $.ajax({
+                                url: "{{ path('save_item') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    product_id: product_id,
+                                    distributor_id: distributor_id,
+                                    item_id: item_id
+                                },
+                                beforeSend: function (){
+                                    $("div.spanner").addClass("show");
+                                    $("div.overlay").addClass("show");
+                                },
+                                success: function (response) {
 
-                        $.ajax({
-                            url: "{{ path('remove_saved_item') }}",
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                item_id: item_id
-                            },
-                            beforeSend: function (){
-                                $("div.spanner").addClass("show");
-                                $("div.overlay").addClass("show");
-                            },
-                            success: function (response) {
+                                    let basket_id = response.basket_id;
+                                    let flash = response.message;
 
-                                let basket_id = response.basket_id;
-                                let flash = response.message;
+                                    getBasket(basket_id);
+                                    getFlash(flash);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.restore-item', function(e) {
 
-                                getBasket(basket_id);
-                                getFlash(flash);
-                            }
-                        });
-                    }
-                });
-                $(document).on('click', '.save-all-items', function(e) {
+                        e.preventDefault();
 
-                    e.preventDefault();
+                        let product_id = $(this).data('product-id');
+                        let distributor_id = $(this).data('distributor-id');
+                        let item_id = $(this).data('item-id');
+                        let basket_id = $(this).data('basket-id');
 
-                    let basket_id = $(this).data('basket-id');
+                        if(distributor_id > 0 && product_id > 0) {
 
-                    if(basket_id > 0) {
+                            $.ajax({
+                                url: "{{ path('restore_item') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    product_id: product_id,
+                                    distributor_id: distributor_id,
+                                    item_id: item_id,
+                                    basket_id: basket_id
+                                },
+                                beforeSend: function (){
+                                    $("div.spanner").addClass("show");
+                                    $("div.overlay").addClass("show");
+                                },
+                                success: function (response) {
 
-                        $.ajax({
-                            url: "{{ path('save_all_items') }}",
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                basket_id: basket_id
-                            },
-                            beforeSend: function (){
-                                $("div.spanner").addClass("show");
-                                $("div.overlay").addClass("show");
-                            },
-                            success: function (response) {
+                                    let basket_id = response.basket_id;
+                                    let flash = response.message;
 
-                                let basket_id = response.basket_id;
-                                let flash = response.message;
+                                    getBasket(basket_id);
+                                    getFlash(flash);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.remove-saved-item', function(e) {
 
-                                getBasket(basket_id);
-                                getFlash(flash);
-                            }
-                        });
-                    }
-                });
-                $(document).on('click', '#saved_items_link', function (e){
+                        e.preventDefault();
 
-                    e.preventDefault();
+                        let item_id = $(this).data('item-id');
 
-                    if($('#saved_items_container:visible').length) {
+                        if(item_id > 0) {
 
-                        $('#saved_items_container').hide(700);
+                            $.ajax({
+                                url: "{{ path('remove_saved_item') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    item_id: item_id
+                                },
+                                beforeSend: function (){
+                                    $("div.spanner").addClass("show");
+                                    $("div.overlay").addClass("show");
+                                },
+                                success: function (response) {
 
-                    } else {
+                                    let basket_id = response.basket_id;
+                                    let flash = response.message;
 
-                    $('#saved_items_container').show(700);
-                    }
-                });
-                $(document).on('submit', 'form[name="form_save_basket"]', function (e){
+                                    getBasket(basket_id);
+                                    getFlash(flash);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.save-all-items', function(e) {
 
-                    e.preventDefault();
+                        e.preventDefault();
 
-                    let btn = $(this).find("button[type=submit]:focus" ).html();
-                    let clear = 0;
+                        let basket_id = $(this).data('basket-id');
 
-                    if(btn == 'SAVE AND CLEAR'){
+                        if(basket_id > 0) {
 
-                        clear = 1;
-                    }
+                            $.ajax({
+                                url: "{{ path('save_all_items') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    basket_id: basket_id
+                                },
+                                beforeSend: function (){
+                                    $("div.spanner").addClass("show");
+                                    $("div.overlay").addClass("show");
+                                },
+                                success: function (response) {
 
-                    $("<input />").attr("type", "hidden").attr("name", "clear").attr("value", clear).appendTo("#form_save_basket");
+                                    let basket_id = response.basket_id;
+                                    let flash = response.message;
 
-                    let data = new FormData(this);
-                    let basket_name = $('#basket_name').val();
-                    let error_basket_name = $('#error_basket_name');
-                    let is_valid = true;
+                                    getBasket(basket_id);
+                                    getFlash(flash);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '#saved_items_link', function (e){
 
-                    error_basket_name.hide();
+                        e.preventDefault();
 
-                    if(basket_name == '' || basket_name == 'undefined'){
+                        if($('#saved_items_container:visible').length) {
 
-                        error_basket_name.show();
-                        is_valid = false;
-                    }
+                            $('#saved_items_container').hide(700);
 
-                    if(is_valid) {
+                        } else {
+
+                        $('#saved_items_container').show(700);
+                        }
+                    });
+                    $(document).on('submit', 'form[name="form_save_basket"]', function (e){
+
+                        e.preventDefault();
+
+                        let btn = $(this).find("button[type=submit]:focus" ).html();
+                        let clear = 0;
+
+                        if(btn == 'SAVE AND CLEAR'){
+
+                            clear = 1;
+                        }
+
+                        $("<input />").attr("type", "hidden").attr("name", "clear").attr("value", clear).appendTo("#form_save_basket");
+
+                        let data = new FormData(this);
+                        let basket_name = $('#basket_name').val();
+                        let error_basket_name = $('#error_basket_name');
+                        let is_valid = true;
 
                         error_basket_name.hide();
 
+                        if(basket_name == '' || basket_name == 'undefined'){
+
+                            error_basket_name.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid) {
+
+                            error_basket_name.hide();
+
+                            $.ajax({
+                                url: "{{ path('save_basket') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    getFlash(response.message);
+                                    $('#basket_count').empty().append('('+ response.basket_count +')');
+                                    $('#modal_save_basket').modal('toggle').modal('hide');
+                                    $('.modal-backdrop').removeClass('modal-backdrop');
+                                    $('.fade').removeClass('fade');
+                                    getBasket(response.basket_id);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '#restore_all', function (e){
+
+                        e.preventDefault();
+
+                        let basket_id = $(this).data('basket-id');
+
+                        if(basket_id > 0) {
+
+                            $.ajax({
+                                url: "{{ path('restore_all_items') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    basket_id: basket_id
+                                },
+                                beforeSend: function () {
+                                    $("div.spanner").addClass("show");
+                                    $("div.overlay").addClass("show");
+                                },
+                                success: function (response) {
+
+                                    let basket_id = response.basket_id;
+                                    let flash = response.message;
+
+                                    getBasket(basket_id);
+                                    getFlash(flash);
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '#saved_baskets_link', function (e){
+
+                        e.preventDefault();
+
+                        let basket_id = $(this).data('basket-id');
+
                         $.ajax({
-                            url: "{{ path('save_basket') }}",
-                            type: 'POST',
-                            contentType: false,
-                            processData: false,
-                            cache: false,
-                            timeout: 600000,
-                            dataType: 'json',
-                            data: data,
-                            success: function (response) {
-                                getFlash(response.message);
-                                $('#basket_count').empty().append('('+ response.basket_count +')');
-                                $('#modal_save_basket').modal('toggle').modal('hide');
-                                $('.modal-backdrop').removeClass('modal-backdrop');
-                                $('.fade').removeClass('fade');
-                                getBasket(response.basket_id);
-                            }
-                        });
-                    }
-                });
-                $(document).on('click', '#restore_all', function (e){
-
-                    e.preventDefault();
-
-                    let basket_id = $(this).data('basket-id');
-
-                    if(basket_id > 0) {
-
-                        $.ajax({
-                            url: "{{ path('restore_all_items') }}",
+                            url: "{{ path('get_saved_baskets') }}",
                             type: 'POST',
                             dataType: 'json',
                             data: {
@@ -604,182 +630,151 @@
                             },
                             success: function (response) {
 
-                                let basket_id = response.basket_id;
-                                let flash = response.message;
+                                $("div.spanner").removeClass("show");
+                                $("div.overlay").removeClass("show");
+                                $('#basket_items').empty().append(response);
 
-                                getBasket(basket_id);
-                                getFlash(flash);
+                                $('.saved-basket-panel').each(function (){
+
+                                    $('.saved-basket-panel').hide();
+                                });
                             }
                         });
-                    }
-                });
-                $(document).on('click', '#saved_baskets_link', function (e){
-
-                    e.preventDefault();
-
-                    let basket_id = $(this).data('basket-id');
-
-                    $.ajax({
-                        url: "{{ path('get_saved_baskets') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            basket_id: basket_id
-                        },
-                        beforeSend: function () {
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
-                        },
-                        success: function (response) {
-
-                            $("div.spanner").removeClass("show");
-                            $("div.overlay").removeClass("show");
-                            $('#basket_items').empty().append(response);
-
-                            $('.saved-basket-panel').each(function (){
-
-                                $('.saved-basket-panel').hide();
-                            });
-                        }
                     });
-                });
-                $(document).on('click', '.basket-edit', function (e){
+                    $(document).on('click', '.basket-edit', function (e){
 
-                    e.preventDefault();
+                        e.preventDefault();
 
-                    let basket_id = $(this).data('basket-id');
+                        let basket_id = $(this).data('basket-id');
 
-                    $('#basket_name_string_'+ basket_id).hide();
-                    $('#basket_name_input_'+ basket_id).show();
-                    $(this).replaceWith('<a href="" class="update-saved-basket" id="update_saved_basket_'+ basket_id +'" data-basket-id="'+ basket_id +'"><i class="fa-solid fa-floppy-disk float-end me-3"></i></a>');
-                    $('#saved_basket_first_'+ basket_id).removeClass('saved-basket-link');
-                });
-                $(document).on('click', '.update-saved-basket', function (e){
-
-                    e.preventDefault();
-
-                    let basket_id = $(this).data('basket-id');
-                    let basket_name = $('#basket_name_'+ basket_id).val();
-
-                    $.ajax({
-                        url: "{{ path('update_saved_baskets') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            basket_id:basket_id,
-                            basket_name:basket_name
-                        },
-                        beforeSend: function () {
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
-                        },
-                        success: function (response) {
-
-                            $("div.spanner").removeClass("show");
-                            $("div.overlay").removeClass("show");
-                            $('#basket_name_string_'+ basket_id).empty().append(basket_name).show();
-                            $('#basket_name_input_'+ basket_id).hide();
-                            $('#update_saved_basket_'+ basket_id).replaceWith('<a href="" class="basket-edit" data-basket-id="'+ basket_id +'"><i class="fa-solid fa-pencil float-end me-3"></i></a>');
-                            $('#basket_left_col').empty().append(response);
-                            $('#saved_basket_first_'+ basket_id).addClass('saved-basket-link');
-                        }
+                        $('#basket_name_string_'+ basket_id).hide();
+                        $('#basket_name_input_'+ basket_id).show();
+                        $(this).replaceWith('<a href="" class="update-saved-basket" id="update_saved_basket_'+ basket_id +'" data-basket-id="'+ basket_id +'"><i class="fa-solid fa-floppy-disk float-end me-3"></i></a>');
+                        $('#saved_basket_first_'+ basket_id).removeClass('saved-basket-link');
                     });
-                });
-                $(document).on('click', '.saved-basket-link', function (e){
+                    $(document).on('click', '.update-saved-basket', function (e){
 
-                    e.preventDefault();
+                        e.preventDefault();
 
-                    let basket_id = $(this).data('basket-id');
-                    $('.saved-basket-link').removeClass('bg-secondary');
-                    $('.saved-basket-panel').hide(700);
+                        let basket_id = $(this).data('basket-id');
+                        let basket_name = $('#basket_name_'+ basket_id).val();
 
-                    $.ajax({
-                        url: "{{ path('get_saved_basket_details') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            basket_id:basket_id
-                        },
-                        beforeSend: function () {
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
-                        },
-                        success: function (response) {
+                        $.ajax({
+                            url: "{{ path('update_saved_baskets') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                basket_id:basket_id,
+                                basket_name:basket_name
+                            },
+                            beforeSend: function () {
+                                $("div.spanner").addClass("show");
+                                $("div.overlay").addClass("show");
+                            },
+                            success: function (response) {
 
-                            $('#saved_basket_panel_'+ basket_id).empty().append(response);
-                            $("div.spanner").removeClass("show");
-                            $("div.overlay").removeClass("show");
-
-                            $('.saved_basket_header').removeClass('bg-secondary');
-
-                            if($('#saved_basket_panel_'+ basket_id +':visible').length) {
-
-                                $('#saved_basket_panel_' + basket_id).hide(700);
-
-
-                            } else {
-
-                                $('#saved_basket_panel_' + basket_id).show(700);
-                                $('#saved_basket_header_'+ basket_id).addClass('bg-secondary');
+                                $("div.spanner").removeClass("show");
+                                $("div.overlay").removeClass("show");
+                                $('#basket_name_string_'+ basket_id).empty().append(basket_name).show();
+                                $('#basket_name_input_'+ basket_id).hide();
+                                $('#update_saved_basket_'+ basket_id).replaceWith('<a href="" class="basket-edit" data-basket-id="'+ basket_id +'"><i class="fa-solid fa-pencil float-end me-3"></i></a>');
+                                $('#basket_left_col').empty().append(response);
+                                $('#saved_basket_first_'+ basket_id).addClass('saved-basket-link');
                             }
+                        });
+                    });
+                    $(document).on('click', '.saved-basket-link', function (e){
+
+                        e.preventDefault();
+
+                        let basket_id = $(this).data('basket-id');
+                        $('.saved-basket-link').removeClass('bg-secondary');
+                        $('.saved-basket-panel').hide(700);
+
+                        $.ajax({
+                            url: "{{ path('get_saved_basket_details') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                basket_id:basket_id
+                            },
+                            beforeSend: function () {
+                                $("div.spanner").addClass("show");
+                                $("div.overlay").addClass("show");
+                            },
+                            success: function (response) {
+
+                                $('#saved_basket_panel_'+ basket_id).empty().append(response);
+                                $("div.spanner").removeClass("show");
+                                $("div.overlay").removeClass("show");
+
+                                $('.saved_basket_header').removeClass('bg-secondary');
+
+                                if($('#saved_basket_panel_'+ basket_id +':visible').length) {
+
+                                    $('#saved_basket_panel_' + basket_id).hide(700);
+
+
+                                } else {
+
+                                    $('#saved_basket_panel_' + basket_id).show(700);
+                                    $('#saved_basket_header_'+ basket_id).addClass('bg-secondary');
+                                }
+                            }
+                        });
+                    });
+                    $(document).on('click', '.basket-delete', function (e){
+
+                        e.preventDefault();
+
+                        let basket_id = $(this).data('basket-id');
+
+                        $.ajax({
+                            url: "{{ path('delete_saved_basket') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                basket_id:basket_id
+                            },
+                            beforeSend: function () {
+                                $("div.spanner").addClass("show");
+                                $("div.overlay").addClass("show");
+                            },
+                            success: function (response) {
+
+                                $("div.spanner").removeClass("show");
+                                $("div.overlay").removeClass("show");
+                                $('#basket_left_col').empty().append(response.left_col);
+                                $('#basket_items').empty().append(response.right_col);
+                            }
+                        });
+                    });
+                    {# End Update Basket #}
+
+                    {# Get Basket #}
+                    $(document).on('click', '.basket-link', function (e){
+
+                        e.preventDefault();
+
+                        let basket_id = $(this).data('basket-id');
+
+                        if(basket_id > 0) {
+
+                            getBasket(basket_id);
                         }
                     });
-                });
-                $(document).on('click', '.basket-delete', function (e){
+                    {# End Get Basket #}
 
-                    e.preventDefault();
+                    {# Back To Search #}
+                    $(document).on('click', '#return_to_search', function (e){
 
-                    let basket_id = $(this).data('basket-id');
+                        e.preventDefault();
 
-                    $.ajax({
-                        url: "{{ path('delete_saved_basket') }}",
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            basket_id:basket_id
-                        },
-                        beforeSend: function () {
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
-                        },
-                        success: function (response) {
-
-                            $("div.spanner").removeClass("show");
-                            $("div.overlay").removeClass("show");
-                            $('#basket_left_col').empty().append(response.left_col);
-                            $('#basket_items').empty().append(response.right_col);
-                        }
+                        $('#basket_container').empty().hide();
+                        $('#inventory_container').show();
                     });
-                });
-                {# End Update Basket #}
-
-                {# Get Basket #}
-                $(document).on('click', '.basket-link', function (e){
-
-                    e.preventDefault();
-
-                    let basket_id = $(this).data('basket-id');
-
-                    if(basket_id > 0) {
-
-                        getBasket(basket_id);
-                    }
-                });
-                {# End Get Basket #}
-
-                {# Back To Search #}
-                $(document).on('click', '#return_to_search', function (e){
-
-                    e.preventDefault();
-
-                    $('#basket_container').empty().hide();
-                    $('#inventory_container').show();
-                });
-                {# End Back To Search #}
-                {# End Basket #}
-
-
-                $(document).ready(function (){
+                    {# End Back To Search #}
+                    {# End Basket #}
 
                     let rating = 0;
                     let product_id = 0;
@@ -1533,6 +1528,115 @@
                             $('#qty').val('');
                         }
                     });
+
+                    {# Dashboard #}
+                    {# Account & Settings #}
+                    $('#account_settings_link').click(function (e) {
+
+                        e.preventDefault();
+
+                        let search = $('#inventory').html();
+
+                        $.ajax({
+                            url: '{{ path('get_company_information') }}',
+                            type: 'GET',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            success: function (response) {
+                                $('#inventory_container').show();
+                                $('#inventory').empty().append(response);
+                                $('#basket_container').hide();
+                                window.history.pushState({"html":search,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
+                                document.title = 'Fluid Dashboard';
+                            }
+                        });
+                    });
+                    $(document).on('submit','#form_clinic_information',function(e){
+
+                        e.preventDefault();
+
+                        let is_valid = true;
+                        let clinic_name = $('#clinic_name').val()
+                        let clinic_email = $('#clinic_email').val();
+                        let clinic_telephone = $('#clinic_telephone').val();
+                        let error_clinic_name = $('#error_clinic_name');
+                        let error_clinic_email = $('#error_clinic_email');
+                        let error_clinic_telephone = $('#error_clinic_telephone');
+
+                        error_clinic_name.hide();
+                        error_clinic_email.hide();
+                        error_clinic_telephone.hide();
+
+                        if(clinic_name == '' || clinic_name == 'undefined'){
+
+                            error_clinic_name.show();
+                            is_valid = false;
+                        }
+
+                        if(clinic_email == '' || clinic_email == 'undefined'){
+
+                            error_clinic_email.show();
+                            is_valid = false;
+                        }
+
+                        if(clinic_telephone == '' || clinic_telephone == 'undefined'){
+
+                            error_clinic_telephone.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid == true){
+
+                            let data = new FormData(this);
+
+                            $.ajax({
+                                url: "{{ path('clinic_update_company_information') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    $('#flash').addClass('alert-success');
+                                    $('#flash').removeClass('alert-danger');
+                                    $('#flash').addClass('alert');
+                                    $('#flash').addClass('text-center');
+                                    $('#flash').removeClass('users-flash');
+                                    $('#flash').addClass('users-flash');
+                                    $('#flash').empty();
+                                    $('#flash').append(response);
+                                    $('#flash').removeClass('hidden');
+                                    $('#modal_address').modal('toggle');
+                                    $('#modal_address').modal('hide');
+                                    $('.modal-backdrop').removeClass('modal-backdrop');
+                                    $('.fade').removeClass('fade');
+                                }
+                            });
+                        }
+                    });
+                    {# End Account & Settings #}
+
+                    {# Species #}
+                    $(document).on('click', '.species-checkbox', function (){
+
+                        let checkbox = $(this);
+
+                        if(checkbox.is(':checked')) {
+
+                            checkbox.attr('checked', true);
+                            checkbox.hide();
+
+                        } else {
+
+                            checkbox.attr('checked', false);
+                            checkbox.show();
+                        }
+                    });
+                    {# End Species #}
+                    {# Dashboard #}
                 });
 
                 {# Popovers #}

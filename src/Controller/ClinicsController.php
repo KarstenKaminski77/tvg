@@ -160,42 +160,42 @@ class ClinicsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
-    public function clinicsDashboardAction(Request $request): Response
-    {
-        if($this->get('security.token_storage')->getToken() == null){
-
-            $this->addFlash('danger', 'Your session expired due to inactivity, please login.');
-
-            return $this->redirectToRoute('clinics_login');
-        }
-
-        $user_name = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
-        $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
-        $clinics = $this->em->getRepository(Clinics::class)->find($this->getUser()->getClinic()->getId());
-        $communication_methods = $clinics->getClinicCommunicationMethods()[0];
-        $form = $this->createClinicForm()->createView();
-        $user_form = $this->createClinicUserForm()->createView();
-        $address_form = $this->createClinicsAddressesForm()->createView();
-        $communication_methods_form = $this->createClinicCommunicationMethodsForm()->createView();
-        $communication_methods_message = '';
-
-        if($communication_methods == null){
-
-            $communication_methods_message = '<p><i>You do not currently have any communication methods created. Add a new communication method below</i></p>';
-        }
-
-        return $this->render('frontend/clinics/dashboard.html.twig',[
-            'clinic' => $clinics,
-            'form' => $form,
-            'address_form' => $address_form,
-            'communication_methods_form' => $communication_methods_form,
-            'user' => $user,
-            'user_form' => $user_form,
-            'communication_methods_message' => $communication_methods_message,
-            'communication_methods' => $communication_methods,
-        ]);
-    }
+//    #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
+//    public function clinicsDashboardAction(Request $request): Response
+//    {
+//        if($this->get('security.token_storage')->getToken() == null){
+//
+//            $this->addFlash('danger', 'Your session expired due to inactivity, please login.');
+//
+//            return $this->redirectToRoute('clinics_login');
+//        }
+//
+//        $user_name = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
+//        $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
+//        $clinics = $this->em->getRepository(Clinics::class)->find($this->getUser()->getClinic()->getId());
+//        $communication_methods = $clinics->getClinicCommunicationMethods()[0];
+//        $form = $this->createClinicForm()->createView();
+//        $user_form = $this->createClinicUserForm()->createView();
+//        $address_form = $this->createClinicsAddressesForm()->createView();
+//        $communication_methods_form = $this->createClinicCommunicationMethodsForm()->createView();
+//        $communication_methods_message = '';
+//
+//        if($communication_methods == null){
+//
+//            $communication_methods_message = '<p><i>You do not currently have any communication methods created. Add a new communication method below</i></p>';
+//        }
+//
+//        return $this->render('frontend/clinics/dashboard.html.twig',[
+//            'clinic' => $clinics,
+//            'form' => $form,
+//            'address_form' => $address_form,
+//            'communication_methods_form' => $communication_methods_form,
+//            'user' => $user,
+//            'user_form' => $user_form,
+//            'communication_methods_message' => $communication_methods_message,
+//            'communication_methods' => $communication_methods,
+//        ]);
+//    }
 
     #[Route('/clinics/update/personal-information', name: 'clinic_update_personal_information')]
     public function clinicsUpdatePersonalInformationAction(Request $request): Response
@@ -246,6 +246,159 @@ class ClinicsController extends AbstractController
 
             $response = '<b><i class="fas fa-check-circle"></i> Personal details successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
         }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/get-company-information', name: 'get_company_information')]
+    public function clinicsGetCompanyInformationAction(Request $request): Response
+    {
+        $clinic = $this->getUser()->getClinic();
+
+        $response = '
+        <div class="row" id="account_settings">
+            <div class="col-12 mb-3">
+                <h3>Account & Settings</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5>Clinic Information</h5>
+            </div>
+            <form name="form_clinic_information" id="form_clinic_information" method="post">
+                <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
+        
+                <div class="row mb-3">
+        
+                    <!-- First name -->
+                    <div class="col-12 col-sm-12">
+                        <label>
+                            Clinic Name
+                        </label>
+                        <input 
+                            type="text" 
+                            name="clinic_form[clinicName]" 
+                            id="clinic_name" 
+                            class="form-control" 
+                            placeholder="Clinic Name*"
+                            value="'. $clinic->getClinicName() .'"
+                        >
+                        <div class="hidden_msg" id="error_first_name">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="row mb-3">
+        
+                    <!-- Email -->
+                    <div class="col-12 col-sm-6">
+                        <label>
+                            Clinic Email Address
+                        </label>
+                        <input 
+                            type="text" 
+                            name="clinic_form[email]" 
+                            id="clinic_email" 
+                            class="form-control" 
+                            placeholder="Clinic Email*"
+                            value="'. $clinic->getEmail() .'"
+                        >
+                        <div class="hidden_msg" id="error_clinic_email">
+                            Required Field
+                        </div>
+                    </div>
+        
+                    <!-- Telephone -->
+                    <div class="col-12 col-sm-6">
+                        <label>Enter Your Telephone*</label>
+                        <input 
+                            type="text" 
+                            name="clinic_form[telephone]" 
+                            id="clinic_telephone" 
+                            class="form-control" 
+                            placeholder="Telephone*"
+                            value="'. $clinic->getTelephone() .'"
+                        >
+                        <div class="hidden_msg" id="error_telephone">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="row mt-5 mb-3">
+        
+                    <label class="mb-4 d-block">
+                        Select All Species Treated By Your Practice
+                    </label>
+        
+                    <!-- Canine -->
+                    <div class="col-md-2 text-center">
+                        <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                            <input type="checkbox" class="custom-control-input species-checkbox" id="species_canine">
+                            <label class="custom-control-label" for="species_canine">
+                                <i class="fa-solid fa-dog species-icon" id="icon_canine"></i>
+                            </label>
+                        </div>
+                    </div>
+        
+                    <!-- Feline -->
+                    <div class="col-md-2 text-center">
+                        <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                            <input type="checkbox" class="custom-control-input species-checkbox" id="species_feline">
+                            <label class="custom-control-label" for="species_feline">
+                                <i class="fa-solid fa-cat species-icon" id="icon_feline"></i>
+                            </label>
+                        </div>
+                    </div>
+        
+                    <!-- Equine -->
+                    <div class="col-md-2 text-center">
+                        <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                            <input type="checkbox" class="custom-control-input species-checkbox" id="species_equine">
+                            <label class="custom-control-label" for="species_equine">
+                                <i class="fa-solid fa-horse species-icon" id="icon_equine"></i>
+                            </label>
+                        </div>
+                    </div>
+        
+                    <!-- Bovine -->
+                    <div class="col-md-2 text-center">
+                        <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                            <input type="checkbox" class="custom-control-input species-checkbox" id="species_bovine">
+                            <label class="custom-control-label" for="species_bovine">
+                                <i class="fa-solid fa-hippo species-icon" id="icon_bovine"></i>
+                            </label>
+                        </div>
+                    </div>
+        
+                    <!-- Porcine -->
+                    <div class="col-md-2 text-center">
+                        <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                            <input type="checkbox" class="custom-control-input species-checkbox" id="species_porcine">
+                            <label class="custom-control-label" for="species_porcine">
+                                <i class="fa-solid fa-piggy-bank species-icon" id="icon_porcine"></i>
+                            </label>
+                        </div>
+                    </div>
+        
+                    <!-- Exotic -->
+                    <div class="col-md-2 text-center">
+                        <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
+                            <input type="checkbox" class="custom-control-input species-checkbox" id="species_exotic">
+                            <label class="custom-control-label" for="species_exotic">
+                                <i class="fa-solid fa-dragon species-icon" id="icon_exotic"></i>
+                            </label>
+                        </div>
+                    </div>
+        
+                </div>
+        
+                <div class="row mb-3">
+                    <div class="col-12 mt-3 mb-5">
+                        <button id="btn_personal_information" type="submit" class="btn btn-primary w-100">UPDATE CLINIC INFORMATION</button>
+                    </div>
+                </div>
+            </form>
+        </div>';
 
         return new JsonResponse($response);
     }
@@ -703,6 +856,8 @@ class ClinicsController extends AbstractController
 
                 if(count($lists[$i]->getListItems()) > 0) {
 
+                    $item_count = true;
+
                     $item_id = $lists[$i]->getListItems()[0]->getList()->getListItems()[0]->getId();
                     $is_selected = false;
 
@@ -730,30 +885,14 @@ class ClinicsController extends AbstractController
 
                 } else {
 
+                    $item_count = false;
+
                     $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
                             <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
                         </a>';
                 }
 
-                $response .= '
-                <div class="row p-2">
-                    <div class="col-8 col-sm-10 ps-1 d-flex flex-column">
-                        <table style="height: 30px;">
-                            <tr>
-                                <td class="align-middle" width="50px">
-                                    '. $icon .'
-                                </td>
-                                <td class="align-middle info">
-                                    '. $lists[$i]->getName() .'
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-4 col-sm-2">
-                        <a href="" class="float-end view-list" data-list-id="'. $lists[$i]->getId() .'">View List</a>
-                    </div>
-                </div>
-            ';
+                $response .= $this->getListRow($icon, $lists[$i]->getName(), $lists[$i]->getId(), $item_count);
             }
         }
 
@@ -839,6 +978,8 @@ class ClinicsController extends AbstractController
 
             if(count($lists[$i]->getListItems()) > 0) {
 
+                $item_count = true;
+
                 $item_id = $lists[$i]->getListItems()[0]->getList()->getListItems()[0]->getId();
                 $is_selected = false;
 
@@ -866,30 +1007,14 @@ class ClinicsController extends AbstractController
 
             } else {
 
+                $item_count = false;
+
                 $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
                             <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
                         </a>';
             }
 
-            $response .= '
-                <div class="row p-2">
-                    <div class="col-8 col-sm-10 ps-1 d-flex flex-column">
-                        <table style="height: 30px;">
-                            <tr>
-                                <td class="align-middle" width="50px">
-                                    '. $icon .'
-                                </td>
-                                <td class="align-middle info">
-                                    '. $lists[$i]->getName() .'
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-4 col-sm-2">
-                        <a href="" class="float-end">View List</a>
-                    </div>
-                </div>
-            ';
+            $response .= $this->getListRow($icon, $lists[$i]->getName(), $lists[$i]->getId(), $item_count);
         }
 
         $response .= $this->listCreateNew($product_id);
@@ -917,6 +1042,8 @@ class ClinicsController extends AbstractController
 
             if(count($lists[$i]->getListItems()) > 0) {
 
+                $item_count = true;
+
                 $item_id = $lists[$i]->getListItems()[0]->getList()->getListItems()[0]->getId();
                 $is_selected = false;
 
@@ -944,12 +1071,33 @@ class ClinicsController extends AbstractController
 
             } else {
 
+                $item_count = false;
+
                 $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
                             <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
                         </a>';
             }
 
-            $response .= '
+            $response .= $this->getListRow($icon, $lists[$i]->getName(), $lists[$i]->getId(), $item_count);
+        }
+
+        $response .= $this->listCreateNew($product_id);
+
+        return new JsonResponse($response);
+    }
+
+    private function getListRow($icon, $list_name, $list_id, $item_count){
+
+        if($item_count){
+
+            $link = '<a href="" class="float-end view-list" data-list-id="'. $list_id .'">View List</a>';
+
+        } else {
+
+            $link = '<span class="float-end view-list disabled">View List</span>';
+        }
+
+        return '
                 <div class="row p-2">
                     <div class="col-8 col-sm-10 ps-1 d-flex flex-column">
                         <table style="height: 30px;">
@@ -958,21 +1106,16 @@ class ClinicsController extends AbstractController
                                     '. $icon .'
                                 </td>
                                 <td class="align-middle info">
-                                    '. $lists[$i]->getName() .'
+                                    '. $list_name .'
                                 </td>
                             </tr>
                         </table>
                     </div>
                     <div class="col-4 col-sm-2">
-                        <a href="" class="float-end">View List</a>
+                        '. $link .'
                     </div>
                 </div>
             ';
-        }
-
-        $response .= $this->listCreateNew($product_id);
-
-        return new JsonResponse($response);
     }
 
     private function listCreateNew($product_id)

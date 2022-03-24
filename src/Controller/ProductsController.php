@@ -1166,6 +1166,7 @@ class ProductsController extends AbstractController
     }
 
     #[Route('/clinics/inventory', name: 'search_results')]
+    #[Route('/clinics/dashboard', name: 'dashboard')]
     public function index(Request $request): Response
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
