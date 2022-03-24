@@ -9,12 +9,10 @@ use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
 use App\Entity\Distributors;
 use App\Entity\ListItems;
-use App\Entity\Lists;
 use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -1166,7 +1164,7 @@ class ProductsController extends AbstractController
     }
 
     #[Route('/clinics/inventory', name: 'search_results')]
-    #[Route('/clinics/dashboard', name: 'dashboard')]
+    #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
     public function index(Request $request): Response
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());

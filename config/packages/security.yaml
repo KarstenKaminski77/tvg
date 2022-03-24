@@ -79,6 +79,7 @@ security:
     access_control:
         - { path: ^/clinics/dashboard, roles: ROLE_CLINIC }
         - { path: ^/clinics/inventory, roles: ROLE_CLINIC }
+        - { path: ^/clinics/get-clinic-users, roles: ROLE_CLINIC  }
         - { path: ^/distributors/dashboard, roles: ROLE_USER }
         - { path: ^/distributors/inventory-get, roles: ROLE_USER }
         - { path: ^/admin/login, roles: PUBLIC_ACCESS }
