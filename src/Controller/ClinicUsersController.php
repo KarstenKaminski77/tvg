@@ -1,0 +1,319 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Clinics;
+use App\Entity\ClinicUsers;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class ClinicUsersController extends AbstractController
+{
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
+    #[Route('/clinics/get-clinic-users', name: 'get-clinic-users')]
+    public function getClinicUsersAction(): Response
+    {
+        $clinic = $this->getUser()->getClinic();
+        $clinic_users = $this->em->getRepository(ClinicUsers::class)->findBy([
+            'clinic' => $clinic->getId()
+        ]);
+        
+        $response = '
+        <!-- Users -->
+        <div class="row" id="users">
+            <div class="col-12 col-md-6 mb-3">
+                <h3>Manage User Accounts</h3>
+            </div>
+            <div class="col-12 col-md-6 mb-3 mt-5">
+                <!-- Create New -->
+                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
+                    <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
+                </button>
+            </div>
+            <div class="col-12 mb-5 mt-3 info">
+                Fluid supports having several users under a single clinic. Each user will have their own login, can
+                independently participate in the Fluid discussions. You have full control over editing the permissions
+                of each user in your clinic. Use the table below to view the available permission levels.
+            </div>
+
+            <div class="row d-none d-md-flex">
+                <div class="col-md-2 t-header">
+                    First Name
+                </div>
+                <div class="col-md-2 t-header">
+                    Last Name
+                </div>
+                <div class="col-md-2 t-header">
+                    Username
+                </div>
+                <div class="col-md-2 t-header">
+                    Telephone
+                </div>
+                <div class="col-md-2 t-header">
+                    Position
+                </div>
+                <div class="col-md-2 t-header">
+
+                </div>
+            </div>
+            <div id="users_list">';
+
+        foreach($clinic_users as $user) {
+
+            $response .= '
+           <div class="list-width">
+               <div class="row t-row">
+                   <div class="col-md-2 t-cell">
+                       '. $user->getFirstName() .'
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       '. $user->getLastName() .'
+                   </div>
+                   <div class="col-md-2 t-cell"">
+                       '. $user->getEmail() .'
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       '. $user->getTelephone() .'
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       '. $user->getPosition() .'
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       <a href="" class="float-end open-user-modal" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
+                           <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                       </a>
+                       <a href="" class="delete-icon float-end open-delete-user-modal" data-bs-toggle="modal"
+                          data-value="'. $user->getId() .'" data-bs-target="#modal_user_delete" data-user-id="'. $user->getId() .'">
+                           <i class="fa-solid fa-trash-can"></i>
+                       </a>
+                   </div>
+               </div>
+           </div>';
+        }
+
+        $response .= '
+            </div>
+
+            <!-- Modal Manage Users -->
+            <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <form name="form_users" id="form_users" method="post">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="user_modal_label"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-3">
+
+                                    <!-- First Name -->
+                                    <div class="col-12 col-sm-6">
+                                        <label>First Name</label>
+                                        <input type="hidden" value="" name="clinic_users_form[user_id]" id="user_id">
+                                        <input 
+                                            type="text" 
+                                            name="clinic_users_form[firstName]" 
+                                            id="user_first_name" 
+                                            placeholder="First Name*"
+                                            class="form-control"
+                                            value=""
+                                        >
+                                        <div class="hidden_msg" id="error_user_first_name">
+                                            Required Field
+                                        </div>
+                                    </div>
+
+                                    <!-- Last Name -->
+                                    <div class="col-12 col-sm-6">
+                                        <label>Last Name</label>
+                                        <input 
+                                            type="text" 
+                                            name="clinic_users_form[lastName]" 
+                                            id="user_last_name" 
+                                            placeholder="Last Name*"
+                                            class="form-control"
+                                            value=""
+                                        >
+                                        <div class="hidden_msg" id="error_user_last_name">
+                                            Required Field
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+
+                                    <!-- Email -->
+                                    <div class="col-12 col-sm-6">
+                                        <label>Email</label>
+                                        <input 
+                                            type="text" 
+                                            name="clinic_users_form[email]" 
+                                            id="user_email" 
+                                            placeholder="Email Address*"
+                                            class="form-control"
+                                            value=""
+                                        >
+                                        <div class="hidden_msg" id="error_user_email">
+                                            Required Field
+                                        </div>
+                                    </div>
+
+                                    <!-- Telephone Number -->
+                                    <div class="col-12 col-sm-6">
+                                        <label>Telepgone</label>
+                                        <input 
+                                            type="text" 
+                                            name="clinic_users_form[telephone]" 
+                                            id="user_telephone" 
+                                            placeholder="(123) 456-7890*"
+                                            class="form-control"
+                                            value=""
+                                        >
+                                        <div class="hidden_msg" id="error_user_telephone">
+                                            Required Field
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+
+                                    <!-- Position -->
+                                    <div class="col-12">
+                                        <label>Position</label>
+                                        <input 
+                                            type="text" 
+                                            name="clinic_users_form[position]" 
+                                            id="user_position" 
+                                            placeholder="Position"
+                                            class="form-control"
+                                            value=""
+                                        >
+                                        <div class="hidden_msg" id="error_user_telephone">
+                                            Required Field
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                                <button type="submit" class="btn btn-primary" id="create_user">SAVE</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Delete User -->
+            <div class="modal fade" id="modal_user_delete" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="user_delete_label">Delete User</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12 mb-0">
+                                    Are you sure you would like to delete this user? This action cannot be undone.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Users -->';
+        
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/get-user', name: 'clinic_get_user')]
+    public function clinicsGetUserAction(Request $request): Response
+    {
+        $user = $this->em->getRepository(ClinicUsers::class)->find($request->request->get('id'));
+
+        $response = [
+
+            'id' => $user->getId(),
+            'first_name' => $user->getFirstName(),
+            'last_name' => $user->getLastName(),
+            'email' => $user->getEmail(),
+            'telephone' => $user->getTelephone(),
+            'position' => $user->getPosition(),
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/user/delete', name: 'clinic_user_delete')]
+    public function clinicDeleteUser(Request $request): Response
+    {
+        $user_id = $request->request->get('id');
+        $user = $this->em->getRepository(ClinicUsers::class)->find($user_id);
+
+        $this->em->remove($user);
+        $this->em->flush();
+
+        $response = '<b><i class="fas fa-check-circle"></i> User successfully deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/users-refresh', name: 'clinic_refresh_users')]
+    public function clinicRefreshUsersAction(Request $request): Response
+    {
+        $clinic_id = $this->getUser()->getClinic()->getId();
+        $users = $this->em->getRepository(Clinics::class)->getClinicUsers($clinic_id);
+
+        $html = '';
+
+        foreach($users[0]->getClinicUsers() as $user){
+
+            $html .= '
+            <div class="list-width">
+               <div class="row t-row">
+                   <div class="col-md-2 t-cell" id="string_user_first_name_'. $user->getId() .'">
+                       '. $user->getFirstName() .'
+                   </div>
+                   <div class="col-md-2 t-cell" id="string_user_last_name_'. $user->getId() .'">
+                       '. $user->getLastName() .'
+                   </div>
+                   <div class="col-md-2 t-cell" id="string_user_email_'. $user->getId() .'">
+                       '. $user->getEmail() .'
+                   </div>
+                   <div class="col-md-2 t-cell" id="string_user_telephone_'. $user->getId() .'">
+                       '. $user->getEmail() .'
+                   </div>
+                   <div class="col-md-2 t-cell" id="string_user_position_'. $user->getId() .'">
+                       '. $user->getPosition() .'
+                   </div>
+                   <div class="col-md-2 t-cell">
+                       <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_{{ users.id }}">
+                           <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                       </a>
+                       <a href="" class="delete-icon float-end open-delete-user-modal" data-bs-toggle="modal"
+                          data-user-id="'. $user->getId() .'" data-bs-target="#modal_user_delete">
+                           <i class="fa-solid fa-trash-can"></i>
+                       </a>
+                   </div>
+               </div>
+           </div>';
+        }
+
+        return new JsonResponse($html);
+    }
+}

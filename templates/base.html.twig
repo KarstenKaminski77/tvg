@@ -105,19 +105,16 @@
 
                         page_no = $(this).data('page-id');
                     });
-
                     $(document).on('click','#search_btn',function (e){
 
                         page_no = 1;
                     });
-
                     $(document).on('click','.view-list',function (e){
 
                         e.preventDefault();
 
                         $('#search_field').val('');
                     });
-
                     $(document).on('click','#search_btn, .page-link, .view-list',function (e){
 
                         e.preventDefault();
@@ -1618,6 +1615,215 @@
                         }
                     });
                     {# End Account & Settings #}
+
+                    {# Users #}
+                    $('#users_link').click(function (e) {
+
+                        e.preventDefault();
+
+                        let search = $('#inventory').html();
+
+                        $.ajax({
+                            url: '{{ path('get-clinic-users') }}',
+                            type: 'GET',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            success: function (response) {
+                                $('#inventory').empty().append(response);
+                                $('#inventory_container').show();
+                                $('#basket_container').hide();
+                                window.history.pushState({"html":search,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
+                                document.title = 'Fluid Dashboard';
+                            }
+                        });
+                    });
+                    $(document).on('click', '.open-user-modal', function () {
+
+                        $('#create_user').empty().append('UPDATE USER');
+                        let user_id = $(this).data('user-id');
+
+                        $.ajax({
+                            url: "{{ path('clinic_get_user') }}",
+                            type: 'POST',
+                            data: {
+                                id: user_id
+                            },
+                            success: function (response) {
+                                $('#user_first_name').val(response.first_name);
+                                $('#user_last_name').val(response.last_name);
+                                $('#user_email').val(response.email);
+                                $('#user_telephone').val(response.telephone);
+                                $('#user_position').val(response.position);
+                            }
+                        });
+
+                        $('#user_id').val(user_id);
+                        $('#user_modal_label').empty().append('Update a User');
+                    });
+                    $(document).on('click','#user_new',function (){
+
+                        $('#create_user').empty().append('CREATE USER');
+                        $('#user_modal_label').empty().append('Create a User');
+                        $('#user_id').val(0);
+                        $('#user_first_name').val('');
+                        $('#user_last_name').val('');
+                        $('#user_email').val('');
+                        $('#user_telephone').val('');
+                        $('#user_position').val('');
+                    });
+                    $(document).on('click','#form_users',function(e){
+
+                        e.preventDefault();
+
+                        let is_valid = true;
+                        let user_first_name = $('#user_first_name').val()
+                        let user_last_name = $('#user_last_name').val();
+                        let user_email = $('#user_email').val();
+                        let user_telephone = $('#user_telephone').val();
+                        let error_user_first_name = $('#error_user_first_name');
+                        let error_user_last_name = $('#error_user_last_name');
+                        let error_user_email = $('#error_user_email');
+                        let error_user_telephone = $('#error_user_telephone');
+
+                        error_user_first_name.hide();
+                        error_user_last_name.hide();
+                        error_user_email.hide();
+                        error_user_telephone.hide();
+
+                        if(user_first_name == '' || user_first_name == 'undefined'){
+
+                            error_user_first_name.show();
+                            is_valid = false;
+                        }
+
+                        if(user_last_name == '' || user_last_name == 'undefined'){
+
+                            error_user_last_name.show();
+                            is_valid = false;
+                        }
+
+                        if(user_email == '' || user_email == 'undefined'){
+
+                            error_user_email.show();
+                            is_valid = false;
+                        }
+
+                        if(user_telephone == '' || user_telephone == 'undefined'){
+
+                            error_user_telephone.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid == true){
+
+                            let data = new FormData(this);
+
+                            $('#create_user').empty().attr('disabled', true).append('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> PROCESSING...');
+
+                            $.ajax({
+                                url: "{{ path('clinic_users') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+
+                                    if (response.response) {
+                                        $('#flash').addClass('alert-success');
+                                        $('#flash').removeClass('alert-danger');
+                                        $('#flash').addClass('alert');
+                                        $('#flash').addClass('text-center');
+                                        $('#flash').removeClass('users-flash');
+                                        $('#flash').addClass('users-flash');
+                                        $('#flash').empty();
+                                        $('#flash').append(response.message);
+                                        $('#flash').removeClass('hidden');
+                                        $('#modal_user').modal('toggle');
+                                        $('#modal_user').modal('hide');
+                                        $('.modal-backdrop').removeClass('modal-backdrop');
+                                        $('.fade').removeClass('fade');
+                                        $('#user_first_name').val('');
+                                        $('#user_last_name').val('');
+                                        $('#user_email').val('');
+                                        $('#user_telephone').val('');
+                                        $('#user_position').val('');
+                                        $('#create_user').empty().append('SAVE').attr('disabled', false);
+
+                                        $.ajax({
+                                            url: "{{ path('clinic_refresh_users') }}",
+                                            type: 'POST',
+                                            contentType: false,
+                                            processData: false,
+                                            cache: false,
+                                            timeout: 600000,
+                                            dataType: 'json',
+                                            data: data,
+                                            success: function (response) {
+                                                $('#users_list').empty().append(response);
+                                            }
+                                        });
+                                    } else {
+
+                                        $('#error_user_email').empty();
+                                        $('#error_user_email').append('Email address exists.');
+                                        $('#error_user_email').show();
+                                        $('#create_user').empty().append('SAVE').attr('disabled', false);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.open-delete-user-modal', function (e){
+
+                        e.preventDefault();
+
+                        $('#delete_user').attr('data-user-id', $(this).data('user-id'));
+                    });
+                    $(document).on('click', '#delete_user', function () {
+
+                        let user_id = $(this).data('user-id');
+
+                        $.ajax({
+                            url: "{{ path('clinic_user_delete') }}",
+                            type: 'POST',
+                            data: {
+                                id: user_id
+                            },
+                            success: function (response) {
+                                $('#flash').addClass('alert-success');
+                                $('#flash').removeClass('alert-danger');
+                                $('#flash').addClass('alert');
+                                $('#flash').addClass('text-center');
+                                $('#flash').removeClass('users-flash');
+                                $('#flash').addClass('users-flash');
+                                $('#flash').empty();
+                                $('#flash').append(response);
+                                $('#flash').removeClass('hidden');
+                                $('#modal_user_delete').modal('toggle');
+                                $('#modal_user_delete').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('#modal_user_delete').addClass('fade');
+
+                                $.ajax({
+                                    url: "{{ path('clinic_refresh_users') }}",
+                                    type: 'POST',
+                                    contentType: false,
+                                    processData: false,
+                                    cache: false,
+                                    timeout: 600000,
+                                    dataType: 'json',
+                                    success: function (response) {
+                                        $('#users_list').empty().append(response);
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    {# End Users #}
 
                     {# Species #}
                     $(document).on('click', '.species-checkbox', function (){

@@ -601,20 +601,6 @@ class ClinicsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/clinics/user/delete', name: 'clinic_user_delete')]
-    public function clinicDeleteUser(Request $request): Response
-    {
-        $user_id = $request->request->get('id');
-        $user = $this->em->getRepository(ClinicUsers::class)->find($user_id);
-
-        $this->em->remove($user);
-        $this->em->flush();
-
-        $response = '<b><i class="fas fa-check-circle"></i> User successfully deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        return new JsonResponse($response);
-    }
-
     #[Route('/clinics/method/delete', name: 'clinic_method_delete')]
     public function clinicDeleteMethod(Request $request): Response
     {
@@ -704,49 +690,6 @@ class ClinicsController extends AbstractController
         return new JsonResponse($html);
     }
 
-    #[Route('/clinics/users-refresh', name: 'clinic_refresh_users')]
-    public function clinicRefreshUsersAction(Request $request): Response
-    {
-        $clinic_id = $this->get('security.token_storage')->getToken()->getUser()->getClinic()->getId();
-        $users = $this->em->getRepository(Clinics::class)->getClinicUsers($clinic_id);
-
-        $html = '';
-
-        foreach($users[0]->getClinicUsers() as $user){
-
-            $html .= '<div class="list-width">
-                       <div class="row t-row">
-                           <div class="col-md-2 t-cell" id="string_user_first_name_'. $user->getId() .'">
-                               '. $user->getFirstName() .'
-                           </div>
-                           <div class="col-md-2 t-cell" id="string_user_last_name_'. $user->getId() .'">
-                               '. $user->getLastName() .'
-                           </div>
-                           <div class="col-md-2 t-cell" id="string_user_email_'. $user->getId() .'">
-                               '. $user->getEmail() .'
-                           </div>
-                           <div class="col-md-2 t-cell" id="string_user_telephone_'. $user->getId() .'">
-                               '. $user->getEmail() .'
-                           </div>
-                           <div class="col-md-2 t-cell" id="string_user_position_'. $user->getId() .'">
-                               '. $user->getPosition() .'
-                           </div>
-                           <div class="col-md-2 t-cell">
-                               <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_{{ users.id }}">
-                                   <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                               </a>
-                               <a href="" class="delete-icon float-end" data-bs-toggle="modal"
-                                  data-value="{{ users.id }}" data-bs-target="#modal_user_delete" id="user_delete_{{ users.id }}">
-                                   <i class="fa-solid fa-trash-can"></i>
-                               </a>
-                           </div>
-                       </div>
-                   </div>';
-        }
-
-        return new JsonResponse($html);
-    }
-
     #[Route('/clinics/communication-refresh', name: 'clinic_refresh_communication')]
     public function clinicRefreshCommunicationMethodsAction(Request $request): Response
     {
@@ -793,24 +736,6 @@ class ClinicsController extends AbstractController
             'city' => $address->getCity(),
             'state' => $address->getState(),
             'postal_code' => $address->getPostalCode()
-        ];
-
-        return new JsonResponse($response);
-    }
-
-    #[Route('/clinics/get-user', name: 'clinic_get_user')]
-    public function clinicsGetUserAction(Request $request): Response
-    {
-        $user = $this->em->getRepository(ClinicUsers::class)->find($request->request->get('id'));
-
-        $response = [
-
-            'id' => $user->getId(),
-            'first_name' => $user->getFirstName(),
-            'last_name' => $user->getLastName(),
-            'email' => $user->getEmail(),
-            'telephone' => $user->getTelephone(),
-            'position' => $user->getPosition(),
         ];
 
         return new JsonResponse($response);
