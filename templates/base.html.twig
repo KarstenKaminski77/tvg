@@ -1597,15 +1597,7 @@
                                 dataType: 'json',
                                 data: data,
                                 success: function (response) {
-                                    $('#flash').addClass('alert-success');
-                                    $('#flash').removeClass('alert-danger');
-                                    $('#flash').addClass('alert');
-                                    $('#flash').addClass('text-center');
-                                    $('#flash').removeClass('users-flash');
-                                    $('#flash').addClass('users-flash');
-                                    $('#flash').empty();
-                                    $('#flash').append(response);
-                                    $('#flash').removeClass('hidden');
+                                    getFlash(response);
                                     $('#modal_address').modal('toggle');
                                     $('#modal_address').modal('hide');
                                     $('.modal-backdrop').removeClass('modal-backdrop');
@@ -1672,7 +1664,7 @@
                         $('#user_telephone').val('');
                         $('#user_position').val('');
                     });
-                    $(document).on('click','#form_users',function(e){
+                    $(document).on('submit','#form_users',function(e){
 
                         e.preventDefault();
 
@@ -1733,15 +1725,8 @@
                                 success: function (response) {
 
                                     if (response.response) {
-                                        $('#flash').addClass('alert-success');
-                                        $('#flash').removeClass('alert-danger');
-                                        $('#flash').addClass('alert');
-                                        $('#flash').addClass('text-center');
-                                        $('#flash').removeClass('users-flash');
-                                        $('#flash').addClass('users-flash');
-                                        $('#flash').empty();
-                                        $('#flash').append(response.message);
-                                        $('#flash').removeClass('hidden');
+
+                                        getFlash(response.message);
                                         $('#modal_user').modal('toggle');
                                         $('#modal_user').modal('hide');
                                         $('.modal-backdrop').removeClass('modal-backdrop');
@@ -1767,7 +1752,6 @@
                                             }
                                         });
                                     } else {
-
                                         $('#error_user_email').empty();
                                         $('#error_user_email').append('Email address exists.');
                                         $('#error_user_email').show();
