@@ -1597,15 +1597,7 @@
                                 dataType: 'json',
                                 data: data,
                                 success: function (response) {
-                                    $('#flash').addClass('alert-success');
-                                    $('#flash').removeClass('alert-danger');
-                                    $('#flash').addClass('alert');
-                                    $('#flash').addClass('text-center');
-                                    $('#flash').removeClass('users-flash');
-                                    $('#flash').addClass('users-flash');
-                                    $('#flash').empty();
-                                    $('#flash').append(response);
-                                    $('#flash').removeClass('hidden');
+                                    getFlash(response);
                                     $('#modal_address').modal('toggle');
                                     $('#modal_address').modal('hide');
                                     $('.modal-backdrop').removeClass('modal-backdrop');
@@ -1672,7 +1664,7 @@
                         $('#user_telephone').val('');
                         $('#user_position').val('');
                     });
-                    $(document).on('click','#form_users',function(e){
+                    $(document).on('submit','#form_users',function(e){
 
                         e.preventDefault();
 
@@ -1733,15 +1725,8 @@
                                 success: function (response) {
 
                                     if (response.response) {
-                                        $('#flash').addClass('alert-success');
-                                        $('#flash').removeClass('alert-danger');
-                                        $('#flash').addClass('alert');
-                                        $('#flash').addClass('text-center');
-                                        $('#flash').removeClass('users-flash');
-                                        $('#flash').addClass('users-flash');
-                                        $('#flash').empty();
-                                        $('#flash').append(response.message);
-                                        $('#flash').removeClass('hidden');
+
+                                        getFlash(response.message);
                                         $('#modal_user').modal('toggle');
                                         $('#modal_user').modal('hide');
                                         $('.modal-backdrop').removeClass('modal-backdrop');
@@ -1767,7 +1752,6 @@
                                             }
                                         });
                                     } else {
-
                                         $('#error_user_email').empty();
                                         $('#error_user_email').append('Email address exists.');
                                         $('#error_user_email').show();
@@ -1824,6 +1808,383 @@
                         });
                     });
                     {# End Users #}
+
+                    {# Addresses #}
+                    $('#addresses_link').click(function (e) {
+
+                        e.preventDefault();
+
+                        let page = $('html').html();
+
+                        $.ajax({
+                            url: '{{ path('get_clinic_addresses') }}',
+                            type: 'GET',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            success: function (response) {
+                                $('#inventory').empty().append(response);
+                                $('#inventory_container').show();
+                                $('#basket_container').hide();
+                                window.history.pushState({"html":page,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
+                                document.title = 'Fluid Dashboard';
+                            }
+                        });
+                    });
+                    $(document).on('click', '#address_new', function (){
+
+                        $('#address_id').val(0);
+                        $('#address_clinic_name').val('');
+                        $('#address_telephone').val('');
+                        $('#address_line_1').val('');
+                        $('#address_suite').val('');
+                        $('#address_postal_code').val('');
+                        $('#address_city').val('');
+                        $('#address_state').val('');
+                        $('#address_modal_label').empty().append('Create An Address');
+                    });
+                    $(document).on('click', '.address_update', function () {
+
+                        let address_id = $(this).data('address-id');
+
+                        $.ajax({
+                            url: "{{ path('clinic_get_address') }}",
+                            type: 'POST',
+                            data: {
+                                id: address_id
+                            },
+                            success: function (response) {
+                                $('#address_clinic_name').val(response.clinic_name);
+                                $('#address_telephone').val(response.telephone);
+                                $('#address_line_1').val(response.address_line_1);
+                                $('#address_suite').val(response.suite);
+                                $('#address_postal_code').val(response.postal_code);
+                                $('#address_city').val(response.city);
+                                $('#address_state').val(response.state);
+                            }
+                        });
+
+                        $('#address_id').val(address_id);
+                        $('#address_modal_label').empty().append('Update An Address');
+                    });
+                    $(document).on('click', '.open-delete-address-modal', function (e){
+
+                        e.preventDefault();
+
+                        $('#delete_address').attr('data-address-id', $(this).data('address-id'));
+                    });
+                    $(document).on('click', '#delete_address', function () {
+
+                        let address_id = $(this).data('address-id');
+
+                        $.ajax({
+                            url: "{{ path('address_delete') }}",
+                            type: 'POST',
+                            data: {
+                                id: address_id
+                            },
+                            success: function (response) {
+                                getFlash(response.flash);
+                                $('#inventory').empty().append(response.addresses);
+                                $('#modal_address_delete').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('#modal_address_delete').addClass('fade');
+                            }
+                        });
+                    });
+                    $(document).on('click', '.address_default', function (e) {
+
+                        e.preventDefault();
+
+                        let address_id = $(this).data('address-id');
+
+                        $.ajax({
+                            url: "{{ path('clinic_address_default') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                id: address_id
+                            },
+                            success: function (response) {
+
+                                getFlash(response.flash);
+                                $('#inventory').empty().append(response.addresses);
+                            }
+                        });
+                    });
+                    $(document).on('submit', '#form_addresses', function(e){
+
+                        e.preventDefault();
+
+                        let is_valid = true;
+                        let clinic_name = $('#address_clinic_name').val()
+                        let telephone = $('#address_telephone').val();
+                        let address_line_1 = $('#address_line_1').val();
+                        let postal_code = $('#address_postal_code').val();
+                        let city = $('#address_city').val();
+                        let state = $('#address_state').val();
+                        let error_clinic_name = $('#error_address_clinic_name');
+                        let error_telephone = $('#error_address_telephone');
+                        let error_address_line_1 = $('#error_address_line_1');
+                        let error_postal_code = $('#error_address_postal_code');
+                        let error_city = $('#error_address_city');
+                        let error_state = $('#error_address_state');
+
+                        error_clinic_name.hide();
+                        error_telephone.hide();
+                        error_address_line_1.hide();
+                        error_postal_code.hide();
+                        error_city.hide();
+                        error_state.hide();
+
+                        if(clinic_name == '' || clinic_name == 'undefined'){
+
+                            error_clinic_name.show();
+                            is_valid = false;
+                        }
+
+                        if(telephone == '' || telephone == 'undefined'){
+
+                            error_telephone.show();
+                            is_valid = false;
+                        }
+
+                        if(address_line_1 == '' || address_line_1 == 'undefined'){
+
+                            error_address_line_1.show();
+                            is_valid = false;
+                        }
+
+                        if(city == '' || city == 'undefined'){
+
+                            error_city.show();
+                            is_valid = false;
+                        }
+
+                        if(postal_code == '' || postal_code == 'undefined'){
+
+                            error_postal_code.show();
+                            is_valid = false;
+                        }
+
+                        if(state == '' || state == 'undefined'){
+
+                            error_state.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid == true){
+
+                            let data = new FormData(this);
+
+                            $.ajax({
+                                url: "{{ path('update_address') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    getFlash(response.flash);
+                                    $('#inventory').empty().append(response.addresses);
+                                    $('#modal_address').modal('hide');
+                                    $('.modal-backdrop').removeClass('modal-backdrop');
+                                    $('.fade').removeClass('fade');
+                                    $('#address_clinic_name').val('');
+                                    $('#address_telephone').val('');
+                                    $('#address_line_1').val('');
+                                    $('#address_suite').val('');
+                                    $('#address_postal_code').val('');
+                                    $('#address_city').val('');
+                                    $('#address_state').val('');
+                                }
+                            });
+                        }
+                    });
+                    {# End Addresses #}
+
+                    {# Communivation Methods #}
+                    $('#communication_methods_link').click(function (e){
+
+                        let page = $('html').html();
+
+                        $.ajax({
+                            url: '{{ path('get_communication_methods') }}',
+                            type: 'GET',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            success: function (response) {
+                                $('#inventory').empty().append(response);
+                                $('#inventory_container').show();
+                                $('#basket_container').hide();
+                                window.history.pushState({"html":page,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
+                                document.title = 'Fluid Dashboard';
+                            }
+                        });
+                    });
+                    $(document).on('click','#communication_methods_new', function (){
+                        $('#col_send_to').hide();
+                    });
+                    $(document).on('change','#communication_methods_type',function (){
+
+                        $('#error_communication_method').hide();
+                        $('#error_send_to').hide();
+
+                        let communication_method = $('#communication_methods_type').val();
+
+                        if(communication_method == 0 || communication_method == 1){
+
+                            $('#col_send_to').hide();
+                            $('#col_communication_method').removeClass('col-6').removeClass('col-12').addClass('col-12');
+                        }
+
+                        if(communication_method == 2){
+
+                            $('#label_send_to').empty().append('Email Address').show();
+                            $('#send_to').attr('placeholder', 'Enter your email address');
+                        }
+
+                        if(communication_method == 3){
+
+                            $('#label_send_to').empty().append('Mobile Phone Number').show();
+                            $('#send_to').attr('placeholder', 'Enter your mobile number');
+                        }
+
+                        if(communication_method == 2 || communication_method == 3) {
+
+                            $('#col_communication_method').removeClass('col-12').addClass('col-6')
+                            $('#col_send_to').show();
+                            $('#send_to').show();
+                        }
+                    });
+                    $(document).on('click', '.communication_method_update', function () {
+
+                        let method_id = $(this).data('clinic-communication-method-id');
+
+                        $.ajax({
+                            url: "{{ path('get_communication_method') }}",
+                            type: 'POST',
+                            data: {
+                                id: method_id
+                            },
+                            success: function (response) {
+                                $('#send_to').val(response.send_to);
+                                $('#communication_methods_type option[value="'+ response.method_id +'"]').attr('selected',false);
+                                $('#communication_methods_type option[value="'+ response.method_id +'"]').attr('selected','selected');
+                            }
+                        });
+
+                        let communication_method = $(this).data('communication-method-id');
+
+                        if(communication_method == 0 || communication_method == 1){
+
+                            $('#col_send_to').hide();
+                            $('#label_send_to').hide();
+                            $('#col_communication_method').removeClass('col-6').removeClass('col-12').addClass('col-12');
+                        }
+
+                        if(communication_method == 2){
+
+                            $('#label_send_to').empty().append('Email Address').show();
+                            $('#send_to').attr('placeholder', 'Enter your email address').show();
+                        }
+
+                        if(communication_method == 3){
+
+                            $('#label_send_to').empty().append('Mobile Phone Number').show();
+                            $('#send_to').attr('placeholder', 'Enter your mobile number').show();
+                        }
+
+                        if(communication_method == 2 || communication_method == 3) {
+
+                            $('#col_communication_method').removeClass('col-12').addClass('col-6')
+                            $('#col_send_to').show();
+                        }
+
+                        $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="'+ communication_method +'"]').attr('selected',false);
+                        $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="'+ communication_method +'"]').attr('selected','selected');
+                        $('#communication_method_id').val(method_id);
+                        $('#communication_methods_modal_label').empty().append('Update A Communication Method');
+                    });
+                    $(document).on('click', '.method-delete', function () {
+
+                        $('#delete_method').attr('data-communication-method-id', $(this).data('clinic-communication-method-id'));
+                    });
+                    $(document).on('click', '#delete_method', function () {
+
+                        let method_id = $(this).data('communication-method-id');
+
+                        $.ajax({
+                            url: "{{ path('communication_method_delete') }}",
+                            type: 'POST',
+                            data: {
+                                id: method_id
+                            },
+                            success: function (response) {
+                                $('#modal_method_delete').modal('toggle');
+                                $('#modal_method_delete').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('#modal_method_delete').addClass('fade');
+                                getFlash(response.flash);
+                                $('#inventory').empty().append(response.communication_methods);
+                            }
+                        });
+                    });
+                    $(document).on('submit', '#form_communication_methods', function(e){
+
+                        e.preventDefault();
+
+                        let is_valid = true;
+                        let communication_method = $('#communication_methods_type').val();
+                        let send_to = $('#send_to').val();
+                        let error_communication_method = $('#error_communication_method');
+                        let error_send_to = $('#error_send_to');
+
+                        error_communication_method.hide();
+                        error_send_to.hide()
+
+                        if(communication_method == '' || communication_method == 'undefined' || communication_method == 0){
+
+                            error_communication_method.show();
+                            is_valid = false;
+                        }
+
+                        if((send_to == '' || send_to == 'undefined') && (communication_method == 2 || communication_method == 3)){
+
+                            error_send_to.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid == true){
+
+                            let data = new FormData(this);
+
+                            $.ajax({
+                                url: "{{ path('communication_methods') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    getFlash(response.flash);
+                                    $('#modal_communication_methods').modal('toggle');
+                                    $('#modal_communication_methods').modal('hide');
+                                    $('.modal-backdrop').removeClass('modal-backdrop');
+                                    $('.fade').removeClass('fade');
+                                    $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val('');
+                                    $('#send_to').val('');
+                                    $('#inventory').empty().append(response.communication_methods);
+                                }
+                            });
+                        }
+                    });
+                    {# End Communivation Methods #}
 
                     {# Species #}
                     $(document).on('click', '.species-checkbox', function (){

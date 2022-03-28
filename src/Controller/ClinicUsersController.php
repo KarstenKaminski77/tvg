@@ -9,6 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ClinicUsersController extends AbstractController
@@ -32,15 +35,15 @@ class ClinicUsersController extends AbstractController
         <!-- Users -->
         <div class="row" id="users">
             <div class="col-12 col-md-6 mb-3">
-                <h3>Manage User Accounts</h3>
+                <h3 class=" text-center text-sm-start">Manage User Accounts</h3>
             </div>
             <div class="col-12 col-md-6 mb-3 mt-5">
                 <!-- Create New -->
-                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
+                <button type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
                     <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
                 </button>
             </div>
-            <div class="col-12 mb-5 mt-3 info">
+            <div class="col-12 mb-5 mt-3 info text-center text-sm-start">
                 Fluid supports having several users under a single clinic. Each user will have their own login, can
                 independently participate in the Fluid discussions. You have full control over editing the permissions
                 of each user in your clinic. Use the table below to view the available permission levels.
@@ -315,5 +318,95 @@ class ClinicUsersController extends AbstractController
         }
 
         return new JsonResponse($html);
+    }
+
+    #[Route('/clinics/users', name: 'clinic_users')]
+    public function clinicUsersAction(Request $request, UserPasswordHasherInterface $passwordHasher, MailerInterface $mailer): Response
+    {
+        $data = $request->request->get('clinic_users_form');
+        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
+        $user = $this->em->getRepository(ClinicUsers::class)->findBy(['email' => $data['email']]);
+        $user_id = $data['user_id'];
+
+        if($user_id == 0){
+
+            if(count($user) > 0){
+
+                $response = [
+                    'response' => false
+                ];
+
+                return new JsonResponse($response);
+            }
+
+            $clinic_user = new ClinicUsers();
+
+            $plain_text_pwd = $this->generatePassword();
+
+            if (!empty($plain_text_pwd)) {
+
+                $hashed_pwd = $passwordHasher->hashPassword($clinic_user, $plain_text_pwd);
+
+                $clinic_user->setRoles(['ROLE_USER']);
+                $clinic_user->setPassword($hashed_pwd);
+
+                // Send Email
+                $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
+                $body .= '<tr><td colspan="2">Hi '. $data['firstName'] .',</td></tr>';
+                $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+                $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
+                $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>URL: </b></td>';
+                $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/clinics/login">https://'. $_SERVER['HTTP_HOST'] .'/clinics/login</a></td>';
+                $body .= '</tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>Username: </b></td>';
+                $body .= '    <td>'. $data['email'] .'</td>';
+                $body .= '</tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>Password: </b></td>';
+                $body .= '    <td>'. $plain_text_pwd .'</td>';
+                $body .= '</tr>';
+                $body .= '</table>';
+
+                $email = (new Email())
+                    ->from($this->getParameter('app.email_from'))
+                    ->addTo($data['email'])
+                    ->subject('Fluid Login Credentials')
+                    ->html($body);
+
+                $mailer->send($email);
+            }
+
+            $message = '<b><i class="fas fa-check-circle"></i> User details successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        } else {
+
+            $clinic_user = $this->em->getRepository(ClinicUsers::class)->find($user_id);
+
+            $clinic_user->setIsPrimary(0);
+
+            $message = '<b><i class="fas fa-check-circle"></i> User successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        }
+
+        $clinic_user->setClinic($clinic);
+        $clinic_user->setFirstName($data['firstName']);
+        $clinic_user->setLastName($data['lastName']);
+        $clinic_user->setEmail($data['email']);
+        $clinic_user->setTelephone($data['telephone']);
+        $clinic_user->setPosition($data['position']);
+        $clinic_user->setIsPrimary(0);
+
+        $this->em->persist($clinic_user);
+        $this->em->flush();
+
+        $response = [
+
+            'response' => true,
+            'message' => $message
+        ];
+
+        return new JsonResponse($response);
     }
 }
