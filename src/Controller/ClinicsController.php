@@ -7,8 +7,6 @@ use App\Entity\ClinicCommunicationMethods;
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
 use App\Entity\CommunicationMethods;
-use App\Entity\DistributorProducts;
-use App\Entity\Distributors;
 use App\Entity\ListItems;
 use App\Entity\Lists;
 use App\Entity\ProductNotes;
@@ -18,7 +16,6 @@ use App\Form\ClinicCommunicationMethodsFormType;
 use App\Form\ClinicFormType;
 use App\Form\ClinicUsersFormType;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +24,6 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use function Sodium\add;
 
 class ClinicsController extends AbstractController
 {
@@ -331,7 +327,7 @@ class ClinicsController extends AbstractController
                     </label>
         
                     <!-- Canine -->
-                    <div class="col-md-2 text-center">
+                    <div class="col-6 col-sm-4 col-md-2 text-center">
                         <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
                             <input type="checkbox" class="custom-control-input species-checkbox" id="species_canine">
                             <label class="custom-control-label" for="species_canine">
@@ -341,7 +337,7 @@ class ClinicsController extends AbstractController
                     </div>
         
                     <!-- Feline -->
-                    <div class="col-md-2 text-center">
+                    <div class=" col-6 col-sm-4 col-md-2 text-center">
                         <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
                             <input type="checkbox" class="custom-control-input species-checkbox" id="species_feline">
                             <label class="custom-control-label" for="species_feline">
@@ -351,7 +347,7 @@ class ClinicsController extends AbstractController
                     </div>
         
                     <!-- Equine -->
-                    <div class="col-md-2 text-center">
+                    <div class="mt-5 mt-sm-0 col-6 col-sm-4 col-md-2 text-center">
                         <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
                             <input type="checkbox" class="custom-control-input species-checkbox" id="species_equine">
                             <label class="custom-control-label" for="species_equine">
@@ -361,7 +357,7 @@ class ClinicsController extends AbstractController
                     </div>
         
                     <!-- Bovine -->
-                    <div class="col-md-2 text-center">
+                    <div class="mt-5 mt-sm-5 mt-md-0 col-6 col-sm-4 col-md-2 text-center">
                         <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
                             <input type="checkbox" class="custom-control-input species-checkbox" id="species_bovine">
                             <label class="custom-control-label" for="species_bovine">
@@ -371,7 +367,7 @@ class ClinicsController extends AbstractController
                     </div>
         
                     <!-- Porcine -->
-                    <div class="col-md-2 text-center">
+                    <div class="mt-5 mt-sm-5 mt-md-0 col-6 col-sm-4 col-md-2 text-center">
                         <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
                             <input type="checkbox" class="custom-control-input species-checkbox" id="species_porcine">
                             <label class="custom-control-label" for="species_porcine">
@@ -381,7 +377,7 @@ class ClinicsController extends AbstractController
                     </div>
         
                     <!-- Exotic -->
-                    <div class="col-md-2 text-center">
+                    <div class="mt-5 mt-sm-5 mt-md-0 col-6 col-sm-4 col-md-2 text-center">
                         <div class="custom-control custom-checkbox image-checkbox" style="position: relative">
                             <input type="checkbox" class="custom-control-input species-checkbox" id="species_exotic">
                             <label class="custom-control-label" for="species_exotic">
@@ -403,95 +399,6 @@ class ClinicsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/clinics/addresses', name: 'clinic_addresses')]
-    public function clinicGetAddressesAction(Request $request): Response
-    {
-        $data = $request->request->get('addresses_form');
-        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
-        $methods = $this->em->getRepository(Clinics::class)->getClinicAddresses($clinic->getId());
-        $address_id = $data['address_id'];
-
-        if($address_id == 0){
-
-            $clinic_address = new Addresses();
-            $response = '<b><i class="fas fa-check-circle"></i> Address details successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        } else {
-
-            $clinic_address = $this->em->getRepository(Addresses::class)->find($address_id);
-            $response = '<b><i class="fas fa-check-circle"></i> Address successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-        }
-
-        $clinic_address->setClinic($clinic);
-        $clinic_address->setClinicName($data['clinicName']);
-        $clinic_address->setTelephone($data['telephone']);
-        $clinic_address->setAddress($data['address']);
-        $clinic_address->setSuite($data['suite']);
-        $clinic_address->setPostalCode($data['postalCode']);
-        $clinic_address->setCity($data['city']);
-        $clinic_address->setState($data['state']);
-        $clinic_address->setIsDefault(0);
-        $clinic_address->setIsActive(1);
-
-        if(empty($methods)){
-
-            $clinic_address->setIsDefault(1);
-        }
-
-        $this->em->persist($clinic_address);
-        $this->em->flush();
-
-        return new JsonResponse($response);
-    }
-
-    #[Route('/clinics/communication-methods', name: 'communication_methods')]
-    public function clinicCommunicationMethodsAction(Request $request): Response
-    {
-        $data = $request->request->get('clinic_communication_methods_form');
-        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
-        $clinic_repo = $this->em->getRepository(Clinics::class)->find($clinic->getId());
-        $communication_method_repo = $this->em->getRepository(CommunicationMethods::class)->find($data['communicationMethod']['clinicCommunicationMethods']);
-        $get_communication_methods = $this->em->getRepository(Clinics::class)->getClinicCommunicationMethods($clinic->getId());
-        $method_id = (int) $request->request->get('communication_method_id');
-
-        if($request->request->get('communication_method_id') == 0) {
-
-            $clinic_communication_method = new ClinicCommunicationMethods();
-
-        } else {
-
-            $clinic_communication_method = $this->em->getRepository(ClinicCommunicationMethods::class)->find($method_id);
-        }
-
-        $clinic_communication_method->setClinic($clinic);
-        $clinic_communication_method->setCommunicationMethod($communication_method_repo);
-        $clinic_communication_method->setSendTo($data['sendTo']);
-        $clinic_communication_method->setIsActive(1);
-
-        $this->em->persist($clinic_communication_method);
-        $this->em->flush();
-
-        $response = '<b><i class="fas fa-check-circle"></i> Communication Method successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        return new JsonResponse($response);
-    }
-
-    #[Route('/clinics/address/delete', name: 'clinic_address_delete')]
-    public function clinicDeleteAddress(Request $request): Response
-    {
-        $address_id = $request->request->get('id');
-        $address = $this->em->getRepository(Addresses::class)->find($address_id);
-
-        $address->setIsActive(0);
-
-        $this->em->persist($address);
-        $this->em->flush();
-
-        $response = '<b><i class="fas fa-check-circle"></i> Address successfully deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        return new JsonResponse($response);
-    }
-
     #[Route('/clinics/get-product-notes', name: 'clinic_get_product_notes')]
     public function clinicGetProductNotes(Request $request): Response
     {
@@ -507,34 +414,6 @@ class ClinicsController extends AbstractController
                 'from' => $notes[0]->getClinicUser()->getFirstName() .' '. $notes[0]->getClinicUser()->getLastName(),
             ];
         }
-
-        return new JsonResponse($response);
-    }
-
-    #[Route('/clinics/method/delete', name: 'clinic_method_delete')]
-    public function clinicDeleteMethod(Request $request): Response
-    {
-        $method_id = $request->request->get('id');
-        $method = $this->em->getRepository(ClinicCommunicationMethods::class)->find($method_id);
-
-        $method->setIsActive(0);
-
-        $this->em->persist($method);
-        $this->em->flush();
-
-        $response = '<b><i class="fas fa-check-circle"></i> Communication method successfully deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        return new JsonResponse($response);
-    }
-
-    #[Route('/clinics/address/default', name: 'clinic_address_default')]
-    public function clinicDefaultAddress(Request $request): Response
-    {
-        $address_id = $request->request->get('id');
-        $clinic_id = $this->get('security.token_storage')->getToken()->getUser()->getClinic()->getId();
-        $methods = $this->em->getRepository(Clinics::class)->getClinicDefaultAddresses($clinic_id, $address_id);
-
-        $response = '<b><i class="fas fa-check-circle"></i> Default address successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         return new JsonResponse($response);
     }
@@ -629,43 +508,6 @@ class ClinicsController extends AbstractController
         }
 
         return new JsonResponse($html);
-    }
-
-    #[Route('/clinics/get-address', name: 'clinic_get_address')]
-    public function clinicsGetAddressAction(Request $request): Response
-    {
-        $address = $this->em->getRepository(Addresses::class)->find($request->request->get('id'));
-
-        $response = [
-
-            'id' => $address->getId(),
-            'clinic_name' => $address->getClinicName(),
-            'telephone' => $address->getTelephone(),
-            'address_line_1' => $address->getAddress(),
-            'suite' => $address->getSuite(),
-            'city' => $address->getCity(),
-            'state' => $address->getState(),
-            'postal_code' => $address->getPostalCode()
-        ];
-
-        return new JsonResponse($response);
-    }
-
-    #[Route('/clinics/get-method', name: 'clinic_get_method')]
-    public function clinicsGetMethodAction(Request $request): Response
-    {
-
-        $method = $this->em->getRepository(ClinicCommunicationMethods::class)->find($request->request->get('id'));
-
-        $response = [
-
-            'id' => $method->getId(),
-            'method_id' => $method->getCommunicationMethod()->getId(),
-            'method' => $method->getCommunicationMethod()->getMethod(),
-            'send_to' => $method->getSendTo(),
-        ];
-
-        return new JsonResponse($response);
     }
 
     #[Route('/clinics/inventory/get-lists', name: 'inventory_get_lists')]

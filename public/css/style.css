@@ -758,7 +758,7 @@ a.page-link {
 @media (min-width: 576px) {
 
     .w-sm-100 {
-       width: auto !important;
+        width: auto !important;
     }
 
     .prd-basket-img-sm {
@@ -772,5 +772,9 @@ a.page-link {
     .prd-basket-img-sm {
         max-height: 100px !important;
         width: auto;
+    }
+
+    .w-sm-100 {
+        width: 100% !important;
     }
 }
