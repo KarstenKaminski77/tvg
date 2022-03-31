@@ -3,9 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\ClinicUsers;
+use App\Entity\ProductReviewComments;
+use App\Entity\ProductReviewLikes;
 use App\Entity\ProductReviews;
 use App\Entity\Products;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -151,88 +154,111 @@ class ProductReviewsController extends AbstractController
 
         if($reviews != null) {
 
-            $response .= '<div class="row">
-                                <div class="col-12 col-sm-6 text-center">
-                                    <div class="star-raiting-container">
-                                        <div class="star-rating-col-sm info">
-                                            5 Star
-                                        </div>
-                                        <div class="star-rating-col-lg info">
-                                            <div class="progress-outer">
-                                                <div class="progress-inner" style="width: '. $star_5 .'%;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="star-rating-col-sm info text-start">
-                                            '. $star_5 .'%
-                                        </div>
-                                    </div>
-                                    <div class="star-raiting-container">
-                                        <div class="star-rating-col-sm info">
-                                            4 Star
-                                        </div>
-                                        <div class="star-rating-col-lg info">
-                                            <div class="progress-outer">
-                                                <div class="progress-inner" style="width: '. $star_4 .'%;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="star-rating-col-sm info text-start">
-                                            '. $star_4 .'%
-                                        </div>
-                                    </div>
-                                    <div class="star-raiting-container">
-                                        <div class="star-rating-col-sm info">
-                                            3 Star
-                                        </div>
-                                        <div class="star-rating-col-lg info">
-                                            <div class="progress-outer">
-                                                <div class="progress-inner" style="width: '. $star_3 .'%;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="star-rating-col-sm info text-start">
-                                            '. $star_3 .'%
-                                        </div>
-                                    </div>
-                                    <div class="star-raiting-container">
-                                        <div class="star-rating-col-sm info">
-                                            2 Star
-                                        </div>
-                                        <div class="star-rating-col-lg info">
-                                            <div class="progress-outer">
-                                                <div class="progress-inner" style="width: '. $star_2 .'%;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="star-rating-col-sm info text-start">
-                                            '. $star_2 .'%
-                                        </div>
-                                    </div>
-                                    <div class="star-raiting-container">
-                                        <div class="star-rating-col-sm info">
-                                            1 Star
-                                        </div>
-                                        <div class="star-rating-col-lg info">
-                                            <div class="progress-outer">
-                                                <div class="progress-inner" style="width: '. $star_1 .'%;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="star-rating-col-sm info text-start">
-                                            '. $star_1 .'%
-                                        </div>
-                                    </div>
-                                        </div>
-                                        <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0">
-                                            <h6>Help other Fluid clinics</h6>
-                                            <p>Let thousands of veterinary purchasers know about<br> your experience with this product</p>
-                                            <a href="" class="btn btn-primary btn_create_review w-100 w-sm-100" data-bs-toggle="modal" data-product-id="'. $product_id .'" data-bs-target="#modal_review">
-                                                WRITE A REVIEW
-                                            </a>
-                                        </div>
-                                    </div>';
+            $response .= '
+            <div class="row">
+                <div class="col-12 col-sm-6 text-center">
+                    <div class="star-raiting-container">
+                        <div class="star-rating-col-sm info">
+                            5 Star
+                        </div>
+                        <div class="star-rating-col-lg info">
+                            <div class="progress-outer">
+                                <div class="progress-inner" style="width: '. $star_5 .'%;"></div>
+                            </div>
+                        </div>
+                        <div class="star-rating-col-sm info text-start">
+                            '. $star_5 .'%
+                        </div>
+                    </div>
+                    <div class="star-raiting-container">
+                        <div class="star-rating-col-sm info">
+                            4 Star
+                        </div>
+                        <div class="star-rating-col-lg info">
+                            <div class="progress-outer">
+                                <div class="progress-inner" style="width: '. $star_4 .'%;"></div>
+                            </div>
+                        </div>
+                        <div class="star-rating-col-sm info text-start">
+                            '. $star_4 .'%
+                        </div>
+                    </div>
+                    <div class="star-raiting-container">
+                        <div class="star-rating-col-sm info">
+                            3 Star
+                        </div>
+                        <div class="star-rating-col-lg info">
+                            <div class="progress-outer">
+                                <div class="progress-inner" style="width: '. $star_3 .'%;"></div>
+                            </div>
+                        </div>
+                        <div class="star-rating-col-sm info text-start">
+                            '. $star_3 .'%
+                        </div>
+                    </div>
+                    <div class="star-raiting-container">
+                        <div class="star-rating-col-sm info">
+                            2 Star
+                        </div>
+                        <div class="star-rating-col-lg info">
+                            <div class="progress-outer">
+                                <div class="progress-inner" style="width: '. $star_2 .'%;"></div>
+                            </div>
+                        </div>
+                        <div class="star-rating-col-sm info text-start">
+                            '. $star_2 .'%
+                        </div>
+                    </div>
+                    <div class="star-raiting-container">
+                        <div class="star-rating-col-sm info">
+                            1 Star
+                        </div>
+                        <div class="star-rating-col-lg info">
+                            <div class="progress-outer">
+                                <div class="progress-inner" style="width: '. $star_1 .'%;"></div>
+                            </div>
+                        </div>
+                        <div class="star-rating-col-sm info text-start">
+                            '. $star_1 .'%
+                        </div>
+                    </div>
+                        </div>
+                        <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0">
+                            <h6>Help other Fluid clinics</h6>
+                            <p>Let thousands of veterinary purchasers know about<br> your experience with this product</p>
+                            <a href="" class="btn btn-primary btn_create_review w-100 w-sm-100" data-bs-toggle="modal" data-product-id="'. $product_id .'" data-bs-target="#modal_review">
+                                WRITE A REVIEW
+                            </a>
+                        </div>
+                    </div>';
 
             foreach ($reviews as $review) {
 
-                $response .= '<div class="row">
-                            <div class="col-12">
-                                <div class="mb-3 mt-2 d-inline-block">
+                $product_review_comments = $this->em->getRepository(ProductReviewComments::class)->findBy([
+                    'review' => $review->getId()
+                ]);
+                $product_review_likes = $this->em->getRepository(ProductReviewLikes::class)->findBy([
+                    'productReview' => $review->getId(),
+                    'clinicUser' => $this->getUser()->getId(),
+                ]);
+
+                if(count($product_review_likes) == 1){
+
+                    $like_icon = 'text-secondary';
+
+                } else {
+
+                    $like_icon = 'list-icon-unchecked';
+                }
+
+                $like_count = $this->em->getRepository(ProductReviewLikes::class)->findBy([
+                    'productReview' => $review->getId()
+                ]);
+
+                $response .= '
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3 mt-2 d-inline-block">
                 ';
 
                 for($i = 0; $i < $review->getRating(); $i++){
@@ -245,7 +271,15 @@ class ProductReviewsController extends AbstractController
                     $response .= '<i class="star star-under fa fa-star"></i>';
                 }
 
-                $response .='    </div>
+                $comment_count = '';
+
+                if(count($product_review_comments) > 0){
+
+                    $comment_count = ' ('. count($product_review_comments) .')';
+                }
+
+                $response .='    
+                </div>
                         </div>
                     </div>
                     <div class="row">
@@ -262,11 +296,208 @@ class ProductReviewsController extends AbstractController
                         <div class="col-12">
                             <p>' . $review->getReview() . '</p>
                         </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <button 
+                                class="btn btn-sm btn-light review-like me-3 '. $like_icon .'" 
+                                id="like_'. $review->getId() .'" 
+                                data-review-id="'. $review->getId() .'"
+                            >
+                                <i class="fa-solid fa-thumbs-up review-icon me-2 '. $like_icon .'"></i> '. count($like_count) .'
+                            </button>
+                            <button 
+                                class="btn btn-sm btn-light btn-comment me-3" 
+                                data-review-id="'. $review->getId() .'"
+                                id="btn_comment_'. $review->getId() .'"
+                            >
+                                <i 
+                                    class="fa-solid fa-comment review-icon review-icon me-2 list-icon-unchecked"
+                                     id="comment_icon_'. $review->getId() .'"
+                                ></i> 
+                                <span class="list-icon-unchecked" id="comment_span_'. $review->getId() .'">
+                                    Comments '. $comment_count .'
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row comment-container hidden" id="comment_container_'. $review->getId() .'">
+                        <div class="col-12">
+                            <div class="mb-5">
+                                <form name="form-comment" class="form-comment" data-review-id="'. $review->getId() .'" method="post">
+                                    <input type="hidden" name="review_id" value="'. $review->getId() .'">
+                                    <div class="row">
+                                        <div class="col-12 col-sm-10">
+                                            <input 
+                                                type="text" 
+                                                name="comment"
+                                                id="comment_'. $review->getId() .'"
+                                                class="form-control d-inline-block" 
+                                                placeholder="Leave a comment on this review..."
+                                            >
+                                            <div class="hidden_msg" id="error_comment_'. $review->getId() .'">
+                                                Required Field
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-2">
+                                            <button 
+                                                type="submit" 
+                                                class="btn btn-primary d-inline-block" 
+                                                data-review-id="'. $review->getId() .'">
+                                                COMMENT
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12" id="review_comments_'. $review->getId() .'">';
+
+                                        if(count($product_review_comments) > 0) {
+
+                                            foreach ($product_review_comments as $comment) {
+
+                                                $response .= '
+                                                <div class="row mt-4">
+                                                    <div class="col-12">
+                                                        <b>' . $comment->getClinic()->getClinicUsers()[0]->getReviewUsername() . '</b> 
+                                                        ' . $comment->getClinic()->getClinicUsers()[0]->getPosition() . ' '. $comment->getCreated()->format('dS M Y H:i') .'
+                                                    </div>
+                                                    <div class="col-12">
+                                                        ' . $comment->getComment() . '
+                                                    </div>
+                                                </div>';
+                                            }
+                                        }
+
+                                        $response .= '
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>';
             }
         } else {
 
             $response = false;
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('clinics/like-review', name: 'like_review')]
+    public function likeReviewAction(Request $request): Response
+    {
+        $data = $request->request;
+        $review_id = $data->get('review_id');
+
+        $user = $this->getUser()->getId();
+        $product_review = $this->em->getRepository(ProductReviews::class)->find($review_id);
+        $product_review_likes = $this->em->getRepository(ProductReviewLikes::class)->findBy([
+            'productReview' => $review_id,
+            'clinicUser' => $user
+        ]);
+        $prc = $product_review_likes;
+
+        if(count($product_review_likes) == 0){
+
+            $product_review_likes = new ProductReviewLikes();
+
+            $product_review_likes->setClinicUser($this->getUser());
+            $product_review_likes->setProductReview($product_review);
+
+            $this->em->persist($product_review_likes);
+
+            $response = '<i class="fa-solid fa-thumbs-up text-secondary review-icon me-2"></i>';
+
+        } else {
+
+            $product_review_likes = $this->em->getRepository(ProductReviewLikes::class)->find($product_review_likes[0]->getId());
+            $this->em->remove($product_review_likes);
+
+            $response = '<i class="fa-solid fa-thumbs-up list-icon-unchecked review-icon me-2"></i>';
+        }
+
+        $this->em->flush();
+
+        $like_count = $this->em->getRepository(ProductReviewLikes::class)->findBy([
+            'productReview' => $review_id
+        ]);
+
+        if(count($prc) == 0){
+
+            $response .= '<span class="text-secondary">'. (int) count($like_count) .'</span>';
+
+        } else {
+
+            $response .= '<span class="list-icon-unchecked">'. (int) count($like_count) .'</span>';
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/manage-comment', name: 'inventory_manage_comment')]
+    public function clinicsManageCommentAction(Request $request): Response
+    {
+        $data = $request->request;
+        $review_id = $data->get('review_id');
+
+        if($review_id > 0) {
+
+            $review = $this->em->getRepository(ProductReviews::class)->find($review_id);
+            $review_comment = new ProductReviewComments();
+
+            $review_comment->setClinicUser($this->getUser());
+            $review_comment->setClinic($this->getUser()->getClinic());
+            $review_comment->setReview($review);
+            $review_comment->setComment($data->get('comment'));
+
+            $this->em->persist($review_comment);
+            $this->em->flush();
+        }
+
+        $review_comments = $this->em->getRepository(ProductReviewComments::class)->findBy([
+            'review' => $review_id
+        ]);
+
+        $response = '';
+
+        if(count($review_comments) > 0) {
+
+            foreach ($review_comments as $comment) {
+
+                $response .= '
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <b>' . $comment->getClinic()->getClinicUsers()[0]->getReviewUsername() . '</b> 
+                        ' . $comment->getClinic()->getClinicUsers()[0]->getPosition() . ' '. $comment->getCreated()->format('dS M Y H:i') .'
+                    </div>
+                    <div class="col-12">
+                        ' . $comment->getComment() . '
+                    </div>
+                </div>';
+            }
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/get-comment-count', name: 'get_comment_count')]
+    public function clinicsGetCommentCountAction(Request $request): Response
+    {
+        $data = $request->request;
+        $review_id = $data->get('review_id');
+        $response = '';
+
+        if($review_id > 0) {
+
+            $review_comments = $this->em->getRepository(ProductReviewComments::class)->findBy([
+                'review' => $review_id
+            ]);
+
+            if(count($review_comments) > 0) {
+
+                $response = ' ('. count($review_comments) .')';
+            }
         }
 
         return new JsonResponse($response);

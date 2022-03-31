@@ -24,25 +24,28 @@ class AddressesController extends AbstractController
     {
         $response = '
         <!-- Addresses -->
-        <div class="row" id="addresses">
-            <div class="col-12 col-sm-6 mb-3">
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3 text-center text-sm-start">
                 <h3>Manage Shipping Addresses</h3>
             </div>
             <!-- Create New -->
-            <div class="col-12 col-sm-6 mb-3 mt-5">
+            <div class="col-12 col-md-6 mb-3 mt-0">
                 <button 
-                    type="button" class="btn btn-primary float-end" data-bs-toggle="modal" 
+                    type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" 
                     data-bs-target="#modal_address" id="address_new"
                 >
                     <i class="fa-solid fa-circle-plus"></i> CREATE NEW ADDRESS
                 </button>
             </div>
-            <div class="col-12 mb-5 mt-2 info">
+        </div>
+        <div class="row">
+            <div class="col-12 mb-5 mt-2 info text-center text-sm-start">
                 Add or remove shipping addresses from the list below.
                 <strong>A valid address is required for purchasing Fluid Commerce items and redeeming Fluid rewards.</strong>
             </div>
+        </div>
 
-            <div class="row d-none d-md-flex">
+            <div class="row d-none d-xl-flex ms-1 me-1 ms-md0 me-md-0">
                 <div class="col-10">
                     <div class="row">
                         <div class="col-md-2 t-header">
@@ -70,11 +73,20 @@ class AddressesController extends AbstractController
                 </div>
             </div>
 
-            <div id="address_list" style="width: calc(100% - 24px)">';
+            <div id="address_list" style="width: calc(100% - 1px)">';
+
+        $i = 0;
 
         foreach($addresses as $address) {
 
             $class = 'address-icon';
+            $border_top = '';
+            $i++;
+
+            if($i == 1){
+
+                $border_top = 'style="border-top: 1px solid #d3d3d4"';
+            }
 
             if($address->getIsDefault() == 1){
 
@@ -82,39 +94,45 @@ class AddressesController extends AbstractController
             }
 
             $response .= '
-                    <div class="row t-row">
-                        <div class="col-md-10">
+                    <div class="row t-row ms-1 me-1 ms-md-0 me-md-0" '. $border_top .'>
+                        <div class="col-12 col-xl-10">
                             <div class="row">
-                                <div class="col-md-2 t-cell text-truncate">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Name</div>
+                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
                                     '. $address->getClinicName() .'
                                 </div>
-                                <div class="col-md-2 t-cell text-truncate">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Telephone</div>
+                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
                                     '. $address->getTelephone() .'
                                 </div>
-                                <div class="col-md-4 t-cell text-truncate">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Address</div>
+                                <div class="col-8 col-md-10 col-xl-4 t-cell text-truncate border-list">
                                     '. $address->getAddress() .'
                                 </div>
-                                <div class="col-md-2 t-cell text-truncate">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">City</div>
+                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
                                     '. $address->getCity() .'
                                 </div>
-                                <div class="col-md-2 t-cell text-truncate">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">State</div>
+                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
                                     '. $address->getState() .'
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2" id="string_address_postal)_code{{ address.id }}">
+                        <div class="col-12 col-xl-2 text-center text-sm-start">
                             <div class="row">
-                                <div class="col-md-4 t-cell text-truncate">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-start border-list">Zip</div>
+                                <div class="col-8 col-md-4 t-cell text-truncate text-start border-list">
                                     '. $address->getPostalCode() .'
                                 </div>
-                                <div class="col-md-8 t-cell">
+                                <div class="col-12 col-xl-8 t-cell">
                                     <a href="" class="float-end address_update" data-address-id="'. $address->getId() .'" data-bs-toggle="modal" data-bs-target="#modal_address">
                                         <i class="fa-solid fa-pen-to-square edit-icon"></i>
                                     </a>
-                                    <a href="" class="delete-icon float-end open-delete-address-modal" data-bs-toggle="modal" data-address-id="'. $address->getId() .'" data-bs-target="#modal_address_delete">
+                                    <a href="" class="delete-icon float-none float-sm-end open-delete-address-modal" data-bs-toggle="modal" data-address-id="'. $address->getId() .'" data-bs-target="#modal_address_delete">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </a>
-                                    <a href="#" class="address_default" data-address-id="'. $address->getId() .'">
+                                    <a href="#" class="address_default float-start float-sm-none" data-address-id="'. $address->getId() .'">
                                         <i class="fa-solid fa-star float-end '. $class .'"></i>
                                     </a>
                                 </div>
@@ -135,11 +153,11 @@ class AddressesController extends AbstractController
                                 <h5 class="modal-title" id="address_modal_label">Create an Address</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body pb-0 mb-0">
                                 <div class="row mb-3">
     
                                     <!-- Clinic Name -->
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6 mb-3">
                                         <label class="info">Clinic Name</label>
                                         <input
                                             type="text"
@@ -154,7 +172,7 @@ class AddressesController extends AbstractController
                                     </div>
     
                                     <!-- Telephone Number -->
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6 mb-3">
                                         <label class="info">Telephone</label>
                                         <input
                                             type="text"
@@ -167,12 +185,9 @@ class AddressesController extends AbstractController
                                             Required Field
                                         </div>
                                     </div>
-                                </div>
-    
-                                <div class="row mb-3">
     
                                     <!-- Address Line 1 -->
-                                    <div class="col-6">
+                                    <div class="col-12 col-sm-6 mb-3">
                                         <label class="info">Address</label>
                                         <input
                                             type="text"
@@ -187,7 +202,7 @@ class AddressesController extends AbstractController
                                     </div>
     
                                     <!-- Suite -->
-                                    <div class="col-6">
+                                    <div class="col-6 mb-3">
                                         <label class="info">Suite / APT</label>
                                         <input
                                             type="text"
@@ -200,12 +215,9 @@ class AddressesController extends AbstractController
                                             Required Field
                                         </div>
                                     </div>
-                                </div>
-    
-                                <div class="row mb-3">
     
                                     <!-- Postal Code -->
-                                    <div class="col-4">
+                                    <div class="col-6 col-sm-4 mb-3">
                                         <label class="info">Postal Code</label>
                                         <input
                                             type="text"
@@ -220,7 +232,7 @@ class AddressesController extends AbstractController
                                     </div>
     
                                     <!-- City -->
-                                    <div class="col-4">
+                                    <div class="col-6 col-sm-4 mb-3">
                                         <label class="info">City</label>
                                         <input
                                             type="text"
@@ -235,7 +247,7 @@ class AddressesController extends AbstractController
                                     </div>
     
                                     <!-- State -->
-                                    <div class="col-4">
+                                    <div class="col-6 col-sm-4 mb-3">
                                         <label class="info">State</label>
                                         <input
                                             type="text"
@@ -250,9 +262,9 @@ class AddressesController extends AbstractController
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
-                                <button type="submit" class="btn btn-primary">SAVE</button>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-secondary w-sm-100 mb-3 mb-sm-0 w-sm-100" data-bs-dismiss="modal">CANCEL</button>
+                                <button type="submit" class="btn btn-primary w-sm-100 mb-sm-0 w-sm-100">SAVE</button>
                             </div>
                         </form>
                     </div>

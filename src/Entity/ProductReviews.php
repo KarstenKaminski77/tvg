@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProductReviewsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -67,12 +69,24 @@ class ProductReviews
      */
     private $position;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductReviewLikes::class, mappedBy="productReview")
+     */
+    private $productReviewLikes;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ProductReviewComments::class, mappedBy="review")
+     */
+    private $productReviewComments;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
         if ($this->getModified() == null) {
             $this->setModified(new \DateTime());
         }
+        $this->productReviewLikes = new ArrayCollection();
+        $this->productReviewComments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -196,6 +210,66 @@ class ProductReviews
     public function setPosition(string $position): self
     {
         $this->position = $position;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductReviewLikes>
+     */
+    public function getProductReviewLikes(): Collection
+    {
+        return $this->productReviewLikes;
+    }
+
+    public function addProductReviewLike(ProductReviewLikes $productReviewLike): self
+    {
+        if (!$this->productReviewLikes->contains($productReviewLike)) {
+            $this->productReviewLikes[] = $productReviewLike;
+            $productReviewLike->setProductReview($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductReviewLike(ProductReviewLikes $productReviewLike): self
+    {
+        if ($this->productReviewLikes->removeElement($productReviewLike)) {
+            // set the owning side to null (unless already changed)
+            if ($productReviewLike->getProductReview() === $this) {
+                $productReviewLike->setProductReview(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductReviewComments>
+     */
+    public function getProductReviewComments(): Collection
+    {
+        return $this->productReviewComments;
+    }
+
+    public function addProductReviewComment(ProductReviewComments $productReviewComment): self
+    {
+        if (!$this->productReviewComments->contains($productReviewComment)) {
+            $this->productReviewComments[] = $productReviewComment;
+            $productReviewComment->setReview($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductReviewComment(ProductReviewComments $productReviewComment): self
+    {
+        if ($this->productReviewComments->removeElement($productReviewComment)) {
+            // set the owning side to null (unless already changed)
+            if ($productReviewComment->getReview() === $this) {
+                $productReviewComment->setReview(null);
+            }
+        }
 
         return $this;
     }

@@ -104,6 +104,11 @@ class Clinics
      */
     private $clinicProducts;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductReviewComments::class, mappedBy="clinic")
+     */
+    private $productReviewComments;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -123,6 +128,7 @@ class Clinics
         $this->productNotes = new ArrayCollection();
         $this->availabilityTrackers = new ArrayCollection();
         $this->clinicProducts = new ArrayCollection();
+        $this->productReviewComments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -514,6 +520,36 @@ class Clinics
             // set the owning side to null (unless already changed)
             if ($clinicProduct->getClinic() === $this) {
                 $clinicProduct->setClinic(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductReviewComments>
+     */
+    public function getProductReviewComments(): Collection
+    {
+        return $this->productReviewComments;
+    }
+
+    public function addProductReviewComment(ProductReviewComments $productReviewComment): self
+    {
+        if (!$this->productReviewComments->contains($productReviewComment)) {
+            $this->productReviewComments[] = $productReviewComment;
+            $productReviewComment->setClinic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductReviewComment(ProductReviewComments $productReviewComment): self
+    {
+        if ($this->productReviewComments->removeElement($productReviewComment)) {
+            // set the owning side to null (unless already changed)
+            if ($productReviewComment->getClinic() === $this) {
+                $productReviewComment->setClinic(null);
             }
         }
 

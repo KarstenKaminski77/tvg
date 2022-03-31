@@ -41,75 +41,112 @@ class CommunicationMethodsController extends AbstractController
 
         $response = '
         <div class="row" id="communication_methods">
-            <div class="col-12 col-sm-6 mb-3 mt-5">
+            <div class="col-12 col-md-6 mb-3 text-center text-sm-start">
                 <h3>Manage Communication Methods</h3>
             </div>
             <!-- Create New -->
-            <div class="col-12 col-sm-6 mb-3 mt-5">
+            <div class="col-12 col-md-6 mb-3 mt-0">
                 <button type="button" class="btn btn-primary w-sm-100 float-end" data-bs-toggle="modal" data-bs-target="#modal_communication_methods" id="communication_methods_new">
                     <i class="fa-solid fa-circle-plus"></i> CREATE NEW COMMUNICATION METHOD
                 </button>
             </div>
-            <div class="col-12 mb-3 mt-2 info text-center text-sm-start">
-                <p>
+        </div>
+        <div class="row">
+            <div class="col-12 mb-5 mt-2 info text-center text-sm-start">
+                <p class="mb-0">
                     Add or remove communication methods from the list below.
                 </p>';
 
         if($clinic_communication_methods == null){
 
-            $response .= '<p><i>You do not currently have any communication methods created. Add a new communication method below</i></p>';
+            $response .= '<p class="pt-1 mb-0"><i>You do not currently have any communication methods created. Add a new communication method below</i></p>';
         }
         
         $response .= '
-        <div class="row d-none d-md-flex">
-            <div class="row">
-                <div class="col-md-4 t-header">
-                    Method
-                </div>
-                <div class="col-md-4 t-header">
-                    Send To
-                </div>
-                <div class="col-md-4 t-header">
-    
-                </div>
             </div>
+        </div>
+        <div class="row d-none d-xl-flex ms-1 me-1 ms-md0 me-md-0">
+            <div class="col-5 t-header">
+                Method
+            </div>
+            <div class="col-5 t-header">
+                Send To
+            </div>
+            <div class="col-2 t-header">
+
+            </div>
+        </div>';
+
+        $i = 0;
         
-            <div id="communication_method_list" style="width: calc(100% - 24px)">';
-        
-            foreach($clinic_communication_methods as $method) {
-    
+        foreach($clinic_communication_methods as $method) {
+
+            $border_top = '';
+            $mobile_no = 0;
+            $i++;
+
+            if($i == 1){
+
+                $border_top = 'style="border-top: 1px solid #d3d3d4"';
+            }
+
+            $col = 10;
+
+            if(!empty($method->getSendTo())) {
+
+                $col = 5;
+            }
+
+            if($method->getCommunicationMethod()->getId() == 3){
+
+                $mobile_no = $method->getSendTo();
+
+            } else {
+
+                $mobile_no = 0;
+            }
+
+            $response .= '
+            <div class="row t-row ms-1 me-1 ms-md-0 me-md-0"  '. $border_top .'>
+                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Method</div>
+                <div class="col-8 col-sm-10 col-xl-'. $col .' t-cell text-truncate border-list">
+                    '. $method->getCommunicationMethod()->getMethod() .'
+                </div>';
+
+            if(!empty($method->getSendTo())) {
+
                 $response .= '
-                <div class="row t-row">
-                    <div class="col-md-4 t-cell text-truncate">
-                        '. $method->getCommunicationMethod()->getMethod() .'
-                    </div>
-                    <div class="col-md-4 t-cell text-truncate">
-                        '. $method->getSendTo() .'
-                    </div>
-                    <div class="col-md-4 t-cell text-truncate" id="">
-                        <a href="" 
-                            class="float-end communication_method_update" 
-                            data-communication-method-id="'. $method->getCommunicationMethod()->getId() .'"
-                            data-clinic-communication-method-id="'. $method->getId() .'"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#modal_communication_methods"
-                        >
-                            <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                        </a>
-                        <a 
-                            href="" 
-                            class="delete-icon float-end method-delete" 
-                            data-bs-toggle="modal" data-clinic-communication-method-id="'. $method->getId() .'" 
-                            data-bs-target="#modal_method_delete"
-                        >
-                            <i class="fa-solid fa-trash-can"></i>
-                        </a>
-                    </div>
+                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Send To</div>
+                <div class="col-8 col-sm-10 col-xl-5 t-cell text-truncate border-list">
+                    ' . $method->getSendTo() . '
                 </div>';
             }
-        
+
             $response .= '
-                    </div>
+                <div class="col-12 col-xl-2 t-cell text-truncate" id="">
+                    <a href="" 
+                        class="float-end communication_method_update" 
+                        data-communication-method-id="' . $method->getCommunicationMethod()->getId() . '"
+                        data-clinic-communication-method-id="' . $method->getId() . '"
+                        data-mobile-no="'. $mobile_no .'"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#modal_communication_methods"
+                    >
+                        <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                    </a>
+                    <a 
+                        href="" 
+                        class="delete-icon float-start float-sm-end method-delete" 
+                        data-bs-toggle="modal" data-clinic-communication-method-id="' . $method->getId() . '" 
+                        data-bs-target="#modal_method_delete"
+                    >
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </div>
+            </div>';
+        }
+        
+        $response .= '
                 </div>
             </div>
     
@@ -119,6 +156,7 @@ class CommunicationMethodsController extends AbstractController
                     <div class="modal-content">
                         <form name="form_communication_methods" id="form_communication_methods" method="post">
                             <input type="hidden" value="0" name="clinic_communication_methods_form[clinic_communication_method_id]" id="communication_method_id">
+                            <input type="hidden" value="0" name="clinic_communication_methods_form[mobile]" id="mobile_no">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="communication_methods_modal_label">Create a Communication Method</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -136,14 +174,19 @@ class CommunicationMethodsController extends AbstractController
                                     <div class="col-6" id="col_send_to">
                                         <label id="label_send_to">
                                         </label>
+                                        <span id="send_to_container">
                                         <input 
                                             type="text" 
                                             name="clinic_communication_methods_form[sendTo]" 
                                             id="send_to"
                                             class="form-control"
                                         >
+                                        </span>
                                         <div class="hidden_msg" id="error_send_to">
                                             Required Field
+                                        </div>
+                                        <div class="hidden_msg" id="error_communication_method_mobile">
+                                            Invalid Number
                                         </div>
                                     </div>
         
@@ -203,19 +246,32 @@ class CommunicationMethodsController extends AbstractController
 
         $method = $this->em->getRepository(ClinicCommunicationMethods::class)->find($request->request->get('id'));
 
+        // If mobile remove intl dialing code
+        if($method->getCommunicationMethod()->getId() == 3){
+
+            $offset = strlen($method->getIntlCode());
+
+            $send_to = substr($method->getSendTo(), $offset);
+
+        } else {
+
+            $send_to = $method->getSendTo();
+        }
+
         $response = [
 
             'id' => $method->getId(),
             'method_id' => $method->getCommunicationMethod()->getId(),
             'method' => $method->getCommunicationMethod()->getMethod(),
-            'send_to' => $method->getSendTo(),
+            'send_to' => $send_to,
+            'iso_code' => $method->getIsoCode(),
         ];
 
         return new JsonResponse($response);
     }
 
-    #[Route('/clinics/communication-methods', name: 'communication_methods')]
-    public function clinicCommunicationMethodsAction(Request $request): Response
+    #[Route('/clinics/communication-methods', name: 'manage_communication_methods')]
+    public function manageCommunicationMethodsAction(Request $request): Response
     {
         $data = $request->request->get('clinic_communication_methods_form');
         $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
@@ -233,7 +289,18 @@ class CommunicationMethodsController extends AbstractController
 
         $clinic_communication_method->setClinic($clinic);
         $clinic_communication_method->setCommunicationMethod($communication_method_repo);
-        $clinic_communication_method->setSendTo($data['sendTo']);
+
+        if((int) $data['mobile'] == 0) {
+
+            $clinic_communication_method->setSendTo($data['sendTo']);
+
+        } else {
+
+            $clinic_communication_method->setSendTo($data['mobile']);
+            $clinic_communication_method->setIsoCode($data['iso_code']);
+            $clinic_communication_method->setIntlCode($data['intl_code']);
+        }
+
         $clinic_communication_method->setIsActive(1);
 
         $this->em->persist($clinic_communication_method);

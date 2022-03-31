@@ -47,6 +47,16 @@ class ClinicCommunicationMethods
      */
     private $isActive;
 
+    /**
+     * @ORM\Column(type="string", length=2, nullable=true)
+     */
+    private $IsoCode;
+
+    /**
+     * @ORM\Column(type="string", length=5, nullable=true)
+     */
+    private $intlCode;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -128,6 +138,30 @@ class ClinicCommunicationMethods
     public function setIsActive(?bool $isActive): self
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getIsoCode(): ?string
+    {
+        return $this->IsoCode;
+    }
+
+    public function setIsoCode(?string $IsoCode): self
+    {
+        $this->IsoCode = $IsoCode;
+
+        return $this;
+    }
+
+    public function getIntlCode(): ?string
+    {
+        return $this->intlCode;
+    }
+
+    public function setIntlCode(?string $intlCode): self
+    {
+        $this->intlCode = $intlCode;
 
         return $this;
     }

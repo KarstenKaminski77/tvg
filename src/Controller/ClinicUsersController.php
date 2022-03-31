@@ -37,75 +37,89 @@ class ClinicUsersController extends AbstractController
             <div class="col-12 col-md-6 mb-3">
                 <h3 class=" text-center text-sm-start">Manage User Accounts</h3>
             </div>
-            <div class="col-12 col-md-6 mb-3 mt-5">
+            <div class="col-12 col-md-6 mb-3 mt-0">
                 <!-- Create New -->
                 <button type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
                     <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
                 </button>
             </div>
+        </div>
+        <div class="row">
             <div class="col-12 mb-5 mt-3 info text-center text-sm-start">
                 Fluid supports having several users under a single clinic. Each user will have their own login, can
                 independently participate in the Fluid discussions. You have full control over editing the permissions
                 of each user in your clinic. Use the table below to view the available permission levels.
             </div>
+        </div>
 
-            <div class="row d-none d-md-flex">
-                <div class="col-md-2 t-header">
-                    First Name
-                </div>
-                <div class="col-md-2 t-header">
-                    Last Name
-                </div>
-                <div class="col-md-2 t-header">
-                    Username
-                </div>
-                <div class="col-md-2 t-header">
-                    Telephone
-                </div>
-                <div class="col-md-2 t-header">
-                    Position
-                </div>
-                <div class="col-md-2 t-header">
-
-                </div>
+        <div class="row d-none d-xl-flex ms-1 me-1 ms-md0 me-md-0">
+            <div class="col-md-2 t-header">
+                First Name
             </div>
-            <div id="users_list">';
+            <div class="col-md-2 t-header">
+                Last Name
+            </div>
+            <div class="col-md-2 t-header">
+                Username
+            </div>
+            <div class="col-md-2 t-header">
+                Telephone
+            </div>
+            <div class="col-md-2 t-header">
+                Position
+            </div>
+            <div class="col-md-2 t-header">
+
+            </div>
+        </div>';
+
+        $i = 0;
 
         foreach($clinic_users as $user) {
 
+            $border_top = '';
+            $i++;
+
+            if($i == 1){
+
+                $border_top = 'style="border-top: 1px solid #d3d3d4"';
+            }
+
             $response .= '
-           <div class="list-width">
-               <div class="row t-row">
-                   <div class="col-md-2 t-cell">
-                       '. $user->getFirstName() .'
-                   </div>
-                   <div class="col-md-2 t-cell">
-                       '. $user->getLastName() .'
-                   </div>
-                   <div class="col-md-2 t-cell"">
-                       '. $user->getEmail() .'
-                   </div>
-                   <div class="col-md-2 t-cell">
-                       '. $user->getTelephone() .'
-                   </div>
-                   <div class="col-md-2 t-cell">
-                       '. $user->getPosition() .'
-                   </div>
-                   <div class="col-md-2 t-cell">
-                       <a href="" class="float-end open-user-modal" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
-                           <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                       </a>
-                       <a href="" class="delete-icon float-end open-delete-user-modal" data-bs-toggle="modal"
-                          data-value="'. $user->getId() .'" data-bs-target="#modal_user_delete" data-user-id="'. $user->getId() .'">
-                           <i class="fa-solid fa-trash-can"></i>
-                       </a>
-                   </div>
+           <div class="row t-row ms-1 me-1 ms-md-0 me-md-0" '. $border_top .'>
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">First Name</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+                   '. $user->getFirstName() .'
+               </div>
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Last Name</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+                   '. $user->getLastName() .'
+               </div>
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Email</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list"">
+                   '. $user->getEmail() .'
+               </div>
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Telephone</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+                   '. $user->getTelephone() .'
+               </div>
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Position</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+                   '. $user->getPosition() .'
+               </div>
+               <div class="col-12 col-xl-2 t-cell text-truncate border-list">
+                   <a href="" class="float-end open-user-modal" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
+                       <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                   </a>
+                   <a href="" class="delete-icon float-start float-sm-end open-delete-user-modal" data-bs-toggle="modal"
+                      data-value="'. $user->getId() .'" data-bs-target="#modal_user_delete" data-user-id="'. $user->getId() .'">
+                       <i class="fa-solid fa-trash-can"></i>
+                   </a>
                </div>
            </div>';
         }
 
         $response .= '
-            </div>
 
             <!-- Modal Manage Users -->
             <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">

@@ -23,6 +23,7 @@
             <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
             <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
             <link rel="stylesheet" href="{{ asset('css/fontawesome/css/all.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/intlTelInput.min.css') }}">
 
             <script type="text/javascript">
                 document.addEventListener("DOMContentLoaded", function(){
@@ -61,13 +62,14 @@
             <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
             <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
             <script src="{{ asset('js/jquery.session.min.js') }}"></script>
+            <script src="{{ asset('js/intlTelInput.min.js') }}"></script>
 
             <script>
 
-                {# Inventory Search #}
+
                 $(window).on('load', function(){
 
-                    if($.session.get('search_key').length > 0){
+                   if($.session.get('search_key') != '' || $.session.get('search_key') != 'udefined'){
 
                         let page_no = 1;
                         let keyword = $.session.get('search_key');
@@ -99,6 +101,7 @@
                 });
                 $(document).ready(function (){
 
+                    {# Inventory Search #}
                     let page_no = 0;
 
                     $(document).on('click','.page-link',function (e){
@@ -1302,6 +1305,24 @@
 
                         $('#review_product_id').val($(this).data("product-id"))
                     });
+                    $(document).on('click', '.review-like', function (e){
+
+                        e.preventDefault();
+
+                        let review_id = $(this).data('review-id');
+
+                        $.ajax({
+                            url: "{{ path('like_review') }}",
+                            type: 'POST',
+                            data: {
+                                review_id: review_id
+                            },
+                            success: function (response) {
+
+                                $('#like_'+ review_id).empty().append(response)
+                            }
+                        });
+                    });
                     $(document).on('submit', '#form_review', function (e){
 
                         e.preventDefault();
@@ -1422,6 +1443,78 @@
                                             $('#star-over-3').hide();
                                             $('#star-over-4').hide();
                                             $('#star-over-5').hide();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.btn-comment', function (e){
+
+                        e.preventDefault();
+
+                        $('.hidden_msg').hide();
+
+                        let review_id = $(this).data('review-id');
+
+                        if($('#comment_container_'+ review_id +':visible').length) {
+
+                            $('#comment_icon_'+ review_id).removeClass('text-secondary');
+                            $('#comment_span_'+ review_id).removeClass('text-secondary');
+                            $('#comment_container_'+ review_id).hide(700);
+
+                        } else {
+
+                            $('#comment_icon_'+ review_id).addClass('text-secondary');
+                            $('#comment_span_'+ review_id).addClass('text-secondary');
+                            $('#comment_container_'+ review_id).show(700);
+                        }
+                    });
+                    $(document).on('submit', '.form-comment', function (e){
+
+                        let review_id = $(this).data('review-id');
+
+                        e.preventDefault();
+
+                        let comment = $('#comment_'+ review_id).val();
+                        let comment_error = $('#error_comment_'+ review_id);
+                        let data = new FormData(this);
+                        let is_valid = true;
+
+                        comment_error.hide()
+
+                        if(comment == '' || comment == 'undefined'){
+
+                            comment_error.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid) {
+
+                            $.ajax({
+                                url: "{{ path('inventory_manage_comment') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+
+                                    $('#review_comments_'+ review_id).empty().append(response);
+                                    $('#comment_'+ review_id).val('');
+
+                                    $.ajax({
+                                        url: "{{ path('get_comment_count') }}",
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: {
+                                            review_id: review_id
+                                        },
+                                        success: function (response) {
+
+                                            $('#comment_span_'+ review_id).empty().append('Comments'+ response);
                                         }
                                     });
                                 }
@@ -2006,6 +2099,9 @@
                     {# End Addresses #}
 
                     {# Communivation Methods #}
+                    let mobile_number = '';
+                    let iti = '';
+                    let input = '';
                     $('#communication_methods_link').click(function (e){
 
                         let page = $('html').html();
@@ -2043,14 +2139,40 @@
 
                         if(communication_method == 2){
 
+                            $('#send_to_container').empty().append('<input type="text" name="clinic_communication_methods_form[sendTo]" id="send_to" class="form-control">');
                             $('#label_send_to').empty().append('Email Address').show();
                             $('#send_to').attr('placeholder', 'Enter your email address');
                         }
 
                         if(communication_method == 3){
 
+                            $('#send_to_container').empty().append('<input type="text" name="clinic_communication_methods_form[sendTo]" id="send_to" class="form-control">');
                             $('#label_send_to').empty().append('Mobile Phone Number').show();
-                            $('#send_to').attr('placeholder', 'Enter your mobile number');
+
+                            let input = document.querySelector("#send_to");
+                            iti = window.intlTelInput(input, {
+                                preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                                autoPlaceholder: "polite",
+                                nationalMode: true,
+                                utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                                separateDialCode: true,
+                                utilsScript: "/js/utils.js",
+                            });
+
+                            let handleChange = function() {
+                                let mobile = $('#mobile_no');
+                                let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                                let textNode = document.createTextNode(mobile_number);
+
+                                if(mobile_number != false){
+
+                                    mobile.val(mobile_number.substring(1));
+                                }
+                            };
+
+                            // listen to "keyup", but also "change" to update when the user selects a country
+                            input.addEventListener('change', handleChange);
+                            input.addEventListener('keyup', handleChange);
                         }
 
                         if(communication_method == 2 || communication_method == 3) {
@@ -2062,15 +2184,46 @@
                     });
                     $(document).on('click', '.communication_method_update', function () {
 
-                        let method_id = $(this).data('clinic-communication-method-id');
+                        let clinic_method_id = $(this).data('clinic-communication-method-id');
+                        let method_id = $(this).data('communication-method-id');
+                        let iso_code = '';
+
+                        if(method_id == 3){
+
+                            $('#send_to_container').empty().append('<input type="text" name="clinic_communication_methods_form[sendTo]" id="send_to" class="form-control">');
+
+                        } else if(method_id == 2){
+
+                            $('#send_to_container').empty().append('<input type="text" name="clinic_communication_methods_form[sendTo]" id="send_to" class="form-control" placeholder="Enter your email address">');
+                        }
 
                         $.ajax({
                             url: "{{ path('get_communication_method') }}",
                             type: 'POST',
                             data: {
-                                id: method_id
+                                id: clinic_method_id
                             },
                             success: function (response) {
+
+                                iso_code = response.iso_code;
+
+                                if(communication_method == 3){
+
+                                    input = document.querySelector("#send_to");
+                                    iti = window.intlTelInput(input, {
+                                        initialCountry: iso_code,
+                                        preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                                        autoPlaceholder: "polite",
+                                        nationalMode: false,
+                                        utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                                        separateDialCode: true,
+                                        utilsScript: "/js/utils.js",
+                                    });
+
+                                    $('#label_send_to').empty().append('Mobile Phone Number').show();
+                                    $('#send_to').show();
+                                }
+
                                 $('#send_to').val(response.send_to);
                                 $('#communication_methods_type option[value="'+ response.method_id +'"]').attr('selected',false);
                                 $('#communication_methods_type option[value="'+ response.method_id +'"]').attr('selected','selected');
@@ -2092,12 +2245,6 @@
                             $('#send_to').attr('placeholder', 'Enter your email address').show();
                         }
 
-                        if(communication_method == 3){
-
-                            $('#label_send_to').empty().append('Mobile Phone Number').show();
-                            $('#send_to').attr('placeholder', 'Enter your mobile number').show();
-                        }
-
                         if(communication_method == 2 || communication_method == 3) {
 
                             $('#col_communication_method').removeClass('col-12').addClass('col-6')
@@ -2106,8 +2253,36 @@
 
                         $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="'+ communication_method +'"]').attr('selected',false);
                         $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="'+ communication_method +'"]').attr('selected','selected');
-                        $('#communication_method_id').val(method_id);
+                        $('#communication_method_id').val(clinic_method_id);
                         $('#communication_methods_modal_label').empty().append('Update A Communication Method');
+                    });
+                    $(document).on('focus','#send_to', function (){
+
+                        let communication_method = $('#communication_methods_type').val()
+
+                        if(communication_method == 3){
+
+                            input = document.querySelector("#send_to");
+
+                            let handleChange = function() {
+
+                                let mobile = $('#mobile_no');
+                                let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                                let textNode = document.createTextNode(mobile_number);
+
+                                if(mobile_number != false){
+
+                                    mobile.val(mobile_number.substring(1));
+                                }
+                            };
+
+                            // listen to "keyup", but also "change" to update when the user selects a country
+                            input.addEventListener('change', handleChange);
+                            input.addEventListener('keyup', handleChange);
+
+                            $('#label_send_to').empty().append('Mobile Phone Number').show();
+                            $('#send_to').show();
+                        }
                     });
                     $(document).on('click', '.method-delete', function () {
 
@@ -2140,11 +2315,14 @@
                         let is_valid = true;
                         let communication_method = $('#communication_methods_type').val();
                         let send_to = $('#send_to').val();
+                        let mobile = $('#mobile_no').val();
                         let error_communication_method = $('#error_communication_method');
                         let error_send_to = $('#error_send_to');
+                        let error_mobile = $('#error_communication_method_mobile');
 
                         error_communication_method.hide();
                         error_send_to.hide()
+                        error_mobile.hide();
 
                         if(communication_method == '' || communication_method == 'undefined' || communication_method == 0){
 
@@ -2152,18 +2330,36 @@
                             is_valid = false;
                         }
 
-                        if((send_to == '' || send_to == 'undefined') && (communication_method == 2 || communication_method == 3)){
+                        if((send_to == '' || send_to == 'undefined') && (communication_method == 2)){
 
                             error_send_to.show();
                             is_valid = false;
                         }
 
+                        if(mobile == 0 && communication_method == 3){
+
+                            error_mobile.show();
+                            is_valid = false;
+                        }
+
                         if(is_valid == true){
+
+                            if(communication_method == 3) {
+
+                                let iso = iti.getSelectedCountryData().iso2;
+                                let intl_code = iti.getSelectedCountryData().dialCode
+
+
+                                $('<input />').attr('type', 'hidden').attr('name', 'clinic_communication_methods_form[iso_code]')
+                                    .attr('value', iso).appendTo('#form_communication_methods');
+                                $('<input />').attr('type', 'hidden').attr('name', 'clinic_communication_methods_form[intl_code]')
+                                    .attr('value', intl_code).appendTo('#form_communication_methods');
+                            }
 
                             let data = new FormData(this);
 
                             $.ajax({
-                                url: "{{ path('communication_methods') }}",
+                                url: "{{ path('manage_communication_methods') }}",
                                 type: 'POST',
                                 contentType: false,
                                 processData: false,
