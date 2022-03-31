@@ -662,7 +662,13 @@ class ProductsController extends AbstractController
                                                     <label>
                                                         Username
                                                     </label>
-                                                    <input type="text" name="review_username" id="review_username" class="form-control">
+                                                    <input 
+                                                        type="text" 
+                                                        name="review_username" 
+                                                        id="review_username" 
+                                                        class="form-control"
+                                                        value="'. $this->getUser()->getReviewUserName() .'"
+                                                    >
                                                     <div class="hidden_msg" id="error_review_username">
                                                         Required Field
                                                     </div>

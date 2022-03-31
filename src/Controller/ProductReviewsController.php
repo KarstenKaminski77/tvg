@@ -85,6 +85,10 @@ class ProductReviewsController extends AbstractController
     public function getReviewDetailsAction(Request $request): Response
     {
         $product_id = $request->get('product_id');
+        $product_review = $this->em->getRepository(ProductReviews::class)->findBy([
+            'product' => $product_id,
+            'clinicUser' => $this->getUser()->getId()
+        ]);
         $product = $this->em->getRepository(Products::class)->find($product_id);
         $reviews = $this->em->getRepository(ProductReviews::class)->findBy(['product' => $product],['id' => 'DESC'], 3);
         $rating_1 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),1);
@@ -93,6 +97,13 @@ class ProductReviewsController extends AbstractController
         $rating_4 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),4);
         $rating_5 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),5);
         $response = '<h3 class="pb-3 pt-3">Reviews</h3><h5 class="pb-4">Showing the 3 most recent reviews</h5>';
+        $write_review = '';
+
+        if($product_review != null){
+
+            $review_graph = 'pb-4 pb-sm-0';
+            $write_review = 'hidden';
+        }
 
         if(empty($rating_1)){
 
@@ -156,7 +167,7 @@ class ProductReviewsController extends AbstractController
 
             $response .= '
             <div class="row">
-                <div class="col-12 col-sm-6 text-center">
+                <div class="col-12 col-sm-6 text-center '. $review_graph .'">
                     <div class="star-raiting-container">
                         <div class="star-rating-col-sm info">
                             5 Star
@@ -222,15 +233,19 @@ class ProductReviewsController extends AbstractController
                             '. $star_1 .'%
                         </div>
                     </div>
-                        </div>
-                        <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0">
-                            <h6>Help other Fluid clinics</h6>
-                            <p>Let thousands of veterinary purchasers know about<br> your experience with this product</p>
-                            <a href="" class="btn btn-primary btn_create_review w-100 w-sm-100" data-bs-toggle="modal" data-product-id="'. $product_id .'" data-bs-target="#modal_review">
-                                WRITE A REVIEW
-                            </a>
-                        </div>
-                    </div>';
+                </div>
+                <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0 '. $write_review .'">
+                    <h6>Help other Fluid clinics</h6>
+                    <p>Let thousands of veterinary purchasers know about<br> your experience with this product</p>
+                    <a 
+                        href="" 
+                        class="btn btn-primary btn_create_review w-100 w-sm-100" 
+                        data-bs-toggle="modal" data-product-id="'. $product_id .'" 
+                        data-bs-target="#modal_review">
+                        WRITE A REVIEW
+                    </a>
+                </div>
+            </div>';
 
             foreach ($reviews as $review) {
 
