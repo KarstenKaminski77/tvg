@@ -12,7 +12,7 @@
 
 {% block body %}
     <div class="hidden users-flash m-0 save-all-items" id="flash"></div>
-    <div class="container mt-5 mb-5" id="inventory_container">
+    <div class="container-xl mt-5 mb-1 mb-sm-5" id="inventory_container">
         <div class="row">
             <div class="col-12" id="inventory">
                 {{ response|raw }}
@@ -20,7 +20,10 @@
         </div>
     </div>
 
-    <div class="col-container container mb-5 mt-5" id="basket_container">
+    <div class="container mb-5 mt-5">
+        <div class="row ms-1 me-1 ms-md0 me-md-0">
+            <div class="col-container col-12" id="basket_container"></div>
+        </div>
     </div>
 
     <div class="overlay"></div>

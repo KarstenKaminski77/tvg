@@ -92,6 +92,16 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $reviewUsername;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductReviewLikes::class, mappedBy="clinicUser")
+     */
+    private $productReviewLikes;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ProductReviewComments::class, mappedBy="clinicUser")
+     */
+    private $productReviewComments;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -101,6 +111,8 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
 
         $this->productNotes = new ArrayCollection();
         $this->productReviews = new ArrayCollection();
+        $this->productReviewLikes = new ArrayCollection();
+        $this->productReviewComments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -361,6 +373,66 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
     public function setReviewUsername(?string $reviewUsername): self
     {
         $this->reviewUsername = $reviewUsername;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductReviewLikes>
+     */
+    public function getProductReviewLikes(): Collection
+    {
+        return $this->productReviewLikes;
+    }
+
+    public function addProductReviewLike(ProductReviewLikes $productReviewLike): self
+    {
+        if (!$this->productReviewLikes->contains($productReviewLike)) {
+            $this->productReviewLikes[] = $productReviewLike;
+            $productReviewLike->setClinicUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductReviewLike(ProductReviewLikes $productReviewLike): self
+    {
+        if ($this->productReviewLikes->removeElement($productReviewLike)) {
+            // set the owning side to null (unless already changed)
+            if ($productReviewLike->getClinicUser() === $this) {
+                $productReviewLike->setClinicUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductReviewComments>
+     */
+    public function getProductReviewComments(): Collection
+    {
+        return $this->productReviewComments;
+    }
+
+    public function addProductReviewComment(ProductReviewComments $productReviewComment): self
+    {
+        if (!$this->productReviewComments->contains($productReviewComment)) {
+            $this->productReviewComments[] = $productReviewComment;
+            $productReviewComment->setClinicUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductReviewComment(ProductReviewComments $productReviewComment): self
+    {
+        if ($this->productReviewComments->removeElement($productReviewComment)) {
+            // set the owning side to null (unless already changed)
+            if ($productReviewComment->getClinicUser() === $this) {
+                $productReviewComment->setClinicUser(null);
+            }
+        }
 
         return $this;
     }

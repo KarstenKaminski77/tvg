@@ -83,6 +83,19 @@ select:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
 }
 
+.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #a8a8a8;
+    opacity: 1; /* Firefox */
+}
+
+.form-control:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #a6a6a6;
+}
+
+.form-control::-ms-input-placeholder { /* Microsoft Edge */
+    color: #ccc;
+}
+
 .form-control {
     color: #464646cc !important;
 }
@@ -454,15 +467,11 @@ label {
 }
 
 .list-icon-unchecked {
-    color: #ccc;
+    color: #ccc !important;
 }
 
 .list-copy-row {
     line-height: 30px;
-}
-
-.text-primary {
-    color: #7796a8 !important;
 }
 
 .star-lg {
@@ -755,6 +764,54 @@ a.page-link {
     color: #ccc;
 }
 
+.iti {
+    width: 100%;
+}
+
+.review-icon {
+    font-size: 20px;
+}
+
+.text-primary {
+    color: #7796a8 !important;
+}
+
+.text-secondary {
+    color: #9ed4d9 !important;
+}
+
+.btn-secondary.disabled, .btn-secondary:disabled {
+    color: #fff;
+    background-color: #ccc;
+    border-color: #ccc;
+}
+
+.btn-outline-primary {
+    color: #7796a8;
+    border-color: #7796a8;
+}
+
+.btn-outline-primary:hover {
+    color: #9ed4d9;
+    background-color: transparent;
+    border-color: #9ed4d9;
+}
+.btn-check:focus + .btn-outline-primary, .btn-outline-primary:focus {
+    box-shadow: none;
+}
+.btn-check:checked + .btn-outline-primary, .btn-check:active + .btn-outline-primary, .btn-outline-primary:active, .btn-outline-primary.active, .btn-outline-primary.dropdown-toggle.show {
+    color: #fff;
+    background-color: #9ed4d9;
+    border-color: #9ed4d9;
+}
+.btn-check:checked + .btn-outline-primary:focus, .btn-check:active + .btn-outline-primary:focus, .btn-outline-primary:active:focus, .btn-outline-primary.active:focus, .btn-outline-primary.dropdown-toggle.show:focus {
+    box-shadow: none;
+}
+.btn-outline-primary:disabled, .btn-outline-primary.disabled {
+    color: #0d6efd;
+    background-color: transparent;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {
@@ -776,5 +833,17 @@ a.page-link {
 
     .w-sm-100 {
         width: 100% !important;
+    }
+}
+
+@media (max-width: 1199px) {
+    .border-list {
+        border-bottom: 1px dashed #e2e7eb !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .border-list {
+        border-bottom: none !important;
     }
 }

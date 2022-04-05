@@ -19,32 +19,19 @@ class AvailabilityTrackerRepository extends ServiceEntityRepository
         parent::__construct($registry, AvailabilityTracker::class);
     }
 
-    // /**
-    //  * @return AvailabilityTracker[] Returns an array of AvailabilityTracker objects
-    //  */
-    /*
-    public function findByExampleField($value)
+     /**
+      * @return AvailabilityTracker[] Returns an array of AvailabilityTracker objects
+      */
+    public function getSavedTrackers($product_id,$clinic_id)
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('a.product = :product_id')
+            ->setParameter('product_id', $product_id)
+            ->andWhere('a.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
             ->orderBy('a.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?AvailabilityTracker
-    {
-        return $this->createQueryBuilder('a')
-            ->andWhere('a.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

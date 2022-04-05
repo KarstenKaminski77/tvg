@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ClinicCommunicationMethodsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -47,12 +49,28 @@ class ClinicCommunicationMethods
      */
     private $isActive;
 
+    /**
+     * @ORM\Column(type="string", length=2, nullable=true)
+     */
+    private $IsoCode;
+
+    /**
+     * @ORM\Column(type="string", length=5, nullable=true)
+     */
+    private $intlCode;
+
+    /**
+     * @ORM\OneToMany(targetEntity=AvailabilityTracker::class, mappedBy="communication")
+     */
+    private $availabilityTrackers;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
         if ($this->getModified() == null) {
             $this->setModified(new \DateTime());
         }
+        $this->availabilityTrackers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -128,6 +146,60 @@ class ClinicCommunicationMethods
     public function setIsActive(?bool $isActive): self
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getIsoCode(): ?string
+    {
+        return $this->IsoCode;
+    }
+
+    public function setIsoCode(?string $IsoCode): self
+    {
+        $this->IsoCode = $IsoCode;
+
+        return $this;
+    }
+
+    public function getIntlCode(): ?string
+    {
+        return $this->intlCode;
+    }
+
+    public function setIntlCode(?string $intlCode): self
+    {
+        $this->intlCode = $intlCode;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AvailabilityTracker>
+     */
+    public function getAvailabilityTrackers(): Collection
+    {
+        return $this->availabilityTrackers;
+    }
+
+    public function addAvailabilityTracker(AvailabilityTracker $availabilityTracker): self
+    {
+        if (!$this->availabilityTrackers->contains($availabilityTracker)) {
+            $this->availabilityTrackers[] = $availabilityTracker;
+            $availabilityTracker->setCommunication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvailabilityTracker(AvailabilityTracker $availabilityTracker): self
+    {
+        if ($this->availabilityTrackers->removeElement($availabilityTracker)) {
+            // set the owning side to null (unless already changed)
+            if ($availabilityTracker->getCommunication() === $this) {
+                $availabilityTracker->setCommunication(null);
+            }
+        }
 
         return $this;
     }

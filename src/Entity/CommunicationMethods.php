@@ -39,15 +39,9 @@ class CommunicationMethods
      */
     private $clinicCommunicationMethods;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AvailabilityTracker::class, mappedBy="communication")
-     */
-    private $availabilityTrackers;
-
     public function __construct()
     {
         $this->clinicCommunicationMethods = new ArrayCollection();
-        $this->availabilityTrackers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -115,36 +109,6 @@ class CommunicationMethods
             // set the owning side to null (unless already changed)
             if ($clinicCommunicationMethod->getCommunicationMethod() === $this) {
                 $clinicCommunicationMethod->setCommunicationMethod(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|AvailabilityTracker[]
-     */
-    public function getAvailabilityTrackers(): Collection
-    {
-        return $this->availabilityTrackers;
-    }
-
-    public function addAvailabilityTracker(AvailabilityTracker $availabilityTracker): self
-    {
-        if (!$this->availabilityTrackers->contains($availabilityTracker)) {
-            $this->availabilityTrackers[] = $availabilityTracker;
-            $availabilityTracker->setCommunication($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAvailabilityTracker(AvailabilityTracker $availabilityTracker): self
-    {
-        if ($this->availabilityTrackers->removeElement($availabilityTracker)) {
-            // set the owning side to null (unless already changed)
-            if ($availabilityTracker->getCommunication() === $this) {
-                $availabilityTracker->setCommunication(null);
             }
         }
 
