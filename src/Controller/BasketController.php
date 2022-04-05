@@ -272,23 +272,34 @@ class BasketController extends AbstractController
     public function saveAllItemAction(Request $request): Response
     {
         $basket_id = $request->request->get('basket_id');
+        $clinic = $this->em->getRepository(Clinics::class)->find($this->getUser()->getClinic()->getId());
         $basket_items = $this->em->getRepository(BasketItems::class)->findBy(['basket' => $basket_id]);
 
         foreach($basket_items as $item){
 
             $item_id = $item->getId();
-            $clinic_product = new ClinicProducts();
+            $clinic_products = $this->em->getRepository(ClinicProducts::class)->findOneBy([
+                'product' => $item->getProduct(),
+                'distributor' => $item->getDistributor(),
+                'clinic' => $clinic,
+            ]);
 
-            $clinic_product->setClinic($this->getUser()->getClinic());
-            $clinic_product->setDistributor($item->getDistributor());
-            $clinic_product->setProduct($item->getProduct());
-            $clinic_product->setName($item->getName());
-            $clinic_product->setQty($item->getQty());
-            $clinic_product->setUnitPrice($item->getUnitPrice());
-            $clinic_product->setTotal($item->getQty() * $item->getUnitPrice());
-            $clinic_product->setSavedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
+            if($clinic_products == null) {
 
-            $this->em->persist($clinic_product);
+                $clinic_products = new ClinicProducts();
+
+            }
+
+            $clinic_products->setClinic($clinic);
+            $clinic_products->setDistributor($item->getDistributor());
+            $clinic_products->setProduct($item->getProduct());
+            $clinic_products->setName($item->getName());
+            $clinic_products->setQty($item->getQty());
+            $clinic_products->setUnitPrice($item->getUnitPrice());
+            $clinic_products->setTotal($item->getQty() * $item->getUnitPrice());
+            $clinic_products->setSavedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
+
+            $this->em->persist($clinic_products);
             $this->em->flush();
 
             $basket_item = $this->em->getRepository(BasketItems::class)->find($item->getId());

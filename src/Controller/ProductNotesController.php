@@ -44,6 +44,28 @@ class ProductNotesController extends AbstractController
                         </div>
                     </form>
                 </div>
+            </div>
+            <!-- Modal Delete Note -->
+            <div class="modal fade" id="modal_note_delete" tabindex="-1" aria-labelledby="note_delete_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="note_delete_label">Delete Note</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12 mb-0">
+                                    Are you sure you would like to delete this note? This action cannot be undone.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                            <button type="submit" class="btn btn-danger btn-sm" id="delete_note" data-delete-note-id="" data-delete-product-id="">DELETE</button>
+                        </div>
+                    </div>
+                </div>
             </div>';
     }
 
@@ -62,24 +84,25 @@ class ProductNotesController extends AbstractController
 
         foreach($product_notes as $note){
 
-            $response .= '<div class="row">
-                            <div class="col-9">
-                                <h6>'. $note->getNote() .'</h6>
-                            </div>
-                            <div class="col-3">
-                                <a href="" class="float-end note_update" data-id="'. $note->getId() .'">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </a>
-                                <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-note-id="'. $note->getId() .'" data-product-id="'. $product->getId() .'" data-bs-target="#modal_note_delete" id="note_delete_'. $note->getId() .'">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="row mb-4">
-                            <div class="col-12 info-sm">
-                                '. $note->getClinicUser()->getFirstName() .' '. $note->getClinicUser()->getLastName() .' . '. $note->getCreated()->format('M d Y H:i') .'
-                            </div>
-                        </div>';
+            $response .= '
+            <div class="row">
+                <div class="col-9">
+                    <h6>'. $note->getNote() .'</h6>
+                </div>
+                <div class="col-3">
+                    <a href="" class="float-end note_update" data-id="'. $note->getId() .'">
+                        <i class="fa-solid fa-pencil"></i>
+                    </a>
+                    <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-note-id="'. $note->getId() .'" data-product-id="'. $product->getId() .'" data-bs-target="#modal_note_delete" id="note_delete_'. $note->getId() .'">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-12 info-sm">
+                    '. $note->getClinicUser()->getFirstName() .' '. $note->getClinicUser()->getLastName() .' . '. $note->getCreated()->format('M d Y H:i') .'
+                </div>
+            </div>';
         }
 
         $response .= $this->noteCreateNew($product_id);
@@ -138,24 +161,25 @@ class ProductNotesController extends AbstractController
 
         foreach($product_notes as $note){
 
-            $response .= '<div class="row">
-                            <div class="col-10">
-                                <h6>'. $note->getNote() .'</h6>
-                            </div>
-                            <div class="col-2">
-                                <a href="" class="float-end note_update" data-id="'. $note->getId() .'">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </a>
-                                <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-note-id="'. $note->getId() .'" data-product-id="'. $product->getId() .'" data-bs-target="#modal_note_delete" id="note_delete_'. $note->getId() .'">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="row mb-4">
-                            <div class="col-12 info-sm">
-                                '. $note->getClinicUser()->getFirstName() .' '. $note->getClinicUser()->getLastName() .' . '. $note->getCreated()->format('M d Y H:i') .'
-                            </div>
-                        </div>';
+            $response .= '
+            <div class="row">
+                <div class="col-10">
+                    <h6>'. $note->getNote() .'</h6>
+                </div>
+                <div class="col-2">
+                    <a href="" class="float-end note_update" data-id="'. $note->getId() .'">
+                        <i class="fa-solid fa-pencil"></i>
+                    </a>
+                    <a href="" class="delete-icon float-end" data-bs-toggle="modal" data-note-id="'. $note->getId() .'" data-product-id="'. $product->getId() .'" data-bs-target="#modal_note_delete" id="note_delete_'. $note->getId() .'">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-12 info-sm">
+                    '. $note->getClinicUser()->getFirstName() .' '. $note->getClinicUser()->getLastName() .' . '. $note->getCreated()->format('M d Y H:i') .'
+                </div>
+            </div>';
         }
 
         $response .= $this->noteCreateNew($product->getId());

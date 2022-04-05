@@ -28,11 +28,6 @@ class AvailabilityTracker
     private $clinic;
 
     /**
-     * @ORM\ManyToOne(targetEntity=CommunicationMethods::class, inversedBy="availabilityTrackers")
-     */
-    private $communication;
-
-    /**
      * @ORM\Column(type="boolean")
      */
     private $isSent;
@@ -46,6 +41,24 @@ class AvailabilityTracker
      * @ORM\Column(type="datetime")
      */
     private $created;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Distributors::class, inversedBy="availabilityTrackers")
+     */
+    private $distributor;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=ClinicCommunicationMethods::class, inversedBy="availabilityTrackers")
+     */
+    private $communication;
+
+    public function __construct()
+    {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+    }
 
     public function getId(): ?int
     {
@@ -72,18 +85,6 @@ class AvailabilityTracker
     public function setClinic(?Clinics $clinic): self
     {
         $this->clinic = $clinic;
-
-        return $this;
-    }
-
-    public function getCommunication(): ?CommunicationMethods
-    {
-        return $this->communication;
-    }
-
-    public function setCommunication(?CommunicationMethods $communication): self
-    {
-        $this->communication = $communication;
 
         return $this;
     }
@@ -120,6 +121,30 @@ class AvailabilityTracker
     public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
+
+        return $this;
+    }
+
+    public function getDistributor(): ?Distributors
+    {
+        return $this->distributor;
+    }
+
+    public function setDistributor(?Distributors $distributor): self
+    {
+        $this->distributor = $distributor;
+
+        return $this;
+    }
+
+    public function getCommunication(): ?ClinicCommunicationMethods
+    {
+        return $this->communication;
+    }
+
+    public function setCommunication(?ClinicCommunicationMethods $communication): self
+    {
+        $this->communication = $communication;
 
         return $this;
     }

@@ -129,6 +129,11 @@ class Distributors
      */
     private $clinicProducts;
 
+    /**
+     * @ORM\OneToMany(targetEntity=AvailabilityTracker::class, mappedBy="distributor")
+     */
+    private $availabilityTrackers;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -146,6 +151,7 @@ class Distributors
         $this->listItems = new ArrayCollection();
         $this->basketItems = new ArrayCollection();
         $this->clinicProducts = new ArrayCollection();
+        $this->availabilityTrackers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -573,6 +579,36 @@ class Distributors
             // set the owning side to null (unless already changed)
             if ($clinicProduct->getDistributor() === $this) {
                 $clinicProduct->setDistributor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AvailabilityTracker>
+     */
+    public function getAvailabilityTrackers(): Collection
+    {
+        return $this->availabilityTrackers;
+    }
+
+    public function addAvailabilityTracker(AvailabilityTracker $availabilityTracker): self
+    {
+        if (!$this->availabilityTrackers->contains($availabilityTracker)) {
+            $this->availabilityTrackers[] = $availabilityTracker;
+            $availabilityTracker->setDistributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvailabilityTracker(AvailabilityTracker $availabilityTracker): self
+    {
+        if ($this->availabilityTrackers->removeElement($availabilityTracker)) {
+            // set the owning side to null (unless already changed)
+            if ($availabilityTracker->getDistributor() === $this) {
+                $availabilityTracker->setDistributor(null);
             }
         }
 

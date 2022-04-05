@@ -215,6 +215,7 @@
                             success: function (response) {
                                 $('#inventory_container').hide();
                                 $('#basket_container').empty().append(response).fadeIn(500);
+                                $("#basket_container").css({ overflow:"auto" });
                                 $('#saved_items_container').hide();
                                 $("div.spanner").removeClass("show");
                                 $("div.overlay").removeClass("show");
@@ -969,6 +970,19 @@
 
                         } else {
 
+                            $.ajax({
+                                url: "{{ path('get_availability_tracker') }}",
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {
+                                    product_id: product_id
+                                },
+                                success: function (response) {
+
+                                    $('#track_'+ product_id).empty().append(response.html).append(response.list);
+                                }
+                            });
+
                             $('#search_panels_container_'+ product_id).show();
                             $('#details_'+ product_id).hide(700);
                             $('#lists_'+ product_id).hide(700);
@@ -981,6 +995,99 @@
                             $('#btn_notes_'+ product_id).removeClass('active');
                             $('#btn_reviews_'+ product_id).removeClass('active');
                         }
+                    });
+                    $(document).on('submit', '#form_availability_tracker', function (e){
+
+                        e.preventDefault();
+
+                        let method_counter = 0;
+                        $("input[name='method[]']").each(
+                            function (){
+                                if(this.checked){
+                                    method_counter += 1;
+                                }
+                            }
+                        );
+
+                        let distributor_counter = 0;
+                        $("input[name='distributor[]']").each(
+                            function (){
+                                if(this.checked){
+                                    distributor_counter += 1;
+                                }
+                            }
+                        );
+
+                        let error_at_methods = $('#error_at_methods');
+                        let error_at_distributors = $('#error_at_distributors');
+                        let data = new FormData(this);
+                        let is_valid = true;
+
+                        error_at_methods.hide()
+                        error_at_distributors.hide();
+
+                        if(method_counter == 0){
+
+                            error_at_methods.show();
+                            is_valid = false;
+                        }
+
+                        if(distributor_counter == 0){
+
+                            error_at_distributors.show();
+                            is_valid = false;
+                        }
+
+                        if(is_valid) {
+
+                            $.ajax({
+                                url: "{{ path('create_availability_tracker') }}",
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                cache: false,
+                                timeout: 600000,
+                                dataType: 'json',
+                                data: data,
+                                success: function (response) {
+                                    getFlash(response.flash);
+                                    $('#availability_tracker_row').show();
+                                    $('#availability_tracker_col').empty().append(response.list)
+                                }
+                            });
+                        }
+                    });
+                    $(document).on('click', '.availability-tracker-delete-icon', function (e){
+
+                        e.preventDefault();
+
+                        let tracker_id = $(this).data("availability-tracker-id");
+
+                        $('#delete_tracker').attr('data-delete-tracker-id', tracker_id);
+
+                    });
+                    $(document).on('click', '#delete_tracker', function (e){
+
+                        e.preventDefault();
+
+                        let tracker_id = $(this).data('delete-tracker-id');
+
+                        $.ajax({
+                            url: "{{ path('delete_availability_tracker') }}",
+                            type: 'POST',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: {
+                                tracker_id: tracker_id
+                            },
+                            success: function (response) {
+                                $('#modal_availability_tracker_delete').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('#availability_trackers').empty().append(response.html);
+                                getFlash(response.flash);
+                            }
+                        });
                     });
                     {# End Tracking #}
 
@@ -1142,8 +1249,7 @@
                             },
                             success: function (response) {
                                 $('#notes_'+ product_id).empty().append(response);
-                                $('#modal_note_delete').modal('toggle');
-                                $('#modal_note_delete').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
 
                                 $.ajax({
                                     url: "{{ path('clinic_get_product_notes') }}",

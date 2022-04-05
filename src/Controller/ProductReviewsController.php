@@ -8,7 +8,6 @@ use App\Entity\ProductReviewLikes;
 use App\Entity\ProductReviews;
 use App\Entity\Products;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -101,8 +100,7 @@ class ProductReviewsController extends AbstractController
 
         if($product_review != null){
 
-            $review_graph = 'pb-4 pb-sm-0';
-            $write_review = 'hidden';
+            $write_review = 'btn-secondary disabled';
         }
 
         if(empty($rating_1)){
@@ -167,7 +165,7 @@ class ProductReviewsController extends AbstractController
 
             $response .= '
             <div class="row">
-                <div class="col-12 col-sm-6 text-center '. $review_graph .'">
+                <div class="col-12 col-sm-6 text-center">
                     <div class="star-raiting-container">
                         <div class="star-rating-col-sm info">
                             5 Star
@@ -234,12 +232,12 @@ class ProductReviewsController extends AbstractController
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0 '. $write_review .'">
+                <div class="col-12 col-sm-6 text-center pt-4 pb-4 pt-sm-0 pb-sm-0">
                     <h6>Help other Fluid clinics</h6>
                     <p>Let thousands of veterinary purchasers know about<br> your experience with this product</p>
                     <a 
                         href="" 
-                        class="btn btn-primary btn_create_review w-100 w-sm-100" 
+                        class="btn btn-primary btn_create_review w-100 w-sm-100 '. $write_review .'" 
                         data-bs-toggle="modal" data-product-id="'. $product_id .'" 
                         data-bs-target="#modal_review">
                         WRITE A REVIEW
