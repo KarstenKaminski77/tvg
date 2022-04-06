@@ -3,27 +3,26 @@
 namespace App\Controller;
 
 use App\Entity\Addresses;
+use App\Entity\AvailabilityTracker;
 use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
 use App\Entity\DistributorUsers;
+use App\Entity\Notifications;
 use App\Entity\Products;
 use App\Form\AddressesFormType;
 use App\Form\DistributorFormType;
 use App\Form\DistributorProductsFormType;
 use App\Form\DistributorUsersFormType;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
-use function PHPUnit\Framework\throwException;
 
 class DistributorsController extends AbstractController
 {
@@ -610,7 +609,7 @@ class DistributorsController extends AbstractController
     }
 
     #[Route('/distributor/inventory-update', name: 'distributor_inventory_update')]
-    public function distributorUpdateInventoryAction(Request $request): Response
+    public function distributorUpdateInventoryAction(Request $request, MailerInterface $mailer): Response
     {
         $data = $request->request->get('distributor_products_form');
 
@@ -622,11 +621,18 @@ class DistributorsController extends AbstractController
                 'distributor' => $data['distributor']
             ]
         );
+        $tracking = false;
 
         if($distributor_products == null){
 
             $distributor_products = new DistributorProducts();
 
+        } else {
+
+            if($distributor_products->getStockCount() == 0){
+
+                $tracking = true;
+            }
         }
 
         if(!empty($data['product']) && !empty($data['distributor'])){
@@ -664,6 +670,94 @@ class DistributorsController extends AbstractController
 
             $this->em->persist($product);
             $this->em->flush();
+
+            // Availability Tracker
+            $availability_tracker = '';
+
+            if($tracking){
+
+                $availability_tracker = $this->em->getRepository(AvailabilityTracker::class)->findBy([
+                    'product' => $product->getId(),
+                    'distributor' => $data['distributor'],
+                    'isSent' => 0,
+                ]);
+
+                foreach($availability_tracker as $tracker){
+
+                    $method_id = $tracker->getCommunication()->getCommunicationMethod()->getId();
+                    $send_to = $tracker->getCommunication()->getSendTo();
+                    $product = $tracker->getProduct();
+
+                    // In app notifications
+                    if($method_id == 1){
+
+                        $notifications = new Notifications();
+
+                        $notifications->setClinic($tracker->getClinic());
+                        $notifications->setIsRead(0);
+                        $notifications->setIsActive(1);
+                        $notifications->setAvailabilityTracker($tracker);
+
+                        $this->em->persist($notifications);
+                        $this->em->flush();
+
+                        // Get the newly created notification
+                        $notification = '
+                        <table class="w-100">
+                            <tr>
+                                <td><span class="badge bg-success me-3">New Stock</span></td>
+                                <td>'. $product->getName() .' '. $product->getDosage() . $product->getUnit() .'</td>
+                                <td>
+                                    <a href="#" class="delete-notification" data-notification-id="'. $notifications->getId() .'">
+                                        <i class="fa-solid fa-xmark text-black-25 ms-3 float-end"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>';
+
+                        $notifications = $this->em->getRepository(Notifications::class)->find($notifications->getId());
+
+                        $notifications->setNotification($notification);
+
+                        $this->em->persist($notifications);
+                        $this->em->flush();
+
+                    // Email notifications
+                    } elseif($method_id == 2){
+
+                        $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
+                        $body .= '<tr><td colspan="2">'. $product->getName() .' '. $product->getDosage() . $product->getUnit() .' is back in stock</td></tr>';
+                        $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+                        $body .= '<tr>';
+                        $body .= '    <td><b>Distributor: </b></td>';
+                        $body .= '    <td>'. $tracker->getDistributor()->getDistributorName() .'</td>';
+                        $body .= '</tr>';
+                        $body .= '<tr>';
+                        $body .= '    <td><b>Stock Level: </b></td>';
+                        $body .= '    <td>'. $tracker->getProduct()->getDistributorProducts()[0]->getStockCount() .'</td>';
+                        $body .= '</tr>';
+                        $body .= '</table>';
+
+                        $email = (new Email())
+                        ->from($this->getParameter('app.email_from'))
+                        ->addTo($send_to)
+                        ->subject('Fluid Stock Level Update')
+                        ->html($body);
+
+                        $mailer->send($email);
+
+                    // Text notifications
+                    } elseif($method_id == 3){
+
+                    }
+
+                    $availabilityTracker = $this->em->getRepository(AvailabilityTracker::class)->find($tracker->getId());
+                    $availabilityTracker->setIsSent(1);
+
+                    $this->em->persist($availabilityTracker);
+                    $this->em->flush();
+                }
+            }
 
             $response = '<b><i class="fa-solid fa-circle-check"></i></i></b> '. $product->getName() .' successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 

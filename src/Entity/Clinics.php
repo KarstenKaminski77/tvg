@@ -109,6 +109,11 @@ class Clinics
      */
     private $productReviewComments;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Notifications::class, mappedBy="clinic")
+     */
+    private $notifications;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -129,6 +134,7 @@ class Clinics
         $this->availabilityTrackers = new ArrayCollection();
         $this->clinicProducts = new ArrayCollection();
         $this->productReviewComments = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -550,6 +556,36 @@ class Clinics
             // set the owning side to null (unless already changed)
             if ($productReviewComment->getClinic() === $this) {
                 $productReviewComment->setClinic(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notifications>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notifications $notification): self
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications[] = $notification;
+            $notification->setClinic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notifications $notification): self
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getClinic() === $this) {
+                $notification->setClinic(null);
             }
         }
 

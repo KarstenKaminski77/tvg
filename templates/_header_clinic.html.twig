@@ -69,8 +69,16 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link basket-link" data-basket-id="5" href="#">
-                            <i class="fa-solid fa-basket-shopping"></i> Basket <span id="basket_count">
+                            <i class="fa-solid fa-basket-shopping"></i> Basket <span id="basket_count"></span>
                         </a>
+                    </li>
+                    <li class="nav-item position-relative">
+                        <a class="nav-link btn-notifications" href="#">
+                            <i class="fa-solid fa-bell"></i>
+                        </a>
+                        <span id="notifications_panel">
+                            <span class="notification-panel delete-notification">You have no notifications</span>
+                        </span>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link  dropdown-toggle" href="{{ path('clinics_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
