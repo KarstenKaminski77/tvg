@@ -812,7 +812,381 @@ class BasketController extends AbstractController
         $total_clinic = number_format($clinic_totals[0]['total'] ?? 0,2);
         $count_clinic = $clinic_totals[0]['item_count'] ?? 0;
 
-        $response = '<div class="row">
+        $response = '
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-12 col-md-2 col-100" id="basket_left_col">
+                <div class="row border-bottom text-center pt-2 pb-2">
+                    <b>All Baskets</b>
+                </div>
+                <div class="row" style="background: #f4f8fe">
+                    <div class="col-6 border-bottom pt-1 pb-1 text-center">
+                        <span class="d-block text-primary">'. $count_clinic .'</span>
+                        <span class="d-block text-truncate">Items</span>
+                    </div>
+                    <div class="col-6 border-bottom pt-1 pb-1 text-center">
+                        <span class="d-block text-primary">$'. $total_clinic .'</span>
+                        <span class="d-block text-truncate">Subtotal</span>
+                    </div>
+                </div>';
+
+        foreach($baskets as $individual_basket){
+
+            $count = $individual_basket->getBasketItems()->count();
+            $bg_primary = '';
+            $active = '';
+
+            if($count > 0){
+
+                $bg_primary = 'bg-primary';
+            }
+
+            if($individual_basket->getId() == $basket_id){
+
+                $active = 'active-basket';
+            }
+
+            $response .= '
+            <div class="row">
+                <div class="col-12 border-bottom '. $active .'">
+                    <a href="#" data-basket-id="'. $individual_basket->getId() .'" class=" pt-3 pb-3 d-block basket-link">
+                        <span class="d-inline-block align-baseline">'. $individual_basket->getName() .'</span>
+                        <span class="float-end basket-item-count-empty '. $bg_primary .'">
+                            '. $count .'
+                        </span>
+                    </a>
+                </div>
+            </div>';
+        }
+
+        $response .= '
+            <div class="row border-bottom">
+                <div class="col-4 col-sm-12 col-md-4 pt-3 pb-3 saved-baskets">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                </div>
+                <div class="col-8 col-sm-12 col-md-8 pt-3 pb-3">
+                    <h6 class="text-primary">Saved Baskets</h6>
+                    <span class="info">View baskets</span>
+                </div>
+            </div>
+        </div>
+        <!-- Right Column -->
+        <div class="col-12 col-md-10 col-100 border-left" id="basket_items">
+            <!-- Basket Name -->
+            <div class="row">
+                <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3">
+                    <h4 class="text-white">'. $basket->getName() .' Basket</h4>
+                    <span class="text-white">
+                        Manage All Your Shopping Carts In One Place
+                    </span>
+                </div>
+            </div>
+            <!-- Basket Actions Upper Row -->
+            <div class="row">
+                <div class="col-12 d-flex justify-content-evenly border-bottom pt-3 pb-3">
+                    <a href="#">
+                        <i class="fa-solid fa-arrow-rotate-right me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Refresh Basket</span>
+                    </a>
+                    <a href="#" id="print_basket">
+                        <i class="fa-solid fa-print me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Print</span>
+                    </a>
+                    <a href="#" id="saved_baskets_link" data-basket-id="'. $basket_id .'">
+                        <i class="fa-solid fa-basket-shopping me-0 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Saved Baskets</span>
+                    </a>
+                    <a href="#" id="return_to_search">
+                        <i class="fa-solid fa-magnifying-glass me-0 me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Back To Search</span>
+                    </a>
+                </div>
+            </div>';
+
+        if(count($basket->getBasketItems()) > 0) {
+
+            $response .= '
+            <!-- Basket Actions Lower Row -->
+            <div class="row">
+                <div class="col-12 d-flex justify-content-evenly border-bottom pt-3 pb-3">
+                    <a href="#" class="save-all-items" data-basket-id="' . $basket_id . '">
+                        <i class="fa-regular fa-bookmark me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Save All For Later</span>
+                    </a>
+                    <a href="#" class="clear-basket" data-basket-id="' . $basket_id . '">
+                        <i class="fa-solid fa-trash-can me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Clear Basket</span>
+                    </a>
+                    <a href="#" class="refresh-basket" data-basket-id="'. $basket_id .'">
+                        <i class="fa-solid fa-arrow-rotate-right me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Refresh Basket</span>
+                    </a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#modal_save_basket">
+                        <i class="fa-solid fa-basket-shopping me-md-2"></i><span class=" d-none d-md-inline-block pe-3">Save Basket</span>
+                    </a>
+                </div>
+            </div>';
+        }
+
+        $basket_summary = false;
+        $col = '12';
+
+        if(count($basket->getBasketItems()) > 0) {
+
+            $basket_summary = true;
+            $col = '9 border-right';
+        }
+
+        $response .= '
+                <!-- Basket Items -->
+                <div class="row col-container d-flex border-0 m-0">
+                    <div class="col-12 col-md-'. $col .' col-cell ps-0">';
+
+        $i = -1;
+
+        if(count($basket->getBasketItems()) > 0) {
+
+            foreach ($basket->getBasketItems() as $item) {
+
+                $i++;
+                //dd($basket->getBasketItems()[2]->getProduct()->getId());
+                $product = $basket->getBasketItems()[$i]->getProduct();
+                $shipping_policy = $item->getDistributor()->getSalesTaxPolicy();
+
+                if($product->getStockCount() > 0){
+
+                    $stock_badge = '<span class="badge bg-success me-2">In Stock</span>';
+
+                } else {
+
+                    $stock_badge = '<span class="badge bg-danger me-2">Out Of Stock</span>';
+                }
+
+                $response .= '
+                    <div class="row">
+                        <!-- Thumbnail -->
+                        <div class="col-12 col-sm-2 text-center pt-3 pb-3">
+                            <img class="img-fluid basket-img" src="/images/products/' . $product->getImage() . '">
+                        </div>
+                        <div class="col-12 col-sm-10 pt-3 pb-3">
+                            <!-- Product Name and Qty -->
+                            <div class="row">
+                                <!-- Product Name -->
+                                <div class="col-12 col-sm-7 pt-3 pb-3">
+                                    <h6 class="fw-bold text-center text-sm-start text-primary lh-base">
+                                        ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
+                                    </h6>
+                                </div>
+                                <!-- Product Quantity -->
+                                <div class="col-12 col-sm-5 pt-3 pb-3">
+                                    <div class="row">
+                                        <div class="col-4 text-center text-sm-end">$' . number_format($item->getUnitPrice(),2) . '</div>
+                                        <div class="col-4">
+                                            <input type="text" list="qty_list_' . $product->getId() . '" data-basket-item-id="' . $item->getId() . '" name="qty" class="form-control basket-qty" value="' . $item->getQty() . '" ng-value="' . $item->getQty() . '">
+                                            <datalist id="qty_list_' . $product->getId() . '">
+                                                <option>1</option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                                <option>6</option>
+                                                <option>7</option>
+                                                <option>8</option>
+                                                <option>9</option>
+                                                <option>10</option>
+                                                <option>11</option>
+                                                <option>12</option>
+                                                <option>13</option>
+                                                <option>14</option>
+                                                <option>15</option>
+                                                <option>16</option>
+                                                <option>17</option>
+                                                <option>18</option>
+                                                <option>19</option>
+                                                <option>20</option>
+                                                <option id="qty_custom">Enter Quantity</option>
+                                            </datalist>
+                                        </div>
+                                        <div class="col-4 text-center text-sm-start fw-bold">$' . number_format($item->getTotal(),2) . '</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Item Actions -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <!-- In Stock -->
+                                    '. $stock_badge .'
+                                    <!-- Shipping Policy -->
+                                    <span class="badge bg-dark-grey" class="btn btn-secondary" data-bs-trigger="hover"
+                                          data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-html="true"
+                                          data-bs-content="'. $shipping_policy .'">Shipping Policy</span>
+                                    <!-- Remove Item -->
+                                    <span class="badge bg-danger float-end">
+                                        <a href="#" class="remove-item text-white" data-item-id="' . $item->getId() . '">Remove</a>
+                                    </span>
+                                    <!-- Save Item -->
+                                    <span class="badge badge-light float-end me-2">
+                                        <a href="#" class="link-secondary save-item" data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" data-distributor-id="'. $item->getDistributor()->getId() .'" data-item-id="' . $item->getId() . '">Save Item For later</a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>';
+            }
+        } else {
+
+            $response .= '
+                    <div class="row">
+                        <div class="col-12 text-center pt-4">
+                            <p>
+                            <h5>Your basket at Fluid Commerce is currently empty </h5><br>
+                            Were you expecting to see items here? View copies of the items most recently added<br> 
+                            to your basket and restore a basket if needed.
+                            </p>
+                        </div>
+                    </div>';
+        }
+
+        $response .= '
+                    </div>';
+
+        if($basket_summary) {
+
+            $response .= '
+                    <!-- Basket Summary -->
+                    <div class="col-12 col-md-3 pt-3 pb-3 pe-0 col-cell">
+                        <div class="row">
+                            <div class="col-12 text-truncate">
+                                <span class="info">Subtotal:</span>
+                                <h5 class="d-inline-block text-primary float-end">$' . number_format($basket->getTotal(),2) . '</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 info">
+                                Shipping: <span class="float-end fw-bold">$6.99</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 pt-4 text-center">
+                                <a href="" class="btn btn-primary w-100" id="btn_checkout">
+                                    PROCEED TO CHECKOUT <i class="fa-solid fa-circle-right ps-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>';
+        }
+
+        $response .= '
+                </div>';
+
+        // Saved Items
+        if(count($saved_items) > 0){
+
+            $plural = '';
+
+            if(count($saved_items) > 1){
+
+                $plural = 's';
+            }
+
+            $response .= '
+                    <div class="row" style="background: #f4f8fe">
+                        <div class="col-12 border-bottom border-top pt-3 pb-3">
+                            <a href="" id="saved_items_link">Items Saved for Later ('. count($saved_items) .' Item'. $plural .')</a>
+                        </div>
+                    </div>
+                    <div class="row" id="saved_items_container">
+                        <div class="col-12 border-bottom border-top pt-3 pb-3 position-relative">
+                            <a href="" class="btn btn-primary btn-sm restore-all" id="restore_all" data-basket-id="'. $basket_id .'">Move All To Basket</a>
+                ';
+
+            foreach($saved_items as $item){
+
+                $product = $item->getProduct();
+
+                $response .= '
+                    <div class="row">
+                        <!-- Thumbnail -->
+                        <div class="col-12 col-sm-2 text-center pt-3 pb-3">
+                            <img class="img-fluid basket-img" src="/images/products/' . $product->getImage() . '">
+                        </div>
+                        <div class="col-12 col-sm-10 pt-3 pb-3">
+                            <div class="row">
+                                <!-- Product Name -->
+                                <div class="col-12 col-sm-7">
+                                    <h6 class="fw-bold text-center text-sm-start text-primary lh-base mb-0">
+                                        ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
+                                    </h6>
+                                    Saved on '. $item->getModified()->format('M jS Y') .' by '. $item->getSavedBy() .'<br>
+                                    <span class="badge badge-light me-2 mt-2">
+                                        <a href="#" class="link-secondary restore-item" data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" data-distributor-id="'. $item->getDistributor()->getId() .'" data-item-id="'. $item->getId() .'">
+                                            Move To Basket
+                                        </a>
+                                    </span>
+                                    <span class="badge bg-danger mt-2">
+                                        <a href="#" class="text-white remove-saved-item" data-basket-id="" data-item-id="'. $item->getId() .'">
+                                            Remove
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                       
+                        </div>
+                    </div>';
+            }
+        }
+
+        $response .= '     
+                    </div>
+                </div>   
+            </div>
+        </div>
+        <!-- Modal Save Basket -->
+        <div class="modal fade" id="modal_save_basket" tabindex="-1" aria-labelledby="save_basket_label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form name="form_save_basket" id="form_save_basket" method="post">
+                        <input type="hidden" name="basket_id" value="'. $basket_id .'">
+                        <div class="modal-header basket-modal-header">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pb-0">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <h6>Clear current basket?</h6>
+                                    After you save this basket for later, would you like to clear this basket?
+                                </div>
+                                <div class="col-12 mb-0">
+                                    <input type="text" class="form-control" name="basket_name" id="basket_name" placeholder="Basket Name">
+                                </div>
+                                <div class="hidden_msg" id="error_basket_name">
+                                    Please enter name for the basket
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="submit" class="btn btn-primary btn-sm save-basket" name="basket_new_save_clear" data-basket-clear="1">SAVE AND CLEAR</button>
+                            <button type="submit" class="btn btn-danger btn-sm save-basket" name="basket_new_save" data-basket-clear="0">SAVE</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/checkout', name: 'checkout_shipping')]
+    public function shippingCheckoutAction(Request $request): Response
+    {
+        $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
+        $clinic_id = $this->getUser()->getClinic()->getId();
+        $basket_id = $request->request->get('basket_id') ?? $request->get('basket_id');
+        $basket = $this->em->getRepository(Baskets::class)->find($basket_id);
+        $baskets = $this->em->getRepository(Baskets::class)->findBy(['clinic' => $clinic_id]);
+        $clinic_totals = $this->em->getRepository(Baskets::class)->getClinicTotalItems($clinic_id);
+        $saved_items = $this->em->getRepository(ClinicProducts::class)->findBy([
+            'clinic' => $this->getUser()->getClinic()->getId()
+        ]);
+
+        $total_clinic = number_format($clinic_totals[0]['total'] ?? 0,2);
+        $count_clinic = $clinic_totals[0]['item_count'] ?? 0;
+
+        $response = '
+        <div class="row">
             <!-- Left Column -->
             <div class="col-12 col-md-2 col-100" id="basket_left_col">
                 <div class="row border-bottom text-center pt-2 pb-2">

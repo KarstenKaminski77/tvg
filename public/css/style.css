@@ -780,6 +780,10 @@ a.page-link {
     color: #9ed4d9 !important;
 }
 
+.text-black-25 {
+    color: rgba(0, 0, 0, 0.25) !important;
+}
+
 .btn-secondary.disabled, .btn-secondary:disabled {
     color: #fff;
     background-color: #ccc;
@@ -810,6 +814,17 @@ a.page-link {
 .btn-outline-primary:disabled, .btn-outline-primary.disabled {
     color: #0d6efd;
     background-color: transparent;
+}
+
+.notification-panel {
+    background: #fff;
+    padding: 0.5rem 1rem;
+    position: absolute;
+    z-index: 9999999999;
+    right: 0;
+    width: max-content;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.25rem;
 }
 
 @media (min-width: 576px) {

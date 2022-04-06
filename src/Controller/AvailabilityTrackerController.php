@@ -283,7 +283,8 @@ class AvailabilityTrackerController extends AbstractController
         $clinic = $this->getUser()->getClinic();
         $saved_trackers = $this->em->getRepository(AvailabilityTracker::class)->findBy([
             'product' => $product_id,
-            'clinic' => $clinic->getId()
+            'clinic' => $clinic->getId(),
+            'isSent' => 0,
         ]);
 
         $response = '';

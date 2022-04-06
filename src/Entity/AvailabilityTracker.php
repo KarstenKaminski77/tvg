@@ -52,6 +52,11 @@ class AvailabilityTracker
      */
     private $communication;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Notifications::class, mappedBy="availabilityTracker", cascade={"persist", "remove"})
+     */
+    private $notifications;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -145,6 +150,28 @@ class AvailabilityTracker
     public function setCommunication(?ClinicCommunicationMethods $communication): self
     {
         $this->communication = $communication;
+
+        return $this;
+    }
+
+    public function getNotifications(): ?Notifications
+    {
+        return $this->notifications;
+    }
+
+    public function setNotifications(?Notifications $notifications): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($notifications === null && $this->notifications !== null) {
+            $this->notifications->setAvailabilityTracker(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($notifications !== null && $notifications->getAvailabilityTracker() !== $this) {
+            $notifications->setAvailabilityTracker($this);
+        }
+
+        $this->notifications = $notifications;
 
         return $this;
     }

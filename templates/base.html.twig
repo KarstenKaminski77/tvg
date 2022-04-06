@@ -958,6 +958,20 @@
                     {# End Shopping Lists #}
 
                     {# Tracking #}
+                    $('#notifications_panel').hide();
+                    function getNotifications(){
+                        $.ajax({
+                            url:"{{ path('get_notifications') }}",
+                            type: 'POST',
+                            cache:false,
+                            timeout:10000,
+                            dataType: 'json',
+                            success: function(response) {
+
+                                $('#notifications_panel').empty().append(response);
+                            }
+                        });
+                    };
                     $(document).on('click', '.btn_track', function(){
 
                         product_id = $(this).data('product-id');
@@ -1086,6 +1100,42 @@
                                 $('.modal-backdrop').removeClass('modal-backdrop');
                                 $('#availability_trackers').empty().append(response.html);
                                 getFlash(response.flash);
+                            }
+                        });
+                    });
+                    $(document).on('click', '.btn-notifications', function (e){
+
+                        e.preventDefault();
+                        getNotifications();
+
+                        if($('#notifications_panel:visible').length == 0) {
+
+                            $('#notifications_panel').show();
+
+                        } else {
+
+                            $('#notifications_panel').hide();
+                        }
+                    });
+                    $(document).on('click', '.delete-notification', function (e){
+
+                        e.preventDefault();
+
+                        let notification_id = $(this).data('notification-id');
+
+                        $.ajax({
+                            url: "{{ path('delete_notifications') }}",
+                            type: 'POST',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: {
+                                notification_id: notification_id
+                            },
+                            success: function (response) {
+
+                                getFlash(response.flash);
+                                getNotifications();
                             }
                         });
                     });
