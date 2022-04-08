@@ -153,6 +153,11 @@ class Products
      */
     private $clinicProducts;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductFavourites::class, mappedBy="product")
+     */
+    private $productFavourites;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -169,6 +174,8 @@ class Products
         $this->listItems = new ArrayCollection();
         $this->basketItems = new ArrayCollection();
         $this->clinicProducts = new ArrayCollection();
+        $this->productfavourites = new ArrayCollection();
+        $this->productFavourites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -629,6 +636,36 @@ class Products
             // set the owning side to null (unless already changed)
             if ($clinicProduct->getProduct() === $this) {
                 $clinicProduct->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductFavourites>
+     */
+    public function getProductFavourites(): Collection
+    {
+        return $this->productFavourites;
+    }
+
+    public function addProductFavourite(ProductFavourites $productFavourite): self
+    {
+        if (!$this->productFavourites->contains($productFavourite)) {
+            $this->productFavourites[] = $productFavourite;
+            $productFavourite->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductFavourite(ProductFavourites $productFavourite): self
+    {
+        if ($this->productFavourites->removeElement($productFavourite)) {
+            // set the owning side to null (unless already changed)
+            if ($productFavourite->getProduct() === $this) {
+                $productFavourite->setProduct(null);
             }
         }
 
