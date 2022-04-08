@@ -41,6 +41,8 @@ class ProductsCrudController extends AbstractCrudController
         return [
             IntegerField::new('id', '#ID')->onlyOnIndex(),
             BooleanField::new('isPublished', 'Published')->setColumns(12),
+            AssociationField::new('productManufacturers', 'Manufacturer')
+                ->setColumns(6)->setRequired(true)->onlyOnForms(),
             TextField::new('name', 'Name')->setColumns(6),
             AssociationField::new('productsSpecies', 'Species')
                 ->setColumns(6)->setRequired(true)->onlyOnForms(),
@@ -48,6 +50,7 @@ class ProductsCrudController extends AbstractCrudController
                 ->setRequired(true)->setColumns(6),
             AssociationField::new('subCategory', 'Sub Category')
                 ->setRequired(true)->setColumns(6),
+            TextField::new('sku', 'Serial Number    ')->setColumns(6),
             TextField::new('activeIngredient', 'Active Ingredient')
                 ->onlyOnForms()->setColumns(6),
             TextField::new('dosage', 'Dosage')

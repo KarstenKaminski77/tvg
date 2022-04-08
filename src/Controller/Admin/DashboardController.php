@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Manufacturers;
 use App\Entity\User;
 use App\Entity\Categories;
 use App\Entity\Clinics;
@@ -46,6 +47,8 @@ class DashboardController extends AbstractDashboardController
             ->setPermission('ROLE_CLINIC');
         yield MenuItem::linkToCrud('Communication Methods', 'fas fa-broadcast-tower', CommunicationMethods::class)
             ->setPermission('ROLE_COMMUNICATION_METHOD');
+        yield MenuItem::linkToCrud('Manufacturers', 'fa fa-industry', Manufacturers::class)
+            ->setPermission('ROLE_PRODUCT');
         yield MenuItem::linkToCrud('Products', 'fab fa-product-hunt', Products::class)
             ->setPermission('ROLE_PRODUCT');
         yield MenuItem::linkToCrud('Species', 'fas fa-paw', Species::class)

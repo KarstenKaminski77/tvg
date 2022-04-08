@@ -81,6 +81,7 @@ class ProductsController extends AbstractController
                     'product' => $product->getId(),
                     'clinic' => $this->getUser()->getClinic()->getId()
                 ]);
+                $product_manufaturers = $product->
 
                 $note = '';
                 $class = '';
