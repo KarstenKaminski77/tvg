@@ -75,10 +75,35 @@ class ProductsController extends AbstractController
             foreach($results->getQuery()->getResult() as $product){
 
                 $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
-                $baskets = $this->em->getRepository(Baskets::class)->findBy(['clinic' => $user->getClinic()->getId()]);
+                $count_reviews = $product->getProductReviews()->count();
+                $count_notes = $product->getProductNotes()->count();
 
                 $note = '';
                 $class = '';
+                $review_count = '';
+                $note_count = '';
+
+                if($count_reviews > 0){
+
+                    $review_count = '
+                    <span 
+                        class="position-absolute text-opacity-25 start-100 translate-middle badge border rounded-circle bg-primary"
+                        style="z-index: 999"
+                    >
+                        '. $count_reviews .'
+                    </span>';
+                }
+
+                if($count_notes > 0){
+
+                    $note_count = '
+                    <span 
+                        class="position-absolute text-opacity-25 start-100 translate-middle badge border rounded-circle bg-primary"
+                        style="z-index: 999"
+                    >
+                        '. $count_notes .'
+                    </span>';
+                }
 
                 if($product_notes == null){
 
@@ -98,77 +123,108 @@ class ProductsController extends AbstractController
                 $response .= '<div class="row mb-4 prd-container p-0 ms-1 ms-sm-0 me-1 me-sm-0">';
 
                 $response .= '
-                                <div class="alert-warning p-2 '. $class .'" id="product_notes_label_'. $product->getId() .'">'. $note .'</div>
-                                <!-- Product main container -->
-                                <div class="col-12 col-sm-9 ps-3 text-center text-sm-start">
-                                    <div class="row">
-                                        <!-- Thumbnail -->
-                                        <div class="col-12 col-sm-2 pt-3 text-center">
-                                            <img src="/images/products/'. $product->getImage() .'" class="img-fluid prd-img">
-                                        </div>
-                                        <!-- Description -->
-                                        <div class="col-12 col-sm-10 pt-3 pb-3">
-                                           <h4>'. $product->getName() .': '. $product->getDosage() . $product->getUnit() .', '. $product->getSize() .' Count</h4>
-                                           <p>From $'. number_format($product->getUnitPrice() / $product->getSize(), 2) .' / '. strtolower($product->getForm()) .'</p>
-                                            <!-- Product rating -->
-                                            <div id="parent_'. $product->getId() .'" class="mb-3 mt-2 d-inline-block">
-                                                <i class="star star-under fa fa-star">
-                                                    <i class="star star-over fa fa-star"></i>
-                                                </i>
-                                                <i class="star star-under fa fa-star">
-                                                    <i class="star star-over fa fa-star"></i>
-                                                </i>
-                                                <i class="star star-under fa fa-star">
-                                                    <i class="star star-over fa fa-star"></i>
-                                                </i>
-                                                <i class="star star-under fa fa-star">
-                                                    <i class="star star-over fa fa-star"></i>
-                                                </i>
-                                                <i class="star star-under fa fa-star">
-                                                    <i class="star star-over fa fa-star"></i>
-                                                </i>
-                                            </div>
-                                            '. $this->forward('App\Controller\ProductReviewsController::getReviewsOnLoadAction', [
-                                                'product_id' => $product->getId()
-                                            ])->getContent() .'
-                                        </div>
-        
-                                        <!-- Collapsable panel buttons -->
-                                        <div class="col-12 search-panels-header">
-                                            <!-- Description -->
-                                            <button class="btn btn-sm btn-light info ps-0 pe-4 pe-sm-0 btn_details" type="button" data-product-id="'. $product->getId() .'">
-                                                <i class="fa-regular fa-circle-question"></i> <span class="d-none d-sm-inline">Details</span>
-                                            </button>
-                                            <!-- Shopping lists -->
-                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_lists" type="button" data-product-id="'. $product->getId() .'">
-                                                <i class="fa-solid fa-list"></i> <span class="d-none d-sm-inline">Lists</span>
-                                            </button>
-                                            <!-- Tracking -->
-                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_track" type="button" data-product-id="'. $product->getId() .'">
-                                                <i class="fa-regular fa-eye"></i> <span class="d-none d-sm-inline">Track</span>
-                                            </button>
-                                            <!-- Notes -->
-                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_notes" type="button" data-product-id="'. $product->getId() .'">
-                                                <i class="fa-solid fa-pencil"></i> <span class="d-none d-sm-inline">Notes</span>
-                                            </button>
-                                            <!-- Reviews -->
-                                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_reviews" type="button" data-product-id="'. $product->getId() .'">
-                                                <i class="fa-regular fa-star"></i> <span class="d-none d-sm-inline">Reviews</span>
-                                            </button>
-                                            <div class="d-inline-block float-end text-end">
-                                                <i class="fa-solid fa-sig"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-        
-                                <!-- Distributors -->
-                                <div class="col-12 col-sm-3 mt-0 pt-3 pe-4 search-result-distributors">';
+                <div class="alert-warning p-2 '. $class .'" id="product_notes_label_'. $product->getId() .'">'. $note .'</div>
+                <!-- Product main container -->
+                <div class="col-12 col-sm-9 ps-3 text-center text-sm-start">
+                    <div class="row">
+                        <!-- Thumbnail -->
+                        <div class="col-12 col-sm-2 pt-3 text-center position-relative">
+                            <img src="/images/products/'. $product->getImage() .'" class="img-fluid prd-img">
+                            <a href="" class="favorite icon-unchecked">
+                                <i class="fa-solid fa-heart"></i>
+                            </a>
+                        </div>
+                        <!-- Description -->
+                        <div class="col-12 col-sm-10 pt-3 pb-3">
+                           <h4>'. $product->getName() .': '. $product->getDosage() . $product->getUnit() .', '. $product->getSize() .' Count</h4>
+                           <p>From $'. number_format($product->getUnitPrice() / $product->getSize(), 2) .' / '. strtolower($product->getForm()) .'</p>
+                            <!-- Product rating -->
+                            <div id="parent_'. $product->getId() .'" class="mb-3 mt-2 d-inline-block">
+                                <i class="star star-under fa fa-star">
+                                    <i class="star star-over fa fa-star"></i>
+                                </i>
+                                <i class="star star-under fa fa-star">
+                                    <i class="star star-over fa fa-star"></i>
+                                </i>
+                                <i class="star star-under fa fa-star">
+                                    <i class="star star-over fa fa-star"></i>
+                                </i>
+                                <i class="star star-under fa fa-star">
+                                    <i class="star star-over fa fa-star"></i>
+                                </i>
+                                <i class="star star-under fa fa-star">
+                                    <i class="star star-over fa fa-star"></i>
+                                </i>
+                            </div>
+                            '. $this->forward('App\Controller\ProductReviewsController::getReviewsOnLoadAction', [
+                                'product_id' => $product->getId()
+                            ])->getContent() .'
+                        </div>
+
+                        <!-- Collapsable panel buttons -->
+                        <div class="col-12 search-panels-header">
+                            <!-- Description -->
+                            <button class="btn btn-sm btn-light info ps-0 pe-4 pe-sm-0 btn_details" type="button" data-product-id="'. $product->getId() .'">
+                                <i class="fa-regular fa-circle-question"></i> <span class="d-none d-sm-inline">Details</span>
+                            </button>
+                            <!-- Shopping lists -->
+                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_lists" type="button" data-product-id="'. $product->getId() .'">
+                                <i class="fa-solid fa-list"></i> <span class="d-none d-sm-inline">Lists</span>
+                            </button>
+                            <!-- Tracking -->
+                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_track" type="button" data-product-id="'. $product->getId() .'">
+                                <i class="fa-regular fa-eye"></i> <span class="d-none d-sm-inline">Track</span>
+                            </button>
+                            <!-- Notes -->
+                            <button 
+                                class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_notes position-relative" 
+                                type="button" 
+                                data-product-id="'. $product->getId() .'"
+                                id="btn_note_'. $product->getId() .'"
+                            >
+                                <i class="fa-solid fa-pencil"></i> <span class="d-none d-sm-inline">Notes</span>
+                                '. $note_count .'
+                            </button>
+                            <!-- Reviews -->
+                            <button 
+                                class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_reviews position-relative" 
+                                type="button" 
+                                data-product-id="'. $product->getId() .'"
+                            >
+                                <i class="fa-regular fa-star"></i> <span class="d-none d-sm-inline">Reviews</span>
+                                '. $review_count .'
+                            </button>
+                            <div class="d-inline-block float-end text-end">
+                                <i class="fa-solid fa-sig"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distributors -->
+                <div class="col-12 col-sm-3 mt-0 pt-3 pe-4 search-result-distributors">';
 
                 foreach($product->getDistributorProducts() as $distributor) {
                     $product_id = $product->getId();
                     $distributor_id = $distributor->getDistributor()->getId();
-                    $response .= '<a href=""
+
+                    $stock_icon = 'in-stock';
+                    $disabled = '';
+                    $stock_copy = '<span class="is_available">In Stock</span> This item is in stock and ready to ship';
+                    $in_stock = true;
+                    $btn_disabled = '';
+
+                    if($distributor->getStockCount() == 0){
+
+                        $stock_icon = 'out-of-stock';
+                        $disabled = 'disabled';
+                        $stock_copy = '<span class="not_available">Out Of Stock</span> This item is out of stock';
+                        $in_stock = false;
+                        $btn_disabled = 'btn-secondary disabled';
+                    }
+
+                    $response .= '
+                    <a href=""
                        class="basket_link"
                        data-product-id="' . $product->getId() . '"
                        data-distributor-id="' . $distributor_id . '"
@@ -180,7 +236,7 @@ class ProductsController extends AbstractController
                                 <img src="/images/logos/' . $distributor->getDistributor()->getLogo() . '" class="img-fluid mh-30">
                             </div>
                             <div class="col-4 text-center">
-                                <i class="fas fa-truck-fast mh-30 stock-icon in-stock"></i>
+                                <i class="fas fa-truck-fast mh-30 stock-icon '. $stock_icon .'"></i>
                             </div>
                             <div class="col-4 text-end">
                                 <p>$' . number_format($distributor->getUnitPrice(), 2) . '</p>
@@ -214,12 +270,22 @@ class ProductsController extends AbstractController
                                                     $' . $product->getDistributorProducts()[0]->getUnitPrice() . '
                                                 </h5>
                                                 <div class="modal_availability">
-                                                    <span class="is_available">In Stock</span> This item is in stock and ready to ship
+                                                    '. $stock_copy .'
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-6">
-                                                        <input type="text" list="qty_list_' . $product_id . '_' . $distributor_id . '" name="qty" id="qty_' . $product_id . '_' . $distributor_id . '" class="form-control" value="1" />
-                                                        <datalist id="qty_list_' . $product_id . '_' . $distributor_id . '">
+                                                        <input 
+                                                            type="text" 
+                                                            list="qty_list_' . $product_id . '_' . $distributor_id . '" 
+                                                            name="qty" 
+                                                            id="qty_' . $product_id . '_' . $distributor_id . '" 
+                                                            class="form-control modal-basket-qty" 
+                                                            value="1"
+                                                            '. $disabled .'
+                                                        />
+                                                        <datalist
+                                                            id="qty_list_' . $product_id . '_' . $distributor_id . '"
+                                                        >
                                                             <option>1</option>
                                                             <option>2</option>
                                                             <option>3</option>
@@ -245,9 +311,17 @@ class ProductsController extends AbstractController
                                                         <div class="hidden_msg" id="error_qty_' . $product_id . '_' . $distributor_id . '">
                                                             Required Field
                                                         </div>
+                                                        <div class="hidden_msg" id="error_stock_' . $product_id . '_' . $distributor_id . '">
+                                                        </div>
                                                     </div>
                                                     <div class="col-6">
-                                                        <button type="submit" class="btn btn-primary w-100">ADD TO BASKET</button>
+                                                        <button 
+                                                            type="submit" 
+                                                            class="btn btn-primary w-100 '. $btn_disabled .'"
+                                                            '. $disabled .'
+                                                        >
+                                                            ADD TO BASKET
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -442,7 +516,7 @@ class ProductsController extends AbstractController
                             </div>
     
                             <!-- Reviews -->
-                            <div class="collapse" id="reviews_'. $product->getId() .'">
+                            <div class="collapse review_panel" id="reviews_'. $product->getId() .'">
                                 <h3 class="pb-3 pt-3">Reviews</h3>
                                 <h5>No reviews yet!</h5>
                                 <p id="reviews_no_data">Reviews help thousands of veterinary purchasers know about your experience

@@ -191,12 +191,19 @@
                                 dataType: 'json',
                                 data: data,
                                 success: function (response) {
-                                    $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
-                                    $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(response.message).removeClass('hidden');
-                                    $('#basket_count').empty().append('('+ response.basket_count +')');
-                                    $('#modal_add_to_basket_'+ response.product_id +'_'+ response.distributor_id).modal('toggle').modal('hide');
-                                    $('.modal-backdrop').removeClass('modal-backdrop');
-                                    $('.fade').removeClass('fade');
+
+                                    if(response.error.length == 0) {
+
+                                        getFlash(response.message)
+                                        $('#basket_count').empty().append('('+ response.basket_count +')');
+                                        $('#modal_add_to_basket_' + response.product_id + '_' + response.distributor_id).modal('toggle').modal('hide');
+                                        $('.modal-backdrop').removeClass('modal-backdrop');
+                                        $('.fade').removeClass('fade');
+
+                                    } else {
+
+                                        $('#error_stock_'+ response.product_id +'_'+ response.distributor_id).show().empty().append(response.error);
+                                    }
                                 }
                             });
                         }
@@ -260,8 +267,10 @@
                             }
                         });
                     }
-                    $(document).on('click', '.basket-qty', function (){
+                    let basket_qty = '';
+                    $(document).on('click', '.basket-qty, .modal-basket-qty', function (){
 
+                        basket_qty = $(this).val();
                         $(this).val('');
                     });
                     $(document).on('change', '.basket-qty', function (){
@@ -285,14 +294,33 @@
                                     $("div.overlay").addClass("show");
                                 },
                                 success: function (response) {
-                                    $('#inventory_container').fadeOut(900);
 
-                                    let basket_id = response.basket_id;
+                                    if(response.error.length == 0) {
 
-                                    getBasket(basket_id);
+                                        $('#inventory_container').fadeOut(900);
+
+                                        let basket_id = response.basket_id;
+
+                                        getBasket(basket_id);
+
+                                    } else {
+
+                                        $("div.spanner").removeClass("show");
+                                        $("div.overlay").removeClass("show");
+                                        $('#stock_count_error_'+ response.item_id).show().empty().append(response.error);
+                                    }
                                 }
                             });
                         }
+                    });
+                    $(document).on('change', '.modal-basket-qty', function (){
+
+                        basket_qty = $(this).val();
+                    });
+                    $(document).on('mouseout', '.modal-basket-qty', function (){
+
+                        $(this).val(basket_qty);
+
                     });
                     $(document).on('click', '.remove-item', function (e){
 
@@ -612,7 +640,7 @@
                             });
                         }
                     });
-                    $(document).on('click', '#saved_baskets_link', function (e){
+                    $(document).on('click', '.saved_baskets_link', function (e){
 
                         e.preventDefault();
 
@@ -784,6 +812,10 @@
                     let distributor_id = 0;
 
                     {# Panels #}
+                    function getSearchPanelsHeader(){
+
+                        $('.search-panels-header').empty();
+                    }
                     {# Details #}
                     $(document).on('click', '.btn_details', function(){
 
@@ -972,6 +1004,17 @@
                             }
                         });
                     };
+                    {# Close Notifications #}
+                    $(document).on('click', 'a', function (){
+
+                        let name = $(this).attr('name');
+
+                        if(name != 'notifications'){
+
+                            $('#notifications_panel').hide();
+                        }
+
+                    });
                     $(document).on('click', '.btn_track', function(){
 
                         product_id = $(this).data('product-id');
@@ -997,7 +1040,7 @@
                                 }
                             });
 
-                            $('#search_panels_container_'+ product_id).show();
+                            $('#search_panels_container_'+ product_id).show(700);
                             $('#details_'+ product_id).hide(700);
                             $('#lists_'+ product_id).hide(700);
                             $('#track_'+ product_id).show(700);
@@ -1142,6 +1185,28 @@
                     {# End Tracking #}
 
                     {# Notes #}
+                    let note_count = 0;
+                    function getNoteCount(note_count,product_id){
+
+                        if(note_count > 0) {
+
+                            let btn_note = '';
+
+                            btn_note += '<i class="fa-solid fa-pencil"></i> <span class="d-none d-sm-inline">Notes</span>';
+                            btn_note += '<span class="position-absolute text-opacity-25 start-100 translate-middle badge border rounded-circle bg-primary" ';
+                            btn_note += 'style="z-index: 999">' + note_count + '</span>';
+
+                            $('#btn_note_' + product_id).empty().append(btn_note);
+
+                        } else {
+
+                            let btn_note = '';
+
+                            btn_note += '<i class="fa-solid fa-pencil"></i> <span class="d-none d-sm-inline">Notes</span>';
+
+                            $('#btn_note_' + product_id).empty().append(btn_note);
+                        }
+                    }
                     $(document).on('click', '.btn_notes, .note_link', function(e){
 
                         product_id = $(this).data('product-id');
@@ -1248,6 +1313,9 @@
                                         success: function (response) {
 
                                             if(response){
+
+                                                getNoteCount(response.note_count, product_id);
+
                                                 $('#product_notes_label_'+ product_id).empty().append('<i class="fa-solid fa-pen-to-square"></i> <b>Notes From '+ response.from +':</b> '+ response.note);
                                                 $('#product_notes_label_'+ product_id).removeClass('hidden_msg');
 
@@ -1313,10 +1381,16 @@
                                     success: function (response) {
 
                                         if(response){
+
+                                            getNoteCount(response.note_count, product_id);
+
                                             $('#product_notes_label_'+ product_id).empty().append('<i class="fa-solid fa-pen-to-square"></i> <b>Notes From '+ response.from +':</b> '+ response.note);
                                             $('#product_notes_label_'+ product_id).removeClass('hidden_msg');
 
                                         } else {
+
+                                            getNoteCount(0, product_id);
+
                                             $('#product_notes_label_'+ product_id).addClass('hidden_msg');
                                         }
                                     }
@@ -1690,6 +1764,8 @@
                         distributor_id = $(this).data('distributor-id');
                         product_id = $(this).data('product-id');
 
+                        $('#error_stock_'+ product_id +'_'+ distributor_id).empty();
+                        $('#qty_'+ product_id +'_'+ distributor_id).val(1);
                         $('#panel_item_facts_'+ product_id +'_'+ distributor_id).show();
                         $('#btn_item_facts_'+ product_id +'_'+ distributor_id).addClass('btn-basket-panel-active');
                         $('#panel_shipping_'+ product_id +'_'+ distributor_id).hide();

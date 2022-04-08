@@ -399,25 +399,6 @@ class ClinicsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/clinics/get-product-notes', name: 'clinic_get_product_notes')]
-    public function clinicGetProductNotes(Request $request): Response
-    {
-        $product_id = $request->request->get('product_id');
-        $clinic_id = $this->get('security.token_storage')->getToken()->getUser()->getClinic()->getId();
-        $notes = $this->em->getRepository(ProductNotes::class)->findNotes($product_id, $clinic_id);
-        $response = false;
-
-        if(!empty($notes)) {
-
-            $response = [
-                'note' => $notes[0]->getNote(),
-                'from' => $notes[0]->getClinicUser()->getFirstName() .' '. $notes[0]->getClinicUser()->getLastName(),
-            ];
-        }
-
-        return new JsonResponse($response);
-    }
-
     #[Route('/clinics/addresse-refresh', name: 'clinic_refresh_addresses')]
     public function clinicRefreshAddressesAction(Request $request): Response
     {
