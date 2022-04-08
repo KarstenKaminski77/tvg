@@ -156,6 +156,31 @@
                             }
                         });
                     });
+                    $(document).on('click', '.favourite', function (e){
+
+                        e.preventDefault();
+
+                        let product_id = $(this).data('product-id');
+
+                        $.ajax({
+                            url: "{{ path('product_favourite') }}",
+                            type: 'POST',
+                            data: {
+                                product_id: product_id
+                            },
+                            success: function (response) {
+
+                                if(response == true){
+
+                                    $('#favourite_'+ product_id).removeClass('icon-unchecked').addClass('text-secondary');
+
+                                } else {
+
+                                    $('#favourite_'+ product_id).removeClass('text-secondary').addClass('icon-unchecked');
+                                }
+                            }
+                        });
+                    });
                     {# End Inventory Search #}
 
                     {# Basket #}

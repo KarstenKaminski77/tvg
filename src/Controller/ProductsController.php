@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\Baskets;
 use App\Entity\ClinicUsers;
 use App\Entity\ListItems;
+use App\Entity\ProductFavourites;
 use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Services\PaginationManager;
@@ -77,6 +77,10 @@ class ProductsController extends AbstractController
                 $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
                 $count_reviews = $product->getProductReviews()->count();
                 $count_notes = $product->getProductNotes()->count();
+                $product_favourite = $this->em->getRepository(ProductFavourites::class)->findOneBy([
+                    'product' => $product->getId(),
+                    'clinic' => $this->getUser()->getClinic()->getId()
+                ]);
 
                 $note = '';
                 $class = '';
@@ -105,6 +109,15 @@ class ProductsController extends AbstractController
                     </span>';
                 }
 
+                if($product_favourite == null){
+
+                    $favourite_icon = 'icon-unchecked';
+
+                } else {
+
+                    $favourite_icon = 'text-secondary';
+                }
+
                 if($product_notes == null){
 
                     $class = 'hidden_msg';
@@ -130,7 +143,12 @@ class ProductsController extends AbstractController
                         <!-- Thumbnail -->
                         <div class="col-12 col-sm-2 pt-3 text-center position-relative">
                             <img src="/images/products/'. $product->getImage() .'" class="img-fluid prd-img">
-                            <a href="" class="favorite icon-unchecked">
+                            <a 
+                                href="" 
+                                class="favourite '. $favourite_icon .'"
+                                data-product-id="'. $product->getId() .'"
+                                id="favourite_'. $product->getId() .'"
+                            >
                                 <i class="fa-solid fa-heart"></i>
                             </a>
                         </div>
@@ -754,6 +772,42 @@ class ProductsController extends AbstractController
 
             $response = 'Please use the search bar above';
         }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('clinics/product-favourite', name: 'product_favourite')]
+    public function productfavourite(Request $request): Response
+    {
+        $data = $request->request;
+        $clinic = $this->getUser()->getClinic();
+        $product_id = $data->get('product_id');
+        $product = $this->em->getRepository(Products::class)->find($product_id);
+
+        $product_favourite = $this->em->getRepository(ProductFavourites::class)->findOneBy([
+            'product' => $product_id,
+            'clinic' => $clinic->getId()
+        ]);
+
+        if($product_favourite == null){
+
+            $product_favourite = new ProductFavourites();
+
+            $product_favourite->setClinic($clinic);
+            $product_favourite->setProduct($product);
+
+            $this->em->persist($product_favourite);
+
+            $response = true;
+
+        } else {
+
+            $this->em->remove($product_favourite);
+
+            $response = false;
+        }
+
+        $this->em->flush();
 
         return new JsonResponse($response);
     }
