@@ -126,6 +126,13 @@ select:-webkit-autofill:focus {
     color: #666666;
 }
 
+.basket-item-count-empty {
+    background: #ccc;
+    border-radius: 3px;
+    color: #fff;
+    padding: 1px 3px 0 3px;
+}
+
 .bg-primary, .btn-check:focus+.btn-primary, .btn-primary:focus, .btn-primary:active, .show>.btn-primary.dropdown-toggle,
 .btn-check:active+.btn-primary, .btn-check:checked+.btn-primary, .btn-primary.active {
     background: #7796a8;
@@ -520,6 +527,10 @@ label {
     color: #96c896;
 }
 
+.out-of-stock {
+    color: #ffb4b4;
+}
+
 .modal_price {
     padding-top: 8px;
     padding-bottom: 18px;
@@ -544,6 +555,15 @@ label {
     display: inline-block;
     border: solid 1px #16a34a;
     color: #16a34a;
+    border-radius: 3px;
+    padding: 3px 7px;
+    margin-right: 8px;
+}
+
+.not_available {
+    display: inline-block;
+    border: solid 1px #ff4545;
+    color: #ff4545;
     border-radius: 3px;
     padding: 3px 7px;
     margin-right: 8px;
@@ -613,13 +633,6 @@ a.page-link {
     width: calc(100% - 30px);
     padding: 0 15px;
     display: table-cell;
-}
-
-.basket-item-count-empty {
-    background: #ccc;
-    border-radius: 3px;
-    color: #fff;
-    padding: 1px 3px 0 3px;
 }
 
 .saved-baskets {
@@ -825,6 +838,16 @@ a.page-link {
     width: max-content;
     border: 1px solid rgba(0,0,0,.15);
     border-radius: 0.25rem;
+}
+
+.favorite {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.icon-unchecked {
+    color: #ccc;
 }
 
 @media (min-width: 576px) {
