@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ClinicUsers;
 use App\Entity\ListItems;
+use App\Entity\OrderItems;
 use App\Entity\ProductFavourites;
 use App\Entity\ProductNotes;
 use App\Entity\Products;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProductsController extends AbstractController
 {
-    const ITEMS_PER_PAGE = 1;
+    const ITEMS_PER_PAGE = 10;
     private $page_manager;
     private $em;
 
@@ -77,11 +78,23 @@ class ProductsController extends AbstractController
                 $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
                 $count_reviews = $product->getProductReviews()->count();
                 $count_notes = $product->getProductNotes()->count();
+                $count_clinics_bought = $this->em->getRepository(OrderItems::class)->findBy([
+                    'product' => $product->getId()
+                ]);
                 $product_favourite = $this->em->getRepository(ProductFavourites::class)->findOneBy([
                     'product' => $product->getId(),
                     'clinic' => $this->getUser()->getClinic()->getId()
                 ]);
-                $product_manufaturers = $product->
+                $product_manufacturers = $product->getProductManufacturers();
+
+                if(count($product_manufacturers) == 1){
+
+                    $manufacturer = $product_manufacturers[0]->getManufacturers()->getName();
+
+                } else {
+
+                    $manufacturer = 'Multiple Manufacturers';
+                }
 
                 $note = '';
                 $class = '';
@@ -134,6 +147,27 @@ class ProductsController extends AbstractController
                     $note = '<i class="fa-solid fa-pen-to-square"></i> <b>Notes From '. $first_name .' '. $last_name .':</b> '. $note_string;
                 }
 
+                $per = strtolower($product->getForm());
+                $name = $product->getName() .': ';
+                $dosage = $product->getDosage() . $product->getUnit() .', '. $product->getSize() .' Count';
+                $price = number_format($product->getUnitPrice() / $product->getSize(), 3);
+                $pieces = explode('.', $price);
+
+                if(substr($pieces[1], 2,1) == 0){
+
+                    $pieces[1] = substr($pieces[1],0,2);
+                }
+
+                $price = $pieces[0] .'.'. $pieces[1];
+
+                if($product->getForm() == 'Each'){
+
+                    $per = strtolower($product->getUnit());
+                    $dosage = $product->getSize() . $product->getUnit();
+                }
+
+                $from = '</span>From $'. $price .' / '. $per;
+
                 $response .= '<div class="row mb-4 prd-container p-0 ms-1 ms-sm-0 me-1 me-sm-0">';
 
                 $response .= '
@@ -155,8 +189,8 @@ class ProductsController extends AbstractController
                         </div>
                         <!-- Description -->
                         <div class="col-12 col-sm-10 pt-3 pb-3">
-                           <h4>'. $product->getName() .': '. $product->getDosage() . $product->getUnit() .', '. $product->getSize() .' Count</h4>
-                           <p>From $'. number_format($product->getUnitPrice() / $product->getSize(), 2) .' / '. strtolower($product->getForm()) .'</p>
+                           <h4>'. $name . $dosage .'</h4>
+                           <p><span class="pe-2">'. $manufacturer . $from .'</p>
                             <!-- Product rating -->
                             <div id="parent_'. $product->getId() .'" class="mb-3 mt-2 d-inline-block">
                                 <i class="star star-under fa fa-star">
@@ -213,8 +247,17 @@ class ProductsController extends AbstractController
                                 <i class="fa-regular fa-star"></i> <span class="d-none d-sm-inline">Reviews</span>
                                 '. $review_count .'
                             </button>
-                            <div class="d-inline-block float-end text-end">
-                                <i class="fa-solid fa-sig"></i>
+                            <div class="d-inline-block float-end text-end text-secondary">
+                                <span 
+                                    data-bs-trigger="hover"
+                                    data-bs-container="body" 
+                                    data-bs-toggle="popover" 
+                                    data-bs-placement="top" 
+                                    data-bs-html="true"
+                                    data-bs-content="<b>'. count($count_clinics_bought) .'</b> clinics have recently purchased this item"
+                                >
+                                    <i class="fa-solid fa-chart-column text-secondary me-2"></i>'. count($count_clinics_bought) .'
+                                </span>
                             </div>
                         </div>
                     </div>

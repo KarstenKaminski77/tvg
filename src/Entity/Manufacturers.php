@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ManufacturersRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -40,12 +41,18 @@ class Manufacturers
      */
     private $created;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductManufacturers::class, mappedBy="manufacturers")
+     */
+    private $productManufacturers;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
         if ($this->getModified() == null) {
             $this->setModified(new \DateTime());
         }
+        $this->productManufacturers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -119,5 +126,35 @@ class Manufacturers
     public function __toString(){
 
         return $this->getName();
+    }
+
+    /**
+     * @return Collection<int, ProductManufacturers>
+     */
+    public function getProductManufacturers(): Collection
+    {
+        return $this->productManufacturers;
+    }
+
+    public function addProductManufacturer(ProductManufacturers $productManufacturer): self
+    {
+        if (!$this->productManufacturers->contains($productManufacturer)) {
+            $this->productManufacturers[] = $productManufacturer;
+            $productManufacturer->setManufacturers($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductManufacturer(ProductManufacturers $productManufacturer): self
+    {
+        if ($this->productManufacturers->removeElement($productManufacturer)) {
+            // set the owning side to null (unless already changed)
+            if ($productManufacturer->getManufacturers() === $this) {
+                $productManufacturer->setManufacturers(null);
+            }
+        }
+
+        return $this;
     }
 }
