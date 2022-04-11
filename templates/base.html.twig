@@ -69,6 +69,10 @@
 
                 $(window).on('load', function(){
 
+                    history.pushState(null, null, window.location.href);
+                    history.back();
+                    window.onpopstate = () => history.forward();
+
                    if($.session.get('search_key') != '' || $.session.get('search_key') != 'udefined'){
 
                         let page_no = 1;
@@ -146,7 +150,7 @@
                                 page_id: page_id,
                             },
                             success: function (response) {
-                                $('#inventory').empty().append(response);
+                                $('#inventory').empty().append(response).show();
                                 $('.container').removeClass('mt-5').addClass('mt-5');
                                 $('#basket_container').empty().hide();
                                 $('#inventory_container').show();
@@ -182,6 +186,26 @@
                             }
                         });
                     });
+                    $(document).on('click','.back-to-search', function (e){
+
+                        e.preventDefault();
+
+                        $('.review_panel').hide();
+                        $('.search-panels-container').hide();
+                        $('#basket_container').empty().hide();
+                        $('#back_btn').addClass('d-none').removeClass('d-flex');
+                        $('#inventory').show();
+                        $('#inventory_container').show();
+                    });
+                    function getBackButton(){
+
+                        let button = '<div class="col-12">';
+                        button += '<button class="btn btn-sm btn-primary back-to-search mb-3 w-sm-100 w-auto">';
+                        button += '<i class="fa-solid fa-circle-chevron-left me-3"></i>Back To Search</button>';
+                        button += '</div>';
+
+                        $('#back_btn').empty().append(button).removeClass('d-none').addClass('d-flex');
+                    }
                     {# End Inventory Search #}
 
                     {# Basket #}
@@ -1551,7 +1575,7 @@
                                 dataType: 'json',
                                 success: function (response) {
                                     if(response != false) {
-                                        $('#reviews_'+ product_id).empty().append(response);
+                                        $('#reviews_'+ product_id).empty().append(response.response);
                                     }
                                 }
                             });
@@ -1717,12 +1741,14 @@
 
                             $('#comment_icon_'+ review_id).removeClass('text-secondary');
                             $('#comment_span_'+ review_id).removeClass('text-secondary');
+                            $('.review-comments-row').removeClass('mb-3');
                             $('#comment_container_'+ review_id).hide(700);
 
                         } else {
 
                             $('#comment_icon_'+ review_id).addClass('text-secondary');
                             $('#comment_span_'+ review_id).addClass('text-secondary');
+                            $('.review-comments-row').addClass('mb-3');
                             $('#comment_container_'+ review_id).show(700);
                         }
                     });
@@ -1776,6 +1802,33 @@
                                 }
                             });
                         }
+                    });
+                    $(document).on('click', '.btn-view-all-reviews', function (e){
+
+                        e.preventDefault();
+
+                        let product_id = $(this).data('product-id');
+
+                        $.ajax({
+                            url: '/clinics/get-review-details/'+ product_id,
+                            type: 'POST',
+                            data: {
+                                product_id: product_id
+                            },
+                            success: function (response) {
+
+                                let button = '<button class="btn btn-sm btn-primary position-absolute back-to-search">';
+                                button += '<i class="fa-solid fa-circle-chevron-left me-3"></i>Back To Search</button>';
+
+                                getBackButton();
+                                $('#inventory').hide();
+                                $('#inventory_container').hide();
+                                $('.review_panel').empty();
+                                $('#basket_container').empty().append(response.response).addClass('bg-light').show();
+                                $('.recent-reviews').empty().append('Showing All Reviews For '+ response.product_name);
+                                $('.btn-view-all-reviews').hide();
+                            }
+                        });
                     });
                     {# End Reviews #}
 
@@ -1892,9 +1945,12 @@
                             timeout: 600000,
                             dataType: 'json',
                             success: function (response) {
-                                $('#inventory_container').show();
-                                $('#inventory').empty().append(response);
-                                $('#basket_container').hide();
+
+                                getBackButton();
+                                $('#inventory_container').hide();
+                                $('#inventory').hide();
+                                $('#main_container')
+                                $('#basket_container').empty().append(response).show();
                                 window.history.pushState({"html":search,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
                                 document.title = 'Fluid Dashboard';
                             }
@@ -1973,9 +2029,11 @@
                             timeout: 600000,
                             dataType: 'json',
                             success: function (response) {
-                                $('#inventory').empty().append(response);
-                                $('#inventory_container').show();
-                                $('#basket_container').hide();
+
+                                getBackButton();
+                                $('#inventory').hide();
+                                $('#inventory_container').hide();
+                                $('#basket_container').empty().append(response).show();
                                 window.history.pushState({"html":search,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
                                 document.title = 'Fluid Dashboard';
                             }
@@ -2174,9 +2232,11 @@
                             timeout: 600000,
                             dataType: 'json',
                             success: function (response) {
-                                $('#inventory').empty().append(response);
-                                $('#inventory_container').show();
-                                $('#basket_container').hide();
+
+                                getBackButton();
+                                $('#inventory').hide();
+                                $('#inventory_container').hide();
+                                $('#basket_container').empty().append(response).show();
                                 window.history.pushState({"html":page,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
                                 document.title = 'Fluid Dashboard';
                             }
@@ -2371,9 +2431,11 @@
                             timeout: 600000,
                             dataType: 'json',
                             success: function (response) {
-                                $('#inventory').empty().append(response);
-                                $('#inventory_container').show();
-                                $('#basket_container').hide();
+
+                                getBackButton();
+                                $('#inventory').hide();
+                                $('#inventory_container').hide();
+                                $('#basket_container').empty().append(response).show();
                                 window.history.pushState({"html":page,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
                                 document.title = 'Fluid Dashboard';
                             }

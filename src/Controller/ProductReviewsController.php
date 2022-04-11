@@ -83,19 +83,28 @@ class ProductReviewsController extends AbstractController
     #[Route('clinics/get-review-details/{product_id}', name: 'get_review_details')]
     public function getReviewDetailsAction(Request $request): Response
     {
-        $product_id = $request->get('product_id');
+        if($request->request->get('product_id') == null) {
+
+            $product_id = $request->get('product_id');
+            $limit = 3;
+
+        } else {
+
+            $product_id = $request->get('product_id');
+            $limit = 100;
+        }
         $product_review = $this->em->getRepository(ProductReviews::class)->findBy([
             'product' => $product_id,
             'clinicUser' => $this->getUser()->getId()
         ]);
         $product = $this->em->getRepository(Products::class)->find($product_id);
-        $reviews = $this->em->getRepository(ProductReviews::class)->findBy(['product' => $product],['id' => 'DESC'], 3);
+        $reviews = $this->em->getRepository(ProductReviews::class)->findBy(['product' => $product],['id' => 'DESC'], $limit);
         $rating_1 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),1);
         $rating_2 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),2);
         $rating_3 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),3);
         $rating_4 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),4);
         $rating_5 = $this->em->getRepository(ProductReviews::class)->getProductRating($product->getId(),5);
-        $response = '<h3 class="pb-3 pt-3">Reviews</h3><h5 class="pb-4">Showing the 3 most recent reviews</h5>';
+        $response = '<h3 class="pb-3 pt-3">Reviews</h3><h5 class="pb-4 recent-reviews">Showing the 3 most recent reviews</h5>';
         $write_review = '';
 
         if($product_review != null){
@@ -311,7 +320,7 @@ class ProductReviewsController extends AbstractController
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-12 review-comments-row">
                             <button 
                                 class="btn btn-sm btn-light review-like me-3 '. $like_icon .'" 
                                 id="like_'. $review->getId() .'" 
@@ -329,8 +338,14 @@ class ProductReviewsController extends AbstractController
                                      id="comment_icon_'. $review->getId() .'"
                                 ></i> 
                                 <span class="list-icon-unchecked" id="comment_span_'. $review->getId() .'">
-                                    Comments '. $comment_count .'
+                                    <span class="d-none d-sm-inline">Comments </span>'. $comment_count .'
                                 </span>
+                            </button>
+                            <button 
+                                class="btn btn-sm btn-light float-end info btn-view-all-reviews"
+                                data-product-id="'. $product_id .'"
+                            >
+                                View All Reviews
                             </button>
                         </div>
                     </div>
@@ -394,7 +409,21 @@ class ProductReviewsController extends AbstractController
             $response = false;
         }
 
-        return new JsonResponse($response);
+        if($product->getForm() == 'Each'){
+
+            $dosage = $product->getSize() . $product->getUnit();
+
+        } else {
+
+            $dosage = $product->getDosage() . $product->getUnit();
+        }
+
+        $json = [
+            'response' => $response,
+            'product_name' => $product->getName() .' '. $dosage,
+        ];
+
+        return new JsonResponse($json);
     }
 
     #[Route('clinics/like-review', name: 'like_review')]

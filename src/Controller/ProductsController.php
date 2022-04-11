@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProductsController extends AbstractController
 {
-    const ITEMS_PER_PAGE = 10;
+    const ITEMS_PER_PAGE = 2;
     private $page_manager;
     private $em;
 
