@@ -310,7 +310,7 @@ class ProductReviewsController extends AbstractController
                             <p>' . $review->getReview() . '</p>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    <div class="row">
                         <div class="col-12">
                             <button 
                                 class="btn btn-sm btn-light review-like me-3 '. $like_icon .'" 

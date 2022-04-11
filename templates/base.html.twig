@@ -153,6 +153,7 @@
                                 document.title = 'Fluid';
                                 window.history.pushState({"html":response.html,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/inventory');
                                 $.session.set('search_key', keyword);
+                                popOver();
                             }
                         });
                     });

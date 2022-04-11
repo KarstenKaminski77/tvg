@@ -34,6 +34,12 @@ class Products
     protected $productsSpecies;
 
     /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Manufacturers", inversedBy="product", cascade={"remove"})
+     * @ORM\JoinTable(name="product_manufacturers")
+     */
+    protected $productManufacturer;
+
+    /**
      * @ORM\ManyToOne(targetEntity=Categories::class, inversedBy="products")
      */
     private $category;
@@ -69,12 +75,12 @@ class Products
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $dosage;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $size;
 
@@ -158,6 +164,16 @@ class Products
      */
     private $productFavourites;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $sku;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ProductManufacturers::class, mappedBy="products")
+     */
+    private $productManufacturers;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -176,6 +192,8 @@ class Products
         $this->clinicProducts = new ArrayCollection();
         $this->productfavourites = new ArrayCollection();
         $this->productFavourites = new ArrayCollection();
+        $this->productManufacturer = new ArrayCollection();
+        $this->productManufacturers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -272,7 +290,7 @@ class Products
         return $this->dosage;
     }
 
-    public function setDosage(string $dosage): self
+    public function setDosage(?string $dosage): self
     {
         $this->dosage = $dosage;
 
@@ -284,7 +302,7 @@ class Products
         return $this->size;
     }
 
-    public function setSize(string $size): self
+    public function setSize(?string $size): self
     {
         $this->size = $size;
 
@@ -553,6 +571,33 @@ class Products
     }
 
     /**
+     * @return Collection|Manufacturers[]
+     */
+    public function getProductManufacturer(): Collection
+    {
+        return $manufacturers = $this->productManufacturer;
+    }
+
+    public function addProductManufacturer(Manufacturers $productManufacturer): self
+    {
+        if (!$this->productManufacturer->contains($productManufacturer)) {
+            $this->productManufacturer[] = $productManufacturer;
+            $productManufacturer->addProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductManufacturer(Manufacturers $productManufacturer): self
+    {
+        if ($this->productManufacturer->removeElement($productManufacturer)) {
+            $productManufacturer->removeProducts($this);
+        }
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, ListItems>
      */
     public function getListItems(): Collection
@@ -670,5 +715,25 @@ class Products
         }
 
         return $this;
+    }
+
+    public function getSku(): ?string
+    {
+        return $this->sku;
+    }
+
+    public function setSku(?string $sku): self
+    {
+        $this->sku = $sku;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductManufacturers>
+     */
+    public function getProductManufacturers(): Collection
+    {
+        return $this->productManufacturers;
     }
 }
