@@ -252,7 +252,7 @@ class ClinicsController extends AbstractController
         $clinic = $this->getUser()->getClinic();
 
         $response = '
-        <div class="row" id="account_settings">
+        <div class="row position-relative p-3" id="account_settings">
             <div class="col-12 mb-3">
                 <h3>Account & Settings</h3>
             </div>
