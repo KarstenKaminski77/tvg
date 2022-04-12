@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ClinicUsers;
 use App\Entity\ListItems;
+use App\Entity\Lists;
 use App\Entity\OrderItems;
 use App\Entity\ProductFavourites;
 use App\Entity\ProductNotes;
@@ -827,6 +828,48 @@ class ProductsController extends AbstractController
         $clinic = $this->getUser()->getClinic();
         $product_id = $data->get('product_id');
         $product = $this->em->getRepository(Products::class)->find($product_id);
+        $list = $this->em->getRepository(Lists::class)->findOneBy([
+            'clinic' => $this->getUser()->getClinic(),
+            'listType' => 'favourite',
+        ]);
+
+        // Create favourite shopping list
+        if($list == null){
+
+            $list = new Lists();
+
+            $list->setClinic($clinic);
+            $list->setName('Favourite Items');
+            $list->setListType('favourite');
+            $list->setIsProtected(1);
+            $list->setItemCount(0);
+
+            $this->em->persist($list);
+            $this->em->flush();
+        }
+
+        // List items
+        $list_item = $this->em->getRepository(ListItems::class)->findOneBy([
+            'product' => $product,
+            'list' => $list->getId(),
+        ]);
+
+        if($list_item == null){
+
+            $list_item = new ListItems();
+
+            $list_item->setProduct($product);
+            $list_item->setList($list);
+            $list_item->setName($product->getName());
+
+            $this->em->persist($list_item);
+
+        } else {
+
+            $this->em->remove($list_item);
+        }
+
+        $this->em->flush();
 
         $product_favourite = $this->em->getRepository(ProductFavourites::class)->findOneBy([
             'product' => $product_id,
