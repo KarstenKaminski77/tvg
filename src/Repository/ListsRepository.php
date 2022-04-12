@@ -25,7 +25,9 @@ class ListsRepository extends ServiceEntityRepository
             ->select('l,li')
             ->leftJoin('l.listItems', 'li')
             ->andWhere('l.clinic = :clinic_id')
-            ->setParameter('clinic_id', $clinic_id);
+            ->setParameter('clinic_id', $clinic_id)
+            ->andWhere('l.listType != :list_type')
+            ->setParameter('list_type', 'favourite');
         return $queryBuilder->getQuery()->getResult();
     }
 

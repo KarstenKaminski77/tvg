@@ -272,7 +272,7 @@
                             success: function (response) {
                                 $('#inventory_container').hide();
                                 $('#basket_container').empty().append(response).fadeIn(500);
-                                $("#basket_container").css({ overflow:"auto" });
+                                $("#basket_container").css({ overflow:"auto" }).addClass('col-container');
                                 $('#saved_items_container').hide();
                                 $("div.spanner").removeClass("show");
                                 $("div.overlay").removeClass("show");
@@ -920,6 +920,7 @@
                                 success: function (response) {
                                     $('#lists_'+ product_id).empty();
                                     $('#lists_'+ product_id).append(response);
+                                    $('#inventory_container').css(overflow, "auto")
 
                                 }
                             });
@@ -1036,6 +1037,62 @@
                                 }
                             });
                         }
+                    });
+                    $(document).on('click', ".manage-lists", function (e){
+
+                        e.preventDefault();
+
+                        $.ajax({
+                            url: "{{ path('manage_lists') }}",
+                            type: 'POST',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: {
+                                list_id: 0,
+                            },
+                            success: function (response) {
+
+                                $('#inventory').hide();
+                                $('#inventory_container').hide();
+                                $('#basket_container').empty().addClass('col-container').append(response.response).show();
+                            }
+                        });
+                    });
+                    $(document).on('click', ".delete-list", function (e){
+
+                        e.preventDefault();
+
+                        let list_id = $(this).data('list-id');
+                        $('#delete_list').attr('data-list-id', list_id);
+                    });
+                    $(document).on('click', "#delete_list", function (e){
+
+                        e.preventDefault();
+
+                        let list_id = $(this).data('list-id');
+
+                        $.ajax({
+                            url: "{{ path('manage_lists') }}",
+                            type: 'POST',
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            data: {
+                                list_id: list_id,
+                            },
+                            success: function (response) {
+
+                                $('#modal_user_delete').modal('toggle');
+                                $('#modal_user_delete').modal('hide');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('#modal_user_delete').addClass('fade');
+                                getFlash(response.flash);
+                                $('#inventory').hide();
+                                $('#inventory_container').hide();
+                                $('#basket_container').empty().addClass('col-container').append(response.response).show();
+                            }
+                        });
                     });
                     {# End Shopping Lists #}
 
@@ -1950,7 +2007,7 @@
                                 $('#inventory_container').hide();
                                 $('#inventory').hide();
                                 $('#main_container')
-                                $('#basket_container').empty().append(response).show();
+                                $('#basket_container').empty().removeClass('col-container').append(response).show();
                                 window.history.pushState({"html":search,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
                                 document.title = 'Fluid Dashboard';
                             }
@@ -2033,7 +2090,7 @@
                                 getBackButton();
                                 $('#inventory').hide();
                                 $('#inventory_container').hide();
-                                $('#basket_container').empty().append(response).show();
+                                $('#basket_container').empty().removeClass('col-container').append(response).show();
                                 window.history.pushState({"html":search,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
                                 document.title = 'Fluid Dashboard';
                             }
@@ -2236,7 +2293,7 @@
                                 getBackButton();
                                 $('#inventory').hide();
                                 $('#inventory_container').hide();
-                                $('#basket_container').empty().append(response).show();
+                                $('#basket_container').empty().removeClass('col-container').append(response).show();
                                 window.history.pushState({"html":page,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
                                 document.title = 'Fluid Dashboard';
                             }
@@ -2435,7 +2492,7 @@
                                 getBackButton();
                                 $('#inventory').hide();
                                 $('#inventory_container').hide();
-                                $('#basket_container').empty().append(response).show();
+                                $('#basket_container').empty().removeClass('col-container').append(response).show();
                                 window.history.pushState({"html":page,"pageTitle":'TEST'},"", 'https://127.0.0.1:8000/clinics/dashboard');
                                 document.title = 'Fluid Dashboard';
                             }

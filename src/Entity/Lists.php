@@ -54,6 +54,11 @@ class Lists
      */
     private $listItems;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isProtected;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -166,6 +171,18 @@ class Lists
                 $listItem->setList(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsProtected(): ?bool
+    {
+        return $this->isProtected;
+    }
+
+    public function setIsProtected(?bool $isProtected): self
+    {
+        $this->isProtected = $isProtected;
 
         return $this;
     }
