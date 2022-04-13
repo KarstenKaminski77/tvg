@@ -210,6 +210,7 @@ class ProductsController extends AbstractController
                 $price = number_format($product->getUnitPrice() / $product->getSize(), 3);
                 $pieces = explode('.', $price);
 
+                // Format Price
                 if(substr($pieces[1], 2,1) == 0){
 
                     $pieces[1] = substr($pieces[1],0,2);
@@ -224,6 +225,14 @@ class ProductsController extends AbstractController
                 }
 
                 $from = '</span>From $'. $price .' / '. $per;
+
+                // Manufacturer Number
+                $manufacturer_no = '';
+
+                if($product->getSku() != null){
+
+                    $manufacturer_no = ' - '. $product->getSku();
+                }
 
                 $response .= '<div class="row mb-4 prd-container p-0 ms-1 ms-sm-0 me-1 me-sm-0">';
 
@@ -247,7 +256,7 @@ class ProductsController extends AbstractController
                         <!-- Description -->
                         <div class="col-12 col-sm-10 pt-3 pb-3">
                            <h4>'. $name . $dosage .'</h4>
-                           <p><span class="pe-2">'. $manufacturer . $from .'</p>
+                           <p><span class="pe-2">'. $manufacturer . $from . $manufacturer_no .'</p>
                             <!-- Product rating -->
                             <div id="parent_'. $product->getId() .'" class="mb-3 mt-2 d-inline-block">
                                 <i class="star star-under fa fa-star">
