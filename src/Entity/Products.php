@@ -190,7 +190,6 @@ class Products
         $this->listItems = new ArrayCollection();
         $this->basketItems = new ArrayCollection();
         $this->clinicProducts = new ArrayCollection();
-        $this->productfavourites = new ArrayCollection();
         $this->productFavourites = new ArrayCollection();
         $this->productManufacturer = new ArrayCollection();
         $this->productManufacturers = new ArrayCollection();

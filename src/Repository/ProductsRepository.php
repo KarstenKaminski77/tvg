@@ -34,15 +34,56 @@ class ProductsRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findByKeyString($keywords)
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function findByKeyString($keywords, $categories, $filters, $manufacturers, $distributors, $clinic_id)
     {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));";
+        $stmt = $conn->prepare($sql);
+        $stmt->executeStatement();
+
         $queryBuilder = $this->createQueryBuilder('p')
-            ->select('p','dp','d')
-            ->Join('p.distributorProducts', 'dp')
+            ->select('p','dp','d','c','pm')
+            ->join('p.distributorProducts', 'dp')
             ->join('dp.distributor', 'd')
+            ->leftJoin('p.category', 'c')
+            ->leftJoin('p.productManufacturers', 'pm')
+            ->leftJoin('p.productFavourites', 'pf')
             ->andWhere("MATCH_AGAINST(p.name,p.activeIngredient,p.description) AGAINST(:search_term boolean) > 0")
             ->setParameter('search_term', '*'.$keywords.'*')
-            ->andWhere('p.isPublished = 1')
+            ->andWhere('p.isPublished = 1');
+
+        if($categories != null && count($categories) > 0){
+
+            $queryBuilder->andWhere("c.id IN (:categories)")
+                ->setParameter('categories', $categories);
+        }
+
+        if(count($filters) > 0){
+
+            if(in_array('favourite', $filters)){
+
+                $queryBuilder->andWhere("pf.clinic = :clinic")
+                    ->setParameter('clinic', $clinic_id);
+            }
+        }
+
+        if(count($manufacturers) > 0){
+
+            $queryBuilder->andWhere("pm.manufacturers IN (:manufacturers)")
+                ->setParameter('manufacturers', $manufacturers);
+        }
+
+        if(count($distributors) > 0){
+
+            $queryBuilder->andWhere("dp.distributor IN (:distributors)")
+                ->setParameter('distributors', $distributors);
+        }
+
+            $queryBuilder->groupBy('p.id')
             ->getQuery();
         return $queryBuilder;
     }
