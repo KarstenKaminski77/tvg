@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Categories;
 use App\Entity\ClinicUsers;
+use App\Entity\Distributors;
 use App\Entity\ListItems;
 use App\Entity\Lists;
+use App\Entity\Manufacturers;
 use App\Entity\OrderItems;
 use App\Entity\ProductFavourites;
 use App\Entity\ProductNotes;
@@ -35,10 +38,23 @@ class ProductsController extends AbstractController
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
         $response = 'Please use the search bar above....';
+        $distributors = $this->em->getRepository(Distributors::class)->findAll();
+        $manufacturers = $this->em->getRepository(Manufacturers::class)->findBy([], ['name' => 'ASC']);
+        $categories = $this->em->getRepository(Categories::class)->findAll();
+
+        $count_1 = (int) ceil(count($manufacturers) / 2);
+        $count_2 = (int) floor(count($manufacturers) / 2);
+
+        $man_first = array_slice($manufacturers, 0, $count_1);
+        $man_second = array_slice($manufacturers, $count_1, $count_2);
 
         return $this->render('frontend/inventory/inventory.html.twig',[
             'user' => $user,
             'response' => $response,
+            'categories' => $categories,
+            'distributors' => $distributors,
+            'man_1' => $man_first,
+            'man_2' => $man_second,
         ]);
     }
 
@@ -51,9 +67,49 @@ class ProductsController extends AbstractController
 
         if($request->get('keyword') != null || $request->get('list_id') != null) {
 
+            // Filters
+            $filters = [];
+
+            if($request->request->get('filter') != null){
+
+                foreach($request->request->get('filter') as $filter){
+
+                    $filters[] = $filter['value'];
+                }
+            }
+
+            // Manufacturers
+            $manufacturers = [];
+
+            if($request->request->get('manufacturer') != null){
+
+                foreach($request->request->get('manufacturer') as $manufacturer){
+
+                    $manufacturers[] = $manufacturer['value'];
+                }
+            }
+    
+            // Distributors
+            $distributors = [];
+
+            if($request->request->get('distributor') != null){
+
+                foreach($request->request->get('distributor') as $distributor){
+
+                    $distributors[] = $distributor['value'];
+                }
+            }
+
             if($request->get('keyword') != null) {
 
-                $products = $this->em->getRepository(Products::class)->findByKeystring($request->get('keyword'));
+                $products = $this->em->getRepository(Products::class)->findByKeystring(
+                    $request->get('keyword'),
+                    $request->get('category'),
+                    $filters,
+                    $manufacturers,
+                    $distributors,
+                    $this->getUser()->getClinic()
+            );
 
             } elseif($request->get('list_id') != null){
 

@@ -107,6 +107,7 @@
 
                     {# Inventory Search #}
                     let page_no = 0;
+                    let form_data = '';
 
                     $(document).on('click','.page-link',function (e){
 
@@ -139,15 +140,25 @@
 
                             list_id = $(this).data('list-id');
                         }
+                        let cat = $($('input[name="category[]"]')).serializeArray();
+                        let filter = $($('input[name="filter[]"]')).serializeArray();
+                        let manufacturer = $($('input[name="manufacturer[]"]')).serializeArray();
+                        let distributor = $($('input[name="distributor[]"]')).serializeArray();
 
+                        console.log(cat[0]);
                         $.ajax({
                             url: "{{ path('search_inventory') }}",
                             type: 'POST',
+                            dataType: 'json',
                             data: {
                                 keyword: keyword,
                                 list_id: list_id,
                                 page_no: page_no,
                                 page_id: page_id,
+                                cat: cat,
+                                filter: filter,
+                                manufacturer: manufacturer,
+                                distributor: distributor
                             },
                             success: function (response) {
                                 $('#inventory').empty().append(response).show();
@@ -196,6 +207,19 @@
                         $('#back_btn').addClass('d-none').removeClass('d-flex');
                         $('#inventory').show();
                         $('#inventory_container').show();
+                    });
+                    $(document).on('change',$('input:checkbox:checked'),function (){
+
+                        let checked = $('input:checkbox:checked').length;
+
+                        if(checked == 0){
+
+                            $('#filter_count').empty().removeClass('ms-1');
+
+                        } else {
+
+                            $('#filter_count').empty().append('('+ checked +')').addClass('ms-1');
+                        }
                     });
                     function getBackButton(){
 
@@ -270,6 +294,7 @@
                                 basket_id: basket_id
                             },
                             success: function (response) {
+                                $('#back_btn').remove();
                                 $('#inventory_container').hide();
                                 $('#basket_container').empty().append(response).fadeIn(500);
                                 $("#basket_container").css({ overflow:"auto" }).addClass('col-container');
@@ -920,7 +945,7 @@
                                 success: function (response) {
                                     $('#lists_'+ product_id).empty();
                                     $('#lists_'+ product_id).append(response);
-                                    $('#inventory_container').css(overflow, "auto")
+                                    $('#inventory_container').css({overflow:"auto"})
 
                                 }
                             });
@@ -1056,6 +1081,7 @@
                                 $('#inventory').hide();
                                 $('#inventory_container').hide();
                                 $('#basket_container').empty().addClass('col-container').append(response.response).show();
+                                getBackButton();
                             }
                         });
                     });
@@ -1091,6 +1117,7 @@
                                 $('#inventory').hide();
                                 $('#inventory_container').hide();
                                 $('#basket_container').empty().addClass('col-container').append(response.response).show();
+                                getBackButton();
                             }
                         });
                     });
@@ -1618,6 +1645,7 @@
                             $('#track_'+ product_id).hide(700);
                             $('#notes_'+ product_id).hide(700);
                             $('#reviews_'+ product_id).show(700);
+                            $('#basket_container').css({overflow:'auto'});
                             $('#btn_details_'+ product_id).removeClass('active');
                             $('#btn_lists_'+ product_id).removeClass('active');
                             $('#btn_track_'+ product_id).removeClass('active');
@@ -2473,7 +2501,7 @@
                     });
                     {# End Addresses #}
 
-                    {# Communivation Methods #}
+                    {# Communication Methods #}
                     let mobile_number = '';
                     let iti = '';
                     let input = '';
