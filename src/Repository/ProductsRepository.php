@@ -69,6 +69,12 @@ class ProductsRepository extends ServiceEntityRepository
                 $queryBuilder->andWhere("pf.clinic = :clinic")
                     ->setParameter('clinic', $clinic_id);
             }
+
+            if(in_array('in-stock', $filters)){
+
+                $queryBuilder->andWhere("dp.stockCount > :in_stock")
+                    ->setParameter('in_stock', 0);
+            }
         }
 
         if(count($manufacturers) > 0){

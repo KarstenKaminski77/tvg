@@ -294,7 +294,7 @@
                                 basket_id: basket_id
                             },
                             success: function (response) {
-                                $('#back_btn').remove();
+                                $('#back_btn').hide();
                                 $('#inventory_container').hide();
                                 $('#basket_container').empty().append(response).fadeIn(500);
                                 $("#basket_container").css({ overflow:"auto" }).addClass('col-container');
