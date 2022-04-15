@@ -3,14 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Addresses;
+use App\Entity\Baskets;
 use App\Entity\ClinicCommunicationMethods;
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
-use App\Entity\CommunicationMethods;
-use App\Entity\ListItems;
-use App\Entity\Lists;
-use App\Entity\ProductNotes;
-use App\Entity\Products;
 use App\Form\AddressesFormType;
 use App\Form\ClinicCommunicationMethodsFormType;
 use App\Form\ClinicFormType;
@@ -116,6 +112,15 @@ class ClinicsController extends AbstractController
 
                 $this->em->persist($clinic_users);
                 $this->em->flush();
+
+                // Create Default Basket
+                $basket = new Baskets();
+
+                $basket->setClinic($clinic);
+                $basket->setName('Fluid Commerce');
+                $basket->setTotal(0);
+                $basket->setStatus('active');
+                $basket->setSavedBy($clinic_users->getFirstName() .' '. $clinic_users->getLastName());
 
                 // Send Email
                 $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';

@@ -80,8 +80,8 @@ security:
         - { path: ^/clinics/dashboard, roles: ROLE_CLINIC }
         - { path: ^/clinics/inventory, roles: ROLE_CLINIC }
         - { path: ^/clinics/get-clinic-users, roles: ROLE_CLINIC  }
-        - { path: ^/distributors/dashboard, roles: ROLE_USER }
-        - { path: ^/distributors/inventory-get, roles: ROLE_USER }
+        - { path: ^/distributors/dashboard, roles: ROLE_DISTRIBUTOR }
+        - { path: ^/distributors/inventory-get, roles: ROLE_DISTRIBUTOR }
         - { path: ^/admin/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_USER }
 
