@@ -36,4 +36,7 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <script>
+        $('#btn_basket').attr('data-basket-id', {{ basket_id }});
+    </script>
 {% endblock %}

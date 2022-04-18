@@ -106,7 +106,7 @@ class DistributorsController extends AbstractController
                 $distributor_users->setPosition($data->get('position'));
                 $distributor_users->setEmail($data->get('email'));
                 $distributor_users->setTelephone($data->get('telephone'));
-                $distributor_users->setRoles(['ROLE_USER']);
+                $distributor_users->setRoles(['ROLE_DISTRIBUTOR']);
                 $distributor_users->setPassword($hashed_pwd);
                 $distributor_users->setIsPrimary(1);
 
@@ -364,10 +364,11 @@ class DistributorsController extends AbstractController
         return new JsonResponse($html);
     }
 
-    #[Route('/distributor/update/company-information', name: 'distributor_update_company_information')]
+    #[Route('/distributors/update/company-information', name: 'distributor_update_company_information')]
     public function distributorUpdateCompanyInformationAction(Request $request): Response
     {
         $data = $request->request->get('distributor_form');
+
         $distributor = $this->getUser()->getDistributor();
         $logo = '';
 
@@ -409,7 +410,7 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributor/update/about_us', name: 'distributor_update_about_us')]
+    #[Route('/distributors/update/about_us', name: 'distributor_update_about_us')]
     public function distributorUpdateAboutUsAction(Request $request): Response
     {
         $data = $request->request;
@@ -435,7 +436,7 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributor/update/operating_hours', name: 'distributor_update_operating_hours')]
+    #[Route('/distributors/update/operating_hours', name: 'distributor_update_operating_hours')]
     public function distributorUpdateOperatingHoursAction(Request $request): Response
     {
         $data = $request->request;
@@ -462,7 +463,7 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributor/update/refund_policy', name: 'distributor_update_refund_policy')]
+    #[Route('/distributors/update/refund_policy', name: 'distributor_update_refund_policy')]
     public function distributorUpdateRefundPolicyAction(Request $request): Response
     {
         $data = $request->request;
@@ -489,7 +490,7 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributor/update/sales_tax_policy', name: 'distributor_update_sales_tax_policy')]
+    #[Route('/distributors/update/sales_tax_policy', name: 'distributor_update_sales_tax_policy')]
     public function distributorUpdateSalesTaxPolicyAction(Request $request): Response
     {
         $data = $request->request;
@@ -516,7 +517,7 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributor/inventory-search', name: 'distributor_inventory_search')]
+    #[Route('/distributors/inventory-search', name: 'distributor_inventory_search')]
     public function distributorInventorySearchAction(Request $request): Response
     {
         $products = $this->em->getRepository(Products::class)->findBySearch($request->get('keyword'));
@@ -608,7 +609,7 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributor/inventory-update', name: 'distributor_inventory_update')]
+    #[Route('/distributors/inventory-update', name: 'distributor_inventory_update')]
     public function distributorUpdateInventoryAction(Request $request, MailerInterface $mailer): Response
     {
         $data = $request->request->get('distributor_products_form');

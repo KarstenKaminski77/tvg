@@ -40,4 +40,15 @@ class DistributorProductsRepository extends ServiceEntityRepository
             ->setMaxResults(1);
         return $queryBuilder->getQuery()->getResult();
     }
+
+    public function getDistributorProducts($product_id, $distributor_ids): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('d')
+            ->andWhere('d.product = :product_id')
+            ->setParameter('product_id', $product_id)
+            ->andWhere('d.distributor IN (:distributors)')
+            ->setParameter('distributors', $distributor_ids);
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

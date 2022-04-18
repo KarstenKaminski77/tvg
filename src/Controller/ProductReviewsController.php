@@ -254,7 +254,11 @@ class ProductReviewsController extends AbstractController
                 </div>
             </div>';
 
+            $c = 0;
+
             foreach ($reviews as $review) {
+
+                $c++;
 
                 $product_review_comments = $this->em->getRepository(ProductReviewComments::class)->findBy([
                     'review' => $review->getId()
@@ -300,6 +304,19 @@ class ProductReviewsController extends AbstractController
                     $comment_count = ' ('. count($product_review_comments) .')';
                 }
 
+                $view_all_reviews = '';
+
+                if(count($reviews) == $c){
+
+                    $view_all_reviews = '
+                    <button 
+                        class="btn btn-sm btn-light float-end info btn-view-all-reviews"
+                        data-product-id="'. $product_id .'"
+                    >
+                        View All Reviews
+                    </button>';
+                }
+
                 $response .='    
                 </div>
                         </div>
@@ -341,12 +358,7 @@ class ProductReviewsController extends AbstractController
                                     <span class="d-none d-sm-inline">Comments </span>'. $comment_count .'
                                 </span>
                             </button>
-                            <button 
-                                class="btn btn-sm btn-light float-end info btn-view-all-reviews"
-                                data-product-id="'. $product_id .'"
-                            >
-                                View All Reviews
-                            </button>
+                            '. $view_all_reviews .'
                         </div>
                     </div>
                     <div class="row comment-container hidden" id="comment_container_'. $review->getId() .'">

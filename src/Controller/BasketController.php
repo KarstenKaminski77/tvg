@@ -30,6 +30,7 @@ class BasketController extends AbstractController
     public function addToBasketAction(Request $request): Response
     {
         $distributor_id = $request->get('distributor_id');
+
         $product_id = $request->get('product_id');
         $qty = $request->get('qty');
         $clinic = $this->em->getRepository(Clinics::class)->find($this->getUser()->getClinic()->getId());
@@ -964,16 +965,20 @@ class BasketController extends AbstractController
             <div class="row">
                 <div class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3">
                     <a href="#" class="save-all-items" data-basket-id="' . $basket_id . '">
-                        <i class="fa-regular fa-bookmark me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Save All For Later</span>
+                        <i class="fa-regular fa-bookmark me-5 me-md-2"></i>
+                        <span class=" d-none d-md-inline-block pe-4">Save All For Later</span>
                     </a>
                     <a href="#" class="clear-basket" data-basket-id="' . $basket_id . '">
-                        <i class="fa-solid fa-trash-can me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Clear Basket</span>
+                        <i class="fa-solid fa-trash-can me-5 me-md-2"></i>
+                        <span class=" d-none d-md-inline-block pe-4">Clear Basket</span>
                     </a>
                     <a href="#" class="refresh-basket" data-basket-id="'. $basket_id .'">
-                        <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Refresh Basket</span>
+                        <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
+                        <span class=" d-none d-md-inline-block pe-4">Refresh Basket</span>
                     </a>
                     <a href="#" data-bs-toggle="modal" data-bs-target="#modal_save_basket">
-                        <i class="fa-solid fa-basket-shopping me-0 me-md-2"></i><span class=" d-none d-md-inline-block pe-0">Save Basket</span>
+                        <i class="fa-solid fa-basket-shopping me-0 me-md-2"></i>
+                        <span class=" d-none d-md-inline-block pe-0">Save Basket</span>
                     </a>
                 </div>
             </div>';
@@ -1005,8 +1010,12 @@ class BasketController extends AbstractController
                 $i++;
                 $product = $basket->getBasketItems()[$i]->getProduct();
                 $shipping_policy = $item->getDistributor()->getSalesTaxPolicy();
+                $distributor_product = $this->em->getRepository(DistributorProducts::class)->findOneBy([
+                    'product' => $item->getProduct()->getId(),
+                    'distributor' => $item->getDistributor()->getId(),
+                ]);
 
-                if($product->getDistributorProducts()[0]->getStockCount() > 0){
+                if($distributor_product->getStockCount() > 0){
 
                     $stock_badge = '<span class="badge bg-success me-2">In Stock</span>';
                     $disabled = '';
@@ -1021,7 +1030,7 @@ class BasketController extends AbstractController
                 $response .= '
                     <div class="row">
                         <!-- Thumbnail -->
-                        <div class="col-12 col-sm-2 text-center pt-3 pb-3">
+                        <div class="col-12 col-sm-2 text-center pt-3 pb-3 mt-3">
                             <img class="img-fluid basket-img" src="/images/products/' . $product->getImage() . '">
                         </div>
                         <div class="col-12 col-sm-10 pt-3 pb-3">
@@ -1029,14 +1038,17 @@ class BasketController extends AbstractController
                             <div class="row">
                                 <!-- Product Name -->
                                 <div class="col-12 col-sm-7 pt-3 pb-3">
+                                    <span class="info">'. $distributor_product->getDistributor()->getDistributorName() .'</span>
                                     <h6 class="fw-bold text-center text-sm-start text-primary lh-base">
-                                        ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
+                                        ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . '
                                     </h6>
                                 </div>
                                 <!-- Product Quantity -->
                                 <div class="col-12 col-sm-5 pt-3 pb-3">
                                     <div class="row">
-                                        <div class="col-4 text-center text-sm-end">$' . number_format($item->getUnitPrice(),2) . '</div>
+                                        <div class="col-4 text-center text-sm-end">
+                                            $' . number_format($item->getUnitPrice(),2) . '
+                                        </div>
                                         <div class="col-4">
                                             <input 
                                                 type="text" 

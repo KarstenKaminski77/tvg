@@ -71,6 +71,7 @@ class DistributorProducts
 
     /**
      * @ORM\OneToMany(targetEntity=DistributorClinicPrices::class, mappedBy="product")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="product")
      */
     private $distributorClinicPrices;
 

@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Baskets;
 use App\Entity\Categories;
 use App\Entity\ClinicUsers;
+use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
 use App\Entity\ListItems;
 use App\Entity\Lists;
@@ -14,6 +16,7 @@ use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProductsController extends AbstractController
 {
-    const ITEMS_PER_PAGE = 2;
+    const ITEMS_PER_PAGE = 10;
     private $page_manager;
     private $em;
 
@@ -36,11 +39,17 @@ class ProductsController extends AbstractController
     #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
     public function index(Request $request): Response
     {
+        $clinic = $this->getUser()->getClinic();
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
         $response = 'Please use the search bar above....';
         $distributors = $this->em->getRepository(Distributors::class)->findAll();
         $manufacturers = $this->em->getRepository(Manufacturers::class)->findBy([], ['name' => 'ASC']);
         $categories = $this->em->getRepository(Categories::class)->findAll();
+        $basket = $this->em->getRepository(Baskets::class)->findOneBy([
+            'clinic' => $clinic->getId(),
+            'name' => 'Fluid Commerce',
+            'status' => 'active'
+        ]);
 
         $count_1 = (int) ceil(count($manufacturers) / 2);
         $count_2 = (int) floor(count($manufacturers) / 2);
@@ -55,6 +64,7 @@ class ProductsController extends AbstractController
             'distributors' => $distributors,
             'man_1' => $man_first,
             'man_2' => $man_second,
+            'basket_id' => $basket->getId(),
         ]);
     }
 
@@ -100,6 +110,7 @@ class ProductsController extends AbstractController
                 }
             }
 
+            // Return keyword search
             if($request->get('keyword') != null) {
 
                 $products = $this->em->getRepository(Products::class)->findByKeystring(
@@ -109,8 +120,9 @@ class ProductsController extends AbstractController
                     $manufacturers,
                     $distributors,
                     $this->getUser()->getClinic()
-            );
+                );
 
+            // Return saved list
             } elseif($request->get('list_id') != null){
 
                 $list_items = $this->em->getRepository(ListItems::class)->findBy([
@@ -128,9 +140,9 @@ class ProductsController extends AbstractController
                 $products = $this->em->getRepository(Products::class)->findByListId($product_ids);
             }
 
-            $results = $this->page_manager->paginate($products, $request, self::ITEMS_PER_PAGE);
+            $results = $this->page_manager->paginate($products[0], $request, self::ITEMS_PER_PAGE);
 
-            foreach($results->getQuery()->getResult() as $product){
+            foreach($products[1] as $product){
 
                 $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
                 $count_reviews = $product->getProductReviews()->count();
@@ -381,8 +393,8 @@ class ProductsController extends AbstractController
                                 </div>
                                 <form name="form_add_to_basket" id="form_add_to_basket_' . $product_id . '_' . $distributor_id . '" method="post">
                                     <input type="hidden" name="product_id" value="'. $product->getId() .'">
-                                    <input type="hidden" name="distributor_id" value="'. $product->getDistributorProducts()[0]->getDistributor()->getId() .'">
-                                    <input type="hidden" name="price" value="'. $product->getDistributorProducts()[0]->getUnitPrice() .'">
+                                    <input type="hidden" name="distributor_id" value="'. $distributor_id .'">
+                                    <input type="hidden" name="price" value="'. number_format($distributor->getUnitPrice(), 2) .'">
                                     <input type="hidden" name="status" value="active">
                                     <input type="hidden" name="basket_name" value="Fluid Commerce">
                                     <div class="modal-body">
@@ -392,10 +404,10 @@ class ProductsController extends AbstractController
                                             </div>
                                             <div class="col-12 col-sm-7 text-center text-sm-start mt-3 mt-sm-0">
                                                 <h4 id="basket_item_name">
-                                                    ' . $product->getName() . ': ' . $product->getDosage() . $product->getUnit() . ', ' . $product->getSize() . ' Count
+                                                    '. $name . $dosage .'
                                                 </h4>
                                                 <h5 id="basket_item_price" class="text-primary modal_price text-center text-sm-start">
-                                                    $' . $product->getDistributorProducts()[0]->getUnitPrice() . '
+                                                    $' . number_format($distributor->getUnitPrice(), 2) . '
                                                 </h5>
                                                 <div class="modal_availability">
                                                     '. $stock_copy .'
