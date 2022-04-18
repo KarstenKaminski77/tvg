@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProductsController extends AbstractController
 {
-    const ITEMS_PER_PAGE = 2;
+    const ITEMS_PER_PAGE = 10;
     private $page_manager;
     private $em;
 
@@ -140,10 +140,10 @@ class ProductsController extends AbstractController
                 $products = $this->em->getRepository(Products::class)->findByListId($product_ids);
             }
 
-            $results = $this->page_manager->paginate($products, $request, self::ITEMS_PER_PAGE);
+            $results = $this->page_manager->paginate($products[0], $request, self::ITEMS_PER_PAGE);
 
-            foreach($results->getQuery()->getResult() as $product){ //dd($this->em->getRepository(Products::class)->find(1)->getDistributorProducts()->count());
-                //dd($product->getDistributorProducts()->count());
+            foreach($products[1] as $product){
+
                 $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
                 $count_reviews = $product->getProductReviews()->count();
                 $count_notes = $product->getProductNotes()->count();
@@ -344,25 +344,7 @@ class ProductsController extends AbstractController
                 <!-- Distributors -->
                 <div class="col-12 col-sm-3 mt-0 pt-3 pe-4 search-result-distributors">';
 
-                $find_by['product'] = $product->getId();
-
-                if(is_array($distributors) && count($distributors) > 0){
-
-                    $find_by['distributor'] = $distributors;
-                }
-
-                if(is_array($filters) && count($filters) > 0){
-
-                    if(in_array('in-stock', $filters)){
-
-                        //dd($this->em->getRepository(Products::class)->find($product->getId()));
-                    }
-                }
-
-                //$distributors = $this->em->getRepository(DistributorProducts::class)->getDistributorProducts($product->getId(), $distributors);
-                $dist = $this->em->getRepository(DistributorProducts::class)->findBy($find_by);
-
-                foreach($dist as $distributor) {
+                foreach($product->getDistributorProducts() as $distributor) {
                     $product_id = $product->getId();
                     $distributor_id = $distributor->getDistributor()->getId();
 
@@ -422,7 +404,7 @@ class ProductsController extends AbstractController
                                             </div>
                                             <div class="col-12 col-sm-7 text-center text-sm-start mt-3 mt-sm-0">
                                                 <h4 id="basket_item_name">
-                                                    ' . $product->getName() . ': ' . $product->getDosage() . $product->getUnit() . ', ' . $product->getSize() . ' Count
+                                                    '. $name . $dosage .'
                                                 </h4>
                                                 <h5 id="basket_item_price" class="text-primary modal_price text-center text-sm-start">
                                                     $' . number_format($distributor->getUnitPrice(), 2) . '

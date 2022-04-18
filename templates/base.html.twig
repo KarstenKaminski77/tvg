@@ -921,6 +921,9 @@
                     {# End Details #}
 
                     {# Shopping Lists #}
+                    $(document).on('click', '.view-list', function (){
+                        $('#back_btn').empty().hide();
+                    });
                     $(document).on('click', '.btn_lists', function(){
 
                         product_id = $(this).data('product-id');

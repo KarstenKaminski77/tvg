@@ -89,21 +89,21 @@ class ProductsRepository extends ServiceEntityRepository
                 ->setParameter('distributors', $distributors);
         }
 
-            $queryBuilder->groupBy('p.id')
-            ->getQuery();
-        return $queryBuilder;
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
     }
 
     public function findByListId($product_ids)
     {
         $queryBuilder = $this->createQueryBuilder('p')
-            ->select('p','dp','d')
+            ->select('p','dp','d','c','pm')
             ->Join('p.distributorProducts', 'dp')
             ->join('dp.distributor', 'd')
-            ->andWhere("p.id IN (:product_ids)")
+            ->join('p.category', 'c')
+            ->join('p.productManufacturers', 'pm')
+            ->leftJoin('p.productFavourites', 'pf')
+            ->andWhere("dp.product IN (:product_ids)")
             ->setParameter('product_ids', $product_ids)
-            ->andWhere('p.isPublished = 1')
-            ->getQuery();
-        return $queryBuilder;
+            ->andWhere('p.isPublished = 1');
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
     }
 }

@@ -1040,7 +1040,7 @@ class BasketController extends AbstractController
                                 <div class="col-12 col-sm-7 pt-3 pb-3">
                                     <span class="info">'. $distributor_product->getDistributor()->getDistributorName() .'</span>
                                     <h6 class="fw-bold text-center text-sm-start text-primary lh-base">
-                                        ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
+                                        ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . '
                                     </h6>
                                 </div>
                                 <!-- Product Quantity -->
