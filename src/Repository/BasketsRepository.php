@@ -26,6 +26,8 @@ class BasketsRepository extends ServiceEntityRepository
             ->join('b.basketItems', 'bi')
             ->andWhere('b.clinic = :clinic_id')
             ->setParameter('clinic_id', $clinic_id)
+            ->andWhere('b.status = :basket_status')
+            ->setParameter('basket_status', 'active')
             ->groupBy('b.clinic')
             ->setMaxResults(1)
             ->getQuery()
@@ -47,15 +49,17 @@ class BasketsRepository extends ServiceEntityRepository
             ;
     }
 
-    /*
-    public function findOneBySomeField($value): ?Baskets
+    public function findActiveBaskets($clinic_id)
     {
         return $this->createQueryBuilder('b')
-            ->andWhere('b.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('b.status = :status')
+            ->setParameter('status', 'active')
+            ->andWhere('b.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
+            ->orderBy('b.isDefault', 'DESC')
+            ->addOrderBy('b.name', 'ASC')
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
     }
-    */
 }

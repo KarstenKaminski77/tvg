@@ -64,6 +64,16 @@ class Baskets
      */
     private $basketItems;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Orders::class, mappedBy="basket", cascade={"persist", "remove"})
+     */
+    private $orders;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $isDefault;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -201,6 +211,35 @@ class Baskets
                 $basketItem->setBasket(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getOrders(): ?Orders
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(Orders $orders): self
+    {
+        // set the owning side of the relation if necessary
+        if ($orders->getBasket() !== $this) {
+            $orders->setBasket($this);
+        }
+
+        $this->orders = $orders;
+
+        return $this;
+    }
+
+    public function getIsDefault(): ?int
+    {
+        return $this->isDefault;
+    }
+
+    public function setIsDefault(?int $isDefault): self
+    {
+        $this->isDefault = $isDefault;
 
         return $this;
     }

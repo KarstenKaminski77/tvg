@@ -40,7 +40,8 @@ class ProductsCrudController extends AbstractCrudController
     {
         return [
             IntegerField::new('id', '#ID')->onlyOnIndex(),
-            BooleanField::new('isPublished', 'Published')->setColumns(12),
+            BooleanField::new('isPublished', 'Published')->setColumns(6),
+            BooleanField::new('expiryDateRequired', 'Expiry Date')->setColumns(6),
             AssociationField::new('productManufacturer', 'Manufacturer')
                 ->setColumns(6)->setRequired(true)->onlyOnForms(),
             TextField::new('name', 'Name')->setColumns(6),

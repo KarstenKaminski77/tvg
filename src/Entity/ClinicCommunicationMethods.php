@@ -64,6 +64,11 @@ class ClinicCommunicationMethods
      */
     private $availabilityTrackers;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $isDefault;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -200,6 +205,18 @@ class ClinicCommunicationMethods
                 $availabilityTracker->setCommunication(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsDefault(): ?int
+    {
+        return $this->isDefault;
+    }
+
+    public function setIsDefault(?int $isDefault): self
+    {
+        $this->isDefault = $isDefault;
 
         return $this;
     }

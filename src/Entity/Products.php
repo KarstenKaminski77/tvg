@@ -174,6 +174,16 @@ class Products
      */
     private $productManufacturers;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductImages::class, mappedBy="product")
+     */
+    private $productImages;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $expiryDateRequired;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -193,6 +203,7 @@ class Products
         $this->productFavourites = new ArrayCollection();
         $this->productManufacturer = new ArrayCollection();
         $this->productManufacturers = new ArrayCollection();
+        $this->productImages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -734,5 +745,47 @@ class Products
     public function getProductManufacturers(): Collection
     {
         return $this->productManufacturers;
+    }
+
+    /**
+     * @return Collection<int, ProductImages>
+     */
+    public function getProductImages(): Collection
+    {
+        return $this->productImages;
+    }
+
+    public function addProductImage(ProductImages $productImage): self
+    {
+        if (!$this->productImages->contains($productImage)) {
+            $this->productImages[] = $productImage;
+            $productImage->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductImage(ProductImages $productImage): self
+    {
+        if ($this->productImages->removeElement($productImage)) {
+            // set the owning side to null (unless already changed)
+            if ($productImage->getProduct() === $this) {
+                $productImage->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getExpiryDateRequired(): ?bool
+    {
+        return $this->expiryDateRequired;
+    }
+
+    public function setExpiryDateRequired(bool $expiryDateRequired): self
+    {
+        $this->expiryDateRequired = $expiryDateRequired;
+
+        return $this;
     }
 }

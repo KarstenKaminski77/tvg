@@ -50,12 +50,7 @@ class Orders
     private $total;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $purchaseOrder;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Status::class, inversedBy="orders")
+     * @ORM\Column (type="string", length=255)
      */
     private $status;
 
@@ -79,10 +74,60 @@ class Orders
      */
     private $orderItems;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $notes;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $email;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Baskets::class, inversedBy="orders", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $basket;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Addresses::class, inversedBy="xxxx")
+     */
+    private $billingAddress;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ChatParticipants::class, mappedBy="orders")
+     */
+    private $distributor;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ChatMessages::class, mappedBy="orders")
+     */
+    private $chatMessages;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Notifications::class, mappedBy="orders")
+     */
+    private $notifications;
+
+    /**
+     * @ORM\OneToMany(targetEntity=OrderStatus::class, mappedBy="orders")
+     */
+    private $orderStatuses;
+
     public function __construct()
     {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+
         $this->eventLogs = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
+        $this->distributor = new ArrayCollection();
+        $this->chatMessages = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
+        $this->orderStatuses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -162,24 +207,12 @@ class Orders
         return $this;
     }
 
-    public function getPurchaseOrder(): ?string
-    {
-        return $this->purchaseOrder;
-    }
-
-    public function setPurchaseOrder(string $purchaseOrder): self
-    {
-        $this->purchaseOrder = $purchaseOrder;
-
-        return $this;
-    }
-
-    public function getStatus(): ?Status
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function setStatus(?Status $status): self
+    public function setStatus(string $status): self
     {
         $this->status = $status;
 
@@ -264,6 +297,174 @@ class Orders
             // set the owning side to null (unless already changed)
             if ($orderItem->getOrders() === $this) {
                 $orderItem->setOrders(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(?string $notes): self
+    {
+        $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getBasket(): ?Baskets
+    {
+        return $this->basket;
+    }
+
+    public function setBasket(Baskets $basket): self
+    {
+        $this->basket = $basket;
+
+        return $this;
+    }
+
+    public function getBillingAddress(): ?Addresses
+    {
+        return $this->billingAddress;
+    }
+
+    public function setBillingAddress(?Addresses $billingAddress): self
+    {
+        $this->billingAddress = $billingAddress;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChatParticipants>
+     */
+    public function getDistributor(): Collection
+    {
+        return $this->distributor;
+    }
+
+    public function addDistributor(ChatParticipants $distributor): self
+    {
+        if (!$this->distributor->contains($distributor)) {
+            $this->distributor[] = $distributor;
+            $distributor->setOrders($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDistributor(ChatParticipants $distributor): self
+    {
+        if ($this->distributor->removeElement($distributor)) {
+            // set the owning side to null (unless already changed)
+            if ($distributor->getOrders() === $this) {
+                $distributor->setOrders(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChatMessages>
+     */
+    public function getChatMessages(): Collection
+    {
+        return $this->chatMessages;
+    }
+
+    public function addChatMessage(ChatMessages $chatMessage): self
+    {
+        if (!$this->chatMessages->contains($chatMessage)) {
+            $this->chatMessages[] = $chatMessage;
+            $chatMessage->setOrders($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatMessage(ChatMessages $chatMessage): self
+    {
+        if ($this->chatMessages->removeElement($chatMessage)) {
+            // set the owning side to null (unless already changed)
+            if ($chatMessage->getOrders() === $this) {
+                $chatMessage->setOrders(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notifications>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notifications $notification): self
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications[] = $notification;
+            $notification->setOrdersId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notifications $notification): self
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getOrdersId() === $this) {
+                $notification->setOrdersId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrderStatus>
+     */
+    public function getOrderStatuses(): Collection
+    {
+        return $this->orderStatuses;
+    }
+
+    public function addOrderStatus(OrderStatus $orderStatus): self
+    {
+        if (!$this->orderStatuses->contains($orderStatus)) {
+            $this->orderStatuses[] = $orderStatus;
+            $orderStatus->setOrders($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderStatus(OrderStatus $orderStatus): self
+    {
+        if ($this->orderStatuses->removeElement($orderStatus)) {
+            // set the owning side to null (unless already changed)
+            if ($orderStatus->getOrders() === $this) {
+                $orderStatus->setOrders(null);
             }
         }
 

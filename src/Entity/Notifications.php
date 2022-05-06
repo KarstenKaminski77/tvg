@@ -49,8 +49,34 @@ class Notifications
 
     /**
      * @ORM\OneToOne(targetEntity=AvailabilityTracker::class, inversedBy="notifications", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(name="availability_tracker_id", referencedColumnName="id", nullable=true)
      */
     private $availabilityTracker;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Orders::class, inversedBy="notifications")
+     */
+    private $orders;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Distributors::class, inversedBy="notifications")
+     */
+    private $distributor;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $isTracking;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $isOrder;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isMessage;
 
     public function __construct()
     {
@@ -145,6 +171,66 @@ class Notifications
     public function setAvailabilityTracker(?AvailabilityTracker $availabilityTracker): self
     {
         $this->availabilityTracker = $availabilityTracker;
+
+        return $this;
+    }
+
+    public function getOrders(): ?Orders
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(?Orders $orders): self
+    {
+        $this->orders = $orders;
+
+        return $this;
+    }
+
+    public function getDistributor(): ?Distributors
+    {
+        return $this->distributor;
+    }
+
+    public function setDistributor(?Distributors $distributor): self
+    {
+        $this->distributor = $distributor;
+
+        return $this;
+    }
+
+    public function getIsTracking(): ?int
+    {
+        return $this->isTracking;
+    }
+
+    public function setIsTracking(?int $isTracking): self
+    {
+        $this->isTracking = $isTracking;
+
+        return $this;
+    }
+
+    public function getIsOrder(): ?int
+    {
+        return $this->isOrder;
+    }
+
+    public function setIsOrder(?int $isOrder): self
+    {
+        $this->isOrder = $isOrder;
+
+        return $this;
+    }
+
+    public function getIsMessage(): ?int
+    {
+        return $this->isMessage;
+    }
+
+    public function setIsMessage(int $isMessage): self
+    {
+        $this->isMessage = $isMessage;
 
         return $this;
     }

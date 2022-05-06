@@ -50,7 +50,7 @@ class DistributorProducts
     private $stockCount;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="date", nullable=true)
      */
     private $expiryDate;
 
