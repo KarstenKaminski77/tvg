@@ -173,6 +173,12 @@ class DistributorsController extends AbstractController
         $inventoryForm = $this->createDistributorInventoryForm();
         $addressForm = $this->createDistributorAddressesForm();
         $user_form = $this->createDistributorUserForm()->createView();
+        $clinic_id = '';
+        if($request->get('order_id') != null) {
+
+            $order = $this->em->getRepository(Orders::class)->find($request->get('order_id'));
+            $clinic_id = $order->getClinic()->getId();
+        }
         $order_list = false;
         $order_detail = false;
 
@@ -194,7 +200,8 @@ class DistributorsController extends AbstractController
             'address_form' => $addressForm->createView(),
             'user_form' => $user_form,
             'order_list' => $order_list,
-            'order_detail' => $order_detail
+            'order_detail' => $order_detail,
+            'clinic_id' => $clinic_id,
         ]);
     }
 

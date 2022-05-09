@@ -75,6 +75,7 @@ class ProductsController extends AbstractController
             'man_2' => $man_second,
             'basket_id' => $basket->getId(),
             'clinic_order_details' => $clinic_order_details,
+            'clinic_id' => $clinic->getId()
         ]);
     }
 

@@ -77,6 +77,16 @@
         });
         $(document).ready(function (){
 
+            let uri = '{{ app.request.requestUri }}';
+            let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+');
+            let orderid = '{{app.request.get('order_id')}}';
+            let distributorid = '{{app.request.get('distributor_id')}}';
+
+            if(is_order_detail != null && orderid > 0 && distributorid > 0) {
+
+                getOrderDetails(orderid, distributorid, '{{clinic_id}}');
+            }
+
             {# Inventory Search #}
             let page_no = 0;
             let form_data = '';
@@ -1152,6 +1162,10 @@
                         $('#order_action_row').append(response.btn);
                     }
                 });
+            });
+            $(document).on('click', '#btn_confirm_order', function (e){
+
+
             });
 
             {# Instant Messenger #}

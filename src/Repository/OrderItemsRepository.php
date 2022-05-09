@@ -63,7 +63,6 @@ class OrderItemsRepository extends ServiceEntityRepository
     /**
      * @return OrderItems[] Returns an array of OrderItems objects
      */
-
     public function findSumTotalOrderItems($order_id, $distributor_id)
     {
         $conn = $this->getEntityManager()->getConnection();
@@ -79,6 +78,25 @@ class OrderItemsRepository extends ServiceEntityRepository
             ->andWhere('o.distributor = :distributor_id')
             ->setParameter('distributor_id', $distributor_id)
             ->groupBy('o.orders')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    /**
+     * @return OrderItems[] Returns an array of OrderItems objects
+     */
+    public function findByDistributorOrder($order_id, $distributor_id)
+    {
+        return $this->createQueryBuilder('o')
+            ->select('o', 'oi', 'os')
+            ->join('o.orders', 'oi')
+            ->join('oi.distributor', 'os')
+            ->andWhere('o.orders = :order_id')
+            ->setParameter('order_id', $order_id)
+            ->andWhere('o.distributor = :distributor_id')
+            ->setParameter('distributor_id', $distributor_id)
+            ->andWhere()
             ->getQuery()
             ->getResult()
             ;

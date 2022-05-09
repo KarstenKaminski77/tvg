@@ -6,9 +6,7 @@ use App\Entity\Addresses;
 use App\Entity\Baskets;
 use App\Entity\ChatMessages;
 use App\Entity\ChatParticipants;
-use App\Entity\ClinicCommunicationMethods;
 use App\Entity\Clinics;
-use App\Entity\CommunicationMethods;
 use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
 use App\Entity\Notifications;
@@ -17,6 +15,7 @@ use App\Entity\Orders;
 use App\Entity\OrderStatus;
 use App\Entity\Products;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Snappy\Pdf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -1715,7 +1714,7 @@ class OrdersController extends AbstractController
 
         } elseif($accepted > 0 && $negotiating == 0 && $cancelled >= 0 && !$action_required){
 
-            $status = 'Ready To Send';
+            $status = 'Awaiting Shipping';
 
         } elseif($accepted == 0 && $negotiating == 0 && $cancelled > 0 && !$action_required){
 
@@ -1734,7 +1733,7 @@ class OrdersController extends AbstractController
             'class' => $class,
             'btn' => $btn
         ];
-
+        $this->generatePpPdfAction($order_id, $distributor_id);
         return new JsonResponse($response);
     }
 
@@ -1777,8 +1776,25 @@ class OrdersController extends AbstractController
         return new JsonResponse($response);
     }
 
-    private function sendOrderEmail($order_id, $distributor_id, $clinic_id, $type){
+    #[Route('/clinics/confirm_order', name: 'clinic_confirm_order')]
+    public function clinicsConfirmOrderAction(Request $request): Response
+    {
+        $data = $request->request;
+        $order_id = $data->get('order_id');
+        $order = $this->em->getRepository(OrderItems::class)->findOneBy([
+            'orders' => $order_id
+        ],
+            [
+                'modified' => 'DESC'
+            ]);
 
+        $response = $order->getModified()->format('Y-n-d H:i:s');
+
+        return new JsonResponse($response);
+    }
+
+    private function sendOrderEmail($order_id, $distributor_id, $clinic_id, $type)
+    {
         $i = 0;
         $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
         $clinic = $this->em->getRepository(Clinics::class)->find($clinic_id);
@@ -1917,5 +1933,224 @@ class OrdersController extends AbstractController
         }
 
         return $btn_confirm;
+    }
+
+    public function generatePpPdfAction($order_id, $distributor_id)
+    {
+        $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
+        $order_items = $this->em->getRepository(OrderItems::class)->findByDistributorOrder($order_id, $distributor_id);
+        $order = $this->em->getRepository(Orders::class)->find($order_id);
+        $billing_address = $this->em->getRepository(Addresses::class)->find($order->getBillingAddress());
+        $shipping_address = $this->em->getRepository(Addresses::class)->find($order->getAddress());
+        $order_status = $this->em->getRepository(OrderStatus::class)->findOneBy([
+            'orders' => $order_id,
+            'distributor' => $distributor_id
+        ]);
+        $additional_notes = '';
+
+        if($order->getNotes() != null){
+
+            $additional_notes = '
+            <div style="padding-top: 20px; padding-right: 30px; line-height: 30px">
+                <b>Additional Notes</b><br>
+                '. $order->getNotes() .'
+            </div>';
+        }
+
+        $snappy = new Pdf(__DIR__ .'/../../vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        $html = '
+        <table style="width: 100%; border: none; border-collapse: collapse; font-size: 12px">
+            <tr>
+                <td style=" line-height: 25px">
+                    <img 
+                        src="'. __DIR__ .'/../../public/images/logos/'. $distributor->getLogo() .'"
+                        style="width:100%; max-width: 200px"
+                    >
+                    <br>
+                    '. $distributor->getDistributorName() .'<br>
+                    '. $distributor->getTelephone() .'<br>
+                    '. $distributor->getEmail() .'
+                </td>
+                <td style="text-align: right">
+                    <h1>PURCHASE ORDER</h1>
+                    <table style="width: auto;margin-right: 0px;margin-left: auto; text-align: right;font-size: 12px">
+                        <tr>
+                            <td>
+                                DATE:
+                            </td>
+                            <td style="padding-left: 20px; line-height: 25px">
+                                '. date('Y-m-d') .'
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                PO#:
+                            </td>
+                            <td style="line-height: 25px">
+                                '. $order_items[0]->getPoNumber() .'
+                            </td>
+                        </tr>  
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 50%; vertical-align: top">
+                    <table style="width: 80%; border-collapse: collapse;font-size: 12px">
+                        <tr style="background: #7796a8; color: #fff; border: solid 1px #7796a8;">
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Vendor
+                            </th>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 10px; line-height: 25px">
+                                '. $billing_address->getClinicName() .'<br>
+                                '. $billing_address->getAddress() .'<br>
+                                '. $billing_address->getPostalCode() .'<br>
+                                '. $billing_address->getCity() .'<br>
+                                '. $billing_address->getState() .'<br>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="width: 50%; vertical-align: top">
+                    <table style="width: 80%; border-collapse: collapse; margin-left: auto;margin-right: 0; font-size: 12px">
+                        <tr style="background: #7796a8; color: #fff">
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Deliver To
+                            </th>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 10px; line-height: 25px">
+                                '. $shipping_address->getClinicName() .'<br>
+                                '. $shipping_address->getAddress() .'<br>
+                                '. $shipping_address->getPostalCode() .'<br>
+                                '. $shipping_address->getCity() .'<br>
+                                '. $shipping_address->getState() .'<br>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px">
+                        <tr style="background: #7796a8; color: #fff">
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                #SKU
+                            </th>
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Description
+                            </th>
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Qty
+                            </th>
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Unit Priice
+                            </th>
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Total
+                            </th>
+                        </tr>';
+
+                    foreach($order_items as $item) {
+
+                        $name = $item->getName() .': ';
+                        $dosage = $item->getProduct()->getDosage() . $item->getProduct()->getUnit() .', '. $item->getProduct()->getSize() .' Count';
+
+                        if($item->getProduct()->getForm() == 'Each'){
+
+                            $dosage = $item->getProduct()->getSize() . $item->getProduct()->getUnit();
+                        }
+
+                        $html .= '
+                        <tr>
+                            <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
+                                '. $item->getProduct()->getDistributorProducts()[0]->getSku() .'
+                            </td>
+                            <td style="padding: 8px; border: solid 1px #7796a8;">
+                                '. $name . $dosage .'
+                            </td>
+                            <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
+                                '. $item->getQuantity() .'
+                            </td>
+                            <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
+                                $'. number_format($item->getUnitPrice(),2) .'
+                            </td>
+                            <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
+                                $'. number_format($item->getTotal(),2) .'
+                            </td>
+                        </tr>';
+                    }
+
+                    $html .= '
+                        <tr>
+                            <td colspan="3" rowspan="4" style="padding: 8px; padding-top: 16px; border: none;">
+                                '. $additional_notes .'
+                            </td>
+                            <td style="padding: 8px; padding-top: 16px; border: none;text-align: right">
+                                Subtotal
+                            </td>
+                            <td style="padding: 8px; padding-top: 16px;text-align: right; border: none">
+                                $'. number_format($order->getSubTotal(),2) .'
+                            </td>
+                        </tr>';
+
+                        if($order->getDeliveryFee() > 0) {
+
+                            $html .= '
+                            <tr>
+                                <td style="padding: 8px; border: none;text-align: right">
+                                    Delivery
+                                </td>
+                                <td style="padding: 8px;text-align: right; border: none">
+                                    $' . number_format($order->getDeliveryFee(), 2) . '
+                                </td>
+                            </tr>';
+                        }
+
+                        if($order->getTax() > 0) {
+
+                            $html .= '
+                            <tr>
+                                <td style="padding: 8px; border: none;text-align: right">
+                                    Tax
+                                </td>
+                                <td style="padding: 8px; border:none; text-align: right">
+                                    $' . number_format($order->getTax(), 2) . '
+                                </td>
+                            </tr>';
+                        }
+
+                        $html .= '
+                        <tr>
+                            <td style="padding: 8px; border: none;text-align: right">
+                                <b>Total</b>
+                            </td>
+                            <td style="padding: 8px;text-align: right; border: none">
+                                <b>$'. number_format($order->getTotal(),2) .'</b>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>';
+
+        $file = uniqid() .'.pdf';
+        $snappy->generateFromHtml($html,'pdf/'. $file,['page-size' => 'A4']);
+
+        $order_status->setPoFile($file);
+
+        $this->em->persist($order_status);
+        $this->em->flush();
     }
 }

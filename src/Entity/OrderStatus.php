@@ -44,6 +44,11 @@ class OrderStatus
      */
     private $status;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $poFile;
+
     public function __construct()
     {
         $this->setModified(new \DateTime());
@@ -113,6 +118,18 @@ class OrderStatus
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getPoFile(): ?string
+    {
+        return $this->poFile;
+    }
+
+    public function setPoFile(?string $poFile): self
+    {
+        $this->poFile = $poFile;
 
         return $this;
     }

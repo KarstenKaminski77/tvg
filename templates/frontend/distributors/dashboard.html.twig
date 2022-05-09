@@ -705,6 +705,15 @@
                 });
             });
             {# Order Details #}
+            let uri = '{{ app.request.requestUri }}';
+            let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+');
+            let orderid = '{{app.request.get('order_id')}}';
+            let distributorid = '{{app.request.get('distributor_id')}}';
+
+            if('{{order_detail}}' == 1 && orderid > 0 && '{{distributor.id}}' > 0) {
+
+                getOrderDetails(orderid, distributorid, '{{clinic_id}}');
+            }
             function getOrderDetails(order_id, distributor_id, clinic_id){
 
                 account_settings.hide();
