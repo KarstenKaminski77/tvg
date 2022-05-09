@@ -163,7 +163,7 @@
                     </li>
                     <li class="nav-item position-relative">
                         <a class="nav-link btn-notifications" name="notifications" href="#">
-                            <i class="fa-solid fa-bell"></i>
+                            <i class="fa-solid fa-bell" id="notifications_icon"></i>
                         </a>
                         <span id="notifications_panel">
                             <span class="notification-panel delete-notification">You have no notifications</span>
@@ -172,6 +172,11 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link  dropdown-toggle" href="{{ path('clinics_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
                         <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="#" class="dropdown-item" id="orders_link">
+                                    <i class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;Orders
+                                </a>
+                            </li>
                             <li>
                                 <a href="#" class="dropdown-item" id="account_settings_link">
                                     <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;Account & Settings

@@ -88,4 +88,51 @@ class NotificationsController extends AbstractController
 
         return new JsonResponse($response);
     }
+
+    #[Route('/clinics/get-order-notifications', name: 'clinic_get_order_notification')]
+    public function clinicGetOrderNotificationsAction(Request $request): Response
+    {
+        $clinic_id = $this->getUser()->getClinic()->getId();
+        $notifications = $this->em->getRepository(Notifications::class)->findBy([
+            'clinic' => $clinic_id,
+            'isActive' => 1
+        ]);
+        $alerts = '';
+        $i = 0;
+
+        foreach($notifications as $notification){
+
+            $alerts .= '
+            <li>
+                <span 
+                    class="notification-panel"
+                    data-order-id="'. $notification->getOrders()->getId() .'"
+                    data-distributor-id=""
+                >';
+
+            foreach($notifications as $notification){
+
+                $i++;
+                $mb = 'mb-3';
+
+                if($i == count($notifications)){
+
+                    $mb = '';
+                }
+
+                $alerts .= '<div class="'. $mb .'">'. $notification->getNotification() .'</div>';
+            }
+
+            $alerts .= '
+                </span>
+            </li>';
+        }
+
+        $response = [
+            'alert' => $alerts,
+            'count' => $i
+        ];
+
+        return new JsonResponse($response);
+    }
 }

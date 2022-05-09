@@ -4,10 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Addresses;
 use App\Entity\AvailabilityTracker;
+use App\Entity\ChatMessages;
+use App\Entity\Clinics;
 use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
 use App\Entity\DistributorUsers;
 use App\Entity\Notifications;
+use App\Entity\OrderItems;
+use App\Entity\Orders;
 use App\Entity\Products;
 use App\Form\AddressesFormType;
 use App\Form\DistributorFormType;
@@ -153,6 +157,7 @@ class DistributorsController extends AbstractController
     }
 
     #[Route('/distributors/dashboard', name: 'distributor_dashboard')]
+    #[Route('/distributors/order/{order_id}', name: 'distributor_order')]
     public function distributorDashboardAction(Request $request): Response
     {
         if($this->get('security.token_storage')->getToken() == null){
@@ -168,6 +173,24 @@ class DistributorsController extends AbstractController
         $inventoryForm = $this->createDistributorInventoryForm();
         $addressForm = $this->createDistributorAddressesForm();
         $user_form = $this->createDistributorUserForm()->createView();
+        $clinic_id = '';
+        if($request->get('order_id') != null) {
+
+            $order = $this->em->getRepository(Orders::class)->find($request->get('order_id'));
+            $clinic_id = $order->getClinic()->getId();
+        }
+        $order_list = false;
+        $order_detail = false;
+
+        if(substr($request->getPathInfo(),0,20) == '/distributors/orders'){
+
+            $order_list = true;
+        }
+
+        if(substr($request->getPathInfo(),0,20) == '/distributors/order/'){
+
+            $order_detail = true;
+        }
 
         return $this->render('frontend/distributors/dashboard.html.twig',[
             'distributor' => $distributor,
@@ -176,6 +199,9 @@ class DistributorsController extends AbstractController
             'inventory_form' => $inventoryForm->createView(),
             'address_form' => $addressForm->createView(),
             'user_form' => $user_form,
+            'order_list' => $order_list,
+            'order_detail' => $order_detail,
+            'clinic_id' => $clinic_id,
         ]);
     }
 

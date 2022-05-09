@@ -84,6 +84,11 @@ class Addresses
      */
     private $isActive;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $type;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -269,6 +274,18 @@ class Addresses
     public function setIsActive(?bool $isActive): self
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getType(): ?int
+    {
+        return $this->type;
+    }
+
+    public function setType(?int $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

@@ -62,6 +62,54 @@ class OrderItems
      */
     private $created;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $poNumber;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $comments;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    private $expiryDate;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isAccepted;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isRenegotiate;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isCancelled;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $isConfirmedDistributor;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $status;
+
+    public function __construct()
+    {
+        $this->setCreated(new \DateTime());
+        if ($this->getModified() == null) {
+            $this->setModified(new \DateTime());
+        }
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -171,6 +219,102 @@ class OrderItems
     public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
+
+        return $this;
+    }
+
+    public function getPoNumber(): ?string
+    {
+        return $this->poNumber;
+    }
+
+    public function setPoNumber(string $poNumber): self
+    {
+        $this->poNumber = $poNumber;
+
+        return $this;
+    }
+
+    public function getComments(): ?string
+    {
+        return $this->comments;
+    }
+
+    public function setComments(?string $comments): self
+    {
+        $this->comments = $comments;
+
+        return $this;
+    }
+
+    public function getExpiryDate(): ?\DateTimeInterface
+    {
+        return $this->expiryDate;
+    }
+
+    public function setExpiryDate(?\DateTimeInterface $expiryDate): self
+    {
+        $this->expiryDate = $expiryDate;
+
+        return $this;
+    }
+
+    public function getIsAccepted(): ?int
+    {
+        return $this->isAccepted;
+    }
+
+    public function setIsAccepted(int $isAccepted): self
+    {
+        $this->isAccepted = $isAccepted;
+
+        return $this;
+    }
+
+    public function getIsRenegotiate(): ?int
+    {
+        return $this->isRenegotiate;
+    }
+
+    public function setIsRenegotiate(int $isRenegotiate): self
+    {
+        $this->isRenegotiate = $isRenegotiate;
+
+        return $this;
+    }
+
+    public function getIsCancelled(): ?int
+    {
+        return $this->isCancelled;
+    }
+
+    public function setIsCancelled(int $isCancelled): self
+    {
+        $this->isCancelled = $isCancelled;
+
+        return $this;
+    }
+
+    public function getIsConfirmedDistributor(): ?int
+    {
+        return $this->isConfirmedDistributor;
+    }
+
+    public function setIsConfirmedDistributor(?int $isConfirmedDistributor): self
+    {
+        $this->isConfirmedDistributor = $isConfirmedDistributor;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }

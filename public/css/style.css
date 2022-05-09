@@ -629,6 +629,10 @@ a.page-link {
     border-bottom: 1px dashed #e2e7eb !important;
 }
 
+.border-dark {
+    border-color: #e6e6e6 !important;
+}
+
 .cell-inner {
     width: calc(100% - 30px);
     padding: 0 15px;
@@ -773,6 +777,10 @@ a.page-link {
     background: #6c757d!important
 }
 
+.border-dark-grey{
+    border: solid 1px #6c757d!important
+}
+
 .disabled {
     color: #ccc;
 }
@@ -854,6 +862,199 @@ a.page-link {
     ox-shadow: 0px 12px 14px -9px #9c9c9cbf;
     -webkit-box-shadow: 0px 12px 14px -9px #9c9c9cbf;
     -moz-box-shadow: 0px 12px 14px -9px rgba(0,0,0,0.75);
+}
+
+.alert-secondary {
+    color: #41464b;
+    background-color: #f7f7f7;
+    border-color: #e6e6e6;
+}
+
+.chat-send, .chat-send:hover {
+    background: #fff;
+}
+
+.chat-screen {
+    box-shadow: -2px 0px 14px 1px rgba(0,0,0,0.5) inset;
+    -webkit-box-shadow: -2px 0px 14px 1px rgba(0,0,0,0.5) inset;
+    -moz-box-shadow: -2px 0px 14px 1px rgba(0,0,0,0.5) inset;
+}
+
+.speech-bubble-left {
+    position: relative;
+    background: #e7f6ff;
+    border-radius: .4em;
+}
+
+.speech-bubble-left:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 17px solid transparent;
+    border-right-color: #e7f6ff;
+    border-left: 0;
+    border-bottom: 0;
+    margin-top: -8.5px;
+    margin-left: -17px;
+}
+
+.speech-bubble-right {
+    position: relative;
+    background: #f1f1f1;
+    border-radius: .4em;
+}
+
+.speech-bubble-right:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 17px solid transparent;
+    border-left-color: #f1f1f1;
+    border-right: 0;
+    border-bottom: 0;
+    margin-top: -8.5px;
+    margin-right: -17px;
+}
+
+.dot-pulse {
+    position: relative;
+    left: -9999px;
+    width: 5px;
+    height: 5px;
+    border-radius: 5px;
+    background-color: #9ed4d9;
+    color: #9ed4d9;
+    box-shadow: 9999px 0 0 -5px #9ed4d9;
+    animation: dotPulse 1.5s infinite linear;
+    animation-delay: .25s;
+}
+
+.dot-pulse::before, .dot-pulse::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 5px;
+    background-color: #9ed4d9;
+    color: #9ed4d9;
+}
+
+.dot-pulse::before {
+    box-shadow: 9984px 0 0 -5px #9ed4d9;
+    animation: dotPulseBefore 1.5s infinite linear;
+    animation-delay: 0s;
+}
+
+.dot-pulse::after {
+    box-shadow: 10014px 0 0 -5px #9ed4d9;
+    animation: dotPulseAfter 1.5s infinite linear;
+    animation-delay: .5s;
+}
+
+@keyframes dotPulseBefore {
+    0% {
+        box-shadow: 9984px 0 0 -5px #9ed4d9;
+    }
+    30% {
+        box-shadow: 9984px 0 0 2px #9ed4d9;
+    }
+    60%,
+    100% {
+        box-shadow: 9984px 0 0 -5px #9ed4d9;
+    }
+}
+
+@keyframes dotPulse {
+    0% {
+        box-shadow: 9999px 0 0 -5px #9ed4d9;
+    }
+    30% {
+        box-shadow: 9999px 0 0 2px #9ed4d9;
+    }
+    60%,
+    100% {
+        box-shadow: 9999px 0 0 -5px #9ed4d9;
+    }
+}
+
+@keyframes dotPulseAfter {
+    0% {
+        box-shadow: 10014px 0 0 -5px #9ed4d9;
+    }
+    30% {
+        box-shadow: 10014px 0 0 2px #9ed4d9;
+    }
+    60%,
+    100% {
+        box-shadow: 10014px 0 0 -5px #9ed4d9;
+    }
+}
+
+a.badge-white:hover {
+    color: #fff !important;
+}
+
+.alert-text-grey {
+    color: #787d82;
+}
+
+.badge-success-outline-only, .badge-success-outline-only:hover{
+    background: transparent !important;
+    border: solid 1px #198754 !important;
+    color: #198754 !important;
+}
+
+.badge-warning-outline-only, .badge-warning-outline-only:hover{
+    background: transparent !important;
+    border: solid 1px #ffc107 !important;
+    color: #ffc107 !important;
+}
+
+.badge-danger-outline-only, .badge-danger-outline-only:hover{
+    background: transparent !important;
+    border: solid 1px #c31828 !important;
+    color: #c31828 !important;
+}
+
+.badge-pending-outline-only, .badge-pending-outline-only:hover{
+    background: transparent !important;
+    border: solid 1px #6c757d !important;
+    color: #6c757d !important;
+}
+
+.opacity-50{
+    opacity: 0.5 !important;
+}
+
+.blinking-text {
+    animation: blinker 1s linear infinite;
+    color: #9f0016;
+}
+
+@keyframes blinker {
+    0% {
+        opacity: 1;
+    }
+    25% {
+        opacity: 0.75;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    75% {
+        opacity: 0.75;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 @media (min-width: 576px) {

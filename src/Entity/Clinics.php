@@ -119,6 +119,11 @@ class Clinics
      */
     private $productFavourites;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ChatParticipants::class, mappedBy="clinic")
+     */
+    private $chatParticipants;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -141,6 +146,7 @@ class Clinics
         $this->productReviewComments = new ArrayCollection();
         $this->notifications = new ArrayCollection();
         $this->productFavourites = new ArrayCollection();
+        $this->chatParticipants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -622,6 +628,36 @@ class Clinics
             // set the owning side to null (unless already changed)
             if ($productFavourite->getClinic() === $this) {
                 $productFavourite->setClinic(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChatParticipants>
+     */
+    public function getChatParticipants(): Collection
+    {
+        return $this->chatParticipants;
+    }
+
+    public function addChatParticipant(ChatParticipants $chatParticipant): self
+    {
+        if (!$this->chatParticipants->contains($chatParticipant)) {
+            $this->chatParticipants[] = $chatParticipant;
+            $chatParticipant->setClinic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatParticipant(ChatParticipants $chatParticipant): self
+    {
+        if ($this->chatParticipants->removeElement($chatParticipant)) {
+            // set the owning side to null (unless already changed)
+            if ($chatParticipant->getClinic() === $this) {
+                $chatParticipant->setClinic(null);
             }
         }
 

@@ -107,6 +107,9 @@
             "config/packages/fos_ckeditor.yaml"
         ]
     },
+    "h4cc/wkhtmltopdf-amd64": {
+        "version": "0.12.4"
+    },
     "imagine/imagine": {
         "version": "1.2.4"
     },
@@ -120,7 +123,7 @@
         "version": "1.9",
         "recipe": {
             "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
+            "branch": "main",
             "version": "1.5",
             "ref": "c81bdcf4a9d4e7b1959071457f9608631865d381"
         },

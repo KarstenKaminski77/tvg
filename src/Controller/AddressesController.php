@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Addresses;
 use App\Entity\Clinics;
+use App\Entity\Orders;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -148,124 +149,7 @@ class AddressesController extends AbstractController
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
                         <form name="form_addresses" id="form_addresses" method="post">
-                            <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="address_modal_label">Create an Address</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body pb-0 mb-0">
-                                <div class="row mb-3">
-    
-                                    <!-- Clinic Name -->
-                                    <div class="col-12 col-sm-6 mb-3">
-                                        <label class="info">Clinic Name</label>
-                                        <input
-                                            type="text"
-                                            name="addresses_form[clinicName]"
-                                            id="address_clinic_name"
-                                            class="form-control"
-                                            value=""
-                                        >
-                                        <div class="hidden_msg" id="error_address_clinic_name">
-                                            Required Field
-                                        </div>
-                                    </div>
-    
-                                    <!-- Telephone Number -->
-                                    <div class="col-12 col-sm-6 mb-3">
-                                        <label class="info">Telephone</label>
-                                        <input
-                                            type="text"
-                                            name="addresses_form[telephone]"
-                                            id="address_telephone"
-                                            class="form-control"
-                                            value=""
-                                        >
-                                        <div class="hidden_msg" id="error_address_telephone">
-                                            Required Field
-                                        </div>
-                                    </div>
-    
-                                    <!-- Address Line 1 -->
-                                    <div class="col-12 col-sm-6 mb-3">
-                                        <label class="info">Address</label>
-                                        <input
-                                            type="text"
-                                            name="addresses_form[address]"
-                                            id="address_line_1"
-                                            class="form-control"
-                                            value=""
-                                        >
-                                        <div class="hidden_msg" id="error_address_line_1">
-                                            Required Field
-                                        </div>
-                                    </div>
-    
-                                    <!-- Suite -->
-                                    <div class="col-6 mb-3">
-                                        <label class="info">Suite / APT</label>
-                                        <input
-                                            type="text"
-                                            name="addresses_form[suite]"
-                                            id="address_suite"
-                                            class="form-control"
-                                            value=""
-                                        >
-                                        <div class="hidden_msg" id="error_address_suite">
-                                            Required Field
-                                        </div>
-                                    </div>
-    
-                                    <!-- Postal Code -->
-                                    <div class="col-6 col-sm-4 mb-3">
-                                        <label class="info">Postal Code</label>
-                                        <input
-                                            type="text"
-                                            name="addresses_form[postalCode]"
-                                            id="address_postal_code"
-                                            class="form-control"
-                                            value=""
-                                        >
-                                        <div class="hidden_msg" id="error_address_postal_code">
-                                            Required Field
-                                        </div>
-                                    </div>
-    
-                                    <!-- City -->
-                                    <div class="col-6 col-sm-4 mb-3">
-                                        <label class="info">City</label>
-                                        <input
-                                            type="text"
-                                            name="addresses_form[city]"
-                                            id="address_city"
-                                            class="form-control"
-                                            value=""
-                                        >
-                                        <div class="hidden_msg" id="error_address_city">
-                                            Required Field
-                                        </div>
-                                    </div>
-    
-                                    <!-- State -->
-                                    <div class="col-6 col-sm-4 mb-3">
-                                        <label class="info">State</label>
-                                        <input
-                                            type="text"
-                                            name="addresses_form[state]"
-                                            id="address_state"
-                                            class="form-control"
-                                            value=""
-                                        >
-                                        <div class="hidden_msg" id="error_address_state">
-                                            Required Field
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer border-0">
-                                <button type="button" class="btn btn-secondary w-sm-100 mb-3 mb-sm-0 w-sm-100" data-bs-dismiss="modal">CANCEL</button>
-                                <button type="submit" class="btn btn-primary w-sm-100 mb-sm-0 w-sm-100">SAVE</button>
-                            </div>
+                            '. $this->getAddressModal()->getContent() .'
                         </form>
                     </div>
                 </div>
@@ -300,6 +184,341 @@ class AddressesController extends AbstractController
         return $response;
     }
 
+    #[Route('/clinics/get-address-modal/{type}', name: 'get_address_modal')]
+    public function getCheckoutAddressModal(Request $request): Response
+    {
+        $type = $request->get('type');
+        $clinic = $this->getUser()->getClinic();
+        $addresses = $this->em->getRepository(Addresses::class)->findBy([
+            'clinic' => $clinic->getId(),
+            'isActive' => 1,
+            'type' => $type
+        ]);
+
+        $delivery_type = 'Shipping';
+
+        if($type == 1){
+
+            $delivery_type = 'Billing';
+        }
+
+        $i = 0;
+        $response['existing_shipping_addresses'] = '';
+
+        foreach($addresses as $address){
+
+            $i++;
+            $margin_top = '';
+
+            if($i == 1){
+
+                $margin_top = 'mt-3';
+            }
+
+            $response['existing_shipping_addresses'] .= '
+            <div class="row '. $margin_top .'">
+                <div class="col-12">
+                    <input 
+                        type="radio" 
+                        name="address" 
+                        class="btn-check existing-address" 
+                        value="'. $address->getId() .'" 
+                        id="address_'. $i .'" 
+                        autocomplete="off"
+                    >
+                    <label class="btn btn-outline-primary alert alert-secondary w-100" for="address_'. $i .'">'.
+                $address->getAddress() .' '. $address->getCity() .' '. $address->getPostalCode() .' '.
+                $address->getState() .'
+                    </label>
+                </div>
+            </div>';
+        }
+
+        $response['modal'] = '
+        <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
+        <div class="modal-header" id="modal_header_address">
+            <h5 class="modal-title" id="address_modal_label">Create an Address</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body modal-body-address-new pb-0 mb-0">
+            <div class="row mb-3">
+            
+                <!-- Address Type -->
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="info">Address Type</label>
+                    <input type="text" class="form-control" value="'. $delivery_type .'" readonly>
+                    <input 
+                        type="hidden" 
+                        name="addresses_form[type]"
+                        id="address_type"
+                        class="form-control"
+                        value="'. $type .'">
+                    <div class="hidden_msg" id="error_address_type">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Clinic Name -->
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="info">Clinic Name</label>
+                    <input
+                        type="text"
+                        name="addresses_form[clinicName]"
+                        id="address_clinic_name"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_clinic_name">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Telephone Number -->
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="info">Telephone</label>
+                    <input
+                        type="text"
+                        name="addresses_form[telephone]"
+                        id="address_telephone"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_telephone">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Address Line 1 -->
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="info">Address</label>
+                    <input
+                        type="text"
+                        name="addresses_form[address]"
+                        id="address_line_1"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_line_1">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Suite -->
+                <div class="col-6 mb-3">
+                    <label class="info">Suite / APT</label>
+                    <input
+                        type="text"
+                        name="addresses_form[suite]"
+                        id="address_suite"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_suite">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Postal Code -->
+                <div class="col-6 col-sm-4 mb-3">
+                    <label class="info">Postal Code</label>
+                    <input
+                        type="text"
+                        name="addresses_form[postalCode]"
+                        id="address_postal_code"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_postal_code">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- City -->
+                <div class="col-6 col-sm-4 mb-3">
+                    <label class="info">City</label>
+                    <input
+                        type="text"
+                        name="addresses_form[city]"
+                        id="address_city"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_city">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- State -->
+                <div class="col-6 col-sm-4 mb-3">
+                    <label class="info">State</label>
+                    <input
+                        type="text"
+                        name="addresses_form[state]"
+                        id="address_state"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_state">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-body modal-body-address-existing hidden pb-0 mb-0 pt-0">
+            '. $response['existing_shipping_addresses'] .'
+        </div>
+        <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary w-sm-100 mb-3 mb-sm-0 w-sm-100" data-bs-dismiss="modal">CANCEL</button>
+            <button type="submit" class="btn btn-primary w-sm-100 mb-sm-0 w-sm-100" id="btn_save_address">SAVE</button>
+        </div>';
+
+        return new JsonResponse($response);
+    }
+
+    public function getAddressModal(): Response
+    {
+
+        $response = '
+        <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
+        <div class="modal-header" id="modal_header_address">
+            <h5 class="modal-title" id="address_modal_label">Create an Address</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body modal-body-address-new pb-0 mb-0">
+            <div class="row mb-3">
+            
+                <!-- Address Type -->
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="info">Address Type</label>
+                    <select
+                        name="addresses_form[type]"
+                        id="address_type"
+                        class="form-control"
+                    >
+                        <option value=""></option>
+                        <option value="1" id="option_billing">Billing</option>
+                        <option value="2" id="option_shipping">Shipping</option>
+                    </select>
+                    <div class="hidden_msg" id="error_address_type">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Clinic Name -->
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="info">Clinic Name</label>
+                    <input
+                        type="text"
+                        name="addresses_form[clinicName]"
+                        id="address_clinic_name"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_clinic_name">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Telephone Number -->
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="info">Telephone</label>
+                    <input
+                        type="text"
+                        name="addresses_form[telephone]"
+                        id="address_telephone"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_telephone">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Address Line 1 -->
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="info">Address</label>
+                    <input
+                        type="text"
+                        name="addresses_form[address]"
+                        id="address_line_1"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_line_1">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Suite -->
+                <div class="col-6 mb-3">
+                    <label class="info">Suite / APT</label>
+                    <input
+                        type="text"
+                        name="addresses_form[suite]"
+                        id="address_suite"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_suite">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- Postal Code -->
+                <div class="col-6 col-sm-4 mb-3">
+                    <label class="info">Postal Code</label>
+                    <input
+                        type="text"
+                        name="addresses_form[postalCode]"
+                        id="address_postal_code"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_postal_code">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- City -->
+                <div class="col-6 col-sm-4 mb-3">
+                    <label class="info">City</label>
+                    <input
+                        type="text"
+                        name="addresses_form[city]"
+                        id="address_city"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_city">
+                        Required Field
+                    </div>
+                </div>
+
+                <!-- State -->
+                <div class="col-6 col-sm-4 mb-3">
+                    <label class="info">State</label>
+                    <input
+                        type="text"
+                        name="addresses_form[state]"
+                        id="address_state"
+                        class="form-control"
+                        value=""
+                    >
+                    <div class="hidden_msg" id="error_address_state">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-body modal-body-address-existing hidden pb-0 mb-0 pt-0"></div>
+        <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary w-sm-100 mb-3 mb-sm-0 w-sm-100" data-bs-dismiss="modal">CANCEL</button>
+            <button type="submit" class="btn btn-primary w-sm-100 mb-sm-0 w-sm-100" id="btn_save_address">SAVE</button>
+        </div>';
+
+        return new Response($response);
+    }
+
     #[Route('/clinics/get-clinic-addresses', name: 'get_clinic_addresses')]
     public function getClinicAddressesAction(): Response
     {
@@ -328,7 +547,8 @@ class AddressesController extends AbstractController
             'suite' => $address->getSuite(),
             'city' => $address->getCity(),
             'state' => $address->getState(),
-            'postal_code' => $address->getPostalCode()
+            'postal_code' => $address->getPostalCode(),
+            'type' => $address->getType(),
         ];
 
         return new JsonResponse($response);
@@ -338,22 +558,25 @@ class AddressesController extends AbstractController
     public function updateAddressAction(Request $request): Response
     {
         $data = $request->request->get('addresses_form');
-        $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
-        $methods = $this->em->getRepository(Clinics::class)->getClinicAddresses($clinic->getId());
+        $clinic_id = $this->getUser()->getClinic()->getId();
+        $clinic = $this->em->getRepository(Clinics::class)->find($clinic_id);
+
+        $methods = $this->em->getRepository(Clinics::class)->getClinicAddresses($clinic_id);
         $address_id = $data['address_id'];
 
-        if($address_id == 0){
-
-            $clinic_address = new Addresses();
-            $flash = '<b><i class="fas fa-check-circle"></i> Address details successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        } else {
+        if($address_id > 0){
 
             $clinic_address = $this->em->getRepository(Addresses::class)->find($address_id);
             $flash = '<b><i class="fas fa-check-circle"></i> Address successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        } else {
+
+            $clinic_address = new Addresses();
+            $flash = '<b><i class="fas fa-check-circle"></i> Address details successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
         }
 
         $clinic_address->setClinic($clinic);
+        $clinic_address->setType($data['type']);
         $clinic_address->setClinicName($data['clinicName']);
         $clinic_address->setTelephone($data['telephone']);
         $clinic_address->setAddress($data['address']);
@@ -372,6 +595,23 @@ class AddressesController extends AbstractController
         $this->em->persist($clinic_address);
         $this->em->flush();
 
+        // Checkout Create New Address
+        $checkout_address = '';
+        $checkout_address_id = '';
+        if($request->request->get('checkout') != null){
+
+            $order_id = $request->request->get('checkout');
+            $order = $this->em->getRepository(Orders::class)->find($order_id);
+
+            $order->setAddress($clinic_address);
+
+            $this->em->persist($order);
+            $this->em->flush();
+
+            $checkout_address = $clinic_address->getAddress() ."\n". $clinic_address->getCity() ."\n". $clinic_address->getPostalCode() ."\n". $clinic_address->getState();
+            $checkout_address_id = $clinic_address->getId();
+        }
+
         $addresses = $this->em->getRepository(Addresses::class)->findBy([
             'clinic' => $clinic->getId(),
             'isActive' => 1,
@@ -381,7 +621,9 @@ class AddressesController extends AbstractController
 
         $response = [
             'flash' => $flash,
-            'addresses' => $addresses
+            'addresses' => $addresses,
+            'checkout_address' => $checkout_address,
+            'checkout_address_id' => $checkout_address_id
         ];
 
         return new JsonResponse($response);

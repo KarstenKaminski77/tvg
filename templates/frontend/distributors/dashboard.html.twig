@@ -3,7 +3,7 @@
 {% block title %}Hello DistributorsController!{% endblock %}
 
 {% block body %}
-    <div class="hidden users-flash" id="flash"></div>
+    <div class="hidden users-flash mb-0" id="flash"></div>
     <div class="container">
 
         {# Account & Settings #}
@@ -616,6 +616,14 @@
         </div>
         {# End Users #}
 
+        {# Orders #}
+        <div class="row" id="order_container"></div>
+        {# End Orders #}
+    </div>
+    <div class="overlay"></div>
+    <div class="spanner">
+        <div class="loader"></div>
+        <p>Loading...</p>
     </div>
 {% endblock %}
 
@@ -625,6 +633,16 @@
     <script>
 
         $(document).ready(function(){
+
+            function getFlash(flash){
+                $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
+                $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(flash).removeClass('hidden');
+
+                setTimeout(function() {
+                    $('#flash').removeClass('alert-success').removeClass('alert').removeClass('text-center');
+                    $('#flash').removeClass('users-flash').empty().addClass('hidden');
+                }, 5000);
+            }
 
             let account_settings = $('#account_settings');
             let about = $('#about');
@@ -636,6 +654,11 @@
             let inventory_item = $('#inventory_item');
             let users = $('#users');
             let inventory_clear = $('#inventory_clear');
+            let order_container = $('#order_container');
+            let get_messages = '';
+            let date = new Date();
+            let date_time = date.getFullYear() +'-'+ (date.getMonth() + 1) +'-'+ date.getDate() +' '+ String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") +':'+ String(date.getSeconds()).padStart(2, '0');
+            sessionStorage.setItem('date_time', date_time);
 
             about.hide();
             operating_hours.hide();
@@ -646,6 +669,450 @@
             inventory_item.hide();
             users.hide();
             inventory_clear.hide();
+            order_container.hide();
+
+            {# Orders #}
+            {# Orders List #}
+            $('#orders_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                inventory.hide();
+                inventory_search.hide();
+                inventory_item.hide();
+                users.hide();
+                inventory_clear.hide();
+                order_container.empty().show();
+
+                $.ajax({
+                    url: "{{ path('distributor_get_order_list') }}",
+                    type: 'GET',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+                        $('#order_container').empty().append(response);
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
+            {# Order Details #}
+            let uri = '{{ app.request.requestUri }}';
+            let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+');
+            let orderid = '{{app.request.get('order_id')}}';
+            let distributorid = '{{app.request.get('distributor_id')}}';
+
+            if('{{order_detail}}' == 1 && orderid > 0 && '{{distributor.id}}' > 0) {
+
+                getOrderDetails(orderid, distributorid, '{{clinic_id}}');
+            }
+            function getOrderDetails(order_id, distributor_id, clinic_id){
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                inventory.hide();
+                inventory_search.hide();
+                inventory_item.hide();
+                users.hide();
+                inventory_clear.hide();
+                order_container.show();
+
+                $.ajax({
+                    url: "{{ path('distributor_get_order_details') }}",
+                    type: 'POST',
+                    data: {
+                        order_id: order_id
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+
+                        // Reset page load time for refresh button alert
+                        date_time = date.getFullYear() +'-'+ (date.getMonth() + 1) +'-'+ date.getDate() +' '+ String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") +':'+ String(date.getSeconds()).padStart(2, '0');
+                        sessionStorage.setItem('date_time', date_time);
+
+                        $('#order_container').empty().append(response);
+                        $('#distributor_chat_inner').scrollTop($('#distributor_chat_inner').prop("scrollHeight"));
+
+                        getChat(order_id, distributor_id, clinic_id)
+                        $('#chat_pulse').hide();
+
+                        var maxWidth = Math.max.apply( null, $( '.badge' ).map( function () {
+                            return $( this ).outerWidth( true );
+                        }).get() );
+
+                        $('.badge').css({'width':maxWidth+'px'});
+                    }
+                });
+            }
+            $(document).on('click', '.order_detail_link, .refresh-distributor-order', function (e){
+
+                e.preventDefault();
+
+                let order_id = $(this).data('order-id');
+                let distributor_id = $(this).data('distributor-id');
+                let clinic_id = $(this).data('clinic-id');
+
+                sessionStorage.setItem('order_id', order_id);
+                window.history.pushState(null, "Fluid", '/distributors/order/'+ order_id);
+
+                getOrderDetails(order_id, distributor_id, clinic_id);
+                checkLastModified(order_id);
+            });
+
+            function getLastModified(order_id){
+
+                session_date_time = sessionStorage.getItem('date_time');
+
+                $.ajax({
+                    url: "{{ path('get_order_last_update') }}",
+                    type: 'POST',
+                    cache: false,
+                    timeout: 10000,
+                    data: {
+                        order_id: order_id
+                    },
+                    success: function (response) {
+                        console.log(response +' '+ session_date_time);
+                        if (response > session_date_time) {
+                            console.log('add class');
+                            $('.refresh-distributor-order').removeClass('blinking-text').addClass('blinking-text');
+
+                            date = new Date();
+                            date_time = date.getFullYear() +'-'+ (date.getMonth() + 1) +'-'+ date.getDate() +' '+ String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") +':'+ String(date.getSeconds()).padStart(2, '0');
+
+                            sessionStorage.setItem('date_time', date_time);
+
+                        }
+                    }
+                });
+            };
+
+            function checkLastModified(order_id) {
+                setInterval(function(){ getLastModified(order_id, distributor_id); }, 5000);
+            }
+
+            let chat_pulse = $('#chat_pulse');
+            let chat_field = $('#chat_field');
+            let order_id = $('#chat_field').data('order-id');
+            let distributor_id = $('#chat_field').data('distributor-id');
+
+            $.ajax({
+                url: "{{ path('is_typing') }}",
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    order_id: order_id,
+                    distributor_id: distributor_id,
+                    is_typing: 0,
+                },
+                success: function (response) {
+
+                    $('#chat_pulse').hide();
+                }
+            });
+            $(document).on('click','#chat_field', function () {
+
+                chat_pulse = $('#chat_pulse');
+                chat_field = $('#chat_field');
+                order_id = $(this).data('order-id');
+                distributor_id = $(this).data('distributor-id');
+
+                $.ajax({
+                    url: "{{ path('is_typing') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        order_id: order_id,
+                        distributor_id: distributor_id,
+                        is_clinic: 0,
+                        is_distributor: 1,
+                        is_typing: 1,
+                    },
+                    success: function (response) {
+
+                        if(response.clinic_is_typing > 0) {
+
+                            $('#chat_pulse').show();
+
+                        } else {
+
+                            $('#chat_pulse').hide();
+                        }
+                    }
+                });
+            });
+            $(document).on('blur','#chat_field', function (){
+
+                $.ajax({
+                    url: "{{ path('is_typing') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        order_id: order_id,
+                        distributor_id: distributor_id,
+                        is_clinic: 0,
+                        is_distributor: 1,
+                        is_typing: 0,
+                    },
+                    success: function (response) {
+
+                        $(chat_pulse).hide();
+                    }
+                });
+            });
+            $(document).on('click', '#btn_chat_send', function (e){
+
+                e.preventDefault();
+
+                let message = $('#chat_field').val();
+
+                if(message.length > 0){
+
+                    $.ajax({
+                        url:"{{ path('clinic_send_message') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            distributor: 1,
+                            clinic: 0,
+                            distributor_id: $(this).data('distributor-id'),
+                            message: message,
+                            order_id: $(this).data('order-id')
+                        },
+                        success: function(response) {
+                            $('#distributor_chat_container').empty().append(response);
+                            $('#distributor_chat_inner').scrollTop($('#distributor_chat_inner').prop("scrollHeight"));
+                            $('#chat_field').val('');
+                            $('#chat_pulse').hide();
+                        }
+                    });
+                }
+            });
+            $(document).on('click', '#order_send_notification', function (e){
+
+                e.preventDefault();
+
+                let order_id = $(this).data('order-id');
+                let distributor_id = $(this).data('distributor-id');
+                let clinic_id = $(this).data('clinic-id');
+
+                if(order_id > 0 && distributor_id > 0){
+
+                    $.ajax({
+                        url:"{{ path('distributor_send_order_notification') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            order_id: order_id,
+                            distributor_id: distributor_id,
+                            clinic_id: clinic_id
+                        },
+                        beforeSend: function () {
+                            $("div.spanner").addClass("show");
+                            $("div.overlay").addClass("show");
+                        },
+                        success: function(response) {
+                            $("div.spanner").removeClass("show");
+                            $("div.overlay").removeClass("show");
+                            getFlash(response);
+                        }
+                    });
+                }
+            });
+            $(document).on('click', '.btn_confirm', function (e){
+
+                e.preventDefault();
+
+                let item_id = $(this).data('item-id');
+
+                if(item_id > 0){
+
+                    $.ajax({
+                        url:"{{ path('distributor_update_order_item_status') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            item_id: item_id,
+                            confirmed_status: 1
+                        },
+                        beforeSend: function () {
+                            $("div.spanner").addClass("show");
+                            $("div.overlay").addClass("show");
+                        },
+                        success: function(response) {
+                            getFlash(response.flash);
+                            getOrderDetails(response.order_id, response.distributor_id, response.clinic_id);
+                            $("div.spanner").removeClass("show");
+                            $("div.overlay").removeClass("show");
+                        }
+                    });
+                }
+            });
+            $(document).on('click', '.btn_pending', function (e){
+
+                e.preventDefault();
+
+                let item_id = $(this).data('item-id');
+
+                if(item_id > 0){
+
+                    $.ajax({
+                        url:"{{ path('distributor_update_order_item_status') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            item_id: item_id,
+                            confirmed_status: 0
+                        },
+                        beforeSend: function () {
+                            $("div.spanner").addClass("show");
+                            $("div.overlay").addClass("show");
+                        },
+                        success: function(response) {
+                            getFlash(response.flash);
+                            getOrderDetails(response.order_id, response.distributor_id, response.clinic_id);
+                            $("div.spanner").removeClass("show");
+                            $("div.overlay").removeClass("show");
+                        }
+                    });
+                }
+            });
+            $(document).on('submit', '#form_distributor_orders', function (e){
+
+                e.preventDefault();
+
+                let data = new FormData(this);
+                let product_id = data.getAll('product_id[]');
+                let exp_dates = data.getAll('expiry_date[]');
+                let prices = data.getAll('price[]');
+                let qtys = data.getAll('qty[]');
+                let is_valid = true;
+
+                for($i = 0; $i < product_id.length; $i++){
+
+                    let error_exp_date = $('#error_expiry_date_'+ product_id[$i]);
+                    let error_price = $('#error_price_'+ product_id[$i]);
+                    let error_qty = $('#error_qty_'+ product_id[$i]);
+                    let exp_date = exp_dates[$i];
+                    let price = prices[$i];
+                    let qty = qtys[$i];
+
+                    error_exp_date.hide();
+                    error_price.hide();
+                    error_qty.hide();
+
+                    if((exp_date == '' || exp_date == 'undefined') && exp_date !== 0){
+
+                        error_exp_date.show();
+                        is_valid = false;
+                    }
+
+                    if(price == '' || price == 'undefined'){
+
+                        error_price.show();
+                        is_valid = false;
+                    }
+
+                    if(qty == '' || qty == 'undefined'){
+
+                        error_qty.show();
+                        is_valid = false;
+                    }
+                }
+
+                if(is_valid) {
+
+                    $.ajax({
+                        url: "{{ path('distributor_update_order') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        beforeSend: function () {
+                            $("div.spanner").addClass("show");
+                            $("div.overlay").addClass("show");
+                        },
+                        success: function (response) {
+                            getFlash(response.flash);
+                            getOrderDetails(response.order_id, response.distributor_id, response.clinic_id);
+                            $("div.spanner").removeClass("show");
+                            $("div.overlay").removeClass("show");
+
+                            date = new Date();
+                            date_time = date.getFullYear() +'-'+ (date.getMonth() + 1) +'-'+ date.getDate() +' '+ String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") +':'+ String(date.getSeconds()).padStart(2, '0');
+
+                            sessionStorage.setItem('date_time', date_time);
+                        }
+                    });
+                }
+            });
+
+            function getMessages(distributor_id, clinic_id){
+
+                let uri = '{{ app.request.requestUri }}';
+                let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+');
+                order_id = sessionStorage.getItem('order_id');
+
+                if(is_order_detail != null && order_id > 0) {
+
+                    let messages_sent = $('.speech-bubble-right').length;
+                    let messages_received = $('.speech-bubble-left').length;
+                    let total_messages = messages_sent + messages_received;
+
+                    if('{{app.request.get('order_id')}}' != '') {
+                        $.ajax({
+                            url: "{{ path('get_messages') }}",
+                            type: 'GET',
+                            cache: false,
+                            timeout: 10000,
+                            data: {
+                                distributor: 1,
+                                clinic: 0,
+                                order_id: order_id,
+                                distributor_id: distributor_id,
+                                clinic_id: clinic_id,
+                                total_messages: total_messages
+                            },
+                            success: function (response) {
+
+                                if (response.messages.length > 0) {
+
+                                    $('#distributor_chat_container').empty().append(response.messages);
+                                    $('#distributor_chat_inner').scrollTop($('#distributor_chat_inner').prop("scrollHeight"));
+                                }
+
+                                if (response.is_typing == 1) {
+
+                                    $('#chat_pulse').show();
+
+                                } else {
+
+                                    $('#chat_pulse').hide();
+                                }
+                            }
+                        });
+                    }
+                }
+            };
+
+            function getChat(order_id, distributor_id, clinic_id) {
+                get_messages = setInterval(function(){ getMessages(distributor_id, clinic_id); }, 5000);
+            }
+            {# End Orders #}
 
             {# Account & Settings #}
             $('#account_settings_link').click(function (e){
@@ -661,6 +1128,10 @@
                 inventory_search.hide();
                 inventory_item.hide();
                 users.hide();
+                order_container.hide();
+
+                clearInterval(get_messages);
+                window.history.pushState(null, "Fluid", '/clinics/dashboard');
             });
 
             {# About #}
@@ -677,6 +1148,9 @@
                 inventory_search.hide();
                 inventory_item.hide();
                 users.hide();
+                order_container.hide();
+
+                window.history.pushState(null, "Fluid", '/clinics/dashboard');
             });
 
             {# Operating Hours #}
@@ -693,6 +1167,9 @@
                 inventory_search.hide();
                 inventory_item.hide();
                 users.hide();
+                order_container.hide();
+
+                window.history.pushState(null, "Fluid", '/clinics/dashboard');
             });
 
             {# Refund Policy #}
@@ -709,6 +1186,9 @@
                 inventory_search.hide();
                 inventory_item.hide();
                 users.hide();
+                order_container.hide();
+
+                window.history.pushState(null, "Fluid", '/clinics/dashboard');
             });
 
             {# Sales Tax Policy #}
@@ -725,6 +1205,9 @@
                 inventory_search.hide();
                 inventory_item.hide();
                 users.hide();
+                order_container.hide();
+
+                window.history.pushState(null, "Fluid", '/clinics/dashboard');
             });
 
             {# Inventory #}
@@ -741,6 +1224,9 @@
                 inventory_search.show();
                 inventory_item.hide();
                 users.hide();
+                order_container.hide();
+
+                window.history.pushState(null, "Fluid", '/clinics/inventory');
             });
 
             {# Users #}
@@ -757,6 +1243,9 @@
                 inventory_search.hide();
                 inventory_item.hide();
                 users.show();
+                order_container.hide();
+
+                window.history.pushState(null, "Fluid", '/clinics/dashboard');
             });
 
             {# Update Personal Information #}
@@ -1147,6 +1636,7 @@
                 inventory_search.hide();
                 inventory_item.hide();
                 users.show();
+                order_container.hide();
             });
 
             {# Clear Search #}

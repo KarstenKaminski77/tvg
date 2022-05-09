@@ -14,6 +14,7 @@
         "doctrine/orm": "^2.11",
         "easycorp/easyadmin-bundle": "^3",
         "friendsofsymfony/ckeditor-bundle": "^2.4",
+        "h4cc/wkhtmltopdf-amd64": "0.12.x",
         "knplabs/knp-snappy-bundle": "^1.9",
         "liip/imagine-bundle": "^2.7",
         "phpdocumentor/reflection-docblock": "^5.3",

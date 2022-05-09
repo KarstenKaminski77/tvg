@@ -41,4 +41,26 @@ class DistributorsRepository extends ServiceEntityRepository
             ->setParameter('distributor_id', $distributor_id);
         return $queryBuilder->getQuery()->getResult();
     }
+
+    /**
+     * @return Distributors[] Returns an array of OrderItems objects
+     */
+    public function findByOrderId($order_id)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));";
+        $stmt = $conn->prepare($sql);
+        $stmt->executeStatement();
+
+        return $this->createQueryBuilder('d')
+            ->select('d', 'oi')
+            ->join('d.orderItems', 'oi')
+            ->andWhere('oi.orders = :val')
+            ->setParameter('val', $order_id)
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

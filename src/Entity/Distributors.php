@@ -134,6 +134,31 @@ class Distributors
      */
     private $availabilityTrackers;
 
+    /**
+     * @ORM\Column(type="string", length=3, nullable=true)
+     */
+    private $poNumberPrefix;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ChatParticipants::class, mappedBy="distributor")
+     */
+    private $chatParticipants;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ChatMessages::class, mappedBy="distributor")
+     */
+    private $chatMessages;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Notifications::class, mappedBy="distributor")
+     */
+    private $notifications;
+
+    /**
+     * @ORM\OneToMany(targetEntity=OrderStatus::class, mappedBy="distributor")
+     */
+    private $orderStatuses;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -152,6 +177,10 @@ class Distributors
         $this->basketItems = new ArrayCollection();
         $this->clinicProducts = new ArrayCollection();
         $this->availabilityTrackers = new ArrayCollection();
+        $this->chatParticipants = new ArrayCollection();
+        $this->chatMessages = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
+        $this->orderStatuses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -609,6 +638,138 @@ class Distributors
             // set the owning side to null (unless already changed)
             if ($availabilityTracker->getDistributor() === $this) {
                 $availabilityTracker->setDistributor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPoNumberPrefix(): ?string
+    {
+        return $this->poNumberPrefix;
+    }
+
+    public function setPoNumberPrefix(?string $poNumberPrefix): self
+    {
+        $this->poNumberPrefix = $poNumberPrefix;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChatParticipants>
+     */
+    public function getChatParticipants(): Collection
+    {
+        return $this->chatParticipants;
+    }
+
+    public function addChatParticipant(ChatParticipants $chatParticipant): self
+    {
+        if (!$this->chatParticipants->contains($chatParticipant)) {
+            $this->chatParticipants[] = $chatParticipant;
+            $chatParticipant->setDistributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatParticipant(ChatParticipants $chatParticipant): self
+    {
+        if ($this->chatParticipants->removeElement($chatParticipant)) {
+            // set the owning side to null (unless already changed)
+            if ($chatParticipant->getDistributor() === $this) {
+                $chatParticipant->setDistributor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChatMessages>
+     */
+    public function getChatMessages(): Collection
+    {
+        return $this->chatMessages;
+    }
+
+    public function addChatMessage(ChatMessages $chatMessage): self
+    {
+        if (!$this->chatMessages->contains($chatMessage)) {
+            $this->chatMessages[] = $chatMessage;
+            $chatMessage->setDistributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatMessage(ChatMessages $chatMessage): self
+    {
+        if ($this->chatMessages->removeElement($chatMessage)) {
+            // set the owning side to null (unless already changed)
+            if ($chatMessage->getDistributor() === $this) {
+                $chatMessage->setDistributor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notifications>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notifications $notification): self
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications[] = $notification;
+            $notification->setDistributors($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notifications $notification): self
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getDistributors() === $this) {
+                $notification->setDistributors(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrderStatus>
+     */
+    public function getOrderStatuses(): Collection
+    {
+        return $this->orderStatuses;
+    }
+
+    public function addOrderStatus(OrderStatus $orderStatus): self
+    {
+        if (!$this->orderStatuses->contains($orderStatus)) {
+            $this->orderStatuses[] = $orderStatus;
+            $orderStatus->setDistributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderStatus(OrderStatus $orderStatus): self
+    {
+        if ($this->orderStatuses->removeElement($orderStatus)) {
+            // set the owning side to null (unless already changed)
+            if ($orderStatus->getDistributor() === $this) {
+                $orderStatus->setDistributor(null);
             }
         }
 

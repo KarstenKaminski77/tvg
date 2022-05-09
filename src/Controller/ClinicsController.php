@@ -35,7 +35,7 @@ class ClinicsController extends AbstractController
     {
         $clinics = new Clinics();
         $clinic_users = new ClinicUsers();
-
+        dd($request->request->get('basket-id'));
         $clinics->getClinicUsers()->add($clinic_users);
 
         $form = $this->createForm(ClinicFormType::class, $clinics)->createView();
