@@ -49,6 +49,7 @@ class ChatMessagesController extends AbstractController
         $chat_message->setIsClinic($is_clinic);
 
         $this->em->persist($chat_message);
+        $this->em->flush();
 
         $chat_messages = $this->em->getRepository(ChatMessages::class)->findBy([
             'orders' => $order_id,
