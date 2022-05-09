@@ -1209,8 +1209,8 @@
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        order_id: order_id,
-                        distributor_id: distributor_id,
+                        order_id: orderid,
+                        distributor_id: distributorid,
                         is_typing: 0,
                         is_clinic: 1,
                         is_distributor: 0,
@@ -1237,6 +1237,7 @@
                             order_id: $(this).data('order-id')
                         },
                         success: function(response) {
+
                             $('#distributor_chat_container').empty().append(response);
                             $('#distributor_chat_inner').scrollTop($('#distributor_chat_inner').prop("scrollHeight"));
                             $('#chat_field').val('');
@@ -1247,7 +1248,7 @@
             function getMessages(order_id, distributor_id, clinic_id){
 
                 let uri = '{{ app.request.requestUri }}';
-                let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+[0-9]+');
+                let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+/[0-9]+');
 
                 if(is_order_detail != null) {
 

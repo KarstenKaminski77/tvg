@@ -58,7 +58,7 @@
                             Email Address
                         </label>
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-phone"></i></span>
+                            <span class="input-group-text" id="basic-addon1">@</span>
                             {{ form_widget(form.email,{id: 'email', 'attr': {
                                 'class': 'form-control',
                                 'placeholder': 'Email*',
@@ -73,10 +73,10 @@
                     {# Telephone #}
                     <div class="col-12 col-sm-6">
                         <label>
-                            Email Address
+                            Telephone
                         </label>
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon1">@</span>
+                            <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-phone"></i></span>
                             {{ form_widget(form.telephone,{id: 'telephone', 'attr': {
                                 'class': 'form-control',
                                 'placeholder': 'Telephone*',
@@ -707,8 +707,8 @@
             {# Order Details #}
             let uri = '{{ app.request.requestUri }}';
             let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+');
-            let orderid = '{{app.request.get('order_id')}}';
-            let distributorid = '{{app.request.get('distributor_id')}}';
+            let orderid = $(this).data('distributor-id');
+            let distributorid = $(this).data('order-id');
 
             if('{{order_detail}}' == 1 && orderid > 0 && '{{distributor.id}}' > 0) {
 
@@ -760,8 +760,8 @@
                 e.preventDefault();
 
                 let order_id = $(this).data('order-id');
-                let distributor_id = $(this).data('distributor-id');
                 let clinic_id = $(this).data('clinic-id');
+                let distributor_id = $(this).data('distributor-id');
 
                 sessionStorage.setItem('order_id', order_id);
                 window.history.pushState(null, "Fluid", '/distributors/order/'+ order_id);

@@ -906,7 +906,7 @@ class OrdersController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributors/order/', name: 'distributor_get_order_details')]
+    #[Route('/distributors/order', name: 'distributor_get_order_details')]
     public function distributorOrderDetailAction(Request $request): Response
     {
         $order_id = $request->request->get('order_id');
@@ -1192,7 +1192,7 @@ class OrdersController extends AbstractController
                                             id="chat_field" 
                                             class="form-control form-control-sm border-0"  
                                             autocomplete="off"
-                                            data-distributor-id="'. $order_id .'"
+                                            data-distributor-id="'. $orders[0]->getDistributor()->getId() .'"
                                             data-order-id="'. $order_id .'"
                                             data-clinic-id="0"
                                         />
@@ -1511,7 +1511,7 @@ class OrdersController extends AbstractController
                                             id="chat_field" 
                                             class="form-control form-control-sm border-0"  
                                             autocomplete="off"
-                                            data-distributor-id="'. $order_id .'"
+                                            data-distributor-id="'. $distributor_id .'"
                                             data-order-id="'. $order_id .'"
                                             data-clinic-id="'. $orders[0]->getOrders()->getClinic()->getId() .'"
                                         />
