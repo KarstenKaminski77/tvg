@@ -86,6 +86,28 @@ class OrderItemsRepository extends ServiceEntityRepository
     /**
      * @return OrderItems[] Returns an array of OrderItems objects
      */
+    public function findSumTotalPdfOrderItems($order_id, $distributor_id)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));";
+        $stmt = $conn->prepare($sql);
+        $stmt->executeStatement();
+
+        return $this->createQueryBuilder('o')
+            ->select('SUM(o.total) as totals')
+            ->andWhere('o.orders = :order_id')
+            ->setParameter('order_id', $order_id)
+            ->andWhere('o.distributor = :distributor_id')
+            ->setParameter('distributor_id', $distributor_id)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    /**
+     * @return OrderItems[] Returns an array of OrderItems objects
+     */
     public function findByDistributorOrder($order_id, $distributor_id)
     {
         return $this->createQueryBuilder('o')

@@ -40,14 +40,14 @@ class OrderStatus
     private $distributor;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $status;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $poFile;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Status::class, inversedBy="orderStatuses")
+     */
+    private $status;
 
     public function __construct()
     {
@@ -110,18 +110,6 @@ class OrderStatus
         return $this;
     }
 
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): self
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
     public function getPoFile(): ?string
     {
         return $this->poFile;
@@ -130,6 +118,18 @@ class OrderStatus
     public function setPoFile(?string $poFile): self
     {
         $this->poFile = $poFile;
+
+        return $this;
+    }
+
+    public function getStatus(): ?Status
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?Status $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }

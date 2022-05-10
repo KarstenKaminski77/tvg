@@ -25,11 +25,6 @@ class Status
     private $status;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $type;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $modified;
@@ -54,10 +49,16 @@ class Status
      */
     private $eventLogs;
 
+    /**
+     * @ORM\OneToMany(targetEntity=OrderStatus::class, mappedBy="status")
+     */
+    private $orderStatuses;
+
     public function __construct()
     {
         $this->orders = new ArrayCollection();
         $this->eventLogs = new ArrayCollection();
+        $this->orderStatuses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,18 +74,6 @@ class Status
     public function setStatus(string $status): self
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): self
-    {
-        $this->type = $type;
 
         return $this;
     }
@@ -167,6 +156,36 @@ class Status
             // set the owning side to null (unless already changed)
             if ($eventLog->getStatus() === $this) {
                 $eventLog->setStatus(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrderStatus>
+     */
+    public function getOrderStatuses(): Collection
+    {
+        return $this->orderStatuses;
+    }
+
+    public function addOrderStatus(OrderStatus $orderStatus): self
+    {
+        if (!$this->orderStatuses->contains($orderStatus)) {
+            $this->orderStatuses[] = $orderStatus;
+            $orderStatus->setStatus($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderStatus(OrderStatus $orderStatus): self
+    {
+        if ($this->orderStatuses->removeElement($orderStatus)) {
+            // set the owning side to null (unless already changed)
+            if ($orderStatus->getStatus() === $this) {
+                $orderStatus->setStatus(null);
             }
         }
 

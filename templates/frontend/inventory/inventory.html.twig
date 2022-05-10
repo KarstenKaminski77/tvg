@@ -1100,10 +1100,16 @@
                         item_id: item_id,
                         link: 'accept'
                     },
+                    beforeSend: function () {
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
                     success: function (response) {
                         $('#order_item_accept_'+ item_id).removeClass('badge-success-outline-only').addClass(response.class);
                         $('#order_item_renegotiate_'+ item_id).removeClass('bg-warning').addClass('badge-warning-outline-only');
                         $('#order_item_cancel_'+ item_id).removeClass('bg-danger').addClass('badge-danger-outline-only');
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();
                         $('#order_action_row').append(response.btn);
@@ -1126,6 +1132,10 @@
                         item_id: item_id,
                         link: 'renegotiate'
                     },
+                    beforeSend: function () {
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
                     success: function (response) {
 
                         $('#order_item_accept_'+ item_id).removeClass('bg-success').addClass('badge-success-outline-only');
@@ -1133,6 +1143,8 @@
                         $('#order_item_cancel_'+ item_id).removeClass('bg-danger').addClass('badge-danger-outline-only');
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
                         $('#order_action_row').append(response.btn);
                     }
                 });
@@ -1153,10 +1165,16 @@
                         item_id: item_id,
                         link: 'cancelled'
                     },
+                    beforeSend: function () {
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
                     success: function (response) {
                         $('#order_item_accept_'+ item_id).removeClass('bg-success').addClass('badge-success-outline-only');
                         $('#order_item_renegotiate_'+ item_id).removeClass('bg-warning').addClass('badge-warning-outline-only');
                         $('#order_item_cancel_'+ item_id).removeClass('badge-danger-outline-only').addClass(response.class);
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();
                         $('#order_action_row').append(response.btn);
@@ -1165,7 +1183,34 @@
             });
             $(document).on('click', '#btn_confirm_order', function (e){
 
+                e.preventDefault();
 
+                let order_id = $(this).data('order-id');
+                let distributor_id = $(this).data('distributor-id');
+                let clinic_id = $(this).data('clinic-id');
+
+                $.ajax({
+                    url: "{{ path('clinic_confirm_order') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        order_id: order_id,
+                        distributor_id: distributor_id,
+                        clinic_id: clinic_id
+                    },
+                    beforeSend: function () {
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+                        getFlash(response.flash);
+                        $('#basket_container').empty().removeClass('col-container').append(response.orders).show();
+                        clearInterval(get_messages);
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                        window.history.pushState(null, "Fluid", '/clinics/orders');
+                    }
+                });
             });
 
             {# Instant Messenger #}

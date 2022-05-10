@@ -707,12 +707,14 @@
             {# Order Details #}
             let uri = '{{ app.request.requestUri }}';
             let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+');
-            let orderid = $(this).data('distributor-id');
-            let distributorid = $(this).data('order-id');
 
-            if('{{order_detail}}' == 1 && orderid > 0 && '{{distributor.id}}' > 0) {
+            let orderid = '{{app.request.get('order_id')}}';
+            let distributorid = '{{distributor.id}}';
+            let clinicid = '{{clinic_id}}';
 
-                getOrderDetails(orderid, distributorid, '{{clinic_id}}');
+            if(is_order_detail != null && orderid > 0 && distributorid > 0 && clinicid > 0) {
+
+                getOrderDetails(orderid, distributorid, clinicid);
             }
             function getOrderDetails(order_id, distributor_id, clinic_id){
 

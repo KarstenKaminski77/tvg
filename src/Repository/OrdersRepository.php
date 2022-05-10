@@ -54,13 +54,14 @@ class OrdersRepository extends ServiceEntityRepository
                 c.id as clinic_id,
                 (
                     SELECT
-                        status
+                        s.status
                     FROM
-                        order_status
+                        order_status os
+                        JOIN status s ON os.status_id = s.id
                     WHERE
-                        orders_id = o.id
+                        os.orders_id = o.id
                     AND 
-                        distributor_id = oi.distributor_id
+                        os.distributor_id = oi.distributor_id
                 ) as status,
                 (
                     SELECT

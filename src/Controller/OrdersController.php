@@ -14,12 +14,15 @@ use App\Entity\OrderItems;
 use App\Entity\Orders;
 use App\Entity\OrderStatus;
 use App\Entity\Products;
+use App\Entity\Status;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Snappy\Pdf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
@@ -154,12 +157,13 @@ class OrdersController extends AbstractController
                 if($distributor_id != $basket_item->getDistributor()->getId()){
 
                     $distributor_id = $basket_item->getDistributor()->getId();
+                    $status = $this->em->getRepository(Status::class)->find(2);
 
                     $order_status = new OrderStatus();
 
                     $order_status->setOrders($order);
                     $order_status->setDistributor($basket_item->getDistributor());
-                    $order_status->setStatus('Pending');
+                    $order_status->setStatus($status);
 
                     $this->em->persist($order_status);
                 }
@@ -640,7 +644,7 @@ class OrdersController extends AbstractController
             $subject = 'Fluid Order';
             $distributor_name = $order_items[0]->getDistributor()->getDistributorName();
             $po_number = $order_items[0]->getPoNumber();
-            $order_url = 'https://127.0.0.1:8000/distributors/order/'. $order_items[0]->getOrders()->getId();
+            $order_url = $this->getParameter('app.base_url') . '/distributors/order/'. $order_items[0]->getOrders()->getId();
             $i = 0;
 
             $rows = '
@@ -808,10 +812,12 @@ class OrdersController extends AbstractController
                 $this->em->persist($order_item);
             }
 
-            $sum_total = $this->em->getRepository(OrderItems::class)->findSumTotalOrderItems($order_id, $distributor->getId());
+            $this->em->flush();
+
+            $sum_total = $this->em->getRepository(OrderItems::class)->findSumTotalPdfOrderItems($order_id, $distributor->getId());
 
             $order->setSubTotal($sum_total[0]['totals']);
-            $order->setTotal($sum_total[0]['totals'] +  + $order->getDeliveryFee() + $order->getTax());
+            $order->setTotal($sum_total[0]['totals'] + $order->getDeliveryFee() + $order->getTax());
 
             $this->em->persist($order);
             $this->em->flush();
@@ -1292,7 +1298,7 @@ class OrdersController extends AbstractController
                                     ' . $order->getCreated()->format('Y-m-d') . '
                                 </div>
                                 <div class="col-12 col-sm-2 pt-3 pb-3">
-                                    ' . ucfirst($order->getOrderStatuses()[0]->getStatus()) . '
+                                    ' . ucfirst($order->getOrderStatuses()[0]->getStatus()->getStatus()) . '
                                 </div>
                                 <div class="col-12 col-sm-1 pt-3 pb-3 text-end">
                                     <a 
@@ -1342,6 +1348,10 @@ class OrdersController extends AbstractController
             'distributor' => $distributor_id
 
         ]);
+        $order_status = $this->em->getRepository(OrderStatus::class)->findOneBy([
+            'orders' => $order_id,
+            'distributor' => $distributor_id
+        ]);
         $date_sent = '';
         $messages = $this->forward('App\Controller\ChatMessagesController::getMessages', [
             'chat_messages' => $chat_messages,
@@ -1365,20 +1375,45 @@ class OrdersController extends AbstractController
                 <!-- Actions Row -->
                 <div class="row">
                     <div 
-                        class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3 bg-light border-left border-right"
+                        class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3"
                          id="order_action_row"
-                    >
-                        <a 
-                            href="#" 
-                            class="refresh-clinic-order" 
-                            data-order-id="'. $order_id .'"
-                            data-distributor-id="'. $distributor_id .'"
-                            data-clinic-id="'. $orders[0]->getOrders()->getClinic()->getId() .'"
-                        >
-                            <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
-                            <span class=" d-none d-md-inline-block pe-4">Refresh Order</span>
-                        </a>
-                        '. $this->btnConfirmOrder($orders, $order_id) .'
+                    >';
+
+                        // If order is preparing for shipping or later
+                        if($order_status->getStatus()->getId() < 5 && $order_status->getStatus()->getId() != 8) {
+
+                            $response .= '
+                            <a 
+                                href="#" 
+                                class="refresh-clinic-order" 
+                                data-order-id="' . $order_id . '"
+                                data-distributor-id="' . $distributor_id . '"
+                                data-clinic-id="' . $orders[0]->getOrders()->getClinic()->getId() . '"
+                            >
+                                <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
+                                <span class=" d-none d-md-inline-block pe-4">Refresh Order</span>
+                            </a>
+                            ' . $this->btnConfirmOrder($orders, $order_id, $distributor_id);
+
+                        } else {
+
+                            $response .= '
+                            <span class="text-primary pe-4">
+                                <b class="pe-2 d-none d-md-inline-block">Order Status:</b>
+                                '. $order_status->getStatus()->getStatus() .'
+                            </span>
+                            <a 
+                                href="'. $this->getParameter('app.base_url') .'/pdf_po.php?pdf='. $order_status->getPoFile() .'"
+                                id="btn_download_po"
+                                data-pdf="'. $order_status->getPoFile() .'"
+                                target="_blank"
+                            >
+                                <i class="fa-solid fa-file-pdf me-5 me-md-2"></i>
+                                <span class="d-none d-md-inline-block pe-4">Download</span>
+                            </a>';
+                        }
+
+                    $response .= '
                     </div>
                 </div>
                 <!-- Products -->
@@ -1389,6 +1424,7 @@ class OrdersController extends AbstractController
                         foreach($orders as $order) {
 
                             $expiry = '';
+                            $opacity = '';
 
                             if(!empty($order->getExpiryDate())){
 
@@ -1417,6 +1453,7 @@ class OrdersController extends AbstractController
                             if($order->getIsCancelled() == 1){
 
                                 $badge_cancelled = 'bg-danger';
+                                $opacity = 'opacity-50';
 
                             } else {
 
@@ -1427,14 +1464,14 @@ class OrdersController extends AbstractController
                             <!-- Product Name and Qty -->
                             <div class="row">
                                 <!-- Product Name -->
-                                <div class="col-12 col-sm-6 pt-3 pb-3">
+                                <div class="col-12 col-sm-6 pt-3 pb-3 '. $opacity .'">
                                     <span class="info">'. $order->getDistributor()->getDistributorName() .'</span>
                                     <h6 class="fw-bold text-center text-sm-start text-primary lh-base">
                                         '. $order->getName() .'
                                     </h6>
                                 </div>
                                 <!-- Expiry Date -->
-                                <div class="col-12 col-sm-6 pt-3 pb-3 d-table">
+                                <div class="col-12 col-sm-6 pt-3 pb-3 d-table '. $opacity .'">
                                     <div class="row d-table-row">
                                         <div class="col-6 text-center text-sm-end d-table-cell align-bottom text-end alert-text-grey">
                                             '. $expiry .'
@@ -1455,26 +1492,50 @@ class OrdersController extends AbstractController
 
                                     if($order->getIsConfirmedDistributor() == 1) {
 
-                                        $response .= '
-                                        <a href="#" 
-                                            class="badge float-end ms-2 text-success border-1 text-light order_item_accept ' . $badge_accept . '"
-                                            data-order-id="' . $order_id . '"
-                                            data-item-id="' . $order->getId() . '"
-                                            id="order_item_accept_' . $order->getId() . '"
-                                        >Accept</a>
-                                        <a href="#" 
-                                            class="badge float-end ms-2 text-warning border-1 text-light order_item_renegotiate ' . $badge_renegotiate . '"
-                                            data-order-id="' . $order_id . '"
-                                            data-item-id="' . $order->getId() . '"
-                                            id="order_item_renegotiate_' . $order->getId() . '"
-                                        >Renegotiate</a>
-                                        <a href="#" 
-                                            class="badge float-end text-light order_item_cancel ' . $badge_cancelled . '"
-                                            data-order-id="' . $order_id . '"
-                                            data-item-id="' . $order->getId() . '"
-                                            id="order_item_cancel_' . $order->getId() . '"
-                                        >Cancel</a>';
+                                        // If order is preparing for shipping or later
+                                        if($order->getOrders()->getOrderStatuses()[0]->getStatus()->getId() >= 5){
 
+                                            if($order->getIsAccepted() == 1){
+
+                                                $response .= '
+                                                <span 
+                                                    class="badge float-end ms-2 text-success border border-success text-light bg-success"
+                                                >Accepted</span>';
+                                            }
+
+                                            if($order->getIsCancelled() == 1){
+
+                                                $response .= '
+                                                <span 
+                                                    class="badge float-end ms-2 text-success border border-danger text-light bg-danger"
+                                                >Cancelled</span>';
+                                            }
+
+                                        // Accept, Renegotiate and Cancel
+                                        } else {
+
+                                            $response .= '
+                                            <a href="#" 
+                                                class="badge float-end ms-2 text-success border-1 text-light order_item_accept ' . $badge_accept . '"
+                                                data-order-id="' . $order_id . '"
+                                                data-item-id="' . $order->getId() . '"
+                                                id="order_item_accept_' . $order->getId() . '"
+                                            >Accept</a>
+                                            <a href="#" 
+                                                class="badge float-end ms-2 text-warning border-1 text-light order_item_renegotiate ' . $badge_renegotiate . '"
+                                                data-order-id="' . $order_id . '"
+                                                data-item-id="' . $order->getId() . '"
+                                                id="order_item_renegotiate_' . $order->getId() . '"
+                                            >Renegotiate</a>
+                                            <a href="#" 
+                                                class="badge float-end text-light order_item_cancel ' . $badge_cancelled . '"
+                                                data-order-id="' . $order_id . '"
+                                                data-item-id="' . $order->getId() . '"
+                                                id="order_item_cancel_' . $order->getId() . '"
+                                            >Cancel</a>';
+                                        }
+
+                                    // Pending Distributor
                                     } else {
 
                                         $response .= '<span class="badge bg-dark-grey float-end">Pending Distributor Confirmation</span>';
@@ -1682,11 +1743,13 @@ class OrdersController extends AbstractController
         }
 
         $this->em->persist($order_item);
+        $this->em->flush();
 
         // Order Status
         $accepted = 0;
         $negotiating = 0;
         $cancelled = 0;
+        $status_id = 0;
         $action_required = false;
 
         foreach($order_items as $item){
@@ -1704,30 +1767,39 @@ class OrdersController extends AbstractController
             }
         }
 
-        if($accepted == 0 && $negotiating == 0 && $cancelled == 0 && !$action_required) {
+        // Pending
+        if($accepted == 0 && $negotiating == 0 && $cancelled == 0) {
 
-            $status = 'Pending';
+            $status_id = 2;
 
+        // Negotiating
         } elseif($negotiating > 0 && !$action_required){
 
-            $status = 'Renegotiating';
+            $status_id = 4;
 
+        // Accepted
         } elseif($accepted > 0 && $negotiating == 0 && $cancelled >= 0 && !$action_required){
 
-            $status = 'Awaiting Shipping';
+            $status_id = 1;
 
+        // Cancelled
         } elseif($accepted == 0 && $negotiating == 0 && $cancelled > 0 && !$action_required){
 
-            $status = 'Cancelled';
+            $status_id = 8;
 
+        // Pending
+        } elseif($action_required){
+
+            $status_id = 2;
         }
 
+        $status = $this->em->getRepository(Status::class)->find($status_id);
         $order_status->setStatus($status);
 
         $this->em->persist($order_status);
         $this->em->flush();
 
-        $btn = $this->btnConfirmOrder($order_items, $order_id);
+        $btn = $this->btnConfirmOrder($order_items, $order_id, $distributor_id);
 
         $response = [
             'class' => $class,
@@ -1777,18 +1849,74 @@ class OrdersController extends AbstractController
     }
 
     #[Route('/clinics/confirm_order', name: 'clinic_confirm_order')]
-    public function clinicsConfirmOrderAction(Request $request): Response
-    {
+    public function clinicsConfirmOrderAction(Request $request, MailerInterface $mailer): Response    {
         $data = $request->request;
         $order_id = $data->get('order_id');
-        $order = $this->em->getRepository(OrderItems::class)->findOneBy([
-            'orders' => $order_id
-        ],
-            [
-                'modified' => 'DESC'
-            ]);
+        $clinic_id = $data->get('clinic_id');
+        $clinic = $this->em->getRepository(Clinics::class)->find($clinic_id);
+        $distributor_id = $data->get('distributor_id');
+        $order = $this->em->getRepository(OrderItems::class)->findByDistributorOrder($order_id, $distributor_id);
+        $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
+        $status = $this->em->getRepository(Status::class)->find(5);
+        $order_status = $this->em->getRepository(OrderStatus::class)->findOneBy([
+            'orders' => $order_id,
+            'distributor' => $distributor_id
+        ]);
 
-        $response = $order->getModified()->format('Y-n-d H:i:s');
+        // Generate PO
+        $file = $this->generatePpPdfAction($order_id, $distributor_id);
+
+        $clinic_html = '
+        Your order with '. $distributor->getDistributorName() .' has been accepted and  will be dispatched within 24 hours.
+        <br>
+        <br>
+        <a href="'. $this->getParameter('app.base_url') .'/clinics/order/'. $order_id .'/'. $distributor_id .'">
+            View Order
+        </a>
+        ';
+
+        $distributor_html = '
+        Your order for '. $clinic->getClinicName() .' has been accepted.
+        <br>
+        <br>
+        <a href="'. $this->getParameter('app.base_url') .'/distributors/order/'. $order_id .'">
+            View Order
+        </a>
+        ';
+
+        // Distributor Email
+        $email = (new Email())
+            ->from($this->getParameter('app.email_from'))
+            ->addTo($distributor->getEmail())
+            ->attachFromPath(__DIR__ . '/../../public/pdf/' . $file)
+            ->subject('Fluid Order - PO  '. $order[0]->getPoNumber())
+            ->html($distributor_html);
+
+        $mailer->send($email);
+
+        // Clinic Email
+        $email = (new Email())
+            ->from($this->getParameter('app.email_from'))
+            ->addTo($clinic->getEmail())
+            ->attachFromPath(__DIR__ . '/../../public/pdf/' . $file)
+            ->subject('Fluid Order - PO  '. $order[0]->getPoNumber())
+            ->html($clinic_html);
+
+        $mailer->send($email);
+
+        // Update Status
+        $order_status->setStatus($status);
+
+        $this->em->persist($order_status);
+        $this->em->flush();
+
+        $orders = $this->forward('App\Controller\OrdersController::clinicGetOrdersAction')->getContent();
+        $flash = '<b><i class="fas fa-check-circle"></i> Purchase order successfully sent.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        $response = [
+            'orders' => json_decode($orders),
+            'flash' => $flash
+        ];
 
         return new JsonResponse($response);
     }
@@ -1874,7 +2002,7 @@ class OrdersController extends AbstractController
         $this->mailer->send($email);
     }
 
-    private function btnConfirmOrder($orders, $order_id)
+    private function btnConfirmOrder($orders, $order_id, $distributor_id)
     {
         $total_items = 0;
         $accepted = 0;
@@ -1900,6 +2028,7 @@ class OrdersController extends AbstractController
                     href="#" 
                     id="btn_cancel_order" 
                     data-order-id="' . $order_id . '"
+                    data-distributor-id="' . $distributor_id . '"
                     data-clinic-id="' . $orders[0]->getOrders()->getClinic()->getId() . '"
                 >
                     <i class="fa-regular fa-credit-card me-5 me-md-2"></i>
@@ -1914,6 +2043,7 @@ class OrdersController extends AbstractController
                     id="btn_confirm_order" 
                     data-order-id="' . $order_id . '"
                     data-clinic-id="' . $orders[0]->getOrders()->getClinic()->getId() . '"
+                    data-distributor-id="'. $distributor_id .'"
                 >
                     <i class="fa-regular fa-credit-card me-5 me-md-2"></i>
                     <span class=" d-none d-md-inline-block pe-4">Confirm Order</span>
@@ -1946,6 +2076,14 @@ class OrdersController extends AbstractController
             'orders' => $order_id,
             'distributor' => $distributor_id
         ]);
+        $sum_total = $this->em->getRepository(OrderItems::class)->findSumTotalOrderItems($order_id, $distributor_id);
+
+        $order->setSubTotal($sum_total[0]['totals']);
+        $order->setTotal($sum_total[0]['totals'] +  + $order->getDeliveryFee() + $order->getTax());
+
+        $this->em->persist($order);
+        $this->em->flush();
+
         $additional_notes = '';
 
         if($order->getNotes() != null){
@@ -2064,32 +2202,35 @@ class OrdersController extends AbstractController
 
                     foreach($order_items as $item) {
 
-                        $name = $item->getName() .': ';
-                        $dosage = $item->getProduct()->getDosage() . $item->getProduct()->getUnit() .', '. $item->getProduct()->getSize() .' Count';
+                        if ($item->getIsAccepted() == 1) {
 
-                        if($item->getProduct()->getForm() == 'Each'){
+                            $name = $item->getName() . ': ';
+                            $dosage = $item->getProduct()->getDosage() . $item->getProduct()->getUnit() . ', ' . $item->getProduct()->getSize() . ' Count';
 
-                            $dosage = $item->getProduct()->getSize() . $item->getProduct()->getUnit();
+                            if ($item->getProduct()->getForm() == 'Each') {
+
+                                $dosage = $item->getProduct()->getSize() . $item->getProduct()->getUnit();
+                            }
+
+                            $html .= '
+                            <tr>
+                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
+                                    ' . $item->getProduct()->getDistributorProducts()[0]->getSku() . '
+                                </td>
+                                <td style="padding: 8px; border: solid 1px #7796a8;">
+                                    ' . $name . $dosage . '
+                                </td>
+                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
+                                    ' . $item->getQuantity() . '
+                                </td>
+                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
+                                    $' . number_format($item->getUnitPrice(), 2) . '
+                                </td>
+                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
+                                    $' . number_format($item->getTotal(), 2) . '
+                                </td>
+                            </tr>';
                         }
-
-                        $html .= '
-                        <tr>
-                            <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
-                                '. $item->getProduct()->getDistributorProducts()[0]->getSku() .'
-                            </td>
-                            <td style="padding: 8px; border: solid 1px #7796a8;">
-                                '. $name . $dosage .'
-                            </td>
-                            <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
-                                '. $item->getQuantity() .'
-                            </td>
-                            <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
-                                $'. number_format($item->getUnitPrice(),2) .'
-                            </td>
-                            <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
-                                $'. number_format($item->getTotal(),2) .'
-                            </td>
-                        </tr>';
                     }
 
                     $html .= '
@@ -2152,5 +2293,7 @@ class OrdersController extends AbstractController
 
         $this->em->persist($order_status);
         $this->em->flush();
+
+        return $order_status->getPoFile();
     }
 }
