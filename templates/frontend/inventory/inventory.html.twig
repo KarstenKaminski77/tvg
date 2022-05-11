@@ -1212,7 +1212,161 @@
                     }
                 });
             });
+            $(document).on('change', '#order_status', function (){
 
+                let order_status = $('#order_status').val();
+                let order_id = $(this).data('order-id');
+                let distributor_id = $(this).data('distributor-id');
+
+                $.ajax({
+                    url: "{{ path('clinic_update_order_status') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        order_status: order_status,
+                        distributor_id: distributor_id,
+                        order_id: order_id
+                    },
+                    beforeSend: function () {
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+                        $('#basket_container').empty().append(response);
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
+            $(document).on('change', '.order-qty-delivered', function (){
+
+                let item_id = $(this).data('qty-delivered-id');
+                let order_id = '{{ app.request.get('order_id') }}'
+                let distributor_id = '{{ app.request.get('distributor_id') }}'
+                let qty = $(this).val();
+
+                if(qty == '' || qty == 'undefined'){
+
+                    qty = 0;
+                }
+
+                $.ajax({
+                    url: "{{ path('clinic_update_qty_delivered') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        item_id: item_id,
+                        qty: qty,
+                        distributor_id: distributor_id,
+                        order_id: order_id
+                    },
+                    beforeSend: function (){
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+
+                        getFlash(response.flash);
+                        $('#basket_container').empty().append(response.orders);
+
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
+            $(document).on('click', '.qty-correct', function (){
+
+                let item_id = $(this).data('item-id');
+                let order_id = '{{ app.request.get('order_id') }}'
+                let distributor_id = '{{ app.request.get('distributor_id') }}'
+
+                $.ajax({
+                    url: "{{ path('is_delivered_quantity_correct') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        item_id: item_id,
+                        order_id: order_id,
+                        distributor_id: distributor_id,
+                        is_correct: 1,
+                        is_incorrect: 0
+                    },
+                    beforeSend: function (){
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+
+                        getFlash(response.flash);
+                        $('#basket_container').empty().append(response.orders);
+
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
+            $(document).on('click', '.qty-incorrect', function (){
+
+                let item_id = $(this).data('item-id');
+                let order_id = '{{ app.request.get('order_id') }}'
+                let distributor_id = '{{ app.request.get('distributor_id') }}'
+
+                $.ajax({
+                    url: "{{ path('is_delivered_quantity_correct') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        item_id: item_id,
+                        order_id: order_id,
+                        distributor_id: distributor_id,
+                        is_correct: 0,
+                        is_incorrect: 1
+                    },
+                    beforeSend: function (){
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+
+                        getFlash(response.flash);
+                        $('#basket_container').empty().append(response.orders);
+
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
+            $(document).on('click', '.qty-complete, .qty-rejected', function (){
+
+                let item_id = $(this).data('item-id');
+                let order_id = '{{ app.request.get('order_id') }}'
+                let distributor_id = '{{ app.request.get('distributor_id') }}'
+
+                $.ajax({
+                    url: "{{ path('is_delivered_quantity_correct') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        item_id: item_id,
+                        order_id: order_id,
+                        distributor_id: distributor_id,
+                        is_correct: 0,
+                        is_incorrect: 0
+                    },
+                    beforeSend: function (){
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+
+                        getFlash(response.flash);
+                        $('#basket_container').empty().append(response.orders);
+
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
             {# Instant Messenger #}
             let order_id = $('#chat_field').data('order-id');
             let distributor_id = $('#chat_field').data('distributor-id');

@@ -959,6 +959,13 @@ a.page-link {
     animation-delay: .5s;
 }
 
+.status-dropdown {
+    width: 85px;
+    border: none;
+    background: #fff;
+    color: #7f9cad;
+}
+
 @keyframes dotPulseBefore {
     0% {
         box-shadow: 9984px 0 0 -5px #9ed4d9;

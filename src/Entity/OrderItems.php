@@ -102,6 +102,21 @@ class OrderItems
      */
     private $status;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $quantityDelivered;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isQuantityCorrect;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isQuantityIncorrect;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -315,6 +330,42 @@ class OrderItems
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getQuantityDelivered(): ?int
+    {
+        return $this->quantityDelivered;
+    }
+
+    public function setQuantityDelivered(?int $quantityDelivered): self
+    {
+        $this->quantityDelivered = $quantityDelivered;
+
+        return $this;
+    }
+
+    public function getIsQuantityCorrect(): ?int
+    {
+        return $this->isQuantityCorrect;
+    }
+
+    public function setIsQuantityCorrect(int $isQuantityCorrect): self
+    {
+        $this->isQuantityCorrect = $isQuantityCorrect;
+
+        return $this;
+    }
+
+    public function getIsQuantityIncorrect(): ?int
+    {
+        return $this->isQuantityIncorrect;
+    }
+
+    public function setIsQuantityIncorrect(int $isQuantityIncorrect): self
+    {
+        $this->isQuantityIncorrect = $isQuantityIncorrect;
 
         return $this;
     }

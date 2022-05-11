@@ -142,6 +142,7 @@ class OrdersController extends AbstractController
                 $order_items->setProduct($basket_item->getProduct());
                 $order_items->setUnitPrice($basket_item->getUnitPrice());
                 $order_items->setQuantity($basket_item->getQty());
+                $order_items->setQuantityDelivered($basket_item->getQty());
                 $order_items->setTotal($basket_item->getTotal());
                 $order_items->setName($basket_item->getName());
                 $order_items->setPoNumber($prefix .'-'. $order->getId());
@@ -149,6 +150,8 @@ class OrdersController extends AbstractController
                 $order_items->setIsRenegotiate(0);
                 $order_items->setIsCancelled(0);
                 $order_items->setIsConfirmedDistributor(0);
+                $order_items->setIsQuantityCorrect(0);
+                $order_items->setIsQuantityInCorrect(0);
                 $order_items->setStatus('Pending');
 
                 $this->em->persist($order_items);
@@ -807,6 +810,7 @@ class OrdersController extends AbstractController
 
                 $order_item->setUnitPrice($prices[$i]);
                 $order_item->setQuantity($quantities[$i]);
+                $order_item->setQuantityDelivered($quantities[$i]);
                 $order_item->setTotal($prices[$i] * $quantities[$i]);
 
                 $this->em->persist($order_item);
@@ -1339,6 +1343,7 @@ class OrdersController extends AbstractController
         $data = $request->request;
         $order_id = $data->get('order_id');
         $distributor_id = $data->get('distributor_id');
+        $statuses = $this->em->getRepository(Status::class)->findByIds(['6','7']);
         $chat_messages = $this->em->getRepository(ChatMessages::class)->findBy([
             'orders' => $order_id,
             'distributor' => $distributor_id
@@ -1375,12 +1380,13 @@ class OrdersController extends AbstractController
                 <!-- Actions Row -->
                 <div class="row">
                     <div 
-                        class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3"
+                        class="bg-light border-left border-right col-12 d-flex justify-content-center border-bottom pt-3 pb-3"
                          id="order_action_row"
                     >';
 
                         // If order is preparing for shipping or later
-                        if($order_status->getStatus()->getId() < 5 && $order_status->getStatus()->getId() != 8) {
+                        $order_status_id = $order_status->getStatus()->getId();
+                        if($order_status_id < 5 && $order_status_id != 8) {
 
                             $response .= '
                             <a 
@@ -1397,10 +1403,46 @@ class OrdersController extends AbstractController
 
                         } else {
 
+                            if($order_status_id == 6 || $order_status_id == 7) {
+
+                                $status_string = '
+                                <select 
+                                    data-distributor-id="'. $distributor_id .'" 
+                                    data-order-id="'. $order_id .'" 
+                                    id="order_status" 
+                                    class="status-dropdown"
+                                >';
+
+                                foreach ($statuses as $status) {
+
+                                    $selected = '';
+
+                                    if ($status->getId() == $order_status_id) {
+
+                                        $selected = 'selected ';
+                                    }
+
+                                    $status_string .= '
+                                    <option
+                                       
+                                        value="' . $status->getId() . '" 
+                                        ' . $selected . '
+                                    >
+                                        ' . $status->getStatus() . '
+                                    </option>';
+                                }
+
+                                $status_string .= '</select>';
+
+                            } else {
+
+                                $status_string = $order_status->getStatus()->getStatus();
+                            }
+
                             $response .= '
                             <span class="text-primary pe-4">
                                 <b class="pe-2 d-none d-md-inline-block">Order Status:</b>
-                                '. $order_status->getStatus()->getStatus() .'
+                                '. $status_string .'
                             </span>
                             <a 
                                 href="'. $this->getParameter('app.base_url') .'/pdf_po.php?pdf='. $order_status->getPoFile() .'"
@@ -1425,6 +1467,12 @@ class OrdersController extends AbstractController
 
                             $expiry = '';
                             $opacity = '';
+
+                            // Don't show cancelled on delivery
+                            if($order->getIsCancelled() == 1 && $order_status_id == 7){
+
+                                continue;
+                            }
 
                             if(!empty($order->getExpiryDate())){
 
@@ -1460,6 +1508,39 @@ class OrdersController extends AbstractController
                                 $badge_cancelled = 'badge-danger-outline-only';
                             }
 
+                            // Display the qty delivered field if delivered
+                            $col_exp_date = 6;
+                            $col_qty_delivered = '';
+                            $col_qty_delivered = '
+                            <div class="col-1 d-table-cell align-bottom text-end alert-text-grey">
+                                '. $order->getQuantityDelivered() .'
+                            </div>';
+
+                            if($order_status_id == 7){
+
+                                $col_exp_date = 4;
+
+                                $col_qty_delivered = '
+                                <div class="col-2 d-table-cell align-bottom text-end alert-text-grey">
+                                    <input 
+                                        type="number" 
+                                        class="form-control form-control-sm order-qty-delivered" 
+                                        value="'. $order->getQuantityDelivered() .'"
+                                        data-qty-delivered-id="'. $order->getId() .'"
+                                        
+                                    >
+                                </div>';
+
+                                // Don't allow qty to be update if closed or rejected
+                                if($order->getIsQuantityCorrect() == 1 || $order->getIsQuantityIncorrect() == 1){
+
+                                    $col_qty_delivered = '
+                                    <div class="col-1 d-table-cell align-bottom text-end alert-text-grey">
+                                        '. $order->getQuantityDelivered() .'
+                                    </div>';
+                                }
+                            }
+
                             $response .= '
                             <!-- Product Name and Qty -->
                             <div class="row">
@@ -1473,7 +1554,7 @@ class OrdersController extends AbstractController
                                 <!-- Expiry Date -->
                                 <div class="col-12 col-sm-6 pt-3 pb-3 d-table '. $opacity .'">
                                     <div class="row d-table-row">
-                                        <div class="col-6 text-center text-sm-end d-table-cell align-bottom text-end alert-text-grey">
+                                        <div class="col-'. $col_exp_date .' text-center text-sm-end d-table-cell align-bottom text-end alert-text-grey">
                                             '. $expiry .'
                                         </div>
                                         <div class="col-2 text-center d-table-cell align-bottom text-end alert-text-grey">
@@ -1481,7 +1562,11 @@ class OrdersController extends AbstractController
                                         </div>
                                         <div class="col-1 d-table-cell align-bottom text-end alert-text-grey">
                                             '. $order->getQuantity() .'
-                                        </div>
+                                        </div>';
+
+                                        $response .= $col_qty_delivered;
+
+                                        $response .= '
                                         <div class="col-3 text-center text-sm-end fw-bold d-table-cell align-bottom alert-text-grey">
                                             $'. number_format($order->getUnitPrice() * $order->getQuantity(),2) .'
                                         </div>
@@ -1495,20 +1580,59 @@ class OrdersController extends AbstractController
                                         // If order is preparing for shipping or later
                                         if($order->getOrders()->getOrderStatuses()[0]->getStatus()->getId() >= 5){
 
-                                            if($order->getIsAccepted() == 1){
+                                            // Delivered status, check quantity delivered == quantity ordered
+                                            if($order_status_id == 7) {
 
-                                                $response .= '
-                                                <span 
-                                                    class="badge float-end ms-2 text-success border border-success text-light bg-success"
-                                                >Accepted</span>';
-                                            }
+                                                if ($order->getIsQuantityCorrect() == 0 && $order->getIsQuantityIncorrect() == 0) {
 
-                                            if($order->getIsCancelled() == 1){
+                                                    $response .= '
+                                                    <a href="#" 
+                                                        class="badge float-end ms-2 text-success border-success badge-success-outline-only qty-correct"
+                                                        data-order-id="' . $order_id . '"
+                                                        data-item-id="' . $order->getId() . '"
+                                                    >Quantity Delivered Correct</a>
+                                                    <a href="#" 
+                                                        class="badge float-end text-warning border-warning badge-warning-outline-only qty-incorrect"
+                                                        data-order-id="' . $order_id . '"
+                                                        data-item-id="' . $order->getId() . '"
+                                                    >Quantity Delivered Inorrect</a>';
 
-                                                $response .= '
-                                                <span 
-                                                    class="badge float-end ms-2 text-success border border-danger text-light bg-danger"
-                                                >Cancelled</span>';
+                                                } elseif($order->getIsQuantityCorrect() == 1){
+
+                                                    $response .= '
+                                                    <a href="#" 
+                                                        class="badge float-end ms-2 text-light border-success bg-success qty-complete"
+                                                        data-order-id="' . $order_id . '"
+                                                        data-item-id="' . $order->getId() . '"
+                                                    >Complete</a>';
+
+                                                } elseif($order->getIsQuantityInCorrect() == 1){
+
+                                                    $response .= '
+                                                    <a href="#" 
+                                                        class="badge float-end ms-2 text-light border-warning bg-warning qty-rejected"
+                                                        data-order-id="' . $order_id . '"
+                                                        data-item-id="' . $order->getId() . '"
+                                                    >Qty Descrepency</a>';
+                                                }
+
+                                            } else {
+
+                                                if ($order->getIsAccepted() == 1) {
+
+                                                    $response .= '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-success border border-success text-light bg-success"
+                                                    >Accepted</span>';
+                                                }
+
+                                                if ($order->getIsCancelled() == 1) {
+
+                                                    $response .= '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-success border border-danger text-light bg-danger"
+                                                    >Cancelled</span>';
+                                                }
                                             }
 
                                         // Accept, Renegotiate and Cancel
@@ -1849,7 +1973,7 @@ class OrdersController extends AbstractController
     }
 
     #[Route('/clinics/confirm_order', name: 'clinic_confirm_order')]
-    public function clinicsConfirmOrderAction(Request $request, MailerInterface $mailer): Response    {
+    public function clinicsConfirmOrderAction(Request $request, MailerInterface $mailer): Response{
         $data = $request->request;
         $order_id = $data->get('order_id');
         $clinic_id = $data->get('clinic_id');
@@ -1917,6 +2041,99 @@ class OrdersController extends AbstractController
             'orders' => json_decode($orders),
             'flash' => $flash
         ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/update-order-status', name: 'clinic_update_order_status')]
+    public function clinicsUpdateOrderStatusAction(Request $request): Response{
+
+        $data = $request->request;
+        $status_id = (int) $data->get('order_status');
+        $distributor_id = (int) $data->get('distributor_id');
+        $order_id = (int) $data->get('order_id');
+        $order_status = $this->em->getRepository(OrderStatus::class)->findOneBy([
+            'distributor' => $distributor_id,
+            'orders' => $order_id
+        ]);
+        $status = $this->em->getRepository(Status::class)->find($status_id);
+
+        $order_status->setStatus($status);
+
+        $this->em->persist($order_status);
+        $this->em->flush();
+
+        $response = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
+            'distributor_id' => $distributor_id,
+            'order_id' => $order_id
+        ])->getContent();
+
+        return new JsonResponse(json_decode(($response)));
+    }
+
+    #[Route('/clinics/update-qty-delivered', name: 'clinic_update_qty_delivered')]
+    public function clinicsUpdateQtyDeliveredAction(Request $request): Response{
+
+        $data = $request->request;
+        $order_item_id = $data->get('item_id');
+        $qty_delivered = $data->get('qty');
+        $distributor_id = $data->get('distributor_id');
+        $order_id = $data->get('order_id');
+        $order_item = $this->em->getRepository(OrderItems::class)->find($order_item_id);
+
+        $order_item->setQuantityDelivered($qty_delivered);
+
+        $this->em->persist($order_item);
+        $this->em->flush();
+
+        $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
+            'distributor_id' => $distributor_id,
+            'order_id' => $order_id
+        ])->getContent();
+
+        $response['orders'] = json_decode($orders);
+        $response['flash'] = '<b><i class="fas fa-check-circle"></i> Quantity delivered updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/is-delivered-quantity-correct', name: 'is_delivered_quantity_correct')]
+    public function clinicsIsDeliveredQtyCorrectAction(Request $request): Response{
+
+        $data = $request->request;
+        $order_item_id = $data->get('item_id');
+        $distributor_id = $data->get('distributor_id');
+        $order_id = $data->get('order_id');
+        $qty_is_correct = $data->get('is_correct');
+        $qty_is_incorrect = $data->get('is_incorrect');
+        $order_item = $this->em->getRepository(OrderItems::class)->find($order_item_id);
+
+        if($qty_is_correct){
+
+            $order_item->setIsQuantityCorrect(1);
+            $order_item->setIsQuantityIncorrect(0);
+
+        } elseif($qty_is_incorrect){
+
+            $order_item->setIsQuantityIncorrect(1);
+            $order_item->setIsQuantityCorrect(0);
+
+        } else {
+
+            $order_item->setIsQuantityIncorrect(0);
+            $order_item->setIsQuantityCorrect(0);
+        }
+
+        $this->em->persist($order_item);
+        $this->em->flush();
+
+        $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
+            'distributor_id' => $distributor_id,
+            'order_id' => $order_id
+        ])->getContent();
+
+        $response['orders'] = json_decode($orders);
+        $response['flash'] = '<b><i class="fas fa-check-circle"></i> Quantity delivered updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         return new JsonResponse($response);
     }
