@@ -125,7 +125,7 @@ class DistributorsController extends AbstractController
                 $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>URL: </b></td>';
-                $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/distributor/login">https://'. $_SERVER['HTTP_HOST'] .'/distributor/login</a></td>';
+                $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/distributors/login">https://'. $_SERVER['HTTP_HOST'] .'/distributor/login</a></td>';
                 $body .= '</tr>';
                 $body .= '<tr>';
                 $body .= '    <td><b>Username: </b></td>';

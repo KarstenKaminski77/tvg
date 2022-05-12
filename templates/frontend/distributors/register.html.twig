@@ -149,9 +149,8 @@
                         success: function (response) {
                             if(!response){
 
-                                $('#error_email').empty();
-                                $('#error_email').append('Email address exists.');
-                                $('#error_email').show();
+                                $('#register_form').empty();
+                                $('#register_form').append('Your Fluid account was successfully created, an email with your login credentials has been sent to your inbox.');
                             }
                         }
                     });

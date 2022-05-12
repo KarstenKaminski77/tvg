@@ -644,7 +644,7 @@ class OrdersController extends AbstractController
             $email_address = $order_items[0]->getDistributor()->getEmail();
             $clinic = $this->getUser()->getClinic();
             $clinic_email = $clinic->getEmail();
-            $subject = 'Fluid Order';
+            $subject = 'Fluid Order - PO '. $order_items[0]->getPoNumber();
             $distributor_name = $order_items[0]->getDistributor()->getDistributorName();
             $po_number = $order_items[0]->getPoNumber();
             $order_url = $this->getParameter('app.base_url') . '/distributors/order/'. $order_items[0]->getOrders()->getId();
@@ -850,63 +850,7 @@ class OrdersController extends AbstractController
         $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
 
         // Clinic in app notification
-        $notification = new Notifications();
-
-        $notification->setClinic($order->getClinic());
-        $notification->setIsActive(1);
-        $notification->setIsRead(0);
-        $notification->setOrders($order);
-        $notification->setDistributor($distributor);
-        $notification->setIsOrder(1);
-        $notification->setIsTracking(0);
-        $notification->setIsMessage(0);
-
-        $this->em->persist($notification);
-
-        $this->em->flush();
-
-        $message = '
-        <table class="w-100">
-            <tr>
-                <td>
-                    <a 
-                        href="#"
-                        data-order-id="'. $order_id .'"
-                        data-distributor-id="'. $distributor_id .'"
-                        data-clinic-id="'. $clinic_id .'"
-                        class="order_notification_alert"
-                    >
-                        <span class="badge bg-success me-3">Order Update</span>
-                    </a>
-                </td>
-                <td>
-                    <a 
-                        href="#"
-                        data-order-id="'. $order_id .'"
-                        data-distributor-id="'. $distributor_id .'"
-                        data-clinic-id="'. $clinic_id .'"
-                        class="order_notification_alert"
-                    >
-                        PO No. '. $distributor->getPoNumberPrefix() .'-'. $order_id .'
-                    </a>
-                </td>
-                <td>
-                    <a 
-                        href="#" class="delete-notification" 
-                        data-notification-id="'. $notification->getId() .'"
-                        data-order-id="'. $order_id .'"
-                        data-distributor-id="'. $distributor_id .'"
-                    >
-                        <i class="fa-solid fa-xmark text-black-25 ms-3 float-end"></i>
-                    </a>
-                </td>
-            </tr>
-        </table>';
-
-        $notification->setNotification($message);
-
-        $this->em->persist($notification);
-        $this->em->flush();
+        $this->clinicSendNotification($order, $distributor, $order->getClinic(), 'Order Update');
 
         // Send Email Notification
         $this->sendOrderEmail($order_id, $distributor_id, $clinic_id, 'clinics');
@@ -1480,7 +1424,7 @@ class OrdersController extends AbstractController
                                     $selected = '';
                                     $disabled = ' disabled';
 
-                                    if($status->getId() == 6 || $status->getId() == 7){
+                                    if($status->getId() == 6 || $status->getId() == 7 || $status->getId() == 8){
 
                                         $disabled = '';
                                     }
@@ -1923,6 +1867,8 @@ class OrdersController extends AbstractController
             $order_item->setIsCancelled(0);
 
             $class = 'bg-warning text-light';
+
+            $this->distributorSendNotification($order_id,$distributor_id);
         }
 
         if($link == 'cancelled'){
@@ -2005,11 +1951,36 @@ class OrdersController extends AbstractController
     public function distributorUpdateOrderItemAction(Request $request): Response
     {
         $order_item = $this->em->getRepository(OrderItems::class)->find($request->request->get('item_id'));
+        $order_id = $order_item->getOrders()->getId();
+        $distributor_id = $order_item->getDistributor()->getId();
+        $all_items = $this->em->getRepository(OrderItems::class)->findBy([
+            'orders' => $order_id,
+            'distributor' => $distributor_id
+        ]);
+        $total_item_count = count($all_items);
+        $confirmed_count = 0;
 
         $order_item->setIsConfirmedDistributor($request->request->get('confirmed_status'));
 
         $this->em->persist($order_item);
         $this->em->flush();
+
+        // Send notification to clinic if all items confirmed
+        foreach($all_items as $item){
+
+            if($item->getIsConfirmedDistributor() == 1){
+
+                $confirmed_count += 1;
+            }
+        }
+
+        if($confirmed_count == $total_item_count){
+
+            $this->clinicSendNotification(
+                $order_item->getOrders(), $order_item->getDistributor(),
+                $order_item->getOrders()->getClinic(), 'Order Update'
+            );
+        }
 
         $flash = '<b><i class="fas fa-check-circle"></i> Item status updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
@@ -2580,5 +2551,100 @@ class OrdersController extends AbstractController
         $this->em->flush();
 
         return $order_status->getPoFile();
+    }
+
+    public function clinicSendNotification($order, $distributor, $clinic, $badge)
+    {
+        // Clinic in app notification
+        $notification = new Notifications();
+
+        $notification->setClinic($order->getClinic());
+        $notification->setIsActive(1);
+        $notification->setIsRead(0);
+        $notification->setOrders($order);
+        $notification->setDistributor($distributor);
+        $notification->setIsOrder(1);
+        $notification->setIsTracking(0);
+        $notification->setIsMessage(0);
+
+        $this->em->persist($notification);
+
+        $this->em->flush();
+
+        $message = '
+        <table class="w-100">
+            <tr>
+                <td>
+                    <a 
+                        href="#"
+                        data-order-id="'. $order->getId() .'"
+                        data-distributor-id="'. $distributor->getId() .'"
+                        data-clinic-id="'. $clinic->getId() .'"
+                        class="order_notification_alert"
+                    >
+                        <span class="badge bg-success me-3">'. $badge .'</span>
+                    </a>
+                </td>
+                <td>
+                    <a 
+                        href="#"
+                        data-order-id="'. $order->getId() .'"$notification
+                        data-distributor-id="'. $distributor->getId() .'"
+                        data-clinic-id="'. $clinic->getId() .'"
+                        class="order_notification_alert"
+                    >
+                        PO No. '. $distributor->getPoNumberPrefix() .'-'. $order->getId() .'
+                    </a>
+                </td>
+                <td>
+                    <a 
+                        href="#" class="delete-notification" 
+                        data-notification-id="'. $notification->getId() .'"
+                        data-order-id="'. $order->getId() .'"
+                        data-distributor-id="'. $distributor->getId() .'"
+                    >
+                        <i class="fa-solid fa-xmark text-black-25 ms-3 float-end"></i>
+                    </a>
+                </td>
+            </tr>
+        </table>';
+
+        $notification->setNotification($message);
+
+        $this->em->persist($notification);
+        $this->em->flush();
+
+        // Email Notifications
+        $to = $clinic->getEmail();
+        $order_url = $this->getParameter('app.base_url') . '/clinics/order/'. $order->getId() .'/'. $distributor->getId();
+
+        $html = 'Please <a href="'. $order_url .'">click here</a> in order to view the progress of your order';
+
+        $email = (new Email())
+            ->from($this->getParameter('app.email_from'))
+            ->addTo($to)
+            ->subject('Fluid Order - PO  '. $order->getOrderItems()[0]->getPoNumber())
+            ->html($html);
+
+        $this->mailer->send($email);
+    }
+
+    public function distributorSendNotification($order_id, $distributor_id)
+    {
+        // Email Notifications
+        $order = $this->em->getRepository(Orders::class)->find($order_id);
+        $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
+        $to = $distributor->getEmail();
+        $order_url = $this->getParameter('app.base_url') . '/distributors/order/'. $order->getId();
+
+        $html = 'Please <a href="'. $order_url .'">click here</a> in order to view the progress of your order';
+
+        $email = (new Email())
+            ->from($this->getParameter('app.email_from'))
+            ->addTo($to)
+            ->subject('Fluid Order - PO  '. $order->getOrderItems()[0]->getPoNumber())
+            ->html($html);
+
+        $this->mailer->send($email);
     }
 }

@@ -107,8 +107,10 @@ class NotificationsController extends AbstractController
                 <span 
                     class="notification-panel"
                     data-order-id="'. $notification->getOrders()->getId() .'"
-                    data-distributor-id=""
+                    data-notification-id="'. $notification->getId() .'"
                 >';
+
+            $i = 0;
 
             foreach($notifications as $notification){
 
@@ -127,7 +129,7 @@ class NotificationsController extends AbstractController
                 </span>
             </li>';
         }
-
+        dump($i);
         $response = [
             'alert' => $alerts,
             'count' => $i
