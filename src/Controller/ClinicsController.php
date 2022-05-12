@@ -151,7 +151,7 @@ class ClinicsController extends AbstractController
                 $mailer->send($email);
             }
 
-            $response = true;
+            $response = 'Your Fluid account was successfully created, an email with your login credentials has been sent to your inbox.';
 
         } else {
 

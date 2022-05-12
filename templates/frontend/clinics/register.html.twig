@@ -187,12 +187,9 @@
                         dataType: 'json',
                         data: data,
                         success: function (response) {
-                            if(!response){
-
-                                $('#register_form').empty();
-                                $('#register_form').append('our Fluid account was successfully created, an email with your login credentials has been sent to your inbox.');
-                                $('#error_email').show();
-                            }
+                            $('#register_form').empty();
+                            $('#register_form').append(response);
+                            $('#error_email').show();
                         }
                     });
                 }
