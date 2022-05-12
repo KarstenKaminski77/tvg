@@ -138,6 +138,7 @@
                     $.ajax({
                         url: "{{ path('distributor_create') }}",
                         type: 'POST',
+                        dataType: 'json',
                         data: {
                             distributor_name: distributor_name,
                             position: position,
