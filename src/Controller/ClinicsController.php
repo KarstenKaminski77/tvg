@@ -106,7 +106,7 @@ class ClinicsController extends AbstractController
                 $clinic_users->setPosition($data->get('position'));
                 $clinic_users->setEmail($data->get('email'));
                 $clinic_users->setTelephone($data->get('telephone'));
-                $clinic_users->setRoles(['ROLE_USER']);
+                $clinic_users->setRoles(['ROLE_CLINIC']);
                 $clinic_users->setPassword($hashed_pwd);
                 $clinic_users->setIsPrimary(1);
 
