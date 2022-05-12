@@ -670,7 +670,12 @@ class DistributorsController extends AbstractController
             $distributor_products->setDistributorNo($data['distributorNo']);
             $distributor_products->setUnitPrice($data['unitPrice']);
             $distributor_products->setStockCount($data['stockCount']);
-            $distributor_products->setExpiryDate(\DateTime::createFromFormat('Y-m-d', $data['expiryDate']));
+
+            if($product->getExpiryDateRequired() == 1) {
+
+                $distributor_products->setExpiryDate(\DateTime::createFromFormat('Y-m-d', $data['expiryDate']));
+            }
+
             $distributor_products->setTaxExempt($data['taxExempt']);
 
             $tax_exempt = 0;
