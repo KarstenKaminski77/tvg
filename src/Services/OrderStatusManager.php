@@ -34,12 +34,12 @@ class OrderStatusManager
         foreach($result as $res){
 
             $date_time = $res['modified'];
-            $date = date('Y-m-d', strtotime($date_time));
+            $date = date('Y-m-d', strtotime($date_time . '+1 day'));
             $id = $res['id'];
 
             if($date == date('Y-m-d')){
 
-                $hour = date('H', strtotime($date_time . '+1 hour'));
+                $hour = date('H', strtotime($date_time));
                 $hour_now = date('H');
 
                 if($hour == $hour_now){

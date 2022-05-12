@@ -937,6 +937,10 @@ class OrdersController extends AbstractController
             'distributor' => true,
             'clinic' => false,
         ])->getContent();
+        $order_status_id = $this->em->getRepository(OrderStatus::class)->findOneBy([
+            'orders' => $order_id,
+            'distributor' => $distributor->getId()
+        ]);
 
         $response = '
         <form name="form_distributor_orders" id="form_distributor_orders" method="post">
@@ -983,198 +987,256 @@ class OrdersController extends AbstractController
                     <div class="col-12 col-md-9 border-right col-cell border-left border-right border-bottom">
                         <input type="hidden" name="distributor_id" value="'. $distributor->getId() .'">';
 
-        foreach($orders as $order) {
+                        foreach($orders as $order) {
 
-            $expiry = '';
+                            $status_id = $order_status_id->getStatus()->getId();
 
-            if(!empty($order->getExpiryDate())){
+                            if($order->getIsCancelled() == 1 && ($status_id == 6 || $status_id == 7)){
 
-                $expiry = $order->getExpiryDate()->format('Y-m-d');
-            }
+                                continue;
+                            }
 
-            // Item status
-            $disabled = '';
-            $opacity = '';
-            $badge_cancelled = '';
-            $badge_confirm = '';
-            $badge_pending = '';
-            $clinic_status = '';
+                            $expiry = '';
 
-            if($order->getIsCancelled() == 1){
+                            if(!empty($order->getExpiryDate())){
 
-                $disabled = 'disabled';
-                $opacity = 'opacity-50';
+                                $expiry = $order->getExpiryDate()->format('Y-m-d');
+                            }
 
-                $badge_cancelled = '
-                <span
-                    class="badge float-end ms-2 text-light border border-danger text-light order_item_accept bg-danger"
-                >Cancelled</span>';
+                            // Item status
+                            $disabled = '';
+                            $opacity = '';
+                            $badge_cancelled = '';
+                            $badge_confirm = '';
+                            $badge_pending = '';
+                            $clinic_status = '';
+                            $badge_shipped = '';
+                            $badge_delivered_pending = '';
+                            $badge_delivered_correct = '';
+                            $badge_delivered_incorrect = '';
 
-            } else {
+                            if($order->getIsCancelled() == 1){
 
-                if ($order->getIsConfirmedDistributor() == 1) {
+                                $disabled = 'disabled';
+                                $opacity = 'opacity-50';
 
-                    if($order->getIsAccepted() == 1){
+                                $badge_cancelled = '
+                                <span
+                                    class="badge float-end ms-2 text-light border border-danger text-light order_item_accept bg-danger"
+                                >Cancelled</span>';
 
-                        $disabled = 'disabled';
+                            } else {
 
-                        $clinic_status = '
-                        <span 
-                            class="badge float-end ms-2 text-light border border-success bg-success"
-                        >Accepted</span>';
+                                if ($order->getIsConfirmedDistributor() == 1) {
 
-                    } elseif($order->getIsRenegotiate() == 1) {
+                                    // If order is preparing for shipping or later
+                                    if($order->getOrders()->getOrderStatuses()[0]->getStatus()->getId() >= 5){
 
-                        $clinic_status = '
-                        <span 
-                            class="badge float-end ms-2 text-light border border-warning bg-warning"
-                        >Renegotiating</span>';
+                                        // Shipped
+                                        if($status_id == 6){
 
-                    } else {
+                                            $badge_shipped = '
+                                            <span 
+                                                class="badge float-end ms-2 text-light border border-success bg-success"
+                                            >Shipped</span>';
+                                        }
 
-                        $badge_pending = '
-                        <a href="#" 
-                            class="badge float-end ms-2 border-1 badge-pending-outline-only btn_pending"
-                            data-order-id="' . $order_id . '"
-                            data-item-id="' . $order->getId() . '"
-                        >Pending</a>';
+                                        // Delivered
+                                        if($status_id == 7){
 
-                            $badge_confirm = '
-                        <span 
-                            class="badge float-end ms-2 text-light border border-success bg-success"
-                        >Confirmed</span>';
-                    }
+                                            // Quantities not confirmed by clinic
+                                            if($order->getIsQuantityCorrect() == 0 && $order->getIsQuantityIncorrect() == 0){
 
-                } else {
+                                                $badge_delivered_pending = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-dark-grey bg-dark-grey"
+                                                >Pending Clinic</span>';
+                                            }
 
-                    $badge_pending = '
-                    <span 
-                        class="badge float-end ms-2 text-light border-1 bg-dark-grey border-dark-grey"
-                    >Pending</span>';
+                                            // Quantities confirmed by clinic
+                                            if($order->getIsQuantityCorrect() == 1 && $order->getIsQuantityIncorrect() == 0){
 
-                    $badge_confirm = '
-                    <a href="#" 
-                        class="badge float-end ms-2 text-success border-1 badge-success-outline-only btn_confirm"
-                        data-order-id="' . $order_id . '"
-                        data-item-id="' . $order->getId() . '"
-                    >Confirm</a>';
-                }
-            }
+                                                $badge_delivered_correct = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-success bg-success"
+                                                >Complete</span>';
+                                            }
 
-            $prd_id = '<input type="hidden" name="product_id[]" value="'. $order->getProduct()->getId() .'" '. $disabled .'>';
-            $expiry_date_required = $order->getProduct()->getExpiryDateRequired();
+                                            // Quantities incorrect
+                                            if($order->getIsQuantityCorrect() == 0 && $order->getIsQuantityIncorrect() == 1){
 
-            if($expiry_date_required) {
+                                                $badge_delivered_incorrect = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-danger bg-danger"
+                                                >Quantity Incorrect</span>';
+                                            }
+                                        }
 
-                $expiry_date = '
-                <input 
-                    placeholder="Expiry Date" 
-                    name="expiry_date[]"
-                    class="form-control form-control-sm ' . $opacity . '" 
-                    type="text" 
-                    onfocus="(this.type=\'date\')" 
-                    id="date"
-                    value="' . $expiry . '"
-                     ' . $disabled . '
-                >';
-            } else {
+                                    } else {
 
-                $expiry_date = '
-                <input 
-                    name="expiry_date[]"
-                    type="hidden" 
-                    value="0">';
-            }
-            $unit_price = '
-            <input 
-                type="text" 
-                name="price[]" 
-                value="'. number_format($order->getUnitPrice(),2) .'"
-                class="form-control form-control-sm '. $opacity .'"
-                 '. $disabled .'
-            >';
-            $qty = '
-            <input 
-                type="text" 
-                name="qty[]" 
-                class="form-control basket-qty form-control-sm text-center '. $opacity .'" 
-                value="'. $order->getQuantity() .'" 
-                 '. $disabled .'
-            />';
+                                        if ($order->getIsAccepted() == 1) {
 
-            // Remove form fields once accepted
-            if($order->getIsAccepted() == 1 || $order->getIsCancelled()){
+                                            $disabled = 'disabled';
 
-                if($order->getIsCancelled() == 1){
+                                            $clinic_status = '
+                                            <span 
+                                                class="badge float-end ms-2 text-light border border-success bg-success"
+                                            >Accepted</span>';
 
-                    $opacity = 'opacity-50';
-                }
+                                        } elseif ($order->getIsRenegotiate() == 1) {
 
-                if($order->getExpiryDate() != null) {
+                                            $clinic_status = '
+                                            <span 
+                                                class="badge float-end ms-2 text-light border border-warning bg-warning"
+                                            >Renegotiating</span>';
 
-                    $expiry_date = '<span class="'. $opacity .'">'. $order->getExpiryDate()->format('Y-m-d') .'</span>';
-                }
+                                        } else {
 
-                $unit_price = '<span class="'. $opacity .'">$'. number_format($order->getUnitPrice(),2). '</span>';
-                $qty = '<span class="'. $opacity .'">'. $order->getQuantity() .'</span>';
-            }
+                                            $badge_pending = '
+                                            <a href="#" 
+                                                class="badge float-end ms-2 border-1 badge-pending-outline-only btn_pending"
+                                                data-order-id="' . $order_id . '"
+                                                data-item-id="' . $order->getId() . '"
+                                            >Pending</a>';
 
-            $response .= '
-                <!-- Product Name and Qty -->
-                '. $prd_id .'
-                <div class="row">
-                    <!-- Product Name -->
-                    <div class="col-12 col-sm-6 pt-3 pb-3">
-                        <span class="info '. $opacity .'">'. $order->getDistributor()->getDistributorName() .'</span>
-                        <h6 class="fw-bold text-center text-sm-start text-primary lh-base '. $opacity .'">
-                            '. $order->getName() .'
-                        </h6>
-                    </div>
-                    <!-- Expiry Date -->
-                    <div class="col-12 col-sm-6 pt-3 pb-3 d-table">
-                        <div class="row d-table-row">
-                            <div class="col-6 text-center text-sm-end d-table-cell align-bottom">
-                                '. $expiry_date .'
-                                <div class="hidden_msg" id="error_expiry_date_'. $order->getProduct()->getId() .'">
-                                    Required Field
+                                            $badge_confirm = '
+                                            <span 
+                                                class="badge float-end ms-2 text-light border border-success bg-success"
+                                            >Confirmed</span>';
+                                        }
+                                    }
+
+                                } else {
+
+                                    $badge_pending = '
+                                    <span 
+                                        class="badge float-end ms-2 text-light border-1 bg-dark-grey border-dark-grey"
+                                    >Pending</span>';
+
+                                    $badge_confirm = '
+                                    <a href="#" 
+                                        class="badge float-end ms-2 text-success border-1 badge-success-outline-only btn_confirm"
+                                        data-order-id="' . $order_id . '"
+                                        data-item-id="' . $order->getId() . '"
+                                    >Confirm</a>';
+                                }
+                            }
+
+                            $prd_id = '<input type="hidden" name="product_id[]" value="'. $order->getProduct()->getId() .'" '. $disabled .'>';
+                            $expiry_date_required = $order->getProduct()->getExpiryDateRequired();
+
+                            if($expiry_date_required) {
+
+                                $expiry_date = '
+                                <input 
+                                    placeholder="Expiry Date" 
+                                    name="expiry_date[]"
+                                    class="form-control form-control-sm ' . $opacity . '" 
+                                    type="text" 
+                                    onfocus="(this.type=\'date\')" 
+                                    id="date"
+                                    value="' . $expiry . '"
+                                     ' . $disabled . '
+                                >';
+                            } else {
+
+                                $expiry_date = '
+                                <input 
+                                    name="expiry_date[]"
+                                    type="hidden" 
+                                    value="0">';
+                            }
+                            $unit_price = '
+                            <input 
+                                type="text" 
+                                name="price[]" 
+                                value="'. number_format($order->getUnitPrice(),2) .'"
+                                class="form-control form-control-sm '. $opacity .'"
+                                 '. $disabled .'
+                            >';
+                            $qty = '
+                            <input 
+                                type="text" 
+                                name="qty[]" 
+                                class="form-control basket-qty form-control-sm text-center '. $opacity .'" 
+                                value="'. $order->getQuantity() .'" 
+                                 '. $disabled .'
+                            />';
+
+                            // Remove form fields once accepted
+                            if($order->getIsAccepted() == 1 || $order->getIsCancelled()){
+
+                                if($order->getIsCancelled() == 1){
+
+                                    $opacity = 'opacity-50';
+                                }
+
+                                if($order->getExpiryDate() != null) {
+
+                                    $expiry_date = '<span class="'. $opacity .'">'. $order->getExpiryDate()->format('Y-m-d') .'</span>';
+                                }
+
+                                $unit_price = '<span class="'. $opacity .'">$'. number_format($order->getUnitPrice(),2). '</span>';
+                                $qty = '<span class="'. $opacity .'">'. $order->getQuantity() .'</span>';
+                            }
+
+                                $response .= '
+                                <!-- Product Name and Qty -->
+                                '. $prd_id .'
+                                <div class="row">
+                                    <!-- Product Name -->
+                                    <div class="col-12 col-sm-6 pt-3 pb-3">
+                                        <span class="info '. $opacity .'">'. $order->getDistributor()->getDistributorName() .'</span>
+                                        <h6 class="fw-bold text-center text-sm-start text-primary lh-base '. $opacity .'">
+                                            '. $order->getName() .'
+                                        </h6>
+                                    </div>
+                                    <!-- Expiry Date -->
+                                    <div class="col-12 col-sm-6 pt-3 pb-3 d-table">
+                                        <div class="row d-table-row">
+                                            <div class="col-6 text-center text-sm-end d-table-cell align-bottom">
+                                                '. $expiry_date .'
+                                                <div class="hidden_msg" id="error_expiry_date_'. $order->getProduct()->getId() .'">
+                                                    Required Field
+                                                </div>
+                                            </div>
+                                            <div class="col-3 text-center d-table-cell align-bottom">
+                                                '. $unit_price .'
+                                                <div class="hidden_msg" id="error_price_'. $order->getProduct()->getId() .'">
+                                                    Required Field
+                                                </div>
+                                            </div>
+                                            <div class="col-2 d-table-cell align-bottom">
+                                                '. $qty .'
+                                                <div class="hidden_msg" id="error_qty_'. $order->getProduct()->getId() .'">
+                                                    Required Field
+                                                </div>
+                                            </div>
+                                            <div class="col-2 text-center text-sm-start fw-bold d-table-cell align-bottom '. $opacity .'">
+                                                $'. number_format($order->getUnitPrice() * $order->getQuantity(),2) .'
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-3 text-center d-table-cell align-bottom">
-                                '. $unit_price .'
-                                <div class="hidden_msg" id="error_price_'. $order->getProduct()->getId() .'">
-                                    Required Field
-                                </div>
-                            </div>
-                            <div class="col-2 d-table-cell align-bottom">
-                                '. $qty .'
-                                <div class="hidden_msg" id="error_qty_'. $order->getProduct()->getId() .'">
-                                    Required Field
-                                </div>
-                            </div>
-                            <div class="col-2 text-center text-sm-start fw-bold d-table-cell align-bottom '. $opacity .'">
-                                $'. number_format($order->getUnitPrice() * $order->getQuantity(),2) .'
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Status -->
-                <div class="row">
-                    <div class="col-12">';
+                                <!-- Status -->
+                                <div class="row">
+                                    <div class="col-12">';
 
-                        if(
-                            ($order->getProduct()->getExpiryDateRequired() == 1 && $order->getExpiryDate() != null) ||
-                            ($order->getProduct()->getExpiryDateRequired() == 0)
-                        ) {
+                                        if(
+                                            ($order->getProduct()->getExpiryDateRequired() == 1 && $order->getExpiryDate() != null) ||
+                                            ($order->getProduct()->getExpiryDateRequired() == 0)
+                                        ) {
 
-                            $response .=  $badge_confirm;
+                                            $response .=  $badge_confirm;
+                                        }
+
+                                        $response .= $badge_pending . $badge_cancelled . $clinic_status . $badge_shipped .
+                                        $badge_delivered_pending . $badge_delivered_correct . $badge_delivered_incorrect;
+
+                                        $response .= '
+                                            </div>
+                                        </div>';
                         }
-
-                        $response .= $badge_pending . $badge_cancelled . $clinic_status;
-
-                        $response .= '
-                            </div>
-                        </div>';
-        }
 
                     $response .= '    
                     </div>
@@ -1343,7 +1405,7 @@ class OrdersController extends AbstractController
         $data = $request->request;
         $order_id = $data->get('order_id');
         $distributor_id = $data->get('distributor_id');
-        $statuses = $this->em->getRepository(Status::class)->findByIds(['6','7']);
+        $statuses = $this->em->getRepository(Status::class)->findByIds(['6','7','8']);
         $chat_messages = $this->em->getRepository(ChatMessages::class)->findBy([
             'orders' => $order_id,
             'distributor' => $distributor_id
@@ -1416,6 +1478,12 @@ class OrdersController extends AbstractController
                                 foreach ($statuses as $status) {
 
                                     $selected = '';
+                                    $disabled = ' disabled';
+
+                                    if($status->getId() == 6 || $status->getId() == 7){
+
+                                        $disabled = '';
+                                    }
 
                                     if ($status->getId() == $order_status_id) {
 
@@ -1426,7 +1494,7 @@ class OrdersController extends AbstractController
                                     <option
                                        
                                         value="' . $status->getId() . '" 
-                                        ' . $selected . '
+                                        ' . $selected . $disabled .'
                                     >
                                         ' . $status->getStatus() . '
                                     </option>';
