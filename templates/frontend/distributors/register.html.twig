@@ -148,11 +148,9 @@
                             telephone: telephone,
                         },
                         success: function (response) {
-                            if(!response){
 
-                                $('#register_form').empty();
-                                $('#register_form').append(response);
-                            }
+                            $('#register_form').empty();
+                            $('#register_form').append(response);
                         }
                     });
                 }
