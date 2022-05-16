@@ -997,10 +997,12 @@
                         order_id: order_id
                     },
                     beforeSend: function () {
+                        let height = document.documentElement.scrollHeight;
                         $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        $("div.overlay").css('height', height + 'px').addClass("show");
                     },
                     success: function (response) {
+
 
                         $("div.spanner").removeClass("show");
                         $("div.overlay").removeClass("show");
@@ -1218,6 +1220,11 @@
                 let order_id = $(this).data('order-id');
                 let distributor_id = $(this).data('distributor-id');
 
+                if(order_status == 8){
+
+                    return '';
+                }
+
                 $.ajax({
                     url: "{{ path('clinic_update_order_status') }}",
                     type: 'POST',
@@ -1336,6 +1343,127 @@
                     }
                 });
             });
+            $(document).on('click', '.btn-item-accept', function (){
+
+                let item_id = $(this).data('item-id');
+                let order_id = '{{ app.request.get('order_id') }}'
+                let distributor_id = '{{ app.request.get('distributor_id') }}'
+
+                $.ajax({
+                    url: "{{ path('is_delivered_accept') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        item_id: item_id,
+                        order_id: order_id,
+                        distributor_id: distributor_id
+                    },
+                    beforeSend: function (){
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+
+                        getFlash(response.flash);
+                        $('#basket_container').empty().append(response.orders);
+
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
+            $(document).on('click', '.btn-item-qty', function (){
+
+                let item_id = $(this).data('item-id');
+                let order_id = '{{ app.request.get('order_id') }}'
+                let distributor_id = '{{ app.request.get('distributor_id') }}'
+
+                $.ajax({
+                    url: "{{ path('is_delivered_qty') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        item_id: item_id,
+                        order_id: order_id,
+                        distributor_id: distributor_id
+                    },
+                    beforeSend: function (){
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+
+                        getFlash(response.flash);
+                        $('#basket_container').empty().append(response.orders);
+
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
+            $(document).on('click', '.btn-item-reject', function (e){
+
+                e.preventDefault();
+
+                let item_id = $(this).data('item-id');
+                let reject_reason_error = $('#error_reject_reason');
+
+                $('#reject_item_id').val(item_id);
+                reject_reason_error.hide();
+
+                $.ajax({
+                    url: "{{ path('clinics_get_reject_reason') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        item_id: item_id
+                    },
+                    success: function (response) {
+
+                        $('#reject_reason').val(response);
+                    }
+                });
+
+            });
+            $(document).on('submit', 'form[name="form_reject_item"]', function (e){
+
+                e.preventDefault();
+
+                let reject_reason = $('#reject_reason').val();
+                let reject_reason_error = $('#error_reject_reason');
+                let is_valid = true;
+
+                reject_reason_error.hide();
+
+                if(reject_reason == '' || reject_reason == 'undefined'){
+
+                    reject_reason_error.show();
+                    is_valid = false;
+                }
+
+                if(is_valid) {
+
+                    let data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('clinics_reject_item') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+                            getFlash(response.flash);
+                            $('#basket_container').empty().append(response.orders);
+                            $('#form_reject_item').modal('toggle').modal('hide');
+                            $('.modal-backdrop').removeClass('modal-backdrop');
+                            $('.fade').removeClass('fade');
+                        }
+                    });
+                }
+            });
             $(document).on('click', '.qty-complete, .qty-rejected', function (){
 
                 let item_id = $(this).data('item-id');
@@ -1364,6 +1492,59 @@
 
                         $("div.spanner").removeClass("show");
                         $("div.overlay").removeClass("show");
+                    }
+                });
+            });
+            $(document).on('click', '#close_order', function(e){
+
+                let order_id = $(this).data('order-id');
+                let distributor_id = $(this).data('distributor-id');
+
+                let modal = '<div class="modal fade" id="modal_close_order" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">';
+                modal += '<div class="modal-dialog modal-dialog-centered">';
+                modal += '<div class="modal-content">';
+                modal += '<input type="hidden" value="" name="addresses_form[address_id]" id="address_id">';
+                modal += '<div class="modal-body">';
+                modal += '<div class="row">';
+                modal += '<div class="col-12 mb-0">';
+                modal += 'Are you sure you would like to close this order? This action cannot be undone.';
+                modal += '</div>';
+                modal += '</div>';
+                modal += '</div>';
+                modal += '<div class="modal-footer">';
+                modal += '<button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>';
+                modal += '<button type="submit" data-order-id="'+ order_id +'" data-distributor-id="'+ distributor_id +'" class="btn btn-danger btn-sm" id="btn_close_order">CLOSE ORDER</button>';
+                modal += '</div> </div> </div> </div>';
+
+                $('#basket_container').append(modal);
+                $('#modal_close_order').modal('toggle').addClass('show');
+            });
+            $(document).on('click', '#btn_close_order', function (){
+
+                let order_id = $(this).data('order-id');
+                let distributor_id = $(this).data('distributor-id');
+
+                $.ajax({
+                    url: "{{ path('clinic_update_order_status') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        order_status: 8,
+                        distributor_id: distributor_id,
+                        order_id: order_id
+                    },
+                    beforeSend: function () {
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+                        $('#basket_container').empty().append(response);
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                        $('#modal_close_order').modal('toggle');
+                        $('#modal_close_order').modal('hide');
+                        $('.modal-backdrop').removeClass('modal-backdrop');
+                        $('#modal_close_order').addClass('fade');
                     }
                 });
             });

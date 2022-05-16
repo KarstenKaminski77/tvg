@@ -671,6 +671,7 @@ a.page-link {
     transform: translateY(-50%);
     z-index: 1000;
     visibility: hidden;
+    z-index: 9999999999;
 }
 
 .overlay{
@@ -683,6 +684,7 @@ a.page-link {
     height: 100%;
     background: rgba(0,0,0,0.5);
     visibility: hidden;
+    z-index: 99999999;
 }
 
 .loader,

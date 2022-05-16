@@ -117,6 +117,36 @@ class OrderItems
      */
     private $isQuantityIncorrect;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isAcceptedOnDelivery;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isRejectedOnDelivery;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isQuantityAdjust;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $rejectReason;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $orderReceivedBy;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $orderPlacedBy;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -366,6 +396,78 @@ class OrderItems
     public function setIsQuantityIncorrect(int $isQuantityIncorrect): self
     {
         $this->isQuantityIncorrect = $isQuantityIncorrect;
+
+        return $this;
+    }
+
+    public function getIsAcceptedOnDelivery(): ?int
+    {
+        return $this->isAcceptedOnDelivery;
+    }
+
+    public function setIsAcceptedOnDelivery(int $isAcceptedOnDelivery): self
+    {
+        $this->isAcceptedOnDelivery = $isAcceptedOnDelivery;
+
+        return $this;
+    }
+
+    public function getIsRejectedOnDelivery(): ?int
+    {
+        return $this->isRejectedOnDelivery;
+    }
+
+    public function setIsRejectedOnDelivery(int $isRejectedOnDelivery): self
+    {
+        $this->isRejectedOnDelivery = $isRejectedOnDelivery;
+
+        return $this;
+    }
+
+    public function getIsQuantityAdjust(): ?int
+    {
+        return $this->isQuantityAdjust;
+    }
+
+    public function setIsQuantityAdjust(int $isQuantityAdjust): self
+    {
+        $this->isQuantityAdjust = $isQuantityAdjust;
+
+        return $this;
+    }
+
+    public function getRejectReason(): ?string
+    {
+        return $this->rejectReason;
+    }
+
+    public function setRejectReason(?string $rejectReason): self
+    {
+        $this->rejectReason = $rejectReason;
+
+        return $this;
+    }
+
+    public function getOrderReceivedBy(): ?string
+    {
+        return $this->orderReceivedBy;
+    }
+
+    public function setOrderReceivedBy(?string $orderReceivedBy): self
+    {
+        $this->orderReceivedBy = $orderReceivedBy;
+
+        return $this;
+    }
+
+    public function getOrderPlacedBy(): ?string
+    {
+        return $this->orderPlacedBy;
+    }
+
+    public function setOrderPlacedBy(?string $orderPlacedBy): self
+    {
+        $this->orderPlacedBy = $orderPlacedBy;
 
         return $this;
     }

@@ -30,6 +30,19 @@ class DistributorProductsRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
+    public function findByDistributorProductStockCount($product_id, $distributor_id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('sum(d.stockCount) as stock_count')
+            ->andWhere('d.product = :product_id')
+            ->setParameter('product_id', $product_id)
+            ->andWhere('d.distributor = :distributor_id')
+            ->setParameter('distributor_id', $distributor_id)
+            ->groupBy('d.product')
+            ->setMaxResults(1);
+        return $queryBuilder->getQuery()->getResult();
+    }
+
     public function getLowestPrice($product_id): array
     {
         $queryBuilder = $this->createQueryBuilder('d')

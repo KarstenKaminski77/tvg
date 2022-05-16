@@ -990,6 +990,97 @@
                     });
                 }
             });
+            $(document).on('change', '.expiry-date', function (e){
+
+                e.preventDefault();
+
+                let item_id = $(this).data('item-id');
+                let expiry_date = $(this).val();
+
+                if(item_id > 0){
+
+                    $.ajax({
+                        url:"{{ path('distributor_update_expiry_date') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            item_id: item_id,
+                            expiry_date: expiry_date
+                        },
+                        beforeSend: function () {
+                            $("div.spanner").addClass("show");
+                            $("div.overlay").addClass("show");
+                        },
+                        success: function(response) {
+                            getFlash(response.flash);
+                            getOrderDetails(response.order_id, response.distributor_id, response.clinic_id);
+                            $("div.spanner").removeClass("show");
+                            $("div.overlay").removeClass("show");
+                        }
+                    });
+                }
+            });
+            $(document).on('change', '.item-price', function (e){
+
+                e.preventDefault();
+
+                let item_id = $(this).data('item-id');
+                let price = $(this).val();
+
+                if(item_id > 0){
+
+                    $.ajax({
+                        url:"{{ path('distributor_update_price') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            item_id: item_id,
+                            price: price
+                        },
+                        beforeSend: function () {
+                            $("div.spanner").addClass("show");
+                            $("div.overlay").addClass("show");
+                        },
+                        success: function(response) {
+                            getFlash(response.flash);
+                            getOrderDetails(response.order_id, response.distributor_id, response.clinic_id);
+                            $("div.spanner").removeClass("show");
+                            $("div.overlay").removeClass("show");
+                        }
+                    });
+                }
+            });
+            $(document).on('change', '.item-qty', function (e){
+
+                e.preventDefault();
+
+                let item_id = $(this).data('item-id');
+                let qty = $(this).val();
+
+                if(item_id > 0){
+
+                    $.ajax({
+                        url:"{{ path('distributor_update_qty') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            item_id: item_id,
+                            qty: qty
+                        },
+                        beforeSend: function () {
+                            $("div.spanner").addClass("show");
+                            $("div.overlay").addClass("show");
+                        },
+                        success: function(response) {
+                            getFlash(response.flash);
+                            getOrderDetails(response.order_id, response.distributor_id, response.clinic_id);
+                            $('#basket_container').empty().append(response.orders);
+                            $("div.spanner").removeClass("show");
+                            $("div.overlay").removeClass("show");
+                        }
+                    });
+                }
+            });
             $(document).on('submit', '#form_distributor_orders', function (e){
 
                 e.preventDefault();

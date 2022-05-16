@@ -146,12 +146,16 @@ class OrdersController extends AbstractController
                 $order_items->setTotal($basket_item->getTotal());
                 $order_items->setName($basket_item->getName());
                 $order_items->setPoNumber($prefix .'-'. $order->getId());
+                $order_items->setOrderPlacedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
                 $order_items->setIsAccepted(0);
                 $order_items->setIsRenegotiate(0);
                 $order_items->setIsCancelled(0);
                 $order_items->setIsConfirmedDistributor(0);
                 $order_items->setIsQuantityCorrect(0);
                 $order_items->setIsQuantityInCorrect(0);
+                $order_items->setIsQuantityAdjust(0);
+                $order_items->setIsAcceptedOnDelivery(1);
+                $order_items->setIsRejectedOnDelivery(0);
                 $order_items->setStatus('Pending');
 
                 $this->em->persist($order_items);
@@ -910,11 +914,27 @@ class OrdersController extends AbstractController
                         >
                             <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
                             <span class=" d-none d-md-inline-block pe-4">Refresh Order</span>
-                        </a>
-                        <button type="submit" class="saved_baskets_link btn btn-sm btn-light p-0 text-primary">
-                            <i class="fa-solid fa-floppy-disk me-5  me-md-2"></i>
-                            <span class=" d-none d-md-inline-block pe-4">Save Order</span>
-                        </button>
+                        </a>';
+
+                        if($order_status_id->getStatus()->getId() > 4){
+
+                            $response .= '
+                            <span class="saved_baskets_link info p-0 opacity-50">
+                                <i class="fa-solid fa-floppy-disk me-5  me-md-2"></i>
+                                <span class=" d-none d-md-inline-block pe-4">Save Order</span>
+                            </span>';
+
+                        } else {
+
+                            $response .= '
+                            <button type="submit" class="saved_baskets_link btn btn-sm btn-light p-0 text-primary">
+                                <i class="fa-solid fa-floppy-disk me-5  me-md-2"></i>
+                                <span class=" d-none d-md-inline-block pe-4">Save Order</span>
+                            </button>';
+
+                        }
+
+                        $response .= '
                         <a 
                             href="#" 
                             id="order_send_notification"
@@ -989,7 +1009,11 @@ class OrdersController extends AbstractController
                                         if($status_id == 7){
 
                                             // Quantities not confirmed by clinic
-                                            if($order->getIsQuantityCorrect() == 0 && $order->getIsQuantityIncorrect() == 0){
+                                            if(
+                                                $order->getIsAcceptedOnDelivery() == 0 &&
+                                                $order->getIsRejectedOnDelivery() == 0 &&
+                                                $order->getIsQuantityAdjust() == 0
+                                            ){
 
                                                 $badge_delivered_pending = '
                                                 <span 
@@ -997,8 +1021,8 @@ class OrdersController extends AbstractController
                                                 >Pending Clinic</span>';
                                             }
 
-                                            // Quantities confirmed by clinic
-                                            if($order->getIsQuantityCorrect() == 1 && $order->getIsQuantityIncorrect() == 0){
+                                            // Quantity confirmed by clinic
+                                            if($order->getIsAcceptedOnDelivery() == 1){
 
                                                 $badge_delivered_correct = '
                                                 <span 
@@ -1006,13 +1030,22 @@ class OrdersController extends AbstractController
                                                 >Complete</span>';
                                             }
 
-                                            // Quantities incorrect
-                                            if($order->getIsQuantityCorrect() == 0 && $order->getIsQuantityIncorrect() == 1){
+                                            // Quantity rejected by clinic
+                                            if($order->getIsRejectedOnDelivery() == 1){
+
+                                                $badge_delivered_correct = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-danger bg-danger"
+                                                >Rejected</span>';
+                                            }
+
+                                            // Quantity adjust
+                                            if($order->getIsQuantityAdjust() == 1){
 
                                                 $badge_delivered_incorrect = '
                                                 <span 
-                                                    class="badge float-end ms-2 text-light border border-danger bg-danger"
-                                                >Quantity Incorrect</span>';
+                                                    class="badge float-end ms-2 text-light border border-warning bg-warning"
+                                                >Adjusting Quantity</span>';
                                             }
                                         }
 
@@ -1075,7 +1108,8 @@ class OrdersController extends AbstractController
                                 <input 
                                     placeholder="Expiry Date" 
                                     name="expiry_date[]"
-                                    class="form-control form-control-sm ' . $opacity . '" 
+                                    data-item-id="'. $order->getId() .'"
+                                    class="form-control form-control-sm expiry-date ' . $opacity . '" 
                                     type="text" 
                                     onfocus="(this.type=\'date\')" 
                                     id="date"
@@ -1094,15 +1128,17 @@ class OrdersController extends AbstractController
                             <input 
                                 type="text" 
                                 name="price[]" 
+                                data-item-id="'. $order->getId() .'"
                                 value="'. number_format($order->getUnitPrice(),2) .'"
-                                class="form-control form-control-sm '. $opacity .'"
+                                class="form-control form-control-sm item-price '. $opacity .'"
                                  '. $disabled .'
                             >';
                             $qty = '
                             <input 
-                                type="text" 
+                                type="number" 
                                 name="qty[]" 
-                                class="form-control basket-qty form-control-sm text-center '. $opacity .'" 
+                                data-item-id="'. $order->getId() .'"
+                                class="form-control basket-qty form-control-sm text-center item-qty '. $opacity .'" 
                                 value="'. $order->getQuantity() .'" 
                                  '. $disabled .'
                             />';
@@ -1347,8 +1383,16 @@ class OrdersController extends AbstractController
     public function clinicOrderDetailAction(Request $request): Response
     {
         $data = $request->request;
+
         $order_id = $data->get('order_id');
         $distributor_id = $data->get('distributor_id');
+
+        if($data->get('order_id') == null && $data->get('distributor_id') == null){
+
+            $order_id = $request->get('order_id');
+            $distributor_id = $request->get('distributor_id');
+        }
+
         $statuses = $this->em->getRepository(Status::class)->findByIds(['6','7','8']);
         $chat_messages = $this->em->getRepository(ChatMessages::class)->findBy([
             'orders' => $order_id,
@@ -1392,7 +1436,7 @@ class OrdersController extends AbstractController
 
                         // If order is preparing for shipping or later
                         $order_status_id = $order_status->getStatus()->getId();
-                        if($order_status_id < 5 && $order_status_id != 8) {
+                        if($order_status_id < 5 && $order_status_id != 9) {
 
                             $response .= '
                             <a 
@@ -1422,11 +1466,56 @@ class OrdersController extends AbstractController
                                 foreach ($statuses as $status) {
 
                                     $selected = '';
-                                    $disabled = ' disabled';
+                                    $disabled = '';
+                                    $option_id = '';
+                                    $data_order_id = '';
+                                    $data_distributor_id = '';
+                                    $is_accepted = 0;
+                                    $is_rejected = 0;
+                                    $is_quantity_adjust = true;
 
-                                    if($status->getId() == 6 || $status->getId() == 7 || $status->getId() == 8){
+                                    // Disable Close Option
+                                    $can_close = false;
+                                    $item_count = count($orders);
 
-                                        $disabled = '';
+                                    foreach($orders as $order){
+
+                                        if($order->getIsQuantityAdjust() == 1){
+
+                                            $is_quantity_adjust = false;
+                                        }
+
+                                        if($order->getIsAcceptedOnDelivery() == 1){
+
+                                            $is_accepted += 1;
+                                        }
+
+                                        if($order->getIsRejectedOnDelivery() == 1){
+
+                                            $is_rejected += 1;
+                                        }
+                                    }
+
+                                    if($is_rejected + $is_accepted == $item_count && $is_quantity_adjust = true){
+
+                                        $can_close = true;
+                                    }
+
+                                    if($status->getId() == 8 && $order_status_id == 6){
+
+                                        $disabled = 'disabled';
+                                    }
+
+                                    if($status->getId() == 8 && $order_status_id == 7){
+
+                                        $option_id = 'id="close_order" ';
+                                        $data_order_id = 'data-order-id="'. $order_id .'" ';
+                                        $data_distributor_id = 'data-distributor-id="'. $distributor_id .'" ';
+                                    }
+
+                                    if($status->getId() == 8 && !$can_close){
+
+                                        $disabled = 'disabled ';
                                     }
 
                                     if ($status->getId() == $order_status_id) {
@@ -1438,7 +1527,7 @@ class OrdersController extends AbstractController
                                     <option
                                        
                                         value="' . $status->getId() . '" 
-                                        ' . $selected . $disabled .'
+                                        ' . $selected . $disabled . $option_id . $data_order_id . $data_distributor_id .'
                                     >
                                         ' . $status->getStatus() . '
                                     </option>';
@@ -1522,7 +1611,6 @@ class OrdersController extends AbstractController
 
                             // Display the qty delivered field if delivered
                             $col_exp_date = 6;
-                            $col_qty_delivered = '';
                             $col_qty_delivered = '
                             <div class="col-1 d-table-cell align-bottom text-end alert-text-grey">
                                 '. $order->getQuantityDelivered() .'
@@ -1532,23 +1620,17 @@ class OrdersController extends AbstractController
 
                                 $col_exp_date = 4;
 
-                                $col_qty_delivered = '
-                                <div class="col-2 d-table-cell align-bottom text-end alert-text-grey">
-                                    <input 
-                                        type="number" 
-                                        class="form-control form-control-sm order-qty-delivered" 
-                                        value="'. $order->getQuantityDelivered() .'"
-                                        data-qty-delivered-id="'. $order->getId() .'"
-                                        
-                                    >
-                                </div>';
-
-                                // Don't allow qty to be update if closed or rejected
-                                if($order->getIsQuantityCorrect() == 1 || $order->getIsQuantityIncorrect() == 1){
+                                if($order->getIsQuantityAdjust() == 1){
 
                                     $col_qty_delivered = '
-                                    <div class="col-1 d-table-cell align-bottom text-end alert-text-grey">
-                                        '. $order->getQuantityDelivered() .'
+                                    <div class="col-2 d-table-cell align-bottom text-end alert-text-grey">
+                                        <input 
+                                            type="number" 
+                                            class="form-control form-control-sm order-qty-delivered" 
+                                            value="'. $order->getQuantityDelivered() .'"
+                                            data-qty-delivered-id="'. $order->getId() .'"
+                                            
+                                        >
                                     </div>';
                                 }
                             }
@@ -1580,7 +1662,7 @@ class OrdersController extends AbstractController
 
                                         $response .= '
                                         <div class="col-3 text-center text-sm-end fw-bold d-table-cell align-bottom alert-text-grey">
-                                            $'. number_format($order->getUnitPrice() * $order->getQuantity(),2) .'
+                                            $'. number_format($order->getUnitPrice() * $order->getQuantityDelivered(),2) .'
                                         </div>
                                     </div>
                                 </div>
@@ -1595,38 +1677,71 @@ class OrdersController extends AbstractController
                                             // Delivered status, check quantity delivered == quantity ordered
                                             if($order_status_id == 7) {
 
-                                                if ($order->getIsQuantityCorrect() == 0 && $order->getIsQuantityIncorrect() == 0) {
+                                                // Accept CTA
+                                                if($order->getIsAcceptedOnDelivery() == 1){
 
-                                                    $response .= '
+                                                    $btn_accept = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-success border-success badge-success-outline-only qty-correct"
+                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
-                                                    >Quantity Delivered Correct</a>
+                                                    >Accept</a>';
+
+                                                } else {
+
+                                                    $btn_accept = '
                                                     <a href="#" 
-                                                        class="badge float-end text-warning border-warning badge-warning-outline-only qty-incorrect"
+                                                        class="badge float-end ms-2 text-success border-success badge-success-outline-only btn-item-accept"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
-                                                    >Quantity Delivered Inorrect</a>';
-
-                                                } elseif($order->getIsQuantityCorrect() == 1){
-
-                                                    $response .= '
-                                                    <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-success bg-success qty-complete"
-                                                        data-order-id="' . $order_id . '"
-                                                        data-item-id="' . $order->getId() . '"
-                                                    >Complete</a>';
-
-                                                } elseif($order->getIsQuantityInCorrect() == 1){
-
-                                                    $response .= '
-                                                    <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-warning bg-warning qty-rejected"
-                                                        data-order-id="' . $order_id . '"
-                                                        data-item-id="' . $order->getId() . '"
-                                                    >Qty Descrepency</a>';
+                                                    >Accept</a>';
                                                 }
+
+                                                // Reject CTA
+                                                if($order->getIsRejectedOnDelivery() == 1){
+
+                                                    $btn_reject = '
+                                                    <a href="#" 
+                                                        class="badge float-end ms-2 text-light border-danger bg-danger btn-item-reject"
+                                                        data-order-id="' . $order_id . '"
+                                                        data-item-id="' . $order->getId() . '"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#modal_reject_item"
+                                                    >Reject</a>';
+
+                                                } else {
+
+                                                    $btn_reject = '
+                                                    <a href="#" 
+                                                        class="badge float-end ms-2 text-danger border-danger badge-danger-outline-only btn-item-reject"
+                                                        data-order-id="' . $order_id . '"
+                                                        data-item-id="' . $order->getId() . '"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#modal_reject_item"
+                                                    >Reject</a>';
+                                                }
+
+                                                // Qty CTA
+                                                if($order->getIsQuantityAdjust() == 1){
+
+                                                    $btn_qty = '
+                                                    <a href="#" 
+                                                        class="badge float-end ms-2 text-light border-warning bg-warning btn-item-qty"
+                                                        data-order-id="' . $order_id . '"
+                                                        data-item-id="' . $order->getId() . '"
+                                                    >Adjust Quantity</a>';
+
+                                                } else {
+
+                                                    $btn_qty = '
+                                                    <a href="#" 
+                                                        class="badge float-end ms-2 text-warning border-warning badge-warning-outline-only btn-item-qty"
+                                                        data-order-id="' . $order_id . '"
+                                                        data-item-id="' . $order->getId() . '"
+                                                    >Adjust Quantity</a>';
+                                                }
+
+                                                $response .= $btn_accept . $btn_qty . $btn_reject;
 
                                             } else {
 
@@ -1728,7 +1843,44 @@ class OrdersController extends AbstractController
                     </div>
                 </div>
             </div>
-        </form>';
+        </form>
+        
+        <!-- Reject Item modal -->
+        <div class="modal fade" id="modal_reject_item" tabindex="-1" aria-labelledby="modal_reject_item" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <form name="form_reject_item" method="post">
+                        <input type="hidden" name="reject_item_id" id="reject_item_id">
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <button type="button" class="btn-close float-end me-2 position-absolute end-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <!-- Reject -->
+                                <div class="col-12">
+                                    <label class="pt-4">Reason For Rejection*</label>
+                                    <textarea 
+                                        id="reject_reason"
+                                        type="text" 
+                                        name="reject_reason"
+                                        class="form-control"
+                                    ></textarea>
+                                    <div class="hidden_msg" id="error_reject_reason">
+                                        Required Field
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                            <button 
+                                type="submit" 
+                                class="btn btn-primary" 
+                                data-item-id="'. $order->getId() .'"
+                            >SAVE</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>';
 
         return new JsonResponse($response);
     }
@@ -1880,6 +2032,8 @@ class OrdersController extends AbstractController
             $class = 'bg-danger text-light';
         }
 
+        $order_item->setOrderPlacedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
+
         $this->em->persist($order_item);
         $this->em->flush();
 
@@ -1983,6 +2137,108 @@ class OrdersController extends AbstractController
         }
 
         $flash = '<b><i class="fas fa-check-circle"></i> Item status updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        $response = [
+            'flash' => $flash,
+            'distributor_id' => $order_item->getDistributor()->getId(),
+            'order_id' => $order_item->getOrders()->getId(),
+            'clinic_id' => $order_item->getOrders()->getClinic()->getId()
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/distributors/update-expiry-date', name: 'distributor_update_expiry_date')]
+    public function distributorUpdateExpiryDateAction(Request $request): Response
+    {
+        $order_item = $this->em->getRepository(OrderItems::class)->find($request->request->get('item_id'));
+        $expiry_date = $request->request->get('expiry_date');
+
+        $order_item->setExpiryDate(\DateTime::createFromFormat('Y-m-d', $expiry_date));
+
+        $this->clinicSendNotification($order_item->getOrders(), $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
+
+        $this->em->persist($order_item);
+        $this->em->flush();
+
+        $flash = '<b><i class="fas fa-check-circle"></i> Expiry date updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        $response = [
+            'flash' => $flash,
+            'distributor_id' => $order_item->getDistributor()->getId(),
+            'order_id' => $order_item->getOrders()->getId(),
+            'clinic_id' => $order_item->getOrders()->getClinic()->getId()
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/distributors/update-item-price', name: 'distributor_update_price')]
+    public function distributorUpdatePriceAction(Request $request): Response
+    {
+        $order_item = $this->em->getRepository(OrderItems::class)->find($request->request->get('item_id'));
+        $order = $order_item->getOrders();
+        $price = $request->request->get('price');
+
+        $order_item->setUnitPrice($price);
+        $order_item->setTotal($price * $order_item->getQuantity());
+
+        $this->em->persist($order_item);
+        $this->em->flush();
+
+        $sum_total = $this->em->getRepository(OrderItems::class)->findSumTotalPdfOrderItems(
+            $order_item->getOrders()->getId(),
+            $order_item->getDistributor()->getId()
+        );
+
+        $order->setSubTotal($sum_total[0]['totals']);
+        $order->setTotal($sum_total[0]['totals'] + $order->getDeliveryFee() + $order->getTax());
+
+        $this->em->persist($order);
+        $this->em->flush();
+
+        $this->clinicSendNotification($order, $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
+
+        $flash = '<b><i class="fas fa-check-circle"></i> Price updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        $response = [
+            'flash' => $flash,
+            'distributor_id' => $order_item->getDistributor()->getId(),
+            'order_id' => $order_item->getOrders()->getId(),
+            'clinic_id' => $order_item->getOrders()->getClinic()->getId()
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/distributors/update-item-qty', name: 'distributor_update_qty')]
+    public function distributorUpdateQtyAction(Request $request): Response
+    {
+        $order_item = $this->em->getRepository(OrderItems::class)->find($request->request->get('item_id'));
+        $order = $order_item->getOrders();
+        $qty = $request->request->get('qty');
+
+        $order_item->setQuantity($qty);
+        $order_item->setQuantityDelivered($qty);
+        $order_item->setTotal($qty * $order_item->getUnitPrice());
+
+        $this->em->persist($order_item);
+        $this->em->flush();
+
+        $sum_total = $this->em->getRepository(OrderItems::class)->findSumTotalPdfOrderItems(
+            $order_item->getOrders()->getId(),
+            $order_item->getDistributor()->getId()
+        );
+
+        $order->setSubTotal($sum_total[0]['totals']);
+        $order->setTotal($sum_total[0]['totals'] + $order->getDeliveryFee() + $order->getTax());
+
+        $this->em->persist($order);
+        $this->em->flush();
+
+        $this->clinicSendNotification($order, $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
+
+        $flash = '<b><i class="fas fa-check-circle"></i> Quantity updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         $response = [
             'flash' => $flash,
@@ -2119,16 +2375,48 @@ class OrdersController extends AbstractController
         $distributor_id = $data->get('distributor_id');
         $order_id = $data->get('order_id');
         $order_item = $this->em->getRepository(OrderItems::class)->find($order_item_id);
+        $order = $this->em->getRepository(Orders::class)->find($order_id);
+        $stock_count = $this->em->getRepository(DistributorProducts::class)->findByDistributorProductStockCount(
+            $order_item->getProduct()->getId(),
+            $order_item->getDistributor()->getId()
+        );
+
+        if($stock_count[0]['stock_count'] < $qty_delivered){
+
+            $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
+                'distributor_id' => $distributor_id,
+                'order_id' => $order_id
+            ])->getContent();
+
+            $response['orders'] = json_decode($orders);
+            $response['flash'] = '<b><i class="fa solid fa-circle-xmark"></i> Only '. $stock_count[0]['stock_count'] .' available .<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+            return new JsonResponse($response);
+        }
 
         $order_item->setQuantityDelivered($qty_delivered);
+        $order_item->setTotal($qty_delivered * $order_item->getUnitPrice());
 
         $this->em->persist($order_item);
+        $this->em->flush();
+
+        $sum_total = $this->em->getRepository(OrderItems::class)->findSumTotalPdfOrderItems(
+            $order_item->getOrders()->getId(),
+            $order_item->getDistributor()->getId()
+        );
+
+        $order->setSubTotal($sum_total[0]['totals']);
+        $order->setTotal($sum_total[0]['totals'] + $order->getDeliveryFee() + $order->getTax());
+
+        $this->em->persist($order);
         $this->em->flush();
 
         $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
             'distributor_id' => $distributor_id,
             'order_id' => $order_id
         ])->getContent();
+
+        $this->distributorSendNotification($order_id, $distributor_id);
 
         $response['orders'] = json_decode($orders);
         $response['flash'] = '<b><i class="fas fa-check-circle"></i> Quantity delivered updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
@@ -2173,6 +2461,127 @@ class OrdersController extends AbstractController
 
         $response['orders'] = json_decode($orders);
         $response['flash'] = '<b><i class="fas fa-check-circle"></i> Quantity delivered updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/is-delivered-accept', name: 'is_delivered_accept')]
+    public function clinicsIsDeliveredAcceptAction(Request $request): Response
+    {
+        $order_item_id = $request->request->get('item_id');
+        $order_item = $this->em->getRepository(OrderItems::class)->find($order_item_id);
+        $distributor_id = $request->request->get('distributor_id');
+        $order_id = $request->request->get('order_id');
+
+        if($order_item->getIsAcceptedOnDelivery() == 1){
+
+            $is_accepted = 0;
+
+        } else {
+
+            $is_accepted = 1;
+        }
+
+        $order_item->setIsAcceptedOnDelivery($is_accepted);
+        $order_item->setIsRejectedOnDelivery(0);
+        $order_item->setIsQuantityAdjust(0);
+        $order_item->setRejectReason('');
+
+        $this->em->persist($order_item);
+        $this->em->flush();
+
+        $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
+            'distributor_id' => $distributor_id,
+            'order_id' => $order_id
+        ])->getContent();
+
+        $response['orders'] = json_decode($orders);
+        $response['flash'] = '<b><i class="fas fa-check-circle"></i> Quantity delivered updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/is-delivered-qty', name: 'is_delivered_qty')]
+    public function clinicsIsDeliveredQtyAction(Request $request): Response
+    {
+        $order_item_id = $request->request->get('item_id');
+        $order_item = $this->em->getRepository(OrderItems::class)->find($order_item_id);
+        $distributor_id = $request->request->get('distributor_id');
+        $order_id = $request->request->get('order_id');
+
+        if($order_item->getIsQuantityAdjust() == 1){
+
+            $is_adjust = 0;
+
+        } else {
+
+            $is_adjust = 1;
+        }
+
+        $order_item->setRejectReason('');
+        $order_item->setIsQuantityAdjust($is_adjust);
+        $order_item->setIsAcceptedOnDelivery(0);
+        $order_item->setIsRejectedOnDelivery(0);
+
+        $this->em->persist($order_item);
+        $this->em->flush();
+
+        $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
+            'distributor_id' => $distributor_id,
+            'order_id' => $order_id
+        ])->getContent();
+
+        $response['orders'] = json_decode($orders);
+        $response['flash'] = '<b><i class="fas fa-check-circle"></i> Quantity delivered updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/reject-item', name: 'clinics_reject_item')]
+    public function clinicsRejectItemAction(Request $request): Response
+    {
+        $order_item_id = $request->request->get('reject_item_id');
+        $reject_reason = $request->request->get('reject_reason');
+
+        $order_item = $this->em->getRepository(OrderItems::class)->find($order_item_id);
+
+        $order_item->setIsQuantityAdjust(0);
+        $order_item->setIsAcceptedOnDelivery(0);
+        $order_item->setIsRejectedOnDelivery(1);
+        $order_item->setRejectReason($reject_reason);
+
+        $this->em->persist($order_item);
+        $this->em->flush();
+
+        $distributor_id = $order_item->getDistributor()->getId();
+        $order_id = $order_item->getOrders()->getId();
+
+        $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
+            'distributor_id' => (int) $distributor_id,
+            'order_id' => (int) $order_id
+        ])->getContent();
+
+        $response['orders'] = json_decode($orders);
+        $response['flash'] = '<b><i class="fas fa-check-circle"></i> Item successfully rejected.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/get-reject-reason', name: 'clinics_get_reject_reason')]
+    public function clinicsGetRejectReasonAction(Request $request): Response
+    {
+        $order_item_id = $request->request->get('item_id');
+
+        $order_item = $this->em->getRepository(OrderItems::class)->find($order_item_id);
+
+        if($order_item->getRejectReason() == null){
+
+            $response = '';
+
+        } else {
+
+            $response = $order_item->getRejectReason();
+        }
 
         return new JsonResponse($response);
     }
@@ -2324,7 +2733,7 @@ class OrdersController extends AbstractController
     public function generatePpPdfAction($order_id, $distributor_id)
     {
         $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
-        $order_items = $this->em->getRepository(OrderItems::class)->findByDistributorOrder($order_id, $distributor_id);
+        $order_items = $this->em->getRepository(OrderItems::class)->findByDistributorOrder((int) $order_id, (int) $distributor_id);
         $order = $this->em->getRepository(Orders::class)->find($order_id);
         $billing_address = $this->em->getRepository(Addresses::class)->find($order->getBillingAddress());
         $shipping_address = $this->em->getRepository(Addresses::class)->find($order->getAddress());
