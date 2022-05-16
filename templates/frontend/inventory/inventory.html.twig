@@ -3454,9 +3454,11 @@
                             dataType: 'json',
                             data: data,
                             success: function (response) {
-
-                                $('#checkout_shipping_address').val(response.checkout_address);
+                                
+                                $('#checkout_shipping_address').empty().append(response.checkout_address);
                                 $('#modal_shipping_address').modal('toggle');
+                                $('.modal-backdrop').removeClass('modal-backdrop');
+                                $('#modal_shipping_address').addClass('fade');
                                 $('#basket_container').css({overflow: "auto"});
                                 $('#address_clinic_name').val('');
                                 $('#address_telephone').val('');

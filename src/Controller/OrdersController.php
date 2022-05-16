@@ -57,7 +57,14 @@ class OrdersController extends AbstractController
             'isDefault' => 1,
         ]);
 
-        $response['default_address_id'] = $default_address->getId();
+        if($default_address != null) {
+
+            $response['default_address_id'] = $default_address->getId();
+
+        } else {
+
+            $response['default_address_id'] = '';
+        }
 
         // Create / update orders
         if($order == null){
@@ -285,11 +292,18 @@ class OrdersController extends AbstractController
                             </a>
                         </div>
                     </div>
-                    <div class="form-control alert alert-secondary" rows="4" name="address_shipping" id="checkout_shipping_address">'.
-                        $default_address->getAddress() . '<br>' .
-                        $default_address->getCity() .'<br>'.
-                        $default_address->getPostalCode() .'<br>'.
-                        $default_address->getState() .'
+                    <div class="form-control alert alert-secondary" id="checkout_shipping_address">';
+
+                        if($default_address != null) {
+
+                            $response['body'] .=
+                            $default_address->getAddress() . '<br>' .
+                            $default_address->getCity() . '<br>' .
+                            $default_address->getPostalCode() . '<br>' .
+                            $default_address->getState();
+                        }
+
+                    $response['body'] .= '
                     </div>
                     <input type="hidden" name="shipping_address_id" id="shipping_address_id" value="">
                     <input type="hidden" name="type" value="2">
@@ -316,11 +330,18 @@ class OrdersController extends AbstractController
                             </a>
                         </div>
                     </div>
-                    <div class="form-control alert alert-secondary" rows="4" name="address_billing" id="checkout_billing_address">'.
-                        $default_address->getAddress() . '<br>' .
-                        $default_address->getCity() .'<br>'.
-                        $default_address->getPostalCode() .'<br>'.
-                        $default_address->getState() .'
+                    <div class="form-control alert alert-secondary" rows="4" name="address_billing" id="checkout_billing_address">';
+
+                        if($default_address != null) {
+
+                            $response['body'] .=
+                                $default_address->getAddress() . '<br>' .
+                                $default_address->getCity() . '<br>' .
+                                $default_address->getPostalCode() . '<br>' .
+                                $default_address->getState();
+                        }
+
+                    $response['body'] .= '
                     </div>
                     <input type="hidden" id="billing_address_id" name="billing_address_id" value="">
                     <input type="hidden" name="type" value="1">

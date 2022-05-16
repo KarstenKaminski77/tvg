@@ -44,8 +44,11 @@ class AddressesController extends AbstractController
                 Add or remove shipping addresses from the list below.
                 <strong>A valid address is required for purchasing Fluid Commerce items and redeeming Fluid rewards.</strong>
             </div>
-        </div>
+        </div>';
 
+        if(count($addresses) > 0) {
+
+            $response .= '
             <div class="row d-none d-xl-flex ms-1 me-1 ms-md0 me-md-0">
                 <div class="col-10">
                     <div class="row">
@@ -70,53 +73,53 @@ class AddressesController extends AbstractController
                     Zip
                 </div>
                 <div class="col-md-1 t-header">
-
+    
                 </div>
             </div>
-
+    
             <div id="address_list" style="width: calc(100% - 1px)">';
 
-        $i = 0;
+            $i = 0;
 
-        foreach($addresses as $address) {
+            foreach ($addresses as $address) {
 
-            $class = 'address-icon';
-            $border_top = '';
-            $i++;
+                $class = 'address-icon';
+                $border_top = '';
+                $i++;
 
-            if($i == 1){
+                if ($i == 1) {
 
-                $border_top = 'style="border-top: 1px solid #d3d3d4"';
-            }
+                    $border_top = 'style="border-top: 1px solid #d3d3d4"';
+                }
 
-            if($address->getIsDefault() == 1){
+                if ($address->getIsDefault() == 1) {
 
-                $class = 'is-default-address-icon';
-            }
+                    $class = 'is-default-address-icon';
+                }
 
-            $response .= '
-                    <div class="row t-row ms-1 me-1 ms-md-0 me-md-0" '. $border_top .'>
+                $response .= '
+                    <div class="row t-row ms-1 me-1 ms-md-0 me-md-0" ' . $border_top . '>
                         <div class="col-12 col-xl-10">
                             <div class="row">
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Name</div>
                                 <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
-                                    '. $address->getClinicName() .'
+                                    ' . $address->getClinicName() . '
                                 </div>
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Telephone</div>
                                 <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
-                                    '. $address->getTelephone() .'
+                                    ' . $address->getTelephone() . '
                                 </div>
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Address</div>
                                 <div class="col-8 col-md-10 col-xl-4 t-cell text-truncate border-list">
-                                    '. $address->getAddress() .'
+                                    ' . $address->getAddress() . '
                                 </div>
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">City</div>
                                 <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
-                                    '. $address->getCity() .'
+                                    ' . $address->getCity() . '
                                 </div>
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">State</div>
                                 <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
-                                    '. $address->getState() .'
+                                    ' . $address->getState() . '
                                 </div>
                             </div>
                         </div>
@@ -124,62 +127,64 @@ class AddressesController extends AbstractController
                             <div class="row">
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-start border-list">Zip</div>
                                 <div class="col-8 col-md-4 t-cell text-truncate text-start border-list">
-                                    '. $address->getPostalCode() .'
+                                    ' . $address->getPostalCode() . '
                                 </div>
                                 <div class="col-12 col-xl-8 t-cell">
-                                    <a href="" class="float-end address_update" data-address-id="'. $address->getId() .'" data-bs-toggle="modal" data-bs-target="#modal_address">
+                                    <a href="" class="float-end address_update" data-address-id="' . $address->getId() . '" data-bs-toggle="modal" data-bs-target="#modal_address">
                                         <i class="fa-solid fa-pen-to-square edit-icon"></i>
                                     </a>
-                                    <a href="" class="delete-icon float-none float-sm-end open-delete-address-modal" data-bs-toggle="modal" data-address-id="'. $address->getId() .'" data-bs-target="#modal_address_delete">
+                                    <a href="" class="delete-icon float-none float-sm-end open-delete-address-modal" data-bs-toggle="modal" data-address-id="' . $address->getId() . '" data-bs-target="#modal_address_delete">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </a>
-                                    <a href="#" class="address_default float-start float-sm-none" data-address-id="'. $address->getId() .'">
-                                        <i class="fa-solid fa-star float-end '. $class .'"></i>
+                                    <a href="#" class="address_default float-start float-sm-none" data-address-id="' . $address->getId() . '">
+                                        <i class="fa-solid fa-star float-end ' . $class . '"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>';
-        }
-        $response .= '
-            </div>
+            }
 
-            <!-- Modal Manage Address -->
-            <div class="modal fade" id="modal_address" tabindex="-1" aria-labelledby="address_delete_label" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content">
-                        <form name="form_addresses" id="form_addresses" method="post">
-                            '. $this->getAddressModal()->getContent() .'
-                        </form>
+            $response .= '
+                </div>
+    
+                <!-- Modal Manage Address -->
+                <div class="modal fade" id="modal_address" tabindex="-1" aria-labelledby="address_delete_label" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <form name="form_addresses" id="form_addresses" method="post">
+                                ' . $this->getAddressModal()->getContent() . '
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Modal Delete Address -->
-            <div class="modal fade" id="modal_address_delete" tabindex="-1" aria-labelledby="address_delete_label" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="address_delete_label">Delete Address</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-12 mb-0">
-                                    Are you sure you would like to delete this address? This action cannot be undone.
+    
+                <!-- Modal Delete Address -->
+                <div class="modal fade" id="modal_address_delete" tabindex="-1" aria-labelledby="address_delete_label" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="address_delete_label">Delete Address</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-12 mb-0">
+                                        Are you sure you would like to delete this address? This action cannot be undone.
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
-                            <button type="button" class="btn btn-danger btn-sm" id="delete_address">DELETE</button>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                                <button type="button" class="btn btn-danger btn-sm" id="delete_address">DELETE</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- End Addresses -->';
+            <!-- End Addresses -->';
+        }
 
         return $response;
     }
@@ -527,7 +532,7 @@ class AddressesController extends AbstractController
             'clinic' => $clinic->getId(),
             'isActive' => 1,
         ]);
-        
+
         $response = $this->getAddresses($addresses);
         
         return new JsonResponse($response);
@@ -608,7 +613,7 @@ class AddressesController extends AbstractController
             $this->em->persist($order);
             $this->em->flush();
 
-            $checkout_address = $clinic_address->getAddress() ."\n". $clinic_address->getCity() ."\n". $clinic_address->getPostalCode() ."\n". $clinic_address->getState();
+            $checkout_address = $clinic_address->getAddress() ."<br>". $clinic_address->getCity() ."<br>". $clinic_address->getPostalCode() ."<br>". $clinic_address->getState();
             $checkout_address_id = $clinic_address->getId();
         }
 
