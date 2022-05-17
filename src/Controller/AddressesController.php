@@ -49,11 +49,11 @@ class AddressesController extends AbstractController
         if(count($addresses) > 0) {
 
             $response .= '
-            <div class="row d-none d-xl-flex ms-1 me-1 ms-md0 me-md-0">
-                <div class="col-10">
+            <div class="row d-none d-xl-flex ms-1 me-1 ms-md-0 me-md-0">
+                <div class="col-9">
                     <div class="row">
                         <div class="col-md-2 t-header">
-                            Name
+                            Type
                         </div>
                         <div class="col-md-2 t-header">
                             Telephone
@@ -69,7 +69,7 @@ class AddressesController extends AbstractController
                         </div>
                     </div>
                 </div>
-                <div class="col-md-1 t-header">
+                <div class="col-md-2 t-header">
                     Zip
                 </div>
                 <div class="col-md-1 t-header">
@@ -84,6 +84,7 @@ class AddressesController extends AbstractController
             foreach ($addresses as $address) {
 
                 $class = 'address-icon';
+                $class_billing = 'address-icon';
                 $border_top = '';
                 $i++;
 
@@ -92,18 +93,34 @@ class AddressesController extends AbstractController
                     $border_top = 'style="border-top: 1px solid #d3d3d4"';
                 }
 
+                // Default Shipping Address
                 if ($address->getIsDefault() == 1) {
 
                     $class = 'is-default-address-icon';
                 }
 
+                // Default Billing Address
+                if($address->getIsDefaultBilling() == 1){
+
+                    $class_billing = 'is-default-address-icon';
+                }
+
+                if($address->getType() == 1){
+
+                    $type = 'Billing';
+
+                } else {
+
+                    $type = 'Shipping';
+                }
+
                 $response .= '
                     <div class="row t-row ms-1 me-1 ms-md-0 me-md-0" ' . $border_top . '>
-                        <div class="col-12 col-xl-10">
+                        <div class="col-12 col-xl-9">
                             <div class="row">
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Name</div>
                                 <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
-                                    ' . $address->getClinicName() . '
+                                    ' . $type . '
                                 </div>
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Telephone</div>
                                 <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
@@ -123,7 +140,7 @@ class AddressesController extends AbstractController
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-xl-2 text-center text-sm-start">
+                        <div class="col-12 col-xl-3 text-center text-sm-start">
                             <div class="row">
                                 <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-start border-list">Zip</div>
                                 <div class="col-8 col-md-4 t-cell text-truncate text-start border-list">
@@ -135,6 +152,10 @@ class AddressesController extends AbstractController
                                     </a>
                                     <a href="" class="delete-icon float-none float-sm-end open-delete-address-modal" data-bs-toggle="modal" data-address-id="' . $address->getId() . '" data-bs-target="#modal_address_delete">
                                         <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                    <a href="#" class="address_default_billing float-start float-sm-none" data-billing-address-id="' . $address->getId() . '">
+                                        <i class="fa-solid fa-star float-end ' . $class_billing . '"></i>
+                                    </a>
                                     </a>
                                     <a href="#" class="address_default float-start float-sm-none" data-address-id="' . $address->getId() . '">
                                         <i class="fa-solid fa-star float-end ' . $class . '"></i>
@@ -640,6 +661,48 @@ class AddressesController extends AbstractController
         $address_id = $request->request->get('id');
         $clinic_id = $this->get('security.token_storage')->getToken()->getUser()->getClinic()->getId();
         $methods = $this->em->getRepository(Clinics::class)->getClinicDefaultAddresses($clinic_id, $address_id);
+
+        $addresses = $this->em->getRepository(Addresses::class)->findBy([
+            'clinic' => $clinic_id,
+            'isActive' => 1,
+        ]);
+
+        $addresses = $this->getAddresses($addresses);
+
+        $flash = '<b><i class="fas fa-check-circle"></i> Default address successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        $response = [
+            'addresses' => $addresses,
+            'flash' => $flash
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/address/default-billing', name: 'clinic_billing_address_default')]
+    public function clinicDefaultBillingAddress(Request $request): Response
+    {
+        $address_id = $request->request->get('id');
+        $default_address = $this->em->getRepository(Addresses::class)->find($address_id);
+        $clinic_id = $this->get('security.token_storage')->getToken()->getUser()->getClinic()->getId();
+
+        $addresses = $this->em->getRepository(Addresses::class)->findBy([
+            'clinic' => $clinic_id
+        ]);
+
+        // Clear default
+        foreach($addresses as $address){
+
+            $address->setIsDefaultBilling(0);
+            $this->em->persist($address);
+        }
+
+        $this->em->flush();
+
+        $default_address->setIsDefaultBilling(1);
+
+        $this->em->persist($default_address);
+        $this->em->flush();
 
         $addresses = $this->em->getRepository(Addresses::class)->findBy([
             'clinic' => $clinic_id,

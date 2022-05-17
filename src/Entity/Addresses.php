@@ -89,6 +89,11 @@ class Addresses
      */
     private $type;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isDefaultBilling;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -286,6 +291,18 @@ class Addresses
     public function setType(?int $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getIsDefaultBilling(): ?bool
+    {
+        return $this->isDefaultBilling;
+    }
+
+    public function setIsDefaultBilling(?bool $isDefaultBilling): self
+    {
+        $this->isDefaultBilling = $isDefaultBilling;
 
         return $this;
     }

@@ -3261,7 +3261,27 @@
                     success: function (response) {
 
                         getFlash(response.flash);
-                        $('#inventory').empty().append(response.addresses);
+                        $('#basket_container').empty().append(response.addresses);
+                    }
+                });
+            });
+            $(document).on('click', '.address_default_billing', function (e) {
+
+                e.preventDefault();
+
+                let address_id = $(this).data('billing-address-id');
+
+                $.ajax({
+                    url: "{{ path('clinic_billing_address_default') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        id: address_id
+                    },
+                    success: function (response) {
+
+                        getFlash(response.flash);
+                        $('#basket_container').empty().append(response.addresses);
                     }
                 });
             });
@@ -3454,7 +3474,7 @@
                             dataType: 'json',
                             data: data,
                             success: function (response) {
-                                
+
                                 $('#checkout_shipping_address').empty().append(response.checkout_address);
                                 $('#modal_shipping_address').modal('toggle');
                                 $('.modal-backdrop').removeClass('modal-backdrop');
