@@ -343,6 +343,37 @@
         </div>
         {# End Sales Tax Policy #}
 
+        {# Shipping Policy #}
+        <div class="row" id="shipping_policy">
+            <div class="col-12 mb-3 mt-5">
+                <h3>Shipping Policy</h3>
+            </div>
+            <div class="col-12 mb-3 mt-2">
+                <h5>Lorem ipsum dolor sit amet</h5>
+            </div>
+            {{form_start(form, {'name': 'form_shipping_policy', 'attr': {'id': 'form_shipping_policy'}})}}
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    {{ form_widget(form.shippingPolicy,{'id': 'shipping_policy_field', 'value': distributor.shippingPolicy, 'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Shipping Policy*'
+                    }}) }}
+                    <div class="hidden_msg" id="error_shipping_policy">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-12 mt-3 mb-5">
+                    <button id="btn_shipping_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                </div>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {# End Sales Tax Policy #}
+
         {# Invenory / Distributor Products #}
         <div id="inventory">
             <div class="row mb-3" id="inventory_search">
@@ -734,6 +765,7 @@
             let operating_hours = $('#operating_hours');
             let refund_policy = $('#refund_policy');
             let sales_tax_policy = $('#sales_tax_policy');
+            let shipping_policy = $('#shipping_policy');
             let inventory = $('#inventory');
             let inventory_search = $('#inventory_search');
             let inventory_item = $('#inventory_item');
@@ -749,6 +781,7 @@
             operating_hours.hide();
             refund_policy.hide();
             sales_tax_policy.hide();
+            shipping_policy.hide();
             inventory.hide();
             inventory_search.hide();
             inventory_item.hide();
@@ -767,6 +800,7 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -808,6 +842,7 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -1302,6 +1337,7 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -1322,6 +1358,7 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -1341,6 +1378,7 @@
                 operating_hours.show();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -1360,6 +1398,7 @@
                 operating_hours.hide();
                 refund_policy.show();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -1379,6 +1418,27 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.show();
+                shipping_policy.hide();
+                inventory.hide();
+                inventory_search.hide();
+                inventory_item.hide();
+                users.hide();
+                order_container.hide();
+
+                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+            });
+
+            {# Shipping Policy #}
+            $('#shipping_policy_link').click(function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                shipping_policy.show();
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -1398,6 +1458,7 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory.show();
                 inventory_search.show();
                 inventory_item.hide();
@@ -1417,6 +1478,7 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -1788,6 +1850,48 @@
             });
             {# End Sales Tax Policy #}
 
+            {# Shipping Policy #}
+            $(document).on('click', '#btn_shipping_policy', function(e){
+
+                e.preventDefault();
+
+                let is_valid = true;
+                let shipping_policy = CKEDITOR.instances.shipping_policy_field.getData();
+                let error_shipping_policy = $('#error_shipping_policy');
+
+                error_shipping_policy.hide();
+
+                if(shipping_policy == '' || shipping_policy == 'undefined'){
+
+                    error_shipping_policy.show();
+                    is_valid = false;
+                }
+
+                if(is_valid == true){
+
+                    $.ajax({
+                        url: "{{ path('distributor_update_shipping_policy') }}",
+                        type: 'POST',
+                        data: {
+                            shipping_policy: shipping_policy
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            $('#flash').addClass('alert-success');
+                            $('#flash').removeClass('alert-danger');
+                            $('#flash').addClass('alert');
+                            $('#flash').addClass('text-center');
+                            $('#flash').removeClass('users-flash');
+                            $('#flash').addClass('users-flash');
+                            $('#flash').empty();
+                            $('#flash').append(response);
+                            $('#flash').removeClass('hidden');
+                        }
+                    });
+                }
+            });
+            {# End Shipping Policy #}
+
             {# Invenory / Distributor Products #}
             $('#form_inventory_item').submit(function(e){
 
@@ -1857,6 +1961,7 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                shipping_policy.hide();
                 inventory_search.hide();
                 inventory_item.hide();
                 users.show();

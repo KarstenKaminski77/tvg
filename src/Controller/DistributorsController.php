@@ -554,6 +554,33 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/distributors/update/shipping_policy', name: 'distributor_update_shipping_policy')]
+    public function distributorUpdateShippingPolicyAction(Request $request): Response
+    {
+        $data = $request->request;
+        $username = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
+        $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $username]);
+
+        if($distributor != null) {
+
+            if(!empty($data->get('shipping_policy'))) {
+
+                $distributor->setShippingPolicy($data->get('shipping_policy'));
+            }
+
+            $this->em->persist($distributor);
+            $this->em->flush();
+
+            $response = '<b><i class="fa-solid fa-circle-check"></i></i></b> Shipping policy successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        } else {
+
+            $response = '<b><i class="fas fa-check-circle"></i> Personal details successfully updated.';
+        }
+
+        return new JsonResponse($response);
+    }
+
     #[Route('/distributors/inventory-search', name: 'distributor_inventory_search')]
     public function distributorInventorySearchAction(Request $request): Response
     {

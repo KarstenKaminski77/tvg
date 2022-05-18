@@ -114,6 +114,13 @@ class DistributorFormType extends AbstractType
                     'toolbar' => 'basic'
                 ]
             ])
+            ->add('shippingPolicy', CKEditorType::class, [
+                'label' => 'Shipping Policy',
+                'required' => false,
+                'config' => [
+                    'toolbar' => 'basic'
+                ]
+            ])
             ->add('isManufaturer', ChoiceType::class, [
                 'choices' => [
                     'Yes' => 1,

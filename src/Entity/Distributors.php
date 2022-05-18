@@ -184,6 +184,11 @@ class Distributors
      */
     private $addressCountry;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $shippingPolicy;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -857,6 +862,18 @@ class Distributors
     public function setAddressCountry(?Countries $addressCountry): self
     {
         $this->addressCountry = $addressCountry;
+
+        return $this;
+    }
+
+    public function getShippingPolicy(): ?string
+    {
+        return $this->shippingPolicy;
+    }
+
+    public function setShippingPolicy(?string $shippingPolicy): self
+    {
+        $this->shippingPolicy = $shippingPolicy;
 
         return $this;
     }

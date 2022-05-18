@@ -1012,7 +1012,7 @@ class BasketController extends AbstractController
 
                 $i++;
                 $product = $basket->getBasketItems()[$i]->getProduct();
-                $shipping_policy = $item->getDistributor()->getSalesTaxPolicy();
+                $shipping_policy = $item->getDistributor()->getShippingPolicy();
                 $distributor_product = $this->em->getRepository(DistributorProducts::class)->findOneBy([
                     'product' => $item->getProduct()->getId(),
                     'distributor' => $item->getDistributor()->getId(),
@@ -1425,7 +1425,7 @@ class BasketController extends AbstractController
                 $i++;
                 //dd($basket->getBasketItems()[2]->getProduct()->getId());
                 $product = $basket->getBasketItems()[$i]->getProduct();
-                $shipping_policy = $item->getDistributor()->getSalesTaxPolicy();
+                $shipping_policy = $item->getDistributor()->getShippingPolicy();
 
                 if($product->getStockCount() > 0){
 
