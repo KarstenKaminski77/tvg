@@ -3141,7 +3141,7 @@
                             timeout: 600000,
                             dataType: 'json',
                             success: function (response) {
-                                $('#users_list').empty().append(response);
+                                $('#basket_container').empty().append(response);
                             }
                         });
                     }
@@ -3953,7 +3953,7 @@
                             $('.fade').removeClass('fade');
                             $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val('');
                             $('#send_to').val('');
-                            $('#inventory').empty().append(response.communication_methods);
+                            $('#basket_container').empty().append(response.communication_methods);
                         }
                     });
                 }

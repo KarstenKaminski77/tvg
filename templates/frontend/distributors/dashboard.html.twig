@@ -1309,7 +1309,7 @@
                 order_container.hide();
 
                 clearInterval(get_messages);
-                window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/dashboard');
             });
 
             {# About #}
@@ -1328,7 +1328,7 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/dashboard');
             });
 
             {# Operating Hours #}
@@ -1347,7 +1347,7 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/dashboard');
             });
 
             {# Refund Policy #}
@@ -1366,7 +1366,7 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/dashboard');
             });
 
             {# Sales Tax Policy #}
@@ -1385,7 +1385,7 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/dashboard');
             });
 
             {# Inventory #}
@@ -1404,7 +1404,7 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/clinics/inventory');
+                window.history.pushState(null, "Fluid", '/distributors/dashboard');
             });
 
             {# Users #}
@@ -1423,7 +1423,7 @@
                 users.show();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/dashboard');
             });
 
             {# Update Personal Information #}
@@ -1638,13 +1638,14 @@
                 if(is_valid == true){
 
                     // Create an FormData object
-                    let data = new FormData(this);
 
                     $.ajax({
                         url: "{{ path('distributor_update_about_us') }}",
                         type: 'POST',
-                        data: data,
                         dataType: 'json',
+                        data: {
+                            about_us: about_us
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');

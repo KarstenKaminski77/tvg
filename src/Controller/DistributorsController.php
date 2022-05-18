@@ -453,19 +453,21 @@ class DistributorsController extends AbstractController
 
         if($distributor != null) {
 
-            if(!empty($data->get('about_us'))) {
+            $about = $data->get('about_us');
 
-                $distributor->setAbout($data->get('about_us'));
+            if(!empty($about)) {
+
+                $distributor->setAbout($about);
+
+                $this->em->persist($distributor);
+                $this->em->flush();
             }
-
-            $this->em->persist($distributor);
-            $this->em->flush();
 
             $response = '<b><i class="fa-solid fa-circle-check"></i></i></b> About us successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         } else {
 
-            $response = '<b><i class="fas fa-check-circle"></i> Personal details successfully updated.';
+            $response = '<b><i class="fas fa-check-circle"></i> An error occurred.';
         }
 
         return new JsonResponse($response);

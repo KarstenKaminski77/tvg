@@ -357,7 +357,7 @@ class ClinicUsersController extends AbstractController
                        '. $user->getPosition() .'
                    </div>
                    <div class="col-md-2 t-cell">
-                       <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_{{ users.id }}">
+                       <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_'. $user->getId() .'">
                            <i class="fa-solid fa-pen-to-square edit-icon"></i>
                        </a>
                        <a href="" class="delete-icon float-end open-delete-user-modal" data-bs-toggle="modal"
@@ -460,5 +460,34 @@ class ClinicUsersController extends AbstractController
         ];
 
         return new JsonResponse($response);
+    }
+
+    private function generatePassword()
+    {
+        $sets = [];
+        $sets[] = 'abcdefghjkmnpqrstuvwxyz';
+        $sets[] = 'ABCDEFGHJKMNPQRSTUVWXYZ';
+        $sets[] = '23456789';
+        $sets[] = '!@$%*?';
+
+        $all = '';
+        $password = '';
+
+        foreach ($sets as $set) {
+
+            $password .= $set[array_rand(str_split($set))];
+            $all .= $set;
+        }
+
+        $all = str_split($all);
+
+        for ($i = 0; $i < 16 - count($sets); $i++) {
+
+            $password .= $all[array_rand($all)];
+        }
+
+        $this->plain_password = str_shuffle($password);
+
+        return $this->plain_password;
     }
 }
