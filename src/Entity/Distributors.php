@@ -159,6 +159,31 @@ class Distributors
      */
     private $orderStatuses;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $addressStreet;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $addressCity;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $addressPostalCode;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $addressState;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="distributors")
+     */
+    private $addressCountry;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -772,6 +797,66 @@ class Distributors
                 $orderStatus->setDistributor(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAddressStreet(): ?string
+    {
+        return $this->addressStreet;
+    }
+
+    public function setAddressStreet(?string $addressStreet): self
+    {
+        $this->addressStreet = $addressStreet;
+
+        return $this;
+    }
+
+    public function getAddressCity(): ?string
+    {
+        return $this->addressCity;
+    }
+
+    public function setAddressCity(?string $addressCity): self
+    {
+        $this->addressCity = $addressCity;
+
+        return $this;
+    }
+
+    public function getAddressPostalCode(): ?string
+    {
+        return $this->addressPostalCode;
+    }
+
+    public function setAddressPostalCode(?string $addressPostalCode): self
+    {
+        $this->addressPostalCode = $addressPostalCode;
+
+        return $this;
+    }
+
+    public function getAddressState(): ?string
+    {
+        return $this->addressState;
+    }
+
+    public function setAddressState(?string $addressState): self
+    {
+        $this->addressState = $addressState;
+
+        return $this;
+    }
+
+    public function getAddressCountry(): ?Countries
+    {
+        return $this->addressCountry;
+    }
+
+    public function setAddressCountry(?Countries $addressCountry): self
+    {
+        $this->addressCountry = $addressCountry;
 
         return $this;
     }

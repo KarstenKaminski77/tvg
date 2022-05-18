@@ -92,20 +92,105 @@
                 <div class="row mb-3">
 
                     {# Logo #}
-                    <div class="col-12" id="logo_file">
-                        <label>
-                            Logo
-                        </label>
-                        {{ form_widget(form.logo,{id: 'logo', 'attr': {
-                            'class': 'form-control',
-                            'placeholder': 'Logo',
-                            'value': distributor.logo
-                        }}) }}
+                    <div class="col-12 col-sm-6">
+                        <div class="row m-0">
+                            <div class="col-11 ps-0" id="logo_file">
+                                <label>
+                                    Logo
+                                </label>
+                                {{ form_widget(form.logo,{id: 'logo', 'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Logo',
+                                    'value': distributor.logo
+                                }}) }}
+                            </div>
+                            <div class="col-1 hidden ps-0 pe-0" id="logo_col">
+                                <a href="" data-bs-toggle="modal" data-bs-target="#modal_logo">
+                                    <i class="fa-solid fa-image img-icon float-end"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-1 hidden" id="logo_col">
-                        <a href="" data-bs-toggle="modal" data-bs-target="#modal_logo">
-                            <i class="fa-solid fa-image img-icon float-end"></i>
-                        </a>
+
+                    {# Country #}
+                    <div class="col-12 col-sm-6">
+                        <label>
+                            Country
+                        </label>
+                        {{ form_widget(form.addressCountry,{id: 'country', 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'Country',
+                            'value': distributor.addressCountry.id,
+                        }}) }}
+                        <div class="hidden_msg" id="error_country">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# Street #}
+                    <div class="col-12 col-sm-6">
+                        <labe>
+                            Street Address
+                        </labe>
+                        {{ form_widget(form.addressStreet,{id: 'street_address', 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'Street Address',
+                            'value': distributor.addressStreet
+                        }}) }}
+                        <div class="hidden_msg" id="error_street_address">
+                            Required Field
+                        </div>
+                    </div>
+
+                    {# City #}
+                    <div class="col-12 col-sm-6">
+                        <labe>
+                            City
+                        </labe>
+                        {{ form_widget(form.addressCity,{id: 'city', 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'City',
+                            'value': distributor.addressCity
+                        }}) }}
+                        <div class="hidden_msg" id="error_city">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+
+                    {# Postal Code #}
+                    <div class="col-12 col-sm-6">
+                        <labe>
+                            Postal Code
+                        </labe>
+                        {{ form_widget(form.addressPostalCode,{id: 'postal_code', 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'Postal Code',
+                            'value': distributor.addressPostalCode
+                        }}) }}
+                        <div class="hidden_msg" id="error_postal_code">
+                            Required Field
+                        </div>
+                    </div>
+
+                    {# State #}
+                    <div class="col-12 col-sm-6">
+                        <labe>
+                            State
+                        </labe>
+                        {{ form_widget(form.addressState,{id: 'state', 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'State',
+                            'value': distributor.addressState
+                        }}) }}
+                        <div class="hidden_msg" id="error_state">
+                            Required Field
+                        </div>
                     </div>
                 </div>
 
@@ -745,7 +830,7 @@
 
                         $('#order_container').empty().append(response);
                         $('#distributor_chat_inner').scrollTop($('#distributor_chat_inner').prop("scrollHeight"));
-
+                        popOver();
                         getChat(order_id, distributor_id, clinic_id)
                         $('#chat_pulse').hide();
 
@@ -1429,13 +1514,28 @@
                 let company_name = $('#distributor_name').val();
                 let email = $('#email').val();
                 let telephone = $('#telephone').val();
+                let country = $('#country').val();
+                let street_address = $('#street_address').val();
+                let city = $('#city').val();
+                let postal_code = $('#postal_code').val();
+                let state = $('#state').val();
                 let error_company_name = $('#error_distributor_name');
                 let error_email = $('#error_email');
                 let error_telephone = $('#error_telephone');
+                let error_country = $('#error_country');
+                let error_street_address = $('#error_street_address');
+                let error_city = $('#error_city');
+                let error_postal_code = $('#error_postal_code');
+                let error_state = $('#error_state');
 
                 error_company_name.hide();
                 error_email.hide();
                 error_telephone.hide();
+                error_country.hide();
+                error_street_address.hide();
+                error_city.hide();
+                error_postal_code.hide();
+                error_state.hide();
 
                 if(company_name == '' || company_name == 'undefined'){
 
@@ -1452,6 +1552,36 @@
                 if(telephone == '' || telephone == 'undefined'){
 
                     error_telephone.show();
+                    is_valid = false;
+                }
+
+                if(country == '' || country == 'undefined'){
+
+                    error_country.show();
+                    is_valid = false;
+                }
+
+                if(street_address == '' || street_address == 'undefined'){
+
+                    error_street_address.show();
+                    is_valid = false;
+                }
+
+                if(city == '' || city == 'undefined'){
+
+                    error_city.show();
+                    is_valid = false;
+                }
+
+                if(postal_code == '' || postal_code == 'undefined'){
+
+                    error_postal_code.show();
+                    is_valid = false;
+                }
+
+                if(state == '' || state == 'undefined'){
+
+                    error_state.show();
                     is_valid = false;
                 }
 
@@ -1933,6 +2063,14 @@
                 }
             });
             {# End Users #}
+
+            {# Popovers #}
+            function popOver() {
+                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+                var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                    return new bootstrap.Popover(popoverTriggerEl)
+                })
+            }
 
             {# Clode Flash Message #}
             $('#flash').click(function (){

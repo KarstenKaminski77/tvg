@@ -517,6 +517,7 @@ class BasketController extends AbstractController
         $basket_new->setTotal($basket->getTotal());
         $basket_new->setSavedBy($saved_by);
         $basket_new->setStatus('active');
+        $basket_new->setIsDefault(0);
 
         $this->em->persist($basket_new);
         $this->em->flush();
@@ -669,7 +670,8 @@ class BasketController extends AbstractController
     private function getSavedbasketsRightColumn()
     {
         $saved_baskets = $this->em->getRepository(Baskets::class)->findBy([
-            'clinic' => $this->getUser()->getClinic()->getId()
+            'clinic' => $this->getUser()->getClinic()->getId(),
+            'status' => 'active'
         ]);
 
 

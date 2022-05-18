@@ -6,6 +6,7 @@ use App\Entity\Addresses;
 use App\Entity\AvailabilityTracker;
 use App\Entity\ChatMessages;
 use App\Entity\Clinics;
+use App\Entity\Countries;
 use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
 use App\Entity\DistributorUsers;
@@ -396,7 +397,10 @@ class DistributorsController extends AbstractController
         $data = $request->request->get('distributor_form');
 
         $distributor = $this->getUser()->getDistributor();
+        $country_id = $data['addressCountry'];
         $logo = '';
+
+        $country = $this->em->getRepository(Countries::class)->find($country_id);
 
         if($distributor != null) {
 
@@ -404,6 +408,11 @@ class DistributorsController extends AbstractController
             $distributor->setTelephone($data['telephone']);
             $distributor->setEmail($data['email']);
             $distributor->setWebsite($data['website']);
+            $distributor->setAddressCountry($country);
+            $distributor->setAddressStreet($data['addressStreet']);
+            $distributor->setAddressCity($data['addressCity']);
+            $distributor->setAddressPostalCode($data['addressPostalCode']);
+            $distributor->setAddressState($data['addressState']);
 
             if(!empty($_FILES['distributor_form']['name']['logo'])) {
 

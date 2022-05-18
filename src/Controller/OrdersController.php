@@ -52,9 +52,17 @@ class OrdersController extends AbstractController
             'isActive' => 1,
             'type' => 2
         ]);
+
         $default_address = $this->em->getRepository(Addresses::class)->findOneBy([
             'clinic' => $clinic->getId(),
             'isDefault' => 1,
+            'type' => 2
+        ]);
+
+        $default_billing_address = $this->em->getRepository(Addresses::class)->findOneBy([
+            'clinic' => $clinic->getId(),
+            'isDefaultBilling' => 1,
+            'type' => 1
         ]);
 
         if($default_address != null) {
@@ -64,6 +72,15 @@ class OrdersController extends AbstractController
         } else {
 
             $response['default_address_id'] = '';
+        }
+
+        if($default_billing_address != null) {
+
+            $response['default_billing_address_id'] = $default_billing_address->getId();
+
+        } else {
+
+            $response['default_billing_address_id'] = '';
         }
 
         // Create / update orders
@@ -332,13 +349,13 @@ class OrdersController extends AbstractController
                     </div>
                     <div class="form-control alert alert-secondary" rows="4" name="address_billing" id="checkout_billing_address">';
 
-                        if($default_address != null) {
+                        if($default_billing_address != null) {
 
                             $response['body'] .=
-                                $default_address->getAddress() . '<br>' .
-                                $default_address->getCity() . '<br>' .
-                                $default_address->getPostalCode() . '<br>' .
-                                $default_address->getState();
+                                $default_billing_address->getAddress() . '<br>' .
+                                $default_billing_address->getCity() . '<br>' .
+                                $default_billing_address->getPostalCode() . '<br>' .
+                                $default_billing_address->getState();
                         }
 
                     $response['body'] .= '
@@ -976,7 +993,7 @@ class OrdersController extends AbstractController
 
                             $status_id = $order_status_id->getStatus()->getId();
 
-                            if($order->getIsCancelled() == 1 && ($status_id == 6 || $status_id == 7)){
+                            if($order->getIsCancelled() == 1 && ($status_id == 6 || $status_id == 7 || $status_id == 8)){
 
                                 continue;
                             }
@@ -1067,6 +1084,28 @@ class OrdersController extends AbstractController
                                                 <span 
                                                     class="badge float-end ms-2 text-light border border-warning bg-warning"
                                                 >Adjusting Quantity</span>';
+                                            }
+                                        }
+
+                                        // Closed
+                                        if($status_id == 8){
+
+                                            // Quantity confirmed by clinic
+                                            if($order->getIsAcceptedOnDelivery() == 1){
+
+                                                $badge_delivered_correct = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-success bg-success"
+                                                >Accepted</span>';
+                                            }
+
+                                            // Quantity rejected by clinic
+                                            if($order->getIsRejectedOnDelivery() == 1){
+
+                                                $badge_delivered_correct = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-danger bg-danger"
+                                                >Rejected</span>';
                                             }
                                         }
 
@@ -1181,27 +1220,43 @@ class OrdersController extends AbstractController
                                 $qty = '<span class="'. $opacity .'">'. $order->getQuantity() .'</span>';
                             }
 
+                            $popover = '<b>Ordered By</b> '. $order->getOrderPlacedBy() .'<br>';
+
+                            if($order->getOrderReceivedBy() != null){
+
+                                $popover .= '
+                                <b>Recieved By</b> '. $order->getOrderReceivedBy();
+                            }
+
+                            if($order->getRejectReason() != null){
+
+                                $popover .= '
+                                <br><br>
+                                <b>Reason For Rejection</b><br>
+                                '. $order->getRejectReason();
+                            }
+
                                 $response .= '
                                 <!-- Product Name and Qty -->
                                 '. $prd_id .'
                                 <div class="row">
                                     <!-- Product Name -->
-                                    <div class="col-12 col-sm-6 pt-3 pb-3">
+                                    <div class="col-12 col-sm-5 pt-3 pb-3">
                                         <span class="info '. $opacity .'">'. $order->getDistributor()->getDistributorName() .'</span>
                                         <h6 class="fw-bold text-center text-sm-start text-primary lh-base '. $opacity .'">
                                             '. $order->getName() .'
                                         </h6>
                                     </div>
                                     <!-- Expiry Date -->
-                                    <div class="col-12 col-sm-6 pt-3 pb-3 d-table">
+                                    <div class="col-12 col-sm-7 pt-3 pb-3 d-table">
                                         <div class="row d-table-row">
-                                            <div class="col-6 text-center text-sm-end d-table-cell align-bottom">
+                                            <div class="col-5 text-center text-sm-end d-table-cell align-bottom">
                                                 '. $expiry_date .'
                                                 <div class="hidden_msg" id="error_expiry_date_'. $order->getProduct()->getId() .'">
                                                     Required Field
                                                 </div>
                                             </div>
-                                            <div class="col-3 text-center d-table-cell align-bottom">
+                                            <div class="col-2 text-center d-table-cell align-bottom">
                                                 '. $unit_price .'
                                                 <div class="hidden_msg" id="error_price_'. $order->getProduct()->getId() .'">
                                                     Required Field
@@ -1215,6 +1270,20 @@ class OrdersController extends AbstractController
                                             </div>
                                             <div class="col-2 text-center text-sm-start fw-bold d-table-cell align-bottom '. $opacity .'">
                                                 $'. number_format($order->getUnitPrice() * $order->getQuantity(),2) .'
+                                            </div>
+                                            <div class="col-2 text-center text-sm-start fw-bold d-table-cell align-bottom '. $opacity .'">
+                                                <button
+                                                    type="button"
+                                                    class="bg-transparent border-0 text-secondary"
+                                                    data-bs-html="true"
+                                                    data-bs-trigger="hover"
+                                                    data-bs-container="body" 
+                                                    data-bs-toggle="popover" 
+                                                    data-bs-placement="top" 
+                                                    data-bs-content="'. $popover .'"
+                                                >
+                                                    <i class="fa-solid fa-circle-info"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -1680,10 +1749,39 @@ class OrdersController extends AbstractController
                                         </div>';
 
                                         $response .= $col_qty_delivered;
+                                        $popover = '<b>Ordered By</b> '. $order->getOrderPlacedBy() .'<br>';
+
+                                        if($order->getOrderReceivedBy() != null){
+
+                                            $popover .= '
+                                            <b>Recieved By</b> '. $order->getOrderReceivedBy();
+                                        }
+
+                                        if($order->getRejectReason() != null){
+
+                                            $popover .= '
+                                            <br><br>
+                                            <b>Reason For Rejection</b><br>
+                                            '. $order->getRejectReason();
+                                        }
 
                                         $response .= '
-                                        <div class="col-3 text-center text-sm-end fw-bold d-table-cell align-bottom alert-text-grey">
+                                        <div class="col-2 text-center text-sm-end fw-bold d-table-cell align-bottom alert-text-grey">
                                             $'. number_format($order->getUnitPrice() * $order->getQuantityDelivered(),2) .'
+                                        </div>
+                                        <div class="col-2 d-table-cell align-bottom text-end">
+                                            <button
+                                                type="button"
+                                                class="bg-transparent border-0 text-secondary"
+                                                data-bs-html="true"
+                                                data-bs-trigger="hover"
+                                                data-bs-container="body" 
+                                                data-bs-toggle="popover" 
+                                                data-bs-placement="top" 
+                                                data-bs-content="'. $popover .'"
+                                            >
+                                                <i class="fa-solid fa-circle-info"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -1699,7 +1797,7 @@ class OrdersController extends AbstractController
                                             if($order_status_id == 7) {
 
                                                 // Accept CTA
-                                                if($order->getIsAcceptedOnDelivery() == 1){
+                                                if ($order->getIsAcceptedOnDelivery() == 1) {
 
                                                     $btn_accept = '
                                                     <a href="#" 
@@ -1719,7 +1817,7 @@ class OrdersController extends AbstractController
                                                 }
 
                                                 // Reject CTA
-                                                if($order->getIsRejectedOnDelivery() == 1){
+                                                if ($order->getIsRejectedOnDelivery() == 1) {
 
                                                     $btn_reject = '
                                                     <a href="#" 
@@ -1743,7 +1841,7 @@ class OrdersController extends AbstractController
                                                 }
 
                                                 // Qty CTA
-                                                if($order->getIsQuantityAdjust() == 1){
+                                                if ($order->getIsQuantityAdjust() == 1) {
 
                                                     $btn_qty = '
                                                     <a href="#" 
@@ -1763,6 +1861,31 @@ class OrdersController extends AbstractController
                                                 }
 
                                                 $response .= $btn_accept . $btn_qty . $btn_reject;
+
+                                            } elseif($order_status_id == 8){
+
+                                                $btn_status = '';
+
+                                                // Accept
+                                                if ($order->getIsAcceptedOnDelivery() == 1) {
+
+                                                    $btn_status = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept"
+                                                    >Accepted</span>';
+
+                                                }
+
+                                                // Reject
+                                                if ($order->getIsRejectedOnDelivery() == 1) {
+
+                                                    $btn_status = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-light border-danger bg-danger btn-item-reject"
+                                                    >Rejected</span>';
+                                                }
+
+                                                $response .= $btn_status;
 
                                             } else {
 
@@ -2507,6 +2630,7 @@ class OrdersController extends AbstractController
         $order_item->setIsRejectedOnDelivery(0);
         $order_item->setIsQuantityAdjust(0);
         $order_item->setRejectReason('');
+        $order_item->setOrderReceivedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
 
         $this->em->persist($order_item);
         $this->em->flush();
@@ -2543,6 +2667,7 @@ class OrdersController extends AbstractController
         $order_item->setIsQuantityAdjust($is_adjust);
         $order_item->setIsAcceptedOnDelivery(0);
         $order_item->setIsRejectedOnDelivery(0);
+        $order_item->setOrderReceivedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
 
         $this->em->persist($order_item);
         $this->em->flush();
@@ -2570,6 +2695,7 @@ class OrdersController extends AbstractController
         $order_item->setIsAcceptedOnDelivery(0);
         $order_item->setIsRejectedOnDelivery(1);
         $order_item->setRejectReason($reject_reason);
+        $order_item->setOrderReceivedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
 
         $this->em->persist($order_item);
         $this->em->flush();

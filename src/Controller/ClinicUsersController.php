@@ -296,7 +296,45 @@ class ClinicUsersController extends AbstractController
         $clinic_id = $this->getUser()->getClinic()->getId();
         $users = $this->em->getRepository(Clinics::class)->getClinicUsers($clinic_id);
 
-        $html = '';
+        $html = '
+        <div class="row" id="users">
+            <div class="col-12 col-md-6 mb-3">
+                <h3 class=" text-center text-sm-start">Manage User Accounts</h3>
+            </div>
+            <div class="col-12 col-md-6 mb-3 mt-0">
+                <!-- Create New -->
+                <button type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
+                    <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 mb-5 mt-3 info text-center text-sm-start">
+                Fluid supports having several users under a single clinic. Each user will have their own login, can
+                independently participate in the Fluid discussions. You have full control over editing the permissions
+                of each user in your clinic. Use the table below to view the available permission levels.
+            </div>
+        </div>
+        <div class="row d-none d-xl-flex ms-1 me-1 ms-md0 me-md-0">
+            <div class="col-md-2 t-header">
+                First Name
+            </div>
+            <div class="col-md-2 t-header">
+                Last Name
+            </div>
+            <div class="col-md-2 t-header">
+                Username
+            </div>
+            <div class="col-md-2 t-header">
+                Telephone
+            </div>
+            <div class="col-md-2 t-header">
+                Position
+            </div>
+            <div class="col-md-2 t-header">
+
+            </div>
+        </div>';
 
         foreach($users[0]->getClinicUsers() as $user){
 

@@ -252,7 +252,6 @@
                             if(response.error.length == 0) {
 
                                 getFlash(response.message)
-                                $('#basket_count').empty().append('('+ response.basket_count +')');
                                 $('#modal_add_to_basket_' + response.product_id + '_' + response.distributor_id).modal('toggle').modal('hide');
                                 $('.modal-backdrop').removeClass('modal-backdrop');
                                 $('.fade').removeClass('fade');
@@ -661,7 +660,6 @@
                         data: data,
                         success: function (response) {
                             getFlash(response.message);
-                            $('#basket_count').empty().append('('+ response.basket_count +')');
                             $('#modal_save_basket').modal('toggle').modal('hide');
                             $('.modal-backdrop').removeClass('modal-backdrop');
                             $('.fade').removeClass('fade');
@@ -888,7 +886,7 @@
                         $('#basket_inner').append(response.body);
                         $('#basket_header').empty().append(response.header);
                         $('#shipping_address_id').val(response.default_address_id);
-                        $('#billing_address_id').val(response.default_address_id);
+                        $('#billing_address_id').val(response.default_billing_address_id);
                         $('#address_modal_label').empty().append('Select an Existing Address');
                         $('.modal-header').empty()
                             .append('<h5 class="modal-title" id="address_modal_label">Use an Existing Address</h5>')
@@ -1003,13 +1001,13 @@
                     },
                     success: function (response) {
 
-
                         $("div.spanner").removeClass("show");
                         $("div.overlay").removeClass("show");
                         getFlash(response.flash);
                         $('#inventory_container').hide();
                         $('#basket_container').empty().append(response.orders);
-                        window.history.pushState(null, "Fluid", '/clinics/inventory');
+                        window.scrollTo(0, 0);
+                        $('body').scrollTop($('body').prop("scrollHeight"));
                     }
                 });
             });
@@ -1050,6 +1048,7 @@
                         $('#distributor_chat_inner').scrollTop($('#distributor_chat_inner').prop("scrollHeight"));
                         getChat(order_id, distributor_id, clinic_id);
                         $('#chat_pulse').hide();
+                        popOver();
                     }
                 });
             }
@@ -1366,7 +1365,7 @@
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.orders);
-
+                        popOver();
                         $("div.spanner").removeClass("show");
                         $("div.overlay").removeClass("show");
                     }
@@ -1395,7 +1394,7 @@
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.orders);
-
+                        popOver();
                         $("div.spanner").removeClass("show");
                         $("div.overlay").removeClass("show");
                     }
@@ -1460,6 +1459,7 @@
                             $('#form_reject_item').modal('toggle').modal('hide');
                             $('.modal-backdrop').removeClass('modal-backdrop');
                             $('.fade').removeClass('fade');
+                            popOver();
                         }
                     });
                 }
@@ -3088,7 +3088,7 @@
                                     dataType: 'json',
                                     data: data,
                                     success: function (response) {
-                                        $('#users_list').empty().append(response);
+                                        $('#basket_container').empty().append(response);
                                     }
                                 });
                             } else {
@@ -3882,7 +3882,7 @@
                         $('.modal-backdrop').removeClass('modal-backdrop');
                         $('#modal_method_delete').addClass('fade');
                         getFlash(response.flash);
-                        $('#inventory').empty().append(response.communication_methods);
+                        $('#basket_container').empty().append(response.communication_methods);
                     }
                 });
             });

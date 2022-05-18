@@ -33,7 +33,7 @@ class OrdersRepository extends ServiceEntityRepository
             ->setParameter('distributor_id', $distributor_id)
             ->andWhere('os.distributor = :distributor_id')
             ->setParameter('distributor_id', $distributor_id)
-            ->orderBy('o.id', 'ASC')
+            ->orderBy('o.id', 'DESC')
             ->getQuery()
             ->getResult()
         ;

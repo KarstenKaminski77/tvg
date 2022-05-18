@@ -24,13 +24,12 @@ class CommunicationMethodsController extends AbstractController
     private function getCommunicationMethods()
     {
         $clinic = $this->getUser()->getClinic();
-        $clinic_communication_methods = $this->em->getRepository(ClinicCommunicationMethods::class)->findBy([
-            'clinic' => $clinic->getId(),
-            'isActive' => 1,
-        ]);
-        $communication_methods = $this->em->getRepository(CommunicationMethods::class)->findAll();
+        $clinic_communication_methods = $this->em->getRepository(ClinicCommunicationMethods::class)->findByClinic($clinic->getId());
+
+        $communication_methods = $this->em->getRepository(CommunicationMethods::class)->findByNotInApp();
 
         $select = '<select name="clinic_communication_methods_form[communicationMethod]" id="communication_methods_type" class="form-control">';
+        $select .= '<option value="">Please Select a Communication Method</option>';
 
         foreach($communication_methods as $method){
 
@@ -289,6 +288,7 @@ class CommunicationMethodsController extends AbstractController
 
         $clinic_communication_method->setClinic($clinic);
         $clinic_communication_method->setCommunicationMethod($communication_method_repo);
+        $clinic_communication_method->setIsDefault(0);
 
         if((int) $data['mobile'] == 0) {
 

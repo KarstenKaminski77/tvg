@@ -19,22 +19,22 @@ class ClinicCommunicationMethodsRepository extends ServiceEntityRepository
         parent::__construct($registry, ClinicCommunicationMethods::class);
     }
 
-    // /**
-    //  * @return ClinicCommunicationMethods[] Returns an array of ClinicCommunicationMethods objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+    * @return ClinicCommunicationMethods[] Returns an array of ClinicCommunicationMethods objects
+    */
+
+    public function findByClinic($clinic_id)
     {
         return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
+            ->andWhere('c.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
+            ->andWhere('c.communicationMethod > 1')
+            ->andWhere('c.isActive = 1')
+            ->orderBy('c.id', 'DESC')
             ->getQuery()
             ->getResult()
         ;
     }
-    */
 
     /*
     public function findOneBySomeField($value): ?ClinicCommunicationMethods

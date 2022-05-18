@@ -18,23 +18,18 @@ class CommunicationMethodsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CommunicationMethods::class);
     }
-
-    // /**
-    //  * @return CommunicationMethods[] Returns an array of CommunicationMethods objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+    * @return CommunicationMethods[] Returns an array of CommunicationMethods objects
+    */
+    public function findByNotInApp()
     {
         return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('c.id > 1')
             ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
 
     /*
     public function findOneBySomeField($value): ?CommunicationMethods
