@@ -30,7 +30,12 @@ class DistributorFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $countries = $this->em->getRepository(Countries::class)->findAll();
-        $country_id = $this->token->getToken()->getUser()->getDistributor()->getAddressCountry()->getId();
+        $country_id = '';
+
+        if($this->token->getToken() != null) {
+            
+            $country_id = $this->token->getToken()->getUser()->getDistributor()->getAddressCountry()->getId();
+        }
 
         $arr[''] = 'Select Your Country';
 
