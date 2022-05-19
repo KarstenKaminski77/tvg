@@ -113,6 +113,32 @@
                 error_email.hide();
                 error_telephone.hide();
 
+                // International Numbers
+                let input = document.querySelector(telephone);
+                iti = window.intlTelInput(input, {
+                    preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                    autoPlaceholder: "polite",
+                    nationalMode: true,
+                    utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                    separateDialCode: true,
+                    utilsScript: "/js/utils.js",
+                });
+
+                let handleChange = function() {
+                    let mobile = $('#mobile_no');
+                    let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                    let textNode = document.createTextNode(mobile_number);
+
+                    if(mobile_number != false){
+
+                        mobile.val(mobile_number.substring(1));
+                    }
+                };
+
+                // listen to "keyup", but also "change" to update when the user selects a country
+                input.addEventListener('change', handleChange);
+                input.addEventListener('keyup', handleChange);
+
                 if(distributor_name == '' || distributor_name == 'undefined'){
 
                     error_distributor_name.show();
