@@ -82,6 +82,20 @@
             let orderid = '{{app.request.get('order_id')}}';
             let distributorid = '{{app.request.get('distributor_id')}}';
 
+            function isLoading(status){
+
+                if(status) {
+
+                    $("div.spanner").addClass("show");
+                    $("div.overlay").addClass("show");
+
+                } else {
+
+                    $("div.spanner").removeClass("show");
+                    $("div.overlay").removeClass("show");
+                }
+            }
+
             if(is_order_detail != null && orderid > 0 && distributorid > 0) {
 
                 getOrderDetails(orderid, distributorid, '{{clinic_id}}');
@@ -143,11 +157,15 @@
                         manufacturer: manufacturer,
                         distributor: distributor
                     },
+                    beforeSend: function (){
+                        isLoading(true);
+                    },
                     success: function (response) {
                         $('#inventory').empty().append(response).show();
                         $('.container').removeClass('mt-5').addClass('mt-5');
                         $('#basket_container').empty().hide();
                         $('#inventory_container').show();
+                        isLoading(false);
                         document.title = 'Fluid';
                         window.history.pushState({"html":response.html,"pageTitle":'TEST'},"", '{{ app.request.baseUrl }}/clinics/inventory');
                         $.session.set('search_key', keyword);
