@@ -48,10 +48,12 @@ class DistributorsController extends AbstractController
     #[Route('/distributors/register', name: 'distributor_reg')]
     public function distributorReg(Request $request): Response
     {
+        $countries = $this->em->getRepository(Countries::class)->findAll();
         $form = $this->createRegisterForm();
 
         return $this->render('frontend/distributors/register.html.twig', [
             'form' => $form->createView(),
+            'countries' => $countries
         ]);
     }
 
@@ -83,6 +85,7 @@ class DistributorsController extends AbstractController
     {
         $data = $request->request;
         $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $data->get('email')]);
+        $countries = $this->em->getRepository(Countries::class)->find($data->get('country'));
 
         if($distributor == null) {
 
@@ -95,6 +98,7 @@ class DistributorsController extends AbstractController
                 $distributors->setDistributorName($data->get('distributor_name'));
                 $distributors->setEmail($data->get('email'));
                 $distributors->setTelephone($data->get('telephone'));
+                $distributors->setAddressCountry($countries);
 
                 $this->em->persist($distributors);
                 $this->em->flush();

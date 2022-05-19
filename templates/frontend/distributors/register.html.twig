@@ -60,6 +60,20 @@
             </div>
         </div>
 
+        <div class="row mb-3">
+            <div class="col-12 col-sm-6">
+                <select name="country" style="color:#b1abb0 !important" id="country" class="form-control">
+                    <option value="">Country</option>
+                    {% for country in countries %}
+                        <option value="{{ country.id }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="hidden_msg" id="error_country">
+                    Required Field
+                </div>
+            </div>
+        </div>
+
         <button id="form_save" type="submit" class="btn btn-primary float-end">SUBMIT</button>
     </form>
 </div>
@@ -76,19 +90,21 @@
 
                 e.preventDefault();
 
-                var is_valid = true;
-                var distributor_name = $('#distributor_name').val();
-                var position = $('#position').val();
-                var first_name = $('#first_name').val();
-                var last_name = $('#last_name').val();
-                var email = $('#email').val();
-                var telephone = $('#telephone').val();
-                var error_distributor_name = $('#error_distributor_name');
-                var error_position = $('#error_position');
-                var error_first_name = $('#error_first_name');
-                var error_last_name = $('#error_last_name');
-                var error_email = $('#error_email');
-                var error_telephone = $('#error_telephone');
+                let is_valid = true;
+                let distributor_name = $('#distributor_name').val();
+                let position = $('#position').val();
+                let first_name = $('#first_name').val();
+                let last_name = $('#last_name').val();
+                let email = $('#email').val();
+                let telephone = $('#telephone').val();
+                let country = $('#country').val();
+                let error_distributor_name = $('#error_distributor_name');
+                let error_position = $('#error_position');
+                let error_first_name = $('#error_first_name');
+                let error_last_name = $('#error_last_name');
+                let error_email = $('#error_email');
+                let error_telephone = $('#error_telephone');
+                let error_country = $('#error_country');
 
                 error_distributor_name.hide();
                 error_position.hide();
@@ -133,6 +149,12 @@
                     is_valid = false;
                 }
 
+                if(country == '' || country == 'undefined'){
+
+                    error_country.show();
+                    is_valid = false;
+                }
+
                 if(is_valid == true){
 
                     $.ajax({
@@ -146,6 +168,7 @@
                             last_name: last_name,
                             email: email,
                             telephone: telephone,
+                            country: country,
                         },
                         success: function (response) {
 
