@@ -159,6 +159,7 @@ class DistributorsController extends AbstractController
 
     #[Route('/distributors/dashboard', name: 'distributor_dashboard')]
     #[Route('/distributors/order/{order_id}', name: 'distributor_order')]
+    #[Route('/distributors/orders/{distributor_id}', name: 'distributor_order_list')]
     public function distributorDashboardAction(Request $request): Response
     {
         if($this->get('security.token_storage')->getToken() == null){

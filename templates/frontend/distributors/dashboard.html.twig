@@ -117,10 +117,14 @@
                         <label>
                             Country
                         </label>
+                        {% set country_id = '' %}
+                        {% if distributor.addressCountry|length > 0 %}
+                            {% set country_id = distributor.addressCountry.id %}
+                        {% endif %}
                         {{ form_widget(form.addressCountry,{id: 'country', 'attr': {
                             'class': 'form-control',
                             'placeholder': 'Country',
-                            'value': distributor.addressCountry.id,
+                            'value': country_id,
                         }}) }}
                         <div class="hidden_msg" id="error_country">
                             Required Field
@@ -792,6 +796,38 @@
 
             {# Orders #}
             {# Orders List #}
+            function getOrdersList(distributor_id){
+
+                $.ajax({
+                    url: "{{ path('distributor_get_order_list') }}",
+                    type: 'GET',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+                        $('#order_container').empty().append(response);
+                        account_settings.hide();
+                        about.hide();
+                        operating_hours.hide();
+                        refund_policy.hide();
+                        sales_tax_policy.hide();
+                        shipping_policy.hide();
+                        inventory.hide();
+                        inventory_search.hide();
+                        inventory_item.hide();
+                        users.hide();
+                        inventory_clear.hide();
+                        order_container.show();
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+
+                        window.history.pushState(null, "Fluid", '/distributors/orders/'+ distributor_id);
+                    }
+                });
+            }
+
             $('#orders_link').click(function (e){
 
                 e.preventDefault();
@@ -809,33 +845,27 @@
                 inventory_clear.hide();
                 order_container.empty().show();
 
-                $.ajax({
-                    url: "{{ path('distributor_get_order_list') }}",
-                    type: 'GET',
-                    dataType: 'json',
-                    beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
-                    },
-                    success: function (response) {
-                        $('#order_container').empty().append(response);
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
-                    }
-                });
+                getOrdersList($(this).data('distributor-id'));
             });
             {# Order Details #}
             let uri = '{{ app.request.requestUri }}';
-            let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+');
+            let is_order_detail = uri.match('/distributors/order/[0-9]+');
+            let is_order_list = uri.match('/distributors/orders/[0-9]+');
 
             let orderid = '{{app.request.get('order_id')}}';
             let distributorid = '{{distributor.id}}';
             let clinicid = '{{clinic_id}}';
 
+            if(is_order_list != null && '{{ app.request.get('distributor_id') }}' > 0) {
+
+                getOrdersList('{{ app.request.get('distributor_id') }}');
+            }
+
             if(is_order_detail != null && orderid > 0 && distributorid > 0 && clinicid > 0) {
 
                 getOrderDetails(orderid, distributorid, clinicid);
             }
+
             function getOrderDetails(order_id, distributor_id, clinic_id){
 
                 account_settings.hide();

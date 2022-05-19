@@ -62,7 +62,7 @@
                         <a class="nav-link  dropdown-toggle" href="{{ path('distributors_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a href="#" class="dropdown-item" id="orders_link">
+                                <a href="#" class="dropdown-item" data-distributor-id="{{ distributor.id }}" id="orders_link">
                                     <i class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;Orders
                                 </a>
                             </li>
