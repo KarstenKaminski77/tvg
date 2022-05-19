@@ -588,27 +588,28 @@
                 {% for users in distributor.distributorUsers %}
                     <div class="list-width">
                         <div class="row t-row">
-                            <div class="col-md-2 t-cell" id="string_user_first_name_{{ users.id }}">
+                            <div class="col-md-2 t-cell">
                                 {{ users.firstName }}
                             </div>
-                            <div class="col-md-2 t-cell" id="string_user_last_name_{{ users.id }}">
+                            <div class="col-md-2 t-cell">
                                 {{ users.lastName }}
                             </div>
-                            <div class="col-md-2 t-cell" id="string_user_email_{{ users.id }}">
+                            <div class="col-md-2 t-cell">
                                 {{ users.email }}
                             </div>
-                            <div class="col-md-2 t-cell" id="string_user_telephone_{{ users.id }}">
+                            <div class="col-md-2 t-cell">
                                 {{ users.telephone }}
                             </div>
-                            <div class="col-md-2 t-cell" id="string_user_position_{{ users.id }}">
+                            <div class="col-md-2 t-cell">
                                 {{ users.position }}
                             </div>
                             <div class="col-md-2 t-cell">
-                                <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_{{ users.id }}">
+                                <a href="" class="float-end update-user" data-user-id="{{ users.id }}" data-bs-toggle="modal" data-bs-target="#modal_user">
                                     <i class="fa-solid fa-pen-to-square edit-icon"></i>
                                 </a>
-                                <a href="" class="delete-icon float-end" data-bs-toggle="modal"
-                                   data-value="{{ users.id }}" data-bs-target="#modal_user_delete" id="user_delete_{{ users.id }}">
+                                <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
+                                   data-user-id="{{ users.id }}" data-bs-target="#modal_user_delete"
+                                >
                                     <i class="fa-solid fa-trash-can"></i>
                                 </a>
                             </div>
@@ -1990,18 +1991,18 @@
                 $('#user_position').val('');
             });
 
-            {% for user in distributor.DistributorUsers %}
-
             {# Update User #}
-            $(document).on('click', '#user_update_{{ user.id }}', function () {
+            $(document).on('click', '.update-user', function () {
 
                 $('#create_user').empty().append('UPDATE USER');
+
+                let user_id = $(this).data('user-id');
 
                 $.ajax({
                     url: "{{ path('distributor_get_user') }}",
                     type: 'POST',
                     data: {
-                        id: {{ user.id }}
+                        id: user_id
                     },
                     success: function (response) {
                         $('#user_first_name').val(response.first_name);
@@ -2012,55 +2013,47 @@
                     }
                 });
 
-                $('#user_id').val({{ user.id }});
+                $('#user_id').val(user_id);
                 $('#user_modal_label').empty().append('Update a User');
             });
 
             {# Delete User #}
-            $(document).on('click', '#user_delete_{{ user.id }}', function () {
+            $(document).on('click', '.delete-user', function () {
 
-                user_id = {{ user.id }};
+                $('#delete_user').data('user-id', $(this).data('user-id'));
+            });
 
-                $(document).on('click', '#delete_user', function () {
+            $(document).on('click', '#delete_user', function () {
 
-                    $.ajax({
-                        url: "{{ path('distributor_user_delete') }}",
-                        type: 'POST',
-                        data: {
-                            id: user_id
-                        },
-                        success: function (response) {
-                            $('#flash').addClass('alert-success');
-                            $('#flash').removeClass('alert-danger');
-                            $('#flash').addClass('alert');
-                            $('#flash').addClass('text-center');
-                            $('#flash').removeClass('users-flash');
-                            $('#flash').addClass('users-flash');
-                            $('#flash').empty();
-                            $('#flash').append(response);
-                            $('#flash').removeClass('hidden');
-                            $('#modal_user_delete').modal('toggle');
-                            $('#modal_user_delete').modal('hide');
-                            $('.modal-backdrop').removeClass('modal-backdrop');
-                            $('#modal_user_delete').addClass('fade');
+                let user_id = $(this).data('user-id');
 
-                            $.ajax({
-                                url: "{{ path('distributor_refresh_users') }}",
-                                type: 'POST',
-                                contentType: false,
-                                processData: false,
-                                cache: false,
-                                timeout: 600000,
-                                dataType: 'json',
-                                success: function (response) {
-                                    $('#users_list').empty().append(response);
-                                }
-                            });
-                        }
-                    });
+                $.ajax({
+                    url: "{{ path('distributor_user_delete') }}",
+                    type: 'POST',
+                    data: {
+                        id: user_id
+                    },
+                    success: function (response) {
+
+                        getFlash(response);
+                        $('#modal_user_delete').modal('hide');
+
+                        $.ajax({
+                            url: "{{ path('distributor_refresh_users') }}",
+                            type: 'POST',
+                            contentType: false,
+                            processData: false,
+                            cache: false,
+                            timeout: 600000,
+                            dataType: 'json',
+                            success: function (response) {
+
+                                $('#users_list').empty().append(response);
+                            }
+                        });
+                    }
                 });
             });
-            {% endfor %}
 
             {# Create User #}
             $('#form_users').submit(function(e){
@@ -2124,19 +2117,8 @@
                         success: function (response) {
 
                             if (response.response) {
-                                $('#flash').addClass('alert-success');
-                                $('#flash').removeClass('alert-danger');
-                                $('#flash').addClass('alert');
-                                $('#flash').addClass('text-center');
-                                $('#flash').removeClass('users-flash');
-                                $('#flash').addClass('users-flash');
-                                $('#flash').empty();
-                                $('#flash').append(response.message);
-                                $('#flash').removeClass('hidden');
-                                $('#modal_user').modal('toggle');
+                                getFlash(response.message);
                                 $('#modal_user').modal('hide');
-                                $('.modal-backdrop').removeClass('modal-backdrop');
-                                $('.fade').removeClass('fade');
                                 $('#user_first_name').val('');
                                 $('#user_last_name').val('');
                                 $('#user_email').val('');

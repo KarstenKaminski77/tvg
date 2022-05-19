@@ -2241,7 +2241,7 @@ class OrdersController extends AbstractController
             'class' => $class,
             'btn' => $btn
         ];
-        $this->generatePpPdfAction($order_id, $distributor_id);
+        $this->generatePpPdfAction($order_id, $distributor_id, 'Draft');
         return new JsonResponse($response);
     }
 
@@ -2418,7 +2418,7 @@ class OrdersController extends AbstractController
         $clinic_id = $data->get('clinic_id');
         $clinic = $this->em->getRepository(Clinics::class)->find($clinic_id);
         $distributor_id = $data->get('distributor_id');
-        $order = $this->em->getRepository(OrderItems::class)->findByDistributorOrder($order_id, $distributor_id);
+        $order = $this->em->getRepository(OrderItems::class)->findByDistributorOrder($order_id, $distributor_id, 'Draft');
         $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
         $status = $this->em->getRepository(Status::class)->find(5);
         $order_status = $this->em->getRepository(OrderStatus::class)->findOneBy([
@@ -2427,7 +2427,7 @@ class OrdersController extends AbstractController
         ]);
 
         // Generate PO
-        $file = $this->generatePpPdfAction($order_id, $distributor_id);
+        $file = $this->generatePpPdfAction($order_id, $distributor_id, 'Draft');
 
         $clinic_html = '
         Your order with '. $distributor->getDistributorName() .' has been accepted and  will be dispatched within 24 hours.
@@ -2635,6 +2635,21 @@ class OrdersController extends AbstractController
         $this->em->persist($order_item);
         $this->em->flush();
 
+        $order_count = $order_item->getOrders()->getOrderItems()->count();
+        $accepted_items = $this->em->getRepository(OrderItems::class)->findBy([
+            'orders' => $order_id,
+            'isAcceptedOnDelivery' => 1
+        ]);
+        $rejected_items = $this->em->getRepository(OrderItems::class)->findBy([
+            'orders' => $order_id,
+            'isRejectedOnDelivery' => 1
+        ]);
+
+        if(count($accepted_items) + count($rejected_items) == $order_count){
+
+            $this->generatePpPdfAction($order_id, $distributor_id, 'Confirmed');
+        }
+
         $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
             'distributor_id' => $distributor_id,
             'order_id' => $order_id
@@ -2702,6 +2717,21 @@ class OrdersController extends AbstractController
 
         $distributor_id = $order_item->getDistributor()->getId();
         $order_id = $order_item->getOrders()->getId();
+
+        $order_count = $order_item->getOrders()->getOrderItems()->count();
+        $accepted_items = $this->em->getRepository(OrderItems::class)->findBy([
+            'orders' => $order_id,
+            'isAcceptedOnDelivery' => 1
+        ]);
+        $rejected_items = $this->em->getRepository(OrderItems::class)->findBy([
+            'orders' => $order_id,
+            'isRejectedOnDelivery' => 1
+        ]);
+
+        if(count($accepted_items) + count($rejected_items) == $order_count){
+
+            $this->generatePpPdfAction($order_id, $distributor_id, 'Confirmed');
+        }
 
         $orders = $this->forward('App\Controller\OrdersController::clinicOrderDetailAction', [
             'distributor_id' => (int) $distributor_id,
@@ -2877,10 +2907,20 @@ class OrdersController extends AbstractController
         return $btn_confirm;
     }
 
-    public function generatePpPdfAction($order_id, $distributor_id)
+    public function generatePpPdfAction($order_id, $distributor_id, $status)
     {
         $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
-        $order_items = $this->em->getRepository(OrderItems::class)->findByDistributorOrder((int) $order_id, (int) $distributor_id);
+        $order_items = $this->em->getRepository(OrderItems::class)->findByDistributorOrder(
+            (int) $order_id,
+            (int) $distributor_id,
+            $status
+        );
+
+        if(count($order_items) == 0){
+
+            return '';
+        }
+
         $order = $this->em->getRepository(Orders::class)->find($order_id);
         $billing_address = $this->em->getRepository(Addresses::class)->find($order->getBillingAddress());
         $shipping_address = $this->em->getRepository(Addresses::class)->find($order->getAddress());
@@ -2907,6 +2947,33 @@ class OrdersController extends AbstractController
             </div>';
         }
 
+        $address = '';
+
+        if($distributor->getAddressStreet() != null){
+
+            $address .= $distributor->getAddressStreet() .'<br>';
+        }
+
+        if($distributor->getAddressCity() != null){
+
+            $address .= $distributor->getAddressCity() .'<br>';
+        }
+
+        if($distributor->getAddressPostalCode() != null){
+
+            $address .= $distributor->getAddressPostalCode() .'<br>';
+        }
+
+        if($distributor->getAddressState() != null){
+
+            $address .= $distributor->getAddressState() .'<br>';
+        }
+
+        if($distributor->getAddressCountry() != null){
+
+            $address .= $distributor->getAddressCountry()->getName() .'<br>';
+        }
+ 
         $snappy = new Pdf(__DIR__ .'/../../vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
         $html = '
         <table style="width: 100%; border: none; border-collapse: collapse; font-size: 12px">
@@ -2918,6 +2985,7 @@ class OrdersController extends AbstractController
                     >
                     <br>
                     '. $distributor->getDistributorName() .'<br>
+                    '. $address .'
                     '. $distributor->getTelephone() .'<br>
                     '. $distributor->getEmail() .'
                 </td>
@@ -2938,6 +3006,14 @@ class OrdersController extends AbstractController
                             </td>
                             <td style="line-height: 25px">
                                 '. $order_items[0]->getPoNumber() .'
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Status:
+                            </td>
+                            <td style="line-height: 25px">
+                                '. $status .'
                             </td>
                         </tr>  
                     </table>

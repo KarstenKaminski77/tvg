@@ -33,7 +33,7 @@ class DistributorFormType extends AbstractType
         $country_id = '';
 
         if($this->token->getToken() != null) {
-            
+
             $country_id = $this->token->getToken()->getUser()->getDistributor()->getAddressCountry()->getId();
         }
 

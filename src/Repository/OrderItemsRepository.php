@@ -108,17 +108,30 @@ class OrderItemsRepository extends ServiceEntityRepository
     /**
      * @return OrderItems[] Returns an array of OrderItems objects
      */
-    public function findByDistributorOrder($order_id, $distributor_id)
+    public function findByDistributorOrder($order_id, $distributor_id, $status)
     {
-        return $this->createQueryBuilder('o')
+        $queryBuilder =  $this->createQueryBuilder('o')
             ->select('o', 'oi', 'os')
             ->join('o.orders', 'oi')
             ->join('oi.distributor', 'os')
             ->andWhere('o.orders = :order_id')
             ->setParameter('order_id', $order_id)
             ->andWhere('o.distributor = :distributor_id')
-            ->setParameter('distributor_id', $distributor_id)
-            ->andWhere()
+            ->setParameter('distributor_id', $distributor_id);
+
+        if($status == 'Draft'){
+
+            $queryBuilder
+                ->andWhere('o.isAccepted = 1');
+        }
+
+        if($status == 'Confirmed'){
+
+            $queryBuilder
+                ->andWhere('o.isAcceptedOnDelivery = 1');
+        }
+
+        return $queryBuilder
             ->getQuery()
             ->getResult()
             ;

@@ -230,9 +230,9 @@ class DistributorsController extends AbstractController
         $data = $request->request->get('distributor_users_form');
         $distributor = $this->get('security.token_storage')->getToken()->getUser()->getDistributor();
         $user = $this->em->getRepository(DistributorUsers::class)->findBy(['email' => $data['email']]);
-        $user_id = $data['user_id'];
+        $user_id = (int) $data['user_id'];
 
-        if(count($user) > 0){
+        if(count($user) > 0 && $user_id == 0){
 
             $response = [
                 'response' => false
@@ -376,11 +376,11 @@ class DistributorsController extends AbstractController
                                '. $user->getPosition() .'
                            </div>
                            <div class="col-md-2 t-cell">
-                               <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_{{ users.id }}">
+                               <a href="" class="float-end update-user" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
                                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
                                </a>
-                               <a href="" class="delete-icon float-end" data-bs-toggle="modal"
-                                  data-value="{{ users.id }}" data-bs-target="#modal_user_delete" id="user_delete_{{ users.id }}">
+                               <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
+                                  data-value="'. $user->getId() .'" data-bs-target="#modal_user_delete" data-user-id="'. $user->getId() .'">
                                    <i class="fa-solid fa-trash-can"></i>
                                </a>
                            </div>
@@ -842,7 +842,7 @@ class DistributorsController extends AbstractController
     #[Route('/distributors/user/delete', name: 'distributor_user_delete')]
     public function distributorDeleteUser(Request $request): Response
     {
-        $user_id = $request->request->get('id');
+        $user_id = (int) $request->request->get('id');
         $user = $this->em->getRepository(DistributorUsers::class)->find($user_id);
 
         $this->em->remove($user);
