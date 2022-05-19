@@ -34,10 +34,7 @@ class DistributorFormType extends AbstractType
 
         if($this->token->getToken() != null) {
 
-            if($this->token->getToken()->getUser()->getDistributor()->getAddressCountry() != null) {
-
-                $country_id = $this->token->getToken()->getUser()->getDistributor()->getAddressCountry()->getId();
-            }
+            $country_id = $this->token->getToken()->getUser()->getDistributor()->getAddressCountry()->getId();
         }
 
         $arr[''] = 'Select Your Country';
