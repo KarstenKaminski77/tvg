@@ -299,8 +299,7 @@
                         $('#basket_container').empty().append(response).fadeIn(500);
                         $("#basket_container").css({ overflow:"auto" }).addClass('col-container');
                         $('#saved_items_container').hide();
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         clearInterval(get_messages);
                         window.history.pushState(null, "Fluid", '/clinics/inventory');
 
@@ -329,16 +328,14 @@
                         basket_id: 10
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
                         let basket_id = 10;
                         //let flash = response.message;
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#basket_items').empty().append(response);
                         //getFlash(flash);
                     }
@@ -367,8 +364,7 @@
                             qty: qty
                         },
                         beforeSend: function (){
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
+                            isLoading(true);
                         },
                         success: function (response) {
 
@@ -382,8 +378,7 @@
 
                             } else {
 
-                                $("div.spanner").removeClass("show");
-                                $("div.overlay").removeClass("show");
+                                isLoading(false);
                                 $('#stock_count_error_'+ response.item_id).show().empty().append(response.error);
                             }
                         }
@@ -415,8 +410,7 @@
                             item_id: item_id
                         },
                         beforeSend: function (){
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
+                            isLoading(true);
                         },
                         success: function (response) {
                             $('#inventory_container').hide();
@@ -444,8 +438,7 @@
                             basket_id: basket_id
                         },
                         beforeSend: function (){
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
+                            isLoading(true);
                         },
                         success: function (response) {
                             $('#inventory_container').hide();
@@ -513,8 +506,7 @@
                             item_id: item_id
                         },
                         beforeSend: function (){
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
+                            isLoading(true);
                         },
                         success: function (response) {
 
@@ -549,8 +541,7 @@
                             basket_id: basket_id
                         },
                         beforeSend: function (){
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
+                            isLoading(true);
                         },
                         success: function (response) {
 
@@ -579,8 +570,7 @@
                             item_id: item_id
                         },
                         beforeSend: function (){
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
+                            isLoading(true);
                         },
                         success: function (response) {
 
@@ -609,8 +599,7 @@
                             basket_id: basket_id
                         },
                         beforeSend: function (){
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
+                            isLoading(true);
                         },
                         success: function (response) {
 
@@ -702,8 +691,7 @@
                             basket_id: basket_id
                         },
                         beforeSend: function () {
-                            $("div.spanner").addClass("show");
-                            $("div.overlay").addClass("show");
+                            isLoading(true);
                         },
                         success: function (response) {
 
@@ -730,13 +718,11 @@
                         basket_id: basket_id
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#basket_items').empty().append(response);
 
                         $('.saved-basket-panel').each(function (){
@@ -773,13 +759,11 @@
                         basket_name:basket_name
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#basket_name_string_'+ basket_id).empty().append(basket_name).show();
                         $('#basket_name_input_'+ basket_id).hide();
                         $('#update_saved_basket_'+ basket_id).replaceWith('<a href="" class="basket-edit" data-basket-id="'+ basket_id +'"><i class="fa-solid fa-pencil float-end me-3"></i></a>');
@@ -804,14 +788,12 @@
                         basket_id:basket_id
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
                         $('#saved_basket_panel_'+ basket_id).empty().append(response);
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
 
                         $('.saved_basket_header').removeClass('bg-secondary');
 
@@ -842,13 +824,11 @@
                         basket_id:basket_id
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#basket_left_col').empty().append(response.left_col);
                         $('#basket_items').empty().append(response.right_col);
                     }
@@ -893,8 +873,7 @@
                         basket_id: $(this).data('basket-id'),
                     },
                     beforeSend: function (){
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
@@ -912,8 +891,7 @@
                             .append('<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>');
                         $('.modal-body-address-new').hide();
                         $('.modal-body-address-existing').append(response.existing_shipping_addresses).show();
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#modal_header_address').empty()
                             .append('<h5 class="modal-title" id="address_modal_label">Use an Existing Address</h5>')
                             .append('<span class="badge bg-success ms-3 toggle_address" role="button">Create A New Address</span>')
@@ -1014,13 +992,11 @@
                     },
                     beforeSend: function () {
                         let height = document.documentElement.scrollHeight;
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").css('height', height + 'px').addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         getFlash(response.flash);
                         $('#inventory_container').hide();
                         $('#basket_container').empty().append(response.orders);
@@ -1120,15 +1096,13 @@
                         link: 'accept'
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
                         $('#order_item_accept_'+ item_id).removeClass('badge-success-outline-only').addClass(response.class);
                         $('#order_item_renegotiate_'+ item_id).removeClass('bg-warning').addClass('badge-warning-outline-only');
                         $('#order_item_cancel_'+ item_id).removeClass('bg-danger').addClass('badge-danger-outline-only');
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();
                         $('#order_action_row').append(response.btn);
@@ -1152,8 +1126,7 @@
                         link: 'renegotiate'
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
@@ -1162,8 +1135,7 @@
                         $('#order_item_cancel_'+ item_id).removeClass('bg-danger').addClass('badge-danger-outline-only');
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#order_action_row').append(response.btn);
                     }
                 });
@@ -1185,15 +1157,13 @@
                         link: 'cancelled'
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
                         $('#order_item_accept_'+ item_id).removeClass('bg-success').addClass('badge-success-outline-only');
                         $('#order_item_renegotiate_'+ item_id).removeClass('bg-warning').addClass('badge-warning-outline-only');
                         $('#order_item_cancel_'+ item_id).removeClass('badge-danger-outline-only').addClass(response.class);
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();
                         $('#order_action_row').append(response.btn);
@@ -1218,15 +1188,13 @@
                         clinic_id: clinic_id
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
                         getFlash(response.flash);
                         $('#basket_container').empty().removeClass('col-container').append(response.orders).show();
                         clearInterval(get_messages);
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/orders');
                     }
                 });
@@ -1252,13 +1220,11 @@
                         order_id: order_id
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
                         $('#basket_container').empty().append(response);
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                     }
                 });
             });
@@ -1285,16 +1251,14 @@
                         order_id: order_id
                     },
                     beforeSend: function (){
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.orders);
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                     }
                 });
             });
@@ -1316,16 +1280,14 @@
                         is_incorrect: 0
                     },
                     beforeSend: function (){
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.orders);
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                     }
                 });
             });
@@ -1347,16 +1309,14 @@
                         is_incorrect: 1
                     },
                     beforeSend: function (){
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.orders);
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                     }
                 });
             });
@@ -1376,16 +1336,14 @@
                         distributor_id: distributor_id
                     },
                     beforeSend: function (){
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.orders);
                         popOver();
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                     }
                 });
             });
@@ -1405,16 +1363,14 @@
                         distributor_id: distributor_id
                     },
                     beforeSend: function (){
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.orders);
                         popOver();
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                     }
                 });
             });
@@ -1500,16 +1456,14 @@
                         is_incorrect: 0
                     },
                     beforeSend: function (){
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.orders);
 
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                     }
                 });
             });
@@ -1552,13 +1506,11 @@
                         order_id: order_id
                     },
                     beforeSend: function () {
-                        $("div.spanner").addClass("show");
-                        $("div.overlay").addClass("show");
+                        isLoading(true);
                     },
                     success: function (response) {
                         $('#basket_container').empty().append(response);
-                        $("div.spanner").removeClass("show");
-                        $("div.overlay").removeClass("show");
+                        isLoading(false);
                         $('#modal_close_order').modal('toggle');
                         $('#modal_close_order').modal('hide');
                         $('.modal-backdrop').removeClass('modal-backdrop');
