@@ -58,7 +58,8 @@
             {# Telephone #}
             <div class="col-12 col-sm-6">
                 <label>Enter Your Telephone*</label>
-                <input type="text" name="telephone" id="telephone" class="form-control" placeholder="Telephone">
+                <input type="text" name="mobile" id="mobile" class="form-control" placeholder="Telephone*">
+                <input type="hidden" value="0" name="telephone" id="telephone">
                 <div class="hidden_msg" id="error_telephone">
                     Required Field
                 </div>
@@ -102,6 +103,32 @@
     <script>
 
         $(document).ready(function (){
+
+            // International Numbers
+            let input = document.querySelector('#mobile');
+            iti = window.intlTelInput(input, {
+                preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                autoPlaceholder: "polite",
+                nationalMode: true,
+                utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                separateDialCode: true,
+                utilsScript: "/js/utils.js",
+            });
+
+            let handleChange = function() {
+                let mobile = $('#telephone');
+                let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                let textNode = document.createTextNode(mobile_number);
+
+                if(mobile_number != false){
+
+                    mobile.val(mobile_number.substring(1));
+                }
+            };
+
+            // listen to "keyup", but also "change" to update when the user selects a country
+            input.addEventListener('change', handleChange);
+            input.addEventListener('keyup', handleChange);
 
             $('#register_form').submit(function(e){
 
@@ -155,7 +182,7 @@
                     is_valid = false;
                 }
 
-                if(telephone == '' || telephone == 'undefined'){
+                if(telephone == '' || telephone == 'undefined' || telephone == 0){
 
                     error_telephone.show();
                     is_valid = false;

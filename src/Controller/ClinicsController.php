@@ -200,6 +200,8 @@ class ClinicsController extends AbstractController
             $clinics->setClinicName($data['clinicName']);
             $clinics->setEmail($data['email']);
             $clinics->setTelephone($data['telephone']);
+            $clinics->setIsoCode($data['iso_code']);
+            $clinics->setIntlCode($data['intl_code']);
 
             $this->em->persist($clinics);
             $this->em->flush();
@@ -275,9 +277,22 @@ class ClinicsController extends AbstractController
                     <div class="col-12 col-sm-6">
                         <label>Enter Your Telephone*</label>
                         <input 
-                            type="text" 
+                            type="hidden"
+                            name="isocode" 
+                            id="isocode" 
+                            value="'. $clinic->getIsoCode() .'"
+                        >
+                        <input 
+                            type="hidden"
                             name="clinic_form[telephone]" 
                             id="clinic_telephone" 
+                            value="'. $clinic->getTelephone() .'"
+                        >
+                        <input 
+                            type="text" 
+                            name="mobile" 
+                            id="mobile" 
+                            name="mobile" 
                             class="form-control" 
                             placeholder="Telephone*"
                             value="'. $clinic->getTelephone() .'"

@@ -410,7 +410,7 @@ class DistributorsController extends AbstractController
         $data = $request->request->get('distributor_form');
 
         $distributor = $this->getUser()->getDistributor();
-        $country_id = $data['addressCountry'];
+        $country_id = (int) $data['addressCountry'];
         $logo = '';
 
         $country = $this->em->getRepository(Countries::class)->find($country_id);
@@ -426,6 +426,8 @@ class DistributorsController extends AbstractController
             $distributor->setAddressCity($data['addressCity']);
             $distributor->setAddressPostalCode($data['addressPostalCode']);
             $distributor->setAddressState($data['addressState']);
+            $distributor->setIsoCode($data['iso_code']);
+            $distributor->setIntlCode($data['intl_code']);
 
             if(!empty($_FILES['distributor_form']['name']['logo'])) {
 

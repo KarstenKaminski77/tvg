@@ -189,6 +189,16 @@ class Distributors
      */
     private $shippingPolicy;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $isoCode;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $intlCode;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -874,6 +884,30 @@ class Distributors
     public function setShippingPolicy(?string $shippingPolicy): self
     {
         $this->shippingPolicy = $shippingPolicy;
+
+        return $this;
+    }
+
+    public function getIsoCode(): ?string
+    {
+        return $this->isoCode;
+    }
+
+    public function setIsoCode(?string $isoCode): self
+    {
+        $this->isoCode = $isoCode;
+
+        return $this;
+    }
+
+    public function getIntlCode(): ?string
+    {
+        return $this->intlCode;
+    }
+
+    public function setIntlCode(?string $intlCode): self
+    {
+        $this->intlCode = $intlCode;
 
         return $this;
     }

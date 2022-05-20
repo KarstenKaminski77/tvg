@@ -2880,6 +2880,7 @@
 
             {# Dashboard #}
             {# Account & Settings #}
+            let iti = '';
             function getAccountSettings(){
 
                 let search = $('#inventory').html();
@@ -2900,6 +2901,35 @@
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
                         window.history.pushState(null, "Fluid", '/clinics/account');
+
+                        // International Numbers
+                        let input = document.querySelector('#mobile');
+                        let iso_code = $('#isocode').val();
+
+                        iti = window.intlTelInput(input, {
+                            initialCountry: iso_code,
+                            preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                            autoPlaceholder: "polite",
+                            nationalMode: true,
+                            utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                            separateDialCode: true,
+                            utilsScript: "/js/utils.js",
+                        });
+
+                        let handleChange = function() {
+                            let mobile = $('#clinic_telephone');
+                            let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                            let textNode = document.createTextNode(mobile_number);
+
+                            if(mobile_number != false){
+
+                                mobile.val(mobile_number.substring(1));
+                            }
+                        };
+
+                        // listen to "keyup", but also "change" to update when the user selects a country
+                        input.addEventListener('change', handleChange);
+                        input.addEventListener('keyup', handleChange);
                     }
                 });
             }
@@ -2909,6 +2939,7 @@
                 getAccountSettings();
 
             });
+
             $(document).on('submit','#form_clinic_information',function(e){
 
                 e.preventDefault();
@@ -2944,6 +2975,14 @@
                 }
 
                 if(is_valid == true){
+
+                    let iso = iti.getSelectedCountryData().iso2;
+                    let intl_code = iti.getSelectedCountryData().dialCode
+
+                    $('<input />').attr('type', 'hidden').attr('name', 'clinic_form[iso_code]')
+                        .attr('value', iso).appendTo('#form_clinic_information');
+                    $('<input />').attr('type', 'hidden').attr('name', 'clinic_form[intl_code]')
+                        .attr('value', intl_code).appendTo('#form_clinic_information');
 
                     let data = new FormData(this);
 
@@ -3709,7 +3748,7 @@
 
             {# Communication Methods #}
             let mobile_number = '';
-            let iti = '';
+            iti = '';
             let input = '';
             function getCommunicationMethods(){
 
