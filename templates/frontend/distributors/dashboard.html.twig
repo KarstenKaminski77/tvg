@@ -941,6 +941,25 @@
 
                 getOrdersList($(this).data('distributor-id'));
             });
+            $(document).on('click', '.orders_link', function (e){
+
+                e.preventDefault();
+
+                account_settings.hide();
+                about.hide();
+                operating_hours.hide();
+                refund_policy.hide();
+                sales_tax_policy.hide();
+                shipping_policy.hide();
+                inventory.hide();
+                inventory_search.hide();
+                inventory_item.hide();
+                users.hide();
+                inventory_clear.hide();
+                order_container.empty().show();
+
+                getOrdersList($(this).data('distributor-id'));
+            });
             {# Order Details #}
             let is_order_detail = uri.match('/distributors/order/[0-9]+');
             let is_order_list = uri.match('/distributors/orders/[0-9]+');

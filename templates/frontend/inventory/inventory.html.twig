@@ -1071,6 +1071,15 @@
                 getOrdersList(clinic_id);
 
             });
+            $(document).on('click','.orders_link', function (e){
+
+                let clinic_id = $(this).data('clinic-id');
+
+                e.preventDefault();
+                clearInterval(get_messages);
+                getOrdersList(clinic_id);
+
+            });
             {# Order Details #}
             function getOrderDetails(order_id, distributor_id, clinic_id){
 
@@ -1251,11 +1260,6 @@
                 let order_status = $('#order_status').val();
                 let order_id = $(this).data('order-id');
                 let distributor_id = $(this).data('distributor-id');
-
-                if(order_status == 8){
-
-                    return '';
-                }
 
                 $.ajax({
                     url: "{{ path('clinic_update_order_status') }}",

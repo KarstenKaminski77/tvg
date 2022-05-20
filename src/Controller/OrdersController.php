@@ -945,6 +945,14 @@ class OrdersController extends AbstractController
                     <div class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3 bg-light border-left border-right">
                         <a 
                             href="#" 
+                            class="orders_link"
+                            data-distributor-id="'. $distributor->getId() .'"
+                        >
+                            <i class="fa-solid fa-angles-left me-5 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">Back To Orders</span>
+                        </a>
+                        <a 
+                            href="#" 
                             class="refresh-distributor-order" 
                             data-order-id="'. $order_id .'"
                             data-distributor-id="'. $distributor->getId() .'"
@@ -1522,7 +1530,17 @@ class OrdersController extends AbstractController
                     <div 
                         class="bg-light border-left border-right col-12 d-flex justify-content-center border-bottom pt-3 pb-3"
                          id="order_action_row"
-                    >';
+                    >
+                    <a 
+                        href="#" 
+                        class="orders_link" 
+                        data-order-id="' . $order_id . '"
+                        data-distributor-id="' . $distributor_id . '"
+                        data-clinic-id="' . $orders[0]->getOrders()->getClinic()->getId() . '"
+                    >
+                        <i class="fa-solid fa-angles-left me-5 me-md-2"></i>
+                        <span class=" d-none d-md-inline-block pe-4">Back To Orders</span>
+                    </a>';
 
                         // If order is preparing for shipping or later
                         $order_status_id = $order_status->getStatus()->getId();
