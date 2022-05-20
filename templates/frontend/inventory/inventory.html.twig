@@ -348,6 +348,10 @@
                     data: {
                         basket_id: basket_id
                     },
+                    beforeSend: function (){
+
+                        isLoading(true);
+                    },
                     success: function (response) {
 
                         $('#back_btn').hide();
