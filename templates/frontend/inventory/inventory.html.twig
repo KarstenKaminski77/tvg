@@ -1058,9 +1058,14 @@
                     url: "{{ path('clinic_get_order_list') }}",
                     type: 'GET',
                     dataType: 'json',
+                    beforeSend: function (){
+
+                        isLoading(true)
+                    },
                     success: function (response) {
                         $('#inventory_container').hide();
                         $('#basket_container').empty().append(response);
+                        isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/orders/'+ clinic_id);
                     }
                 });
@@ -2900,6 +2905,10 @@
                     cache: false,
                     timeout: 600000,
                     dataType: 'json',
+                    beforeSend: function (){
+
+                        isLoading(true)
+                    },
                     success: function (response) {
 
                         getBackButton();
@@ -2908,6 +2917,7 @@
                         $('#main_container')
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
+                        isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/account');
 
                         // International Numbers
@@ -3027,6 +3037,10 @@
                     cache: false,
                     timeout: 600000,
                     dataType: 'json',
+                    beforeSend: function (){
+
+                        isLoading(true)
+                    },
                     success: function (response) {
 
                         getBackButton();
@@ -3034,6 +3048,7 @@
                         $('#inventory_container').hide();
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
+                        isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/users');
                     }
                 });
@@ -3236,6 +3251,10 @@
                     cache: false,
                     timeout: 600000,
                     dataType: 'json',
+                    beforeSend: function (){
+
+                        isLoading(true)
+                    },
                     success: function (response) {
 
                         getBackButton();
@@ -3243,6 +3262,7 @@
                         $('#inventory_container').hide();
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
+                        isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/addresses');
                     }
                 });
@@ -3769,6 +3789,10 @@
                     cache: false,
                     timeout: 600000,
                     dataType: 'json',
+                    beforeSend: function (){
+
+                        isLoading(true)
+                    },
                     success: function (response) {
 
                         getBackButton();
@@ -3776,6 +3800,7 @@
                         $('#inventory_container').hide();
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
+                        isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/communication-methods');
                     }
                 });
