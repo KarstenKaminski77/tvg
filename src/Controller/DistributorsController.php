@@ -162,6 +162,14 @@ class DistributorsController extends AbstractController
     }
 
     #[Route('/distributors/dashboard', name: 'distributor_dashboard')]
+    #[Route('/distributors/account', name: 'distributor_account')]
+    #[Route('/distributors/about', name: 'distributor_about')]
+    #[Route('/distributors/operating-hours', name: 'distributor_operating_hours')]
+    #[Route('/distributors/refund-policy', name: 'distributor_refund_policy')]
+    #[Route('/distributors/sales-tax-policy', name: 'distributor_sales_tax_policy')]
+    #[Route('/distributors/shipping-policy', name: 'distributor_shipping_policy')]
+    #[Route('/distributors/manage-inventory', name: 'distributor_manage_inventory')]
+    #[Route('/distributors/users', name: 'distributor_get_users')]
     #[Route('/distributors/order/{order_id}', name: 'distributor_order')]
     #[Route('/distributors/orders/{distributor_id}', name: 'distributor_order_list')]
     public function distributorDashboardAction(Request $request): Response
@@ -229,7 +237,7 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributors/users', name: 'distributor_users')]
+    #[Route('/distributors/manage-users', name: 'distributor_users')]
     public function distributorUsersAction(Request $request, UserPasswordHasherInterface $passwordHasher, MailerInterface $mailer): Response
     {
         $data = $request->request->get('distributor_users_form');

@@ -82,7 +82,7 @@
             let is_order_detail = uri.match('/clinics/order/[0-9]+');
             let is_basket = uri.match('/clinics/basket');
             let is_saved_baskets = uri.match('/clinics/saved/baskets');
-            let is_saved_account_settings = uri.match('/clinics/account');
+            let is_account_settings = uri.match('/clinics/account');
             let is_users = uri.match('/clinics/users');
             let is_addresses = uri.match('/clinics/addresses');
             let is_communication_method = uri.match('/clinics/communication-methods');
@@ -105,7 +105,7 @@
 
             {# Get correct content on refresh #}
             {# Account & Settings #}
-            if(is_saved_account_settings != null) {
+            if(is_account_settings != null) {
 
                 getAccountSettings();
             }

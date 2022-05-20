@@ -794,6 +794,65 @@
             inventory_clear.hide();
             order_container.hide();
 
+            {# Get correct content on refresh #}
+            let uri = '{{ app.request.requestUri }}';
+            let is_account_settings = uri.match('/distributors/account');
+            let is_about = uri.match('/distributors/about');
+            let is_operating_hours = uri.match('/distributors/operating-hours');
+            let is_refund_policy = uri.match('/distributors/refund-policy');
+            let is_sales_tax_policy = uri.match('/distributors/sales-tax-policy');
+            let is_shipping_policy = uri.match('/distributors/shipping-policy');
+            let is_inventory = uri.match('/distributors/manage-inventory');
+            let is_users = uri.match('/distributors/users');
+
+            {# Account & Settings #}
+            if(is_account_settings != null) {
+
+                getAccountSettings();
+            }
+
+            {# About #}
+            if(is_about != null) {
+
+                getAbout();
+            }
+
+            {# Operating Hours #}
+            if(is_operating_hours != null) {
+
+                getOperatingHours();
+            }
+
+            {# Refund Policy #}
+            if(is_refund_policy != null) {
+
+                getRefundPolicy();
+            }
+
+            {# Sales Tax Policy #}
+            if(is_sales_tax_policy != null) {
+
+                getSalesTaxPolicy();
+            }
+
+            {# Shipping Policy #}
+            if(is_shipping_policy != null) {
+
+                getShippingPolicy();
+            }
+
+            {# Inventory #}
+            if(is_inventory != null) {
+
+                getInventory();
+            }
+
+            {# Users #}
+            if(is_users != null) {
+
+                getUsers();
+            }
+
             {# Orders #}
             {# Orders List #}
             function getOrdersList(distributor_id){
@@ -848,7 +907,6 @@
                 getOrdersList($(this).data('distributor-id'));
             });
             {# Order Details #}
-            let uri = '{{ app.request.requestUri }}';
             let is_order_detail = uri.match('/distributors/order/[0-9]+');
             let is_order_list = uri.match('/distributors/orders/[0-9]+');
 
@@ -1359,9 +1417,7 @@
             {# End Orders #}
 
             {# Account & Settings #}
-            $('#account_settings_link').click(function (e){
-
-                e.preventDefault();
+            function getAccountSettings(){
 
                 account_settings.show();
                 about.hide();
@@ -1376,13 +1432,17 @@
                 order_container.hide();
 
                 clearInterval(get_messages);
-                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/account');
+            }
+
+            $('#account_settings_link').click(function (e){
+
+                e.preventDefault();
+                getAccountSettings();
             });
 
             {# About #}
-            $('#about_link').click(function (e){
-
-                e.preventDefault();
+            function getAbout(){
 
                 account_settings.hide();
                 about.show();
@@ -1396,13 +1456,18 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/about');
+            }
+
+            $('#about_link').click(function (e){
+
+                e.preventDefault();
+                getAbout();
+
             });
 
             {# Operating Hours #}
-            $('#operating_hours_link').click(function (e){
-
-                e.preventDefault();
+            function getOperatingHours(){
 
                 account_settings.hide();
                 about.hide();
@@ -1416,13 +1481,17 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/operating-hours');
+            }
+
+            $('#operating_hours_link').click(function (e){
+
+                e.preventDefault();
+                getOperatingHours();
             });
 
             {# Refund Policy #}
-            $('#refund_policy_link').click(function (e){
-
-                e.preventDefault();
+            function getRefundPolicy(){
 
                 account_settings.hide();
                 about.hide();
@@ -1436,13 +1505,17 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/refund-policy');
+            }
+
+            $('#refund_policy_link').click(function (e){
+
+                e.preventDefault();
+                getRefundPolicy();
             });
 
             {# Sales Tax Policy #}
-            $('#sales_tax_policy_link').click(function (e){
-
-                e.preventDefault();
+            function getSalesTaxPolicy(){
 
                 account_settings.hide();
                 about.hide();
@@ -1456,13 +1529,17 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/sales-tax-policy');
+            }
+
+            $('#sales_tax_policy_link').click(function (e){
+
+                e.preventDefault();
+                getSalesTaxPolicy();
             });
 
             {# Shipping Policy #}
-            $('#shipping_policy_link').click(function (e){
-
-                e.preventDefault();
+            function getShippingPolicy(){
 
                 account_settings.hide();
                 about.hide();
@@ -1476,13 +1553,17 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/shipping-policy');
+            }
+
+            $('#shipping_policy_link').click(function (e){
+
+                e.preventDefault();
+                getShippingPolicy();
             });
 
             {# Inventory #}
-            $('#inventory_link').click(function (e){
-
-                e.preventDefault();
+            function getInventory(){
 
                 account_settings.hide();
                 about.hide();
@@ -1496,13 +1577,17 @@
                 users.hide();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/manage-inventory');
+            }
+
+            $('#inventory_link').click(function (e){
+
+                e.preventDefault();
+                getInventory();
             });
 
             {# Users #}
-            $('#users_link').click(function (e){
-
-                e.preventDefault();
+            function getUsers(){
 
                 account_settings.hide();
                 about.hide();
@@ -1516,7 +1601,13 @@
                 users.show();
                 order_container.hide();
 
-                window.history.pushState(null, "Fluid", '/distributors/dashboard');
+                window.history.pushState(null, "Fluid", '/distributors/users');
+            }
+
+            $('#users_link').click(function (e){
+
+                e.preventDefault();
+                getUsers();
             });
 
             {# Update Personal Information #}
