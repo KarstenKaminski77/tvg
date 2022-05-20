@@ -678,7 +678,7 @@ class BasketController extends AbstractController
         $response = '
         <!-- Basket Name -->
         <div class="row">
-            <div class="col-12 bg-primary text-center pt-3 pb-3">
+            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3">
                 <h4 class="text-white">Saved Shopping Baskets</h4>
                 <span class="text-white">
                     Manage Previously Saved Shopping Baskets
@@ -851,7 +851,7 @@ class BasketController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/clinics/basket', name: 'get_basket')]
+    #[Route('/clinics/get/basket', name: 'get_basket')]
     public function getBasketAction(Request $request): Response
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());

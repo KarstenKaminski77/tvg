@@ -2036,94 +2036,92 @@ class OrdersController extends AbstractController
         $orders = $this->em->getRepository(Orders::class)->findClinicOrders($clinic->getId());
 
         $response = '
-        <form name="form_distributor_orders" id="form_distributor_orders" method="post">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3" id="order_header">
-                        <h4 class="text-white">Manage Fluid Orders</h4>
-                        <span class="text-white">
-                            Manage All Your Orders In One Place
-                        </span>
-                    </div>
-                </div>';
+        <div class="col-12">
+            <div class="row">
+                <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3" id="order_header">
+                    <h4 class="text-white">Manage Fluid Orders</h4>
+                    <span class="text-white">
+                        Manage All Your Orders In One Place
+                    </span>
+                </div>
+            </div>';
 
-                if(count($orders) > 0) {
+            if(count($orders) > 0) {
+
+                $response .= '
+                <!-- Orders -->
+                <div class="row">
+                    <div class="col-12 bg-light border-bottom border-right border-left">
+                        <div class="row">
+                            <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
+                                #Id
+                            </div>
+                            <div class="col-12 col-sm-4 pt-3 pb-3 text-primary fw-bold">
+                                Distributor
+                            </div>
+                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                                Total
+                            </div>
+                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                                Date
+                            </div>
+                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                                Status
+                            </div>
+                        </div>    
+                    </div>
+                </div>      
+                <div class="row">
+                    <div class="col-12 border-right bg-light col-cell border-left border-right border-bottom">';
+
+                foreach ($orders as $order) {
 
                     $response .= '
                     <!-- Orders -->
                     <div class="row">
-                        <div class="col-12 bg-light border-bottom border-right border-left">
-                            <div class="row">
-                                <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
-                                    #Id
-                                </div>
-                                <div class="col-12 col-sm-4 pt-3 pb-3 text-primary fw-bold">
-                                    Distributor
-                                </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                    Total
-                                </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                    Date
-                                </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                    Status
-                                </div>
-                            </div>    
+                        <div class="col-12 col-sm-1 pt-3 pb-3">
+                            ' . $order['id'] . '
                         </div>
-                    </div>      
-                    <div class="row">
-                        <div class="col-12 border-right bg-light col-cell border-left border-right border-bottom">';
-
-                    foreach ($orders as $order) {
-
-                        $response .= '
-                        <!-- Orders -->
-                        <div class="row">
-                            <div class="col-12 col-sm-1 pt-3 pb-3">
-                                ' . $order['id'] . '
-                            </div>
-                            <div class="col-12 col-sm-4 pt-3 pb-3">
-                                ' . $order['distributor_name'] . '
-                            </div>
-                            <div class="col-12 col-sm-2 pt-3 pb-3">
-                                $' . $order['total'] . '
-                            </div>
-                            <div class="col-12 col-sm-2 pt-3 pb-3">
-                                ' . $order['created'] . '
-                            </div>
-                            <div class="col-12 col-sm-2 pt-3 pb-3">
-                                ' . ucfirst($order['status']) . '
-                            </div>
-                            <div class="col-12 col-sm-1 pt-3 pb-3 text-end">
-                                <a 
-                                    href="' . $this->getParameter('app.base_url') . '/clinics/order/' . $order['id'] . '/' . $order['distributor_id'] . '" 
-                                    class="pe-0 pe-sm-3"
-                                    id="order_detail_link"
-                                    data-order-id="' . $order['id'] . '"
-                                    data-distributor-id="' . $order['distributor_id'] . '"
-                                    data-clinic-id="' . $order['clinic_id'] . '"
-                                >
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                            </div>
-                        </div>';
-                    }
-                } else {
-
-                    $response .= '
-                    <div class="row">
-                        <div class="col-12 text-center mt-5 mb-5 pt-3 pb-3 text-center">
-                            You don\'t have any orders available. 
+                        <div class="col-12 col-sm-4 pt-3 pb-3">
+                            ' . $order['distributor_name'] . '
+                        </div>
+                        <div class="col-12 col-sm-2 pt-3 pb-3">
+                            $' . $order['total'] . '
+                        </div>
+                        <div class="col-12 col-sm-2 pt-3 pb-3">
+                            ' . $order['created'] . '
+                        </div>
+                        <div class="col-12 col-sm-2 pt-3 pb-3">
+                            ' . ucfirst($order['status']) . '
+                        </div>
+                        <div class="col-12 col-sm-1 pt-3 pb-3 text-end">
+                            <a 
+                                href="' . $this->getParameter('app.base_url') . '/clinics/order/' . $order['id'] . '/' . $order['distributor_id'] . '" 
+                                class="pe-0 pe-sm-3"
+                                id="order_detail_link"
+                                data-order-id="' . $order['id'] . '"
+                                data-distributor-id="' . $order['distributor_id'] . '"
+                                data-clinic-id="' . $order['clinic_id'] . '"
+                            >
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
                         </div>
                     </div>';
                 }
+            } else {
 
                 $response .= '
+                <div class="row">
+                    <div class="col-12 text-center mt-5 mb-5 pt-3 pb-3 text-center">
+                        You don\'t have any orders available. 
                     </div>
+                </div>';
+            }
+
+            $response .= '
                 </div>
             </div>
-        </form>';
+        </div>';
 
         return new JsonResponse($response);
     }
@@ -2300,7 +2298,7 @@ class OrdersController extends AbstractController
 
         $order_item->setExpiryDate(\DateTime::createFromFormat('Y-m-d', $expiry_date));
 
-        $this->clinicSendNotification($order_item->getOrders(), $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
+        //$this->clinicSendNotification($order_item->getOrders(), $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
 
         $this->em->persist($order_item);
         $this->em->flush();
@@ -2341,7 +2339,7 @@ class OrdersController extends AbstractController
         $this->em->persist($order);
         $this->em->flush();
 
-        $this->clinicSendNotification($order, $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
+        //$this->clinicSendNotification($order, $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
 
         $flash = '<b><i class="fas fa-check-circle"></i> Price updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
@@ -2380,7 +2378,7 @@ class OrdersController extends AbstractController
         $this->em->persist($order);
         $this->em->flush();
 
-        $this->clinicSendNotification($order, $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
+        //$this->clinicSendNotification($order, $order_item->getDistributor(), $order_item->getOrders()->getClinic(), 'Order Update');
 
         $flash = '<b><i class="fas fa-check-circle"></i> Quantity updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 

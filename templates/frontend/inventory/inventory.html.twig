@@ -75,10 +75,17 @@
                 });
             }
         });
+
         $(document).ready(function (){
 
             let uri = '{{ app.request.requestUri }}';
-            let is_order_detail = uri.match('/[a-zA-Z]+/[a-zA-Z]+/[0-9]+');
+            let is_order_detail = uri.match('/clinics/order/[0-9]+');
+            let is_basket = uri.match('/clinics/basket');
+            let is_saved_baskets = uri.match('/clinics/saved/baskets');
+            let is_saved_account_settings = uri.match('/clinics/account');
+            let is_users = uri.match('/clinics/users');
+            let is_addresses = uri.match('/clinics/addresses');
+            let is_communication_method = uri.match('/clinics/communication-methods');
             let orderid = '{{app.request.get('order_id')}}';
             let distributorid = '{{app.request.get('distributor_id')}}';
 
@@ -96,9 +103,57 @@
                 }
             }
 
+            {# Get correct content on refresh #}
+            {# Account & Settings #}
+            if(is_saved_account_settings != null) {
+
+                getAccountSettings();
+            }
+
+            {# Users #}
+            if(is_users != null) {
+
+                getUsers();
+            }
+
+            {# Addresses #}
+            if(is_addresses != null) {
+
+                getAddresses();
+            }
+
+            {# Communication Methods #}
+            if(is_communication_method != null) {
+
+                getCommunicationMethods();
+            }
+
+            {# Order List #}
+            if('{{ clinic_order_list }}' == 1) {
+
+                let clinic_id = '{{ app.request.get('clinic_id') }}';
+
+                getOrdersList(clinic_id);
+            }
+
+            {# Order Details #}
             if(is_order_detail != null && orderid > 0 && distributorid > 0) {
 
                 getOrderDetails(orderid, distributorid, '{{clinic_id}}');
+            }
+
+            {# Baskets #}
+            if(is_basket != null) {
+
+                let basket_id = '{{ app.request.get('basket_id') }}';
+
+                getBasket(basket_id, true, '');
+            }
+
+            {# Saved Baskets #}
+            if(is_saved_baskets != null) {
+
+                getSavedBaskets();
             }
 
             {# Inventory Search #}
@@ -285,7 +340,7 @@
             {# End Add To Basket #}
 
             {# Update Basket #}
-            function getBasket(basket_id){
+            function getBasket(basket_id, redirect, saved_basket_response){
                 $.ajax({
                     url: "{{ path('get_basket') }}",
                     type: 'POST',
@@ -294,6 +349,7 @@
                         basket_id: basket_id
                     },
                     success: function (response) {
+
                         $('#back_btn').hide();
                         $('#inventory_container').hide();
                         $('#basket_container').empty().append(response).fadeIn(500);
@@ -301,7 +357,20 @@
                         $('#saved_items_container').hide();
                         isLoading(false);
                         clearInterval(get_messages);
-                        window.history.pushState(null, "Fluid", '/clinics/inventory');
+
+                        if(redirect) {
+
+                            window.history.pushState(null, "Fluid", '/clinics/basket/' + basket_id);
+
+                        } else {
+
+                            $('#basket_items').empty().append(saved_basket_response);
+
+                            $('.saved-basket-panel').each(function (){
+
+                                $('.saved-basket-panel').hide();
+                            });
+                        }
 
                         popOver();
                     }
@@ -316,28 +385,21 @@
                     $('#flash').removeClass('users-flash').empty().addClass('hidden');
                 }, 5000);
             }
-            function getSavedBaskets(e){
-
-                e.preventDefault();
+            function getSavedBaskets(redirect){
 
                 $.ajax({
                     url: "{{ path('get_saved_baskets') }}",
-                    type: 'POST',
+                    type: 'GET',
                     dataType: 'json',
-                    data: {
-                        basket_id: 10
-                    },
                     beforeSend: function () {
                         isLoading(true);
                     },
-                    success: function (response) {
-
-                        let basket_id = 10;
-                        //let flash = response.message;
+                    success: function (saved_basket_response) {
 
                         isLoading(false);
-                        $('#basket_items').empty().append(response);
-                        //getFlash(flash);
+                        getBasket($('#btn_basket').data('basket-id'), false, saved_basket_response);
+
+                        window.history.pushState(null, "Fluid", '/clinics/saved/baskets');
                     }
                 });
             }
@@ -374,7 +436,7 @@
 
                                 let basket_id = response.basket_id;
 
-                                getBasket(basket_id);
+                                getBasket(basket_id, true, '');
 
                             } else {
 
@@ -417,7 +479,7 @@
 
                             let basket_id = response.basket_id;
 
-                            getBasket(basket_id);
+                            getBasket(basket_id, true, '');
                         }
                     });
                 }
@@ -445,7 +507,7 @@
 
                             let basket_id = response.basket_id;
 
-                            getBasket(basket_id);
+                            getBasket(basket_id, true, '');
                         }
                     });
                 }
@@ -460,7 +522,7 @@
 
                     let flash = '<b><i class="fas fa-check-circle"></i> Basket updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
-                    getBasket(basket_id);
+                    getBasket(basket_id, true, '');
                     getFlash(flash);
                 }
             });
@@ -513,7 +575,7 @@
                             let basket_id = response.basket_id;
                             let flash = response.message;
 
-                            getBasket(basket_id);
+                            getBasket(basket_id, true, '');
                             getFlash(flash);
                         }
                     });
@@ -548,7 +610,7 @@
                             let basket_id = response.basket_id;
                             let flash = response.message;
 
-                            getBasket(basket_id);
+                            getBasket(basket_id, true, '');
                             getFlash(flash);
                         }
                     });
@@ -577,7 +639,7 @@
                             let basket_id = response.basket_id;
                             let flash = response.message;
 
-                            getBasket(basket_id);
+                            getBasket(basket_id, true, '');
                             getFlash(flash);
                         }
                     });
@@ -606,7 +668,7 @@
                             let basket_id = response.basket_id;
                             let flash = response.message;
 
-                            getBasket(basket_id);
+                            getBasket(basket_id, true, '');
                             getFlash(flash);
                         }
                     });
@@ -670,7 +732,7 @@
                             $('#modal_save_basket').modal('toggle').modal('hide');
                             $('.modal-backdrop').removeClass('modal-backdrop');
                             $('.fade').removeClass('fade');
-                            getBasket(response.basket_id);
+                            getBasket(response.basket_id, true, '');
                         }
                     });
                 }
@@ -698,7 +760,7 @@
                             let basket_id = response.basket_id;
                             let flash = response.message;
 
-                            getBasket(basket_id);
+                            getBasket(basket_id, true, '');
                             getFlash(flash);
                         }
                     });
@@ -707,30 +769,8 @@
             $(document).on('click', '.saved_baskets_link', function (e){
 
                 e.preventDefault();
+                getSavedBaskets();
 
-                let basket_id = $(this).data('basket-id');
-
-                $.ajax({
-                    url: "{{ path('get_saved_baskets') }}",
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        basket_id: basket_id
-                    },
-                    beforeSend: function () {
-                        isLoading(true);
-                    },
-                    success: function (response) {
-
-                        isLoading(false);
-                        $('#basket_items').empty().append(response);
-
-                        $('.saved-basket-panel').each(function (){
-
-                            $('.saved-basket-panel').hide();
-                        });
-                    }
-                });
             });
             $(document).on('click', '.basket-edit', function (e){
 
@@ -845,7 +885,7 @@
 
                 if(basket_id > 0) {
 
-                    getBasket(basket_id);
+                    getBasket(basket_id, true, '');
                 }
             });
             {# End Get Basket #}
@@ -1008,10 +1048,7 @@
 
             {# Orders #}
             {# Orders List #}
-            $('#orders_link').click(function (e){
-
-                e.preventDefault();
-                clearInterval(get_messages);
+            function getOrdersList(clinic_id){
 
                 $.ajax({
                     url: "{{ path('clinic_get_order_list') }}",
@@ -1020,9 +1057,19 @@
                     success: function (response) {
                         $('#inventory_container').hide();
                         $('#basket_container').empty().append(response);
-                        window.history.pushState(null, "Fluid", '/clinics/inventory');
+                        window.history.pushState(null, "Fluid", '/clinics/orders/'+ clinic_id);
                     }
                 });
+            }
+
+            $('#orders_link').click(function (e){
+
+                let clinic_id = $(this).data('clinic-id');
+
+                e.preventDefault();
+                clearInterval(get_messages);
+                getOrdersList(clinic_id);
+
             });
             {# Order Details #}
             function getOrderDetails(order_id, distributor_id, clinic_id){
@@ -2751,7 +2798,7 @@
                 $('#panel_shipping_'+ product_id +'_'+ distributor_id).hide();
                 $('#panel_taxes_'+ product_id +'_'+ distributor_id).hide();
 
-                getBasket($(this).data('basket-id'));
+                getBasket($(this).data('basket-id'), true);
             });
 
             {# Item Facts #}
@@ -2833,11 +2880,10 @@
 
             {# Dashboard #}
             {# Account & Settings #}
-            $('#account_settings_link').click(function (e) {
-
-                e.preventDefault();
+            function getAccountSettings(){
 
                 let search = $('#inventory').html();
+                $('#back_btn').remove();
 
                 $.ajax({
                     url: '{{ path('get_company_information') }}',
@@ -2853,9 +2899,15 @@
                         $('#main_container')
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
-                        window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                        window.history.pushState(null, "Fluid", '/clinics/account');
                     }
                 });
+            }
+            $('#account_settings_link').click(function (e) {
+
+                e.preventDefault();
+                getAccountSettings();
+
             });
             $(document).on('submit','#form_clinic_information',function(e){
 
@@ -2917,11 +2969,10 @@
             {# End Account & Settings #}
 
             {# Users #}
-            $('#users_link').click(function (e) {
-
-                e.preventDefault();
+            function getUsers(){
 
                 let search = $('#inventory').html();
+                $('#back_btn').remove();
 
                 $.ajax({
                     url: '{{ path('get-clinic-users') }}',
@@ -2936,9 +2987,16 @@
                         $('#inventory_container').hide();
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
-                        window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                        window.history.pushState(null, "Fluid", '/clinics/users');
                     }
                 });
+            }
+
+            $('#users_link').click(function (e) {
+
+                e.preventDefault();
+                getUsers();
+
             });
             $(document).on('click', '.open-user-modal', function () {
 
@@ -3120,11 +3178,10 @@
             {# End Users #}
 
             {# Addresses #}
-            $('#addresses_link').click(function (e) {
-
-                e.preventDefault();
+            function getAddresses(){
 
                 let page = $('html').html();
+                $('#back_btn').remove();
 
                 $.ajax({
                     url: '{{ path('get_clinic_addresses') }}',
@@ -3139,9 +3196,15 @@
                         $('#inventory_container').hide();
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
-                        window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                        window.history.pushState(null, "Fluid", '/clinics/addresses');
                     }
                 });
+            }
+
+            $('#addresses_link').click(function (e) {
+
+                e.preventDefault();
+                getAddresses();
             });
             $(document).on('click', '#address_new', function (){
 
@@ -3648,9 +3711,10 @@
             let mobile_number = '';
             let iti = '';
             let input = '';
-            $('#communication_methods_link').click(function (e){
+            function getCommunicationMethods(){
 
                 let page = $('html').html();
+                $('#back_btn').remove();
 
                 $.ajax({
                     url: '{{ path('get_communication_methods') }}',
@@ -3665,9 +3729,14 @@
                         $('#inventory_container').hide();
                         $('#basket_container').empty().removeClass('col-container').append(response).show();
                         clearInterval(get_messages);
-                        window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                        window.history.pushState(null, "Fluid", '/clinics/communication-methods');
                     }
                 });
+            }
+            $('#communication_methods_link').click(function (e){
+
+                e.preventDefault();
+                getCommunicationMethods();
             });
             $(document).on('click','#communication_methods_new', function (){
                 $('#col_send_to').hide();

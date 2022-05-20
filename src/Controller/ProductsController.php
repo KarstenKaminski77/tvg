@@ -37,8 +37,14 @@ class ProductsController extends AbstractController
 
     #[Route('/clinics/inventory', name: 'search_results')]
     #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
+    #[Route('/clinics/basket/{basket_id}', name: 'clinic_basket')]
+    #[Route('/clinics/saved/baskets', name: 'clinic_saved_basket')]
+    #[Route('/clinics/account', name: 'clinic_account_settings')]
+    #[Route('/clinics/users', name: 'clinic_users')]
+    #[Route('/clinics/addresses', name: 'clinic_addresses')]
+    #[Route('/clinics/communication-methods', name: 'clinic_communication_methods')]
     #[Route('/clinics/order/{order_id}/{distributor_id}', name: 'clinic_order_details')]
-    #[Route('/clinics/orders', name: 'clinic_orders_list')]
+    #[Route('/clinics/orders/{clinic_id}', name: 'clinic_orders_list')]
     public function index(Request $request): Response
     {
         $clinic = $this->getUser()->getClinic();
@@ -54,6 +60,11 @@ class ProductsController extends AbstractController
         ]);
         $clinic_order_details = false;
         $clinic_order_list = false;
+
+        if(substr($request->getPathInfo(),0,16) == '/clinics/orders/'){
+
+            $clinic_order_list = true;
+        }
 
         if(substr($request->getPathInfo(),0,15) == '/clinics/order/'){
 
@@ -75,6 +86,7 @@ class ProductsController extends AbstractController
             'man_2' => $man_second,
             'basket_id' => $basket->getId(),
             'clinic_order_details' => $clinic_order_details,
+            'clinic_order_list' => $clinic_order_list,
             'clinic_id' => $clinic->getId()
         ]);
     }

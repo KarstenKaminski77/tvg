@@ -269,7 +269,7 @@ class CommunicationMethodsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/clinics/communication-methods', name: 'manage_communication_methods')]
+    #[Route('/clinics/manage-communication-methods', name: 'manage_communication_methods')]
     public function manageCommunicationMethodsAction(Request $request): Response
     {
         $data = $request->request->get('clinic_communication_methods_form');
