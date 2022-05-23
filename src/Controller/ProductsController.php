@@ -318,20 +318,20 @@ class ProductsController extends AbstractController
                         <!-- Collapsable panel buttons -->
                         <div class="col-12 search-panels-header">
                             <!-- Description -->
-                            <button class="btn btn-sm btn-light info ps-0 pe-4 pe-sm-0 btn_details" type="button" data-product-id="'. $product->getId() .'">
+                            <button class="btn btn-sm btn-light info ps-0 pe-4 pe-sm-0 me-0 me-sm-3 btn_details" type="button" data-product-id="'. $product->getId() .'">
                                 <i class="fa-regular fa-circle-question"></i> <span class="d-none d-sm-inline">Details</span>
                             </button>
                             <!-- Shopping lists -->
-                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_lists" type="button" data-product-id="'. $product->getId() .'">
+                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 me-0 me-sm-3 btn_lists" type="button" data-product-id="'. $product->getId() .'">
                                 <i class="fa-solid fa-list"></i> <span class="d-none d-sm-inline">Lists</span>
                             </button>
                             <!-- Tracking -->
-                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_track" type="button" data-product-id="'. $product->getId() .'">
+                            <button class="btn btn-sm btn-light info pe-4 pe-sm-0 me-0 me-sm-3 btn_track" type="button" data-product-id="'. $product->getId() .'">
                                 <i class="fa-regular fa-eye"></i> <span class="d-none d-sm-inline">Track</span>
                             </button>
                             <!-- Notes -->
                             <button 
-                                class="btn btn-sm btn-light info pe-4 pe-sm-0 btn_notes position-relative" 
+                                class="btn btn-sm btn-light info pe-4 pe-sm-0 me-0 me-sm-3 btn_notes position-relative" 
                                 type="button" 
                                 data-product-id="'. $product->getId() .'"
                                 id="btn_note_'. $product->getId() .'"

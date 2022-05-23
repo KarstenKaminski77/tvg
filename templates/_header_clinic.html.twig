@@ -1,13 +1,12 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Brand</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_nav"  aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="main_nav">
-                <form name="search_form" id="search_form" method="post">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
+                <form name="search_form" class="nav-bar-left" id="search_form" method="post">
+                    <ul class="navbar-nav search-bar-w">
+                        <li class="nav-item search-bar-width">
                             <div class="input-group">
                                 <input type="text" id="search_field" class="form-control form-control-sm" placeholder="Search by item, sku, manufacturer, ingredient, size..." />
                                 <button type="submit" class="btn btn-secondary btn-sm" id="search_btn">
@@ -155,7 +154,7 @@
                         </li>
                     </ul>
                 </form>
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav nav-bar-right ms-auto ms-sm-0">
                     <li class="nav-item">
                         <a class="nav-link basket-link" data-basket-id="" id="btn_basket" href="#">
                             <i class="fa-solid fa-basket-shopping"></i> Basket <span id="basket_count"></span>

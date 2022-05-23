@@ -1090,6 +1090,26 @@ a.badge-white:hover {
     }
 }
 
+@media (min-width: 577px) {
+    .nav-bar-left {
+        width: 82%;
+    }
+
+    .nav-bar-right {
+        width: 18%;
+    }
+
+    .search-bar-width {
+        width: 90%;
+    }
+
+    .search-bar-w {
+        width: 70%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
 @media (max-width: 1199px) {
     .border-list {
         border-bottom: 1px dashed #e2e7eb !important;
