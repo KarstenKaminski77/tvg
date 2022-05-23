@@ -19,7 +19,8 @@
             </div>
         </div>
     </div>
-
+    <div class="container-xl mt-5 mb-1 mb-sm-5 d-none" id="lists_container">
+    </div>
     <div class="container mb-5 mt-5">
         <div class="d-none row" id="back_btn"></div>
         <div class="row ms-1 me-1 ms-md0 me-md-0">
@@ -175,18 +176,32 @@
 
                 $('#search_field').val('');
             });
-            $(document).on('click','#search_btn, .page-link, .view-list',function (e){
+            $(document).on('click','#search_btn, .page-link, .view-list, .list-back-to-search',function (e){
 
                 e.preventDefault();
                 clearInterval(get_messages);
 
                 let keyword = '';
+                let list_keyword = '';
                 let list_id = '';
                 let page_id = $(this).data('page-id');
+                let class_name = this.className.substring(10);
+                let keyword_field = false;
 
                 if($('#search_field').val() != '' || $('#search_field').val() != 'undefined') {
 
                     keyword = $('#search_field').val();
+                }
+
+                if(this.className.substring(23,42) == 'list-back-to-search') {
+
+                    keyword = $(this).data('keyword-string');
+                    keyword_field = true;
+                }
+
+                if(class_name == 'view-list') {
+
+                    list_keyword = $(this).data('keyword-string');
                 }
 
                 if($(this).data('list-id') != '' || $(this).data('list-id') != 'undefined'){
@@ -204,6 +219,7 @@
                     dataType: 'json',
                     data: {
                         keyword: keyword,
+                        list_keyword: list_keyword,
                         list_id: list_id,
                         page_no: page_no,
                         page_id: page_id,
@@ -220,6 +236,15 @@
                         $('.container').removeClass('mt-5').addClass('mt-5');
                         $('#basket_container').empty().hide();
                         $('#inventory_container').show();
+
+                        if(class_name == 'view-list') {
+
+                            getListBackButton(list_keyword);
+                        }
+                        if(keyword_field){
+
+                            $('#search_field').val(keyword)
+                        }
                         isLoading(false);
                         document.title = 'Fluid';
                         window.history.pushState({"html":response.html,"pageTitle":'TEST'},"", '{{ app.request.baseUrl }}/clinics/inventory');
@@ -285,6 +310,17 @@
                 button += '</div>';
 
                 $('#back_btn').empty().append(button).removeClass('d-none').addClass('d-flex');
+            }
+            function getListBackButton(keyword){
+
+                let button = '<div class="row">';
+                button += '<div class="col-12">';
+                button += '<button data-keyword-string="'+ keyword +'" class="btn btn-sm btn-primary list-back-to-search mb-3 w-sm-100 w-auto">';
+                button += '<i class="fa-solid fa-circle-chevron-left me-3"></i>Back To Search</button>';
+                button += '</div>';
+                button += '</div>';
+
+                $('#inventory').prepend(button);
             }
             {# End Inventory Search #}
 
@@ -1761,6 +1797,13 @@
 
                 } else {
 
+                    let keyword = '';
+
+                    if($('#search_field').val() != '' || $('#search_field').val() != 'undefined') {
+
+                        keyword = $('#search_field').val();
+                    }
+
                     $.ajax({
                         url: "{{ path('inventory_get_lists') }}",
                         type: 'POST',
@@ -1768,7 +1811,8 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: {
-                            id: product_id
+                            id: product_id,
+                            keyword: keyword
                         },
                         success: function (response) {
                             $('#lists_'+ product_id).empty();

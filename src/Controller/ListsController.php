@@ -79,7 +79,7 @@ class ListsController extends AbstractController
                         </a>';
                 }
 
-                $response .= $this->getListRow($icon, $lists[$i]->getName(), $lists[$i]->getId(), $item_count);
+                $response .= $this->getListRow($icon, $lists[$i]->getName(), $lists[$i]->getId(), $item_count, $request->request->get('keyword'));
             }
         }
 
@@ -392,11 +392,11 @@ class ListsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    private function getListRow($icon, $list_name, $list_id, $item_count){
+    private function getListRow($icon, $list_name, $list_id, $item_count, $keyword = ''){
 
         if($item_count){
 
-            $link = '<a href="" class="float-end view-list" data-list-id="'. $list_id .'">View List</a>';
+            $link = '<a href="" data-keyword-string="'. $keyword .'" class="float-end view-list" data-list-id="'. $list_id .'">View List</a>';
 
         } else {
 
