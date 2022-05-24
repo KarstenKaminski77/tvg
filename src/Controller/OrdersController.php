@@ -15,6 +15,7 @@ use App\Entity\Orders;
 use App\Entity\OrderStatus;
 use App\Entity\Products;
 use App\Entity\Status;
+use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Snappy\Pdf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,11 +32,14 @@ class OrdersController extends AbstractController
 {
     private $em;
     private $mailer;
+    private $page_manager;
+    const ITEMS_PER_PAGE = 1;
 
-    public function __construct(EntityManagerInterface $em, MailerInterface $mailer)
+    public function __construct(EntityManagerInterface $em, MailerInterface $mailer, PaginationManager $pagination)
     {
         $this->em = $em;
         $this->mailer = $mailer;
+        $this->page_manager = $pagination;
     }
 
     #[Route('/clinics/checkout/options', name: 'checkout_options')]
@@ -2052,8 +2056,9 @@ class OrdersController extends AbstractController
     {
         $clinic = $this->getUser()->getClinic();
         $orders = $this->em->getRepository(Orders::class)->findClinicOrders($clinic->getId());
+        $results = $this->page_manager->paginate($orders[0], $request, self::ITEMS_PER_PAGE);
 
-        $response = '
+        $html = '
         <div class="col-12">
             <div class="row">
                 <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3" id="order_header">
@@ -2066,7 +2071,7 @@ class OrdersController extends AbstractController
 
             if(count($orders) > 0) {
 
-                $response .= '
+                $html .= '
                 <!-- Orders -->
                 <div class="row">
                     <div class="col-12 bg-light border-bottom border-right border-left">
@@ -2092,43 +2097,44 @@ class OrdersController extends AbstractController
                 <div class="row">
                     <div class="col-12 border-right bg-light col-cell border-left border-right border-bottom">';
 
-                foreach ($orders as $order) {
+                foreach ($results as $order) {
 
-                    $response .= '
+                    $html .= '
                     <!-- Orders -->
                     <div class="row">
                         <div class="col-12 col-sm-1 pt-3 pb-3">
-                            ' . $order['id'] . '
+                            ' . $order->getId() . '
                         </div>
                         <div class="col-12 col-sm-4 pt-3 pb-3">
-                            ' . $order['distributor_name'] . '
+                            ' . $order->getOrderItems()[0]->getDistributor()->getDistributorName() . '
                         </div>
                         <div class="col-12 col-sm-2 pt-3 pb-3">
-                            $' . $order['total'] . '
+                            $' . number_format($order->getTotal(),2) . '
                         </div>
                         <div class="col-12 col-sm-2 pt-3 pb-3">
-                            ' . $order['created'] . '
+                            ' . $order->getCreated()->format('Y-m-d') . '
                         </div>
                         <div class="col-12 col-sm-2 pt-3 pb-3">
-                            ' . ucfirst($order['status']) . '
+                            ' . ucfirst($order->getOrderStatuses()[0]->getStatus()->getStatus()) . '
                         </div>
                         <div class="col-12 col-sm-1 pt-3 pb-3 text-end">
                             <a 
-                                href="' . $this->getParameter('app.base_url') . '/clinics/order/' . $order['id'] . '/' . $order['distributor_id'] . '" 
+                                href="' . $this->getParameter('app.base_url') . '/clinics/order/' . $order->getId() . '/' . $order->getOrderStatuses()[0]->getDistributor()->getId() . '" 
                                 class="pe-0 pe-sm-3"
                                 id="order_detail_link"
-                                data-order-id="' . $order['id'] . '"
-                                data-distributor-id="' . $order['distributor_id'] . '"
-                                data-clinic-id="' . $order['clinic_id'] . '"
+                                data-order-id="' . $order->getId() . '"
+                                data-distributor-id="' . $order->getOrderStatuses()[0]->getDistributor()->getId() . '"
+                                data-clinic-id="' . $order->getClinic()->getId() . '"
                             >
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </a>
                         </div>
                     </div>';
                 }
+
             } else {
 
-                $response .= '
+                $html .= '
                 <div class="row">
                     <div class="col-12 text-center mt-5 mb-5 pt-3 pb-3 text-center">
                         You don\'t have any orders available. 
@@ -2136,10 +2142,88 @@ class OrdersController extends AbstractController
                 </div>';
             }
 
-            $response .= '
+            $html .= '
                 </div>
             </div>
         </div>';
+
+        $current_page = $request->request->get('page_id');
+        $last_page = $this->page_manager->lastPage($results);
+
+        $pageination = '
+        <!-- Pagination -->
+        <div class="row">
+            <div class="col-12">';
+
+        if($last_page > 1) {
+
+            $previous_page_no = $current_page - 1;
+            $url = '/clinics/orders/'. $request->request->get('clinic_id');
+            $previous_page = $url . $previous_page_no;
+
+            $pageination .= '
+            <nav class="custom-pagination">
+                <ul class="pagination justify-content-center">
+            ';
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            // Previous Link
+            if($current_page > 1){
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pageination .= '
+            <li class="page-item '. $disabled .'">
+                <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
+                    <span aria-hidden="true">&laquo;</span> Previous
+                </a>
+            </li>';
+
+            for($i = 1; $i <= $last_page; $i++) {
+
+                $active = '';
+
+                if($i == (int) $current_page){
+
+                    $active = 'active';
+                }
+
+                $pageination .= '
+                <li class="page-item '. $active .'">
+                    <a class="order-link" data-page-id="'. $i .'" href="'. $url .'">'. $i .'</a>
+                </li>';
+            }
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            if($current_page < $last_page) {
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pageination .= '
+            <li class="page-item '. $disabled .'">
+                <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">
+                    Next <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>';
+
+            $pageination .= '
+                    </ul>
+                </nav>
+            </div>';
+        }
+
+        $response = [
+            'pagination' => $pageination,
+            'html' => $html
+        ];
 
         return new JsonResponse($response);
     }
