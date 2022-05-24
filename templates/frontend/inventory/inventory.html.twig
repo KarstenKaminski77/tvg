@@ -1126,7 +1126,7 @@
                     },
                     success: function (response) {
                         $('#inventory_container').hide();
-                        $('#basket_container').empty().append(response);
+                        $('#basket_container').empty().append(response).show();
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/orders/'+ clinic_id);
                     }
@@ -1442,11 +1442,14 @@
                     }
                 });
             });
-            $(document).on('click', '.btn-item-accept', function (){
+            $(document).on('click', '.btn-item-accept', function (e){
+
+                e.preventDefault();
 
                 let item_id = $(this).data('item-id');
-                let order_id = '{{ app.request.get('order_id') }}'
-                let distributor_id = '{{ app.request.get('distributor_id') }}'
+                let uri = window.location.pathname.split('/');
+                let order_id = uri[3];
+                let distributor_id = uri[4];
 
                 $.ajax({
                     url: "{{ path('is_delivered_accept') }}",
@@ -1469,11 +1472,14 @@
                     }
                 });
             });
-            $(document).on('click', '.btn-item-qty', function (){
+            $(document).on('click', '.btn-item-qty', function (e){
+
+                e.preventDefault();
 
                 let item_id = $(this).data('item-id');
-                let order_id = '{{ app.request.get('order_id') }}'
-                let distributor_id = '{{ app.request.get('distributor_id') }}'
+                let uri = window.location.pathname.split('/');
+                let order_id = uri[3];
+                let distributor_id = uri[4];
 
                 $.ajax({
                     url: "{{ path('is_delivered_qty') }}",
