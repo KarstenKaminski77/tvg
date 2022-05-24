@@ -26,6 +26,7 @@
         <div class="row ms-1 me-1 ms-md0 me-md-0">
             <div class="col-container col-12" id="basket_container"></div>
         </div>
+        <div class="hidden mt-3" id="paginator"></div>
     </div>
 
     <div class="overlay"></div>
@@ -40,13 +41,15 @@
     <script>
         $('#btn_basket').attr('data-basket-id', {{ basket_id }});
 
-        $(window).on('load', function(){
+        $(window).on('load', function(e){
 
             history.pushState(null, null, window.location.href);
             history.back();
             window.onpopstate = () => history.forward();
 
             if($.session.get('search_key') != '' || $.session.get('search_key') != 'udefined'){
+
+                //e.preventDefault();
 
                 let page_no = 1;
                 let keyword = $.session.get('search_key');
@@ -135,7 +138,7 @@
 
                 let clinic_id = '{{ app.request.get('clinic_id') }}';
 
-                getOrdersList(clinic_id);
+                getOrdersList(clinic_id, 1);
             }
 
             {# Order Details #}
@@ -193,6 +196,8 @@
                 let class_name = '';
                 let uri = window.location.pathname;
                 let is_list_uri = uri.match('/clinics/inventory/lists');
+
+                $('#paginator').empty().hide();
 
                 if(object != 'undefined' && object != '') {
 
@@ -403,6 +408,9 @@
 
             {# Update Basket #}
             function getBasket(basket_id, redirect, saved_basket_response){
+
+                hidePaginator();
+
                 $.ajax({
                     url: "{{ path('get_basket') }}",
                     type: 'POST',
@@ -1114,41 +1122,47 @@
 
             {# Orders #}
             {# Orders List #}
-            function getOrdersList(clinic_id){
+            function getOrdersList(clinic_id, page_id){
 
                 $.ajax({
                     url: "{{ path('clinic_get_order_list') }}",
-                    type: 'GET',
+                    type: 'POST',
                     dataType: 'json',
+                    data: {
+                        page_id: page_id,
+                        clinic_id: clinic_id
+                    },
                     beforeSend: function (){
 
                         isLoading(true)
                     },
                     success: function (response) {
                         $('#inventory_container').hide();
-                        $('#basket_container').empty().append(response).show();
+                        $('#basket_container').empty().append(response.html).show();
+                        $('#paginator').empty().append(response.pagination).show();
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/orders/'+ clinic_id);
                     }
                 });
             }
 
-            $('#orders_link').click(function (e){
+            $('#orders_link').click( function (e){
 
                 let clinic_id = $(this).data('clinic-id');
 
+
                 e.preventDefault();
                 clearInterval(get_messages);
-                getOrdersList(clinic_id);
+                getOrdersList(clinic_id, 1);
 
             });
-            $(document).on('click','.orders_link', function (e){
+            $(document).on('click','.order-link, .orders_link', function (e){
 
                 let clinic_id = $(this).data('clinic-id');
 
                 e.preventDefault();
                 clearInterval(get_messages);
-                getOrdersList(clinic_id);
+                getOrdersList(clinic_id, $(this).data('page-id'));
 
             });
             {# Order Details #}
@@ -1182,7 +1196,7 @@
                 let clinic_id = $(this).data('clinic-id');
 
                 window.history.pushState(null, "Fluid", '/clinics/order/'+ order_id +'/'+ distributor_id);
-
+                hidePaginator();
                 getOrderDetails(order_id, distributor_id, clinic_id);
             });
             $(document).on('click', '.order_notification_alert', function (e){
@@ -2885,7 +2899,7 @@
             $(document).on('click','.basket_link', function (e){
 
                 e.preventDefault();
-
+                hidePaginator();
                 $('.btn-basket-panel-active').removeClass('btn-basket-panel-active');
                 $('.btn_item_facts').addClass('btn-basket-panel-active');
 
@@ -3046,6 +3060,7 @@
 
                 e.preventDefault();
                 getAccountSettings();
+                hidePaginator();
 
             });
 
@@ -3149,6 +3164,7 @@
 
                 e.preventDefault();
                 getUsers();
+                hidePaginator();
 
             });
             $(document).on('click', '.open-user-modal', function () {
@@ -3363,6 +3379,7 @@
 
                 e.preventDefault();
                 getAddresses();
+                hidePaginator();
             });
             $(document).on('click', '#address_new', function (){
 
@@ -3900,6 +3917,7 @@
 
                 e.preventDefault();
                 getCommunicationMethods();
+                hidePaginator();
             });
             $(document).on('click','#communication_methods_new', function (){
                 $('#col_send_to').hide();
@@ -4188,6 +4206,12 @@
             var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
                 return new bootstrap.Popover(popoverTriggerEl)
             })
+        }
+
+        {# Hide Paginator #}
+        function hidePaginator(){
+
+            $('#paginator').empty().hide();
         }
 
         {# Clode Flash Message #}
