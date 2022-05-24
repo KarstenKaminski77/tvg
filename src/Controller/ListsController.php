@@ -83,7 +83,7 @@ class ListsController extends AbstractController
             }
         }
 
-        $response .= $this->listCreateNew($product_id);
+        $response .= $this->listCreateNew($product_id, $request->request->get('keyword'));
 
         return new JsonResponse($response);
     }
@@ -192,6 +192,7 @@ class ListsController extends AbstractController
                         href="#" 
                         class="view-list float-end text text-success view-list"
                         data-list-id="'. $list->getId() .'"
+                        data-keyword-string="'. $request->request->get('keyword') .'"
                         data-page-id="0"
                     >
                         <i class="fa-solid fa-eye"></i>
@@ -424,7 +425,7 @@ class ListsController extends AbstractController
             ';
     }
 
-    private function listCreateNew($product_id)
+    private function listCreateNew($product_id, $keyword = '')
     {
         return '
             <div class="row mt-4">
@@ -450,7 +451,7 @@ class ListsController extends AbstractController
                     </form>
                 </div>
                 <div class="col-12 col-sm-6">
-                    <a href="" class="btn btn-secondary float-end w-100 w-sm-100 manage-lists">
+                    <a href="" data-keyword-string="'. $keyword .'" class="btn btn-secondary float-end w-100 w-sm-100 manage-lists">
                         VIEW AND MANAGE YOUR LISTS 
                     </a>
                 </div>

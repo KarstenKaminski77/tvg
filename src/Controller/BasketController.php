@@ -857,6 +857,7 @@ class BasketController extends AbstractController
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
         $clinic_id = $this->getUser()->getClinic()->getId();
         $basket_id = $request->request->get('basket_id') ?? $request->get('basket_id');
+
         $basket = $this->em->getRepository(Baskets::class)->find($basket_id);
         $baskets = $this->em->getRepository(Baskets::class)->findActiveBaskets($clinic_id);
         $clinic_totals = $this->em->getRepository(Baskets::class)->getClinicTotalItems($clinic_id);

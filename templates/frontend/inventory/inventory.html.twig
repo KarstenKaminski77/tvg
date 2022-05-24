@@ -63,7 +63,7 @@
                         if(window.location.pathname == '/clinics/inventory') {
 
                             $('#search_field').val(keyword);
-                            $('#inventory').empty().append(response);
+                            $('#inventory').empty().append(response.html);
                             $('.container').removeClass('mt-5').addClass('mt-5');
                             document.title = 'Fluid';
                             window.history.pushState({
@@ -87,6 +87,7 @@
             let is_users = uri.match('/clinics/users');
             let is_addresses = uri.match('/clinics/addresses');
             let is_communication_method = uri.match('/clinics/communication-methods');
+            let is_list = uri.match('/clinics/inventory/list/[0-9]+');
             let orderid = '{{app.request.get('order_id')}}';
             let distributorid = '{{app.request.get('distributor_id')}}';
 
@@ -157,6 +158,12 @@
                 getSavedBaskets();
             }
 
+            {# Shopping list #}
+            if(is_list != null) {
+
+                getSearchResults(1, '', true, '{{ app.request.get('list_id') }}');
+            }
+
             {# Inventory Search #}
             let page_no = 0;
             let form_data = '';
@@ -176,38 +183,43 @@
 
                 $('#search_field').val('');
             });
-            $(document).on('click','#search_btn, .page-link, .view-list, .list-back-to-search',function (e){
 
-                e.preventDefault();
-                clearInterval(get_messages);
+            function getSearchResults(page_id, object, shipping_list = false, list_id = 0){
 
                 let keyword = '';
                 let list_keyword = '';
-                let list_id = '';
-                let page_id = $(this).data('page-id');
-                let class_name = this.className.substring(10);
                 let keyword_field = false;
+                let page_no = page_id;
+                let class_name = '';
+                let uri = window.location.pathname;
+                let is_list_uri = uri.match('/clinics/inventory/lists');
+
+                if(object != 'undefined' && object != '') {
+
+                    class_name = object.className.substring(10);
+                }
 
                 if($('#search_field').val() != '' || $('#search_field').val() != 'undefined') {
 
                     keyword = $('#search_field').val();
                 }
 
-                if(this.className.substring(23,42) == 'list-back-to-search') {
+                if((object != 'undefined' && object != '') && object.className.substring(23,42) == 'list-back-to-search') {
 
-                    keyword = $(this).data('keyword-string');
+                    keyword = $(object).data('keyword-string');
                     keyword_field = true;
                 }
 
-                if(class_name == 'view-list') {
+                if(class_name == 'view-list' || is_list_uri != null) {
 
-                    list_keyword = $(this).data('keyword-string');
+                    list_keyword = $(object).data('keyword-string');
                 }
 
-                if($(this).data('list-id') != '' || $(this).data('list-id') != 'undefined'){
+                if($(object).data('list-id') != '' && $(object).data('list-id') != 'undefined' && list_id == 0){
 
-                    list_id = $(this).data('list-id');
+                    list_id = $(object).data('list-id');
                 }
+
                 let cat = $($('input[name="category[]"]')).serializeArray();
                 let filter = $($('input[name="filter[]"]')).serializeArray();
                 let manufacturer = $($('input[name="manufacturer[]"]')).serializeArray();
@@ -232,26 +244,40 @@
                         isLoading(true);
                     },
                     success: function (response) {
-                        $('#inventory').empty().append(response).show();
+                        $('#inventory').empty().append(response.html).show();
                         $('.container').removeClass('mt-5').addClass('mt-5');
                         $('#basket_container').empty().hide();
                         $('#inventory_container').show();
 
-                        if(class_name == 'view-list') {
+                        if(class_name == 'view-list' || list_id > 0 || is_list_uri != null) {
 
-                            getListBackButton(list_keyword);
+                            getListBackButton(list_keyword, list_id);
+                            window.history.pushState(null, "Fluid", '/clinics/inventory/list/' + list_id);
+
+                        }  else {
+
+                            window.history.pushState(null, "Fluid", '/clinics/inventory');
                         }
+
                         if(keyword_field){
 
                             $('#search_field').val(keyword)
                         }
                         isLoading(false);
-                        document.title = 'Fluid';
-                        window.history.pushState({"html":response.html,"pageTitle":'TEST'},"", '{{ app.request.baseUrl }}/clinics/inventory');
                         $.session.set('search_key', keyword);
                         popOver();
                     }
                 });
+            }
+
+            $(document).on('click','#search_btn, .page-link, .view-list, .list-back-to-search',function (e){
+
+                e.preventDefault();
+                clearInterval(get_messages);
+                let object = this;
+                let page_id = $(this).data('page-id');
+
+                getSearchResults(page_id, object);
             });
             $(document).on('click', '.favourite', function (e){
 
@@ -311,11 +337,11 @@
 
                 $('#back_btn').empty().append(button).removeClass('d-none').addClass('d-flex');
             }
-            function getListBackButton(keyword){
+            function getListBackButton(keyword, list_id){
 
                 let button = '<div class="row">';
                 button += '<div class="col-12">';
-                button += '<button data-keyword-string="'+ keyword +'" class="btn btn-sm btn-primary list-back-to-search mb-3 w-sm-100 w-auto">';
+                button += '<button data-keyword-string="'+ keyword +'" data-keyword-string="'+ list_id +'" class="btn btn-sm btn-primary list-back-to-search mb-3 w-sm-100 w-auto">';
                 button += '<i class="fa-solid fa-circle-chevron-left me-3"></i>Back To Search</button>';
                 button += '</div>';
                 button += '</div>';
@@ -386,7 +412,7 @@
                     },
                     beforeSend: function (){
 
-                        isLoading(true);
+                        //isLoading(true);
                     },
                     success: function (response) {
 
@@ -395,7 +421,7 @@
                         $('#basket_container').empty().append(response).fadeIn(500);
                         $("#basket_container").css({ overflow:"auto" }).addClass('col-container');
                         $('#saved_items_container').hide();
-                        isLoading(false);
+                        //isLoading(false);
                         clearInterval(get_messages);
 
                         if(redirect) {
@@ -1782,6 +1808,28 @@
             {# End Details #}
 
             {# Shopping Lists #}
+            function getShoppingLists(keyword){
+
+                $.ajax({
+                    url: "{{ path('manage_lists') }}",
+                    type: 'POST',
+                    cache: false,
+                    timeout: 600000,
+                    dataType: 'json',
+                    data: {
+                        list_id: 0,
+                        keyword: keyword
+                    },
+                    success: function (response) {
+
+                        $('#inventory').hide();
+                        $('#inventory_container').hide();
+                        $('#basket_container').empty().addClass('col-container').append(response.response).show();
+                        getBackButton();
+                        window.history.pushState(null, "Fluid", '/clinics/inventory/lists');
+                    }
+                });
+            }
             $(document).on('click', '.view-list', function (){
                 $('#back_btn').empty().hide();
             });
@@ -1938,24 +1986,14 @@
             $(document).on('click', ".manage-lists", function (e){
 
                 e.preventDefault();
+                let keyword = '';
 
-                $.ajax({
-                    url: "{{ path('manage_lists') }}",
-                    type: 'POST',
-                    cache: false,
-                    timeout: 600000,
-                    dataType: 'json',
-                    data: {
-                        list_id: 0,
-                    },
-                    success: function (response) {
+                if($(this).data('keyword-string').length > 0){
 
-                        $('#inventory').hide();
-                        $('#inventory_container').hide();
-                        $('#basket_container').empty().addClass('col-container').append(response.response).show();
-                        getBackButton();
-                    }
-                });
+                    keyword = $(this).data('keyword-string');
+                }
+
+                getShoppingLists(keyword);
             });
             $(document).on('click', ".delete-list", function (e){
 

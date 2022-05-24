@@ -36,6 +36,8 @@ class ProductsController extends AbstractController
     }
 
     #[Route('/clinics/inventory', name: 'search_results')]
+    #[Route('/clinics/inventory/lists', name: 'clinics_search_lists')]
+    #[Route('/clinics/inventory/list/{list_id}', name: 'search_lists')]
     #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
     #[Route('/clinics/basket/{basket_id}', name: 'clinic_basket')]
     #[Route('/clinics/saved/baskets', name: 'clinic_saved_basket')]
@@ -95,7 +97,7 @@ class ProductsController extends AbstractController
     public function getSearchInventoryAction(Request $request, int $page_no = 1): Response
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
-        $response = '';
+        $html = '';
         $list_id = '';
 
         if($request->get('keyword') != null || $request->get('list_id') != null) {
@@ -269,9 +271,9 @@ class ProductsController extends AbstractController
                     $manufacturer_no = ' - '. $product->getSku();
                 }
 
-                $response .= '<div class="row mb-4 prd-container p-0 ms-1 ms-sm-0 me-1 me-sm-0">';
+                $html .= '<div class="row mb-4 prd-container p-0 ms-1 ms-sm-0 me-1 me-sm-0">';
 
-                $response .= '
+                $html .= '
                 <div class="alert-warning p-2 '. $class .'" id="product_notes_label_'. $product->getId() .'">'. $note .'</div>
                 <!-- Product main container -->
                 <div class="col-12 col-sm-9 ps-3 text-center text-sm-start">
@@ -386,7 +388,7 @@ class ProductsController extends AbstractController
                         $btn_disabled = 'btn-secondary disabled';
                     }
 
-                    $response .= '
+                    $html .= '
                     <a href=""
                        class="basket_link"
                        data-product-id="' . $product->getId() . '"
@@ -642,7 +644,7 @@ class ProductsController extends AbstractController
                         </div>
                     </div>';
                 }
-                $response .= '
+                $html .= '
                     </div>
     
                     <!-- Panels -->
@@ -699,7 +701,7 @@ class ProductsController extends AbstractController
             $current_page = $request->request->get('page_no');
             $last_page = $this->page_manager->lastPage($results);
 
-            $response .= '
+            $html .= '
                 <!-- Pagination -->
                 <div class="row">
                     <div class="col-12">';
@@ -710,7 +712,7 @@ class ProductsController extends AbstractController
                 $url = '/clinics/inventory/';
                 $previous_page = $url . $previous_page_no;
 
-                $response .= '
+                $html .= '
                     <nav class="custom-pagination">
                         <ul class="pagination justify-content-center">
                 ';
@@ -725,7 +727,7 @@ class ProductsController extends AbstractController
                     $data_disabled = 'false';
                 }
 
-                $response .= '
+                $html .= '
                 <li class="page-item '. $disabled .'">
                     <a class="page-link" '. $list_id .' aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
                         <span aria-hidden="true">&laquo;</span> Previous
@@ -741,7 +743,7 @@ class ProductsController extends AbstractController
                         $active = 'active';
                     }
 
-                    $response .= '
+                    $html .= '
                     <li class="page-item '. $active .'">
                         <a class="page-link" '. $list_id .' data-page-id="'. $i .'" href="'. $url . $i .'">'. $i .'</a>
                     </li>';
@@ -756,20 +758,20 @@ class ProductsController extends AbstractController
                     $data_disabled = 'false';
                 }
 
-                $response .= '
+                $html .= '
                 <li class="page-item '. $disabled .'">
                     <a class="page-link" '. $list_id .' aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">
                         Next <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>';
 
-                $response .= '
+                $html .= '
                         </ul>
                     </nav>
                 </div>';
             }
 
-            $response .= '
+            $html .= '
             <!-- Modal Review -->
             <div class="modal fade" id="modal_review" tabindex="-1" aria-labelledby="review_label" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -915,8 +917,13 @@ class ProductsController extends AbstractController
 
         } else {
 
-            $response = 'Please use the search bar above';
+            $html = 'Please use the search bar above';
         }
+
+        $response = [
+            'html' => $html,
+            'list_id' => $request->get('list_id')
+        ];
 
         return new JsonResponse($response);
     }
