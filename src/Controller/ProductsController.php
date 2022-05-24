@@ -167,7 +167,7 @@ class ProductsController extends AbstractController
 
             $results = $this->page_manager->paginate($products[0], $request, self::ITEMS_PER_PAGE);
 
-            foreach($products[1] as $product){
+            foreach($results as $product){
 
                 $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
                 $count_reviews = $product->getProductReviews()->count();
