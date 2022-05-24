@@ -26,11 +26,8 @@ class AddressesController extends AbstractController
         $response = '
         <!-- Addresses -->
         <div class="row">
-            <div class="col-12 col-md-6 mb-3 text-center text-sm-start">
-                <h3>Manage Shipping Addresses</h3>
-            </div>
             <!-- Create New -->
-            <div class="col-12 col-md-6 mb-3 mt-0">
+            <div class="col-12 mb-3 mt-0">
                 <button 
                     type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" 
                     data-bs-target="#modal_address" id="address_new"
@@ -40,44 +37,47 @@ class AddressesController extends AbstractController
             </div>
         </div>
         <div class="row">
-            <div class="col-12 mb-5 mt-2 info text-center text-sm-start">
-                Add or remove shipping addresses from the list below.
-                <strong>A valid address is required for purchasing Fluid Commerce items and redeeming Fluid rewards.</strong>
+            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-4" id="order_header">
+                <h3 class="text-light">Manage Shipping Addresses</h3>
+                <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                    Add or remove shipping addresses from the list below.
+                    <strong>A valid address is required for purchasing Fluid Commerce items and redeeming Fluid rewards.</strong>
+                </span>
             </div>
         </div>';
 
         if(count($addresses) > 0) {
 
             $response .= '
-            <div class="row d-none d-xl-flex ms-1 me-1 ms-md-0 me-md-0">
+            <div class="row d-none d-xl-flex bg-light border-bottom border-right border-left">
                 <div class="col-9">
                     <div class="row">
-                        <div class="col-md-2 t-header">
+                        <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                             Type
                         </div>
-                        <div class="col-md-2 t-header">
+                        <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                             Telephone
                         </div>
-                        <div class="col-md-4 t-header">
+                        <div class="col-md-4 pt-3 pb-3 text-primary fw-bold">
                             Address Line 1
                         </div>
-                        <div class="col-md-2 t-header">
+                        <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                             City
                         </div>
-                        <div class="col-md-2 t-header">
+                        <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                             State
                         </div>
                     </div>
                 </div>
-                <div class="col-md-2 t-header">
+                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                     Zip
                 </div>
-                <div class="col-md-1 t-header">
+                <div class="col-md-1">
     
                 </div>
             </div>
     
-            <div id="address_list" style="width: calc(100% - 1px)">';
+            <div id="address_list">';
 
             $i = 0;
 
@@ -115,38 +115,38 @@ class AddressesController extends AbstractController
                 }
 
                 $response .= '
-                    <div class="row t-row ms-1 me-1 ms-md-0 me-md-0" ' . $border_top . '>
-                        <div class="col-12 col-xl-9">
+                    <div class="row">
+                        <div class="col-12 col-xl-9 bg-light col-cell border-left border-bottom">
                             <div class="row">
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Name</div>
-                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Name</div>
+                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                                     ' . $type . '
                                 </div>
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Telephone</div>
-                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Telephone</div>
+                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                                     ' . $address->getTelephone() . '
                                 </div>
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">Address</div>
-                                <div class="col-8 col-md-10 col-xl-4 t-cell text-truncate border-list">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Address</div>
+                                <div class="col-8 col-md-10 col-xl-4 t-cell text-truncate border-list pt-3 pb-3">
                                     ' . $address->getAddress() . '
                                 </div>
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">City</div>
-                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">City</div>
+                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                                     ' . $address->getCity() . '
                                 </div>
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list">State</div>
-                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">State</div>
+                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                                     ' . $address->getState() . '
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-xl-3 text-center text-sm-start">
+                        <div class="col-12 col-xl-3 text-center text-sm-start border-right bg-light col-cell border-right border-bottom">
                             <div class="row">
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-start border-list">Zip</div>
-                                <div class="col-8 col-md-4 t-cell text-truncate text-start border-list">
+                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-start border-list pt-3 pb-3">Zip</div>
+                                <div class="col-8 col-md-4 t-cell text-truncate text-start border-list pt-3 pb-3">
                                     ' . $address->getPostalCode() . '
                                 </div>
-                                <div class="col-12 col-xl-8 t-cell">
+                                <div class="col-12 col-xl-8 t-cell pt-3 pb-3">
                                     <a href="" class="float-end address_update" data-address-id="' . $address->getId() . '" data-bs-toggle="modal" data-bs-target="#modal_address">
                                         <i class="fa-solid fa-pen-to-square edit-icon"></i>
                                     </a>

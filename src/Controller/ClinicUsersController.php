@@ -34,10 +34,7 @@ class ClinicUsersController extends AbstractController
         $response = '
         <!-- Users -->
         <div class="row" id="users">
-            <div class="col-12 col-md-6 mb-3">
-                <h3 class=" text-center text-sm-start">Manage User Accounts</h3>
-            </div>
-            <div class="col-12 col-md-6 mb-3 mt-0">
+            <div class="col-12 col-md-12 mb-3 mt-0 pe-0">
                 <!-- Create New -->
                 <button type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
                     <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
@@ -45,69 +42,62 @@ class ClinicUsersController extends AbstractController
             </div>
         </div>
         <div class="row">
-            <div class="col-12 mb-5 mt-3 info text-center text-sm-start">
-                Fluid supports having several users under a single clinic. Each user will have their own login, can
-                independently participate in the Fluid discussions. You have full control over editing the permissions
-                of each user in your clinic. Use the table below to view the available permission levels.
+            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-4" id="order_header">
+                <h3 class="text-light">Manage User Accounts</h3>
+                <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                    Fluid supports having several users under a single clinic. Each user will have their own login, can
+                    independently participate in the Fluid discussions. You have full control over editing the permissions
+                    of each user in your clinic. Use the table below to view the available permission levels.
+                </span>
             </div>
         </div>
 
-        <div class="row d-none d-xl-flex ms-1 me-1 ms-md0 me-md-0">
-            <div class="col-md-2 t-header">
+        <div class="row d-none d-xl-flex bg-light border-bottom border-right border-left">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 First Name
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Last Name
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Username
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Telephone
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Position
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
 
             </div>
         </div>';
 
-        $i = 0;
-
         foreach($clinic_users as $user) {
 
-            $border_top = '';
-            $i++;
-
-            if($i == 1){
-
-                $border_top = 'style="border-top: 1px solid #d3d3d4"';
-            }
-
             $response .= '
-           <div class="row t-row ms-1 me-1 ms-md-0 me-md-0" '. $border_top .'>
-               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">First Name</div>
-               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+           <div class="row bg-light border-bottom border-right border-left">
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">First Name</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                    '. $user->getFirstName() .'
                </div>
-               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Last Name</div>
-               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Last Name</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                    '. $user->getLastName() .'
                </div>
-               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Email</div>
-               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list"">
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Email</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                    '. $user->getEmail() .'
                </div>
-               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Telephone</div>
-               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Telephone</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                    '. $user->getTelephone() .'
                </div>
-               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list text-truncate">Position</div>
-               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list">
+               <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Position</div>
+               <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                    '. $user->getPosition() .'
                </div>
-               <div class="col-12 col-xl-2 t-cell text-truncate border-list">
+               <div class="col-12 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                    <a href="" class="float-end open-user-modal" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
                        <i class="fa-solid fa-pen-to-square edit-icon"></i>
                    </a>
@@ -298,10 +288,7 @@ class ClinicUsersController extends AbstractController
 
         $html = '
         <div class="row" id="users">
-            <div class="col-12 col-md-6 mb-3">
-                <h3 class=" text-center text-sm-start">Manage User Accounts</h3>
-            </div>
-            <div class="col-12 col-md-6 mb-3 mt-0">
+            <div class="col-12 col-md-12 mb-3 mt-0">
                 <!-- Create New -->
                 <button type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
                     <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
@@ -309,29 +296,32 @@ class ClinicUsersController extends AbstractController
             </div>
         </div>
         <div class="row">
-            <div class="col-12 mb-5 mt-3 info text-center text-sm-start">
-                Fluid supports having several users under a single clinic. Each user will have their own login, can
-                independently participate in the Fluid discussions. You have full control over editing the permissions
-                of each user in your clinic. Use the table below to view the available permission levels.
+            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-4" id="order_header">
+                <h3 class="text-light">Manage User Accounts</h3>
+                <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                    Fluid supports having several users under a single clinic. Each user will have their own login, 
+                    can independently participate in the Fluid discussions. You have full control over editing the 
+                    permissions of each user in your clinic. Use the table below to view the available permission levels.
+                </span>
             </div>
         </div>
-        <div class="row d-none d-xl-flex ms-1 me-1 ms-md0 me-md-0">
-            <div class="col-md-2 t-header">
+        <div class="row d-none d-xl-flex bg-light border-bottom border-right border-left">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 First Name
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Last Name
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Username
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Telephone
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Position
             </div>
-            <div class="col-md-2 t-header">
+            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
 
             </div>
         </div>';
@@ -339,24 +329,24 @@ class ClinicUsersController extends AbstractController
         foreach($users[0]->getClinicUsers() as $user){
 
             $html .= '
-            <div class="list-width">
-               <div class="row t-row">
-                   <div class="col-md-2 t-cell" id="string_user_first_name_'. $user->getId() .'">
+            <div>
+               <div class="row bg-light border-left border-bottom">
+                   <div class="col-md-2 t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3" id="string_user_first_name_'. $user->getId() .'">
                        '. $user->getFirstName() .'
                    </div>
-                   <div class="col-md-2 t-cell" id="string_user_last_name_'. $user->getId() .'">
+                   <div class="col-md-2 t-cell text-primary text-truncate border-list pt-3 pb-3" id="string_user_last_name_'. $user->getId() .'">
                        '. $user->getLastName() .'
                    </div>
-                   <div class="col-md-2 t-cell" id="string_user_email_'. $user->getId() .'">
+                   <div class="col-md-2 t-cell text-primary text-truncate border-list pt-3 pb-3" id="string_user_email_'. $user->getId() .'">
                        '. $user->getEmail() .'
                    </div>
-                   <div class="col-md-2 t-cell" id="string_user_telephone_'. $user->getId() .'">
-                       '. $user->getEmail() .'
+                   <div class="col-md-2 t-cell text-primary text-truncate border-list pt-3 pb-3" id="string_user_telephone_'. $user->getId() .'">
+                       '. $user->getTelephone() .'
                    </div>
-                   <div class="col-md-2 t-cell" id="string_user_position_'. $user->getId() .'">
+                   <div class="col-md-2 t-cell text-primary text-truncate border-list pt-3 pb-3" id="string_user_position_'. $user->getId() .'">
                        '. $user->getPosition() .'
                    </div>
-                   <div class="col-md-2 t-cell">
+                   <div class="col-md-2 t-cell text-primary border-list pt-3 pb-3">
                        <a href="" class="float-end" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_update_'. $user->getId() .'">
                            <i class="fa-solid fa-pen-to-square edit-icon"></i>
                        </a>
@@ -372,7 +362,7 @@ class ClinicUsersController extends AbstractController
         return new JsonResponse($html);
     }
 
-    #[Route('/clinics/users', name: 'clinic_users')]
+    #[Route('/clinics/get-users', name: 'clinic_get_users')]
     public function clinicUsersAction(Request $request, UserPasswordHasherInterface $passwordHasher, MailerInterface $mailer): Response
     {
         $data = $request->request->get('clinic_users_form');

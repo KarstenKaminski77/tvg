@@ -3251,7 +3251,7 @@
                     $('#create_user').empty().attr('disabled', true).append('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> PROCESSING...');
 
                     $.ajax({
-                        url: "{{ path('clinic_users') }}",
+                        url: "{{ path('clinic_get_users') }}",
                         type: 'POST',
                         contentType: false,
                         processData: false,
