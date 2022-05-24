@@ -412,7 +412,7 @@
                     },
                     beforeSend: function (){
 
-                        //isLoading(true);
+                        isLoading(true);
                     },
                     success: function (response) {
 
@@ -421,7 +421,7 @@
                         $('#basket_container').empty().append(response).fadeIn(500);
                         $("#basket_container").css({ overflow:"auto" }).addClass('col-container');
                         $('#saved_items_container').hide();
-                        //isLoading(false);
+                        isLoading(false);
                         clearInterval(get_messages);
 
                         if(redirect) {
@@ -2893,7 +2893,10 @@
                 $('#panel_shipping_'+ product_id +'_'+ distributor_id).hide();
                 $('#panel_taxes_'+ product_id +'_'+ distributor_id).hide();
 
-                getBasket($(this).data('basket-id'), true);
+                if($(this).data('basket-id') == 'undefined') {
+                    
+                    getBasket($(this).data('basket-id'), true);
+                }
             });
 
             {# Item Facts #}
