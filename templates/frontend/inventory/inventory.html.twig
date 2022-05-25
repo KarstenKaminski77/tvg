@@ -124,7 +124,7 @@
             {# Addresses #}
             if(is_addresses != null) {
 
-                getAddresses();
+                getAddresses(1);
             }
 
             {# Communication Methods #}
@@ -3358,17 +3358,18 @@
             {# End Users #}
 
             {# Addresses #}
-            function getAddresses(){
+            function getAddresses(page_id){
 
                 let page = $('html').html();
                 $('#back_btn').remove();
 
                 $.ajax({
                     url: '{{ path('get_clinic_addresses') }}',
-                    type: 'GET',
-                    cache: false,
-                    timeout: 600000,
+                    type: 'POST',
                     dataType: 'json',
+                    data: {
+                        page_id: page_id
+                    },
                     beforeSend: function (){
 
                         isLoading(true)
@@ -3378,7 +3379,8 @@
                         getBackButton();
                         $('#inventory').hide();
                         $('#inventory_container').hide();
-                        $('#basket_container').empty().removeClass('col-container').append(response).show();
+                        $('#basket_container').empty().removeClass('col-container').append(response.html).show();
+                        $('#paginator').empty().append(response.pagination).show();
                         clearInterval(get_messages);
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/addresses');
@@ -3389,8 +3391,16 @@
             $('#addresses_link').click(function (e) {
 
                 e.preventDefault();
-                getAddresses();
-                hidePaginator();
+
+                getAddresses(1);
+            });
+            $(document).on('click', '.address-pagination', function (e){
+
+                e.preventDefault();
+
+                page_id = $(this).data('page-id');
+
+                getAddresses(page_id);
             });
             $(document).on('click', '#address_new', function (){
 
@@ -3448,19 +3458,27 @@
             $(document).on('click', '#delete_address', function () {
 
                 let address_id = $(this).data('address-id');
+                let page_id = $('#page_no').val();
 
                 $.ajax({
                     url: "{{ path('address_delete') }}",
                     type: 'POST',
                     data: {
-                        id: address_id
+                        id: address_id,
+                        page_id: page_id
+                    },
+                    beforeSend: function (){
+                        isLoading(true);
                     },
                     success: function (response) {
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.addresses);
+                        $('#paginator').empty().append(response.pagination).show();
                         $('#modal_address_delete').modal('hide');
                         $('.modal-backdrop').removeClass('modal-backdrop');
                         $('#modal_address_delete').addClass('fade');
+                        isLoading(false);
+                        console.log(response.addresses);
                     }
                 });
             });
@@ -3469,18 +3487,21 @@
                 e.preventDefault();
 
                 let address_id = $(this).data('address-id');
+                let page_id = $('#page_no').val();
 
                 $.ajax({
                     url: "{{ path('clinic_address_default') }}",
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        id: address_id
+                        id: address_id,
+                        page_id: page_id
                     },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.addresses);
+                        $('#paginator').empty().append(response.pagination).show();
                     }
                 });
             });
@@ -3489,18 +3510,22 @@
                 e.preventDefault();
 
                 let address_id = $(this).data('billing-address-id');
+                let page_id = $('#page_no').val();
 
                 $.ajax({
                     url: "{{ path('clinic_billing_address_default') }}",
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        id: address_id
+                        id: address_id,
+                        page_id: page_id,
                     },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.addresses);
+                        $('#paginator').empty().append(response.pagination).show();
+
                     }
                 });
             });
@@ -3576,6 +3601,8 @@
 
                 if(is_valid == true){
 
+                    $("<input />").attr("type", "hidden").attr("name", "page_id").attr("value", $('#page_no').val()).appendTo("#form_addresses");
+
                     let data = new FormData(this);
 
                     $.ajax({
@@ -3587,9 +3614,13 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        beforeSend: function (){
+                          isLoading(true);
+                        },
                         success: function (response) {
                             getFlash(response.flash);
                             $('#basket_container').empty().append(response.addresses);
+                            $('#paginator').empty().append(response.pagination).show();
                             $('#modal_address').modal('hide');
                             $('.modal-backdrop').removeClass('modal-backdrop');
                             $('.fade').removeClass('fade');
@@ -3600,6 +3631,7 @@
                             $('#address_postal_code').val('');
                             $('#address_city').val('');
                             $('#address_state').val('');
+                            isLoading(false);
                         }
                     });
                 }

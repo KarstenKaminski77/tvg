@@ -19,22 +19,20 @@ class AddressesRepository extends ServiceEntityRepository
         parent::__construct($registry, Addresses::class);
     }
 
-    // /**
-    //  * @return Addresses[] Returns an array of Addresses objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('a')
-            ->andWhere('a.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('a.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
+    /**
+    * @return Addresses[] Returns an array of Addresses objects
     */
+    public function getAddresses($clinic_id)
+    {
+        $queryBuilder = $this->createQueryBuilder('a')
+            ->andWhere('a.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
+            ->andWhere('a.isActive = 1')
+            ->orderBy('a.id', 'ASC')
+        ;
+
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
+    }
 
     /*
     public function findOneBySomeField($value): ?Addresses

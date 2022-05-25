@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Addresses;
 use App\Entity\Clinics;
 use App\Entity\Orders;
+use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,10 +16,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class AddressesController extends AbstractController
 {
     private $em;
+    private $page_manager;
+    const ITEMS_PER_PAGE = 1;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, PaginationManager $page_manager)
     {
         $this->em = $em;
+        $this->page_manager = $page_manager;
     }
 
     private function getAddresses($addresses)
@@ -85,13 +89,7 @@ class AddressesController extends AbstractController
 
                 $class = 'address-icon';
                 $class_billing = 'address-icon';
-                $border_top = '';
                 $i++;
-
-                if ($i == 1) {
-
-                    $border_top = 'style="border-top: 1px solid #d3d3d4"';
-                }
 
                 // Default Shipping Address
                 if ($address->getIsDefault() == 1) {
@@ -115,55 +113,55 @@ class AddressesController extends AbstractController
                 }
 
                 $response .= '
-                    <div class="row">
-                        <div class="col-12 col-xl-9 bg-light col-cell border-left border-bottom">
-                            <div class="row">
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Name</div>
-                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
-                                    ' . $type . '
-                                </div>
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Telephone</div>
-                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
-                                    ' . $address->getTelephone() . '
-                                </div>
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Address</div>
-                                <div class="col-8 col-md-10 col-xl-4 t-cell text-truncate border-list pt-3 pb-3">
-                                    ' . $address->getAddress() . '
-                                </div>
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">City</div>
-                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
-                                    ' . $address->getCity() . '
-                                </div>
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">State</div>
-                                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
-                                    ' . $address->getState() . '
-                                </div>
+                <div class="row">
+                    <div class="col-12 col-xl-9 bg-light col-cell border-left border-bottom">
+                        <div class="row">
+                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Name</div>
+                            <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
+                                ' . $type . '
+                            </div>
+                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Telephone</div>
+                            <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
+                                ' . $address->getTelephone() . '
+                            </div>
+                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Address</div>
+                            <div class="col-8 col-md-10 col-xl-4 t-cell text-truncate border-list pt-3 pb-3">
+                                ' . $address->getAddress() . '
+                            </div>
+                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">City</div>
+                            <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
+                                ' . $address->getCity() . '
+                            </div>
+                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">State</div>
+                            <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
+                                ' . $address->getState() . '
                             </div>
                         </div>
-                        <div class="col-12 col-xl-3 text-center text-sm-start border-right bg-light col-cell border-right border-bottom">
-                            <div class="row">
-                                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-start border-list pt-3 pb-3">Zip</div>
-                                <div class="col-8 col-md-4 t-cell text-truncate text-start border-list pt-3 pb-3">
-                                    ' . $address->getPostalCode() . '
-                                </div>
-                                <div class="col-12 col-xl-8 t-cell pt-3 pb-3">
-                                    <a href="" class="float-end address_update" data-address-id="' . $address->getId() . '" data-bs-toggle="modal" data-bs-target="#modal_address">
-                                        <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                                    </a>
-                                    <a href="" class="delete-icon float-none float-sm-end open-delete-address-modal" data-bs-toggle="modal" data-address-id="' . $address->getId() . '" data-bs-target="#modal_address_delete">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </a>
-                                    <a href="#" class="address_default_billing float-start float-sm-none" data-billing-address-id="' . $address->getId() . '">
-                                        <i class="fa-solid fa-star float-end ' . $class_billing . '"></i>
-                                    </a>
-                                    </a>
-                                    <a href="#" class="address_default float-start float-sm-none" data-address-id="' . $address->getId() . '">
-                                        <i class="fa-solid fa-star float-end ' . $class . '"></i>
-                                    </a>
-                                </div>
+                    </div>
+                    <div class="col-12 col-xl-3 text-center text-sm-start border-right bg-light col-cell border-right border-bottom">
+                        <div class="row">
+                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-start border-list pt-3 pb-3">Zip</div>
+                            <div class="col-8 col-md-4 t-cell text-truncate text-start border-list pt-3 pb-3">
+                                ' . $address->getPostalCode() . '
+                            </div>
+                            <div class="col-12 col-xl-8 t-cell pt-3 pb-3">
+                                <a href="" class="float-end address_update" data-address-id="' . $address->getId() . '" data-bs-toggle="modal" data-bs-target="#modal_address">
+                                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                                </a>
+                                <a href="" class="delete-icon float-none float-sm-end open-delete-address-modal" data-bs-toggle="modal" data-address-id="' . $address->getId() . '" data-bs-target="#modal_address_delete">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                                <a href="#" class="address_default_billing float-start float-sm-none" data-billing-address-id="' . $address->getId() . '">
+                                    <i class="fa-solid fa-star float-end ' . $class_billing . '"></i>
+                                </a>
+                                </a>
+                                <a href="#" class="address_default float-start float-sm-none" data-address-id="' . $address->getId() . '">
+                                    <i class="fa-solid fa-star float-end ' . $class . '"></i>
+                                </a>
                             </div>
                         </div>
-                    </div>';
+                    </div>
+                </div>';
             }
 
             $response .= '
@@ -546,15 +544,18 @@ class AddressesController extends AbstractController
     }
 
     #[Route('/clinics/get-clinic-addresses', name: 'get_clinic_addresses')]
-    public function getClinicAddressesAction(): Response
+    public function getClinicAddressesAction(Request $request): Response
     {
         $clinic = $this->getUser()->getClinic();
-        $addresses = $this->em->getRepository(Addresses::class)->findBy([
-            'clinic' => $clinic->getId(),
-            'isActive' => 1,
-        ]);
+        $addresses = $this->em->getRepository(Addresses::class)->getAddresses($clinic->getId());
+        $results = $this->page_manager->paginate($addresses[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->request->get('page_id'), $results);
+        $html = $this->getAddresses($results);
 
-        $response = $this->getAddresses($addresses);
+        $response = [
+            'html' => $html,
+            'pagination' => $pagination
+        ];
         
         return new JsonResponse($response);
     }
@@ -638,18 +639,18 @@ class AddressesController extends AbstractController
             $checkout_address_id = $clinic_address->getId();
         }
 
-        $addresses = $this->em->getRepository(Addresses::class)->findBy([
-            'clinic' => $clinic->getId(),
-            'isActive' => 1,
-        ]);
+        $addresses = $this->em->getRepository(Addresses::class)->getAddresses($clinic_id);
+        $results = $this->page_manager->paginate($addresses[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->request->get('page_id'), $results);
 
-        $addresses = $this->getAddresses($addresses);
+        $addresses = $this->getAddresses($results);
 
         $response = [
             'flash' => $flash,
             'addresses' => $addresses,
             'checkout_address' => $checkout_address,
-            'checkout_address_id' => $checkout_address_id
+            'checkout_address_id' => $checkout_address_id,
+            'pagination' => $pagination,
         ];
 
         return new JsonResponse($response);
@@ -660,20 +661,18 @@ class AddressesController extends AbstractController
     {
         $address_id = $request->request->get('id');
         $clinic_id = $this->get('security.token_storage')->getToken()->getUser()->getClinic()->getId();
-        $methods = $this->em->getRepository(Clinics::class)->getClinicDefaultAddresses($clinic_id, $address_id);
-
-        $addresses = $this->em->getRepository(Addresses::class)->findBy([
-            'clinic' => $clinic_id,
-            'isActive' => 1,
-        ]);
-
-        $addresses = $this->getAddresses($addresses);
+        $this->em->getRepository(Clinics::class)->getClinicDefaultAddresses($clinic_id, $address_id);
+        $addresses = $this->em->getRepository(Addresses::class)->getAddresses($clinic_id);
+        $results = $this->page_manager->paginate($addresses[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->request->get('page_id'), $results);
+        $addresses = $this->getAddresses($results);
 
         $flash = '<b><i class="fas fa-check-circle"></i> Default address successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         $response = [
             'addresses' => $addresses,
-            'flash' => $flash
+            'flash' => $flash,
+            'pagination' => $pagination,
         ];
 
         return new JsonResponse($response);
@@ -704,18 +703,18 @@ class AddressesController extends AbstractController
         $this->em->persist($default_address);
         $this->em->flush();
 
-        $addresses = $this->em->getRepository(Addresses::class)->findBy([
-            'clinic' => $clinic_id,
-            'isActive' => 1,
-        ]);
+        $addresses = $this->em->getRepository(Addresses::class)->getAddresses($clinic_id);
+        $results = $this->page_manager->paginate($addresses[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->request->get('page_id'), $results);
 
-        $addresses = $this->getAddresses($addresses);
+        $addresses = $this->getAddresses($results);
 
         $flash = '<b><i class="fas fa-check-circle"></i> Default address successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         $response = [
             'addresses' => $addresses,
-            'flash' => $flash
+            'flash' => $flash,
+            'pagination' => $pagination,
         ];
 
         return new JsonResponse($response);
@@ -732,20 +731,117 @@ class AddressesController extends AbstractController
         $this->em->persist($address);
         $this->em->flush();
 
-        $addresses = $this->em->getRepository(Addresses::class)->findBy([
-            'clinic' => $this->getUser()->getClinic()->getId(),
-            'isActive' => 1
-        ]);
+        $addresses = $this->em->getRepository(Addresses::class)->getAddresses($this->getUser()->getClinic()->getId());
+        $results = $this->page_manager->paginate($addresses[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->request->get('page_id'), $results);
 
-        $addresses = $this->getAddresses($addresses);
+        $html = $this->getAddresses($results);
 
         $flash = '<b><i class="fas fa-check-circle"></i> Address successfully deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         $response = [
-            'addresses' => $addresses,
-            'flash' => $flash
+            'addresses' => $html,
+            'flash' => $flash,
+            'pagination' => $pagination,
         ];
 
         return new JsonResponse($response);
+    }
+
+    public function getPagination($page_id, $results)
+    {
+        $current_page = $page_id;
+        $last_page = $this->page_manager->lastPage($results);
+        $pagination = '';
+
+        if(count($results) > 0) {
+
+            $pagination .= '
+            <!-- Pagination -->
+            <div class="row">
+                <div class="col-12">';
+
+            if ($last_page > 1) {
+
+                $previous_page_no = $current_page - 1;
+                $url = '/clinics/addresses';
+                $previous_page = $url;
+
+                $pagination .= '
+                <nav class="custom-pagination">
+                    <ul class="pagination justify-content-center">
+                ';
+
+                $disabled = 'disabled';
+                $data_disabled = 'true';
+
+                // Previous Link
+                if ($current_page > 1) {
+
+                    $disabled = '';
+                    $data_disabled = 'false';
+                }
+
+                $pagination .= '
+                <li class="page-item ' . $disabled . '">
+                    <a class="address-pagination" aria-disabled="' . $data_disabled . '" data-page-id="' . $current_page - 1 . '" href="' . $previous_page . '">
+                        <span aria-hidden="true">&laquo;</span> Previous
+                    </a>
+                </li>';
+
+                $is_active = false;
+
+                for ($i = 1; $i <= $last_page; $i++) {
+
+                    $active = '';
+
+                    if ($i == (int)$current_page) {
+
+                        $active = 'active';
+                        $is_active = true;
+                    }
+
+                    // Go to previous page if all records for a page have been deleted
+                    if(!$is_active && $i == count($results)){
+
+                        $active = 'active';
+                    }
+
+                    $pagination .= '
+                    <li class="page-item ' . $active . '">
+                        <a class="address-pagination" data-page-id="' . $i . '" href="' . $url . '">' . $i . '</a>
+                    </li>';
+                }
+
+                $disabled = 'disabled';
+                $data_disabled = 'true';
+
+                if ($current_page < $last_page) {
+
+                    $disabled = '';
+                    $data_disabled = 'false';
+                }
+
+                $pagination .= '
+                <li class="page-item ' . $disabled . '">
+                    <a class="address-pagination" aria-disabled="' . $data_disabled . '" data-page-id="' . $current_page + 1 . '" href="' . $url . '">
+                        Next <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>';
+
+                if(count($results) < $current_page){
+
+                    $current_page = count($results);
+                }
+
+                $pagination .= '
+                        </ul>
+                    </nav>
+                    <input type="hidden" id="page_no" value="' . $current_page . '">
+                </div>';
+            }
+        }
+
+        return $pagination;
     }
 }
