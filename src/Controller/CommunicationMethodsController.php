@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\ClinicCommunicationMethods;
 use App\Entity\Clinics;
 use App\Entity\CommunicationMethods;
+use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,13 +16,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class CommunicationMethodsController extends AbstractController
 {
     private $em;
+    private $page_manager;
+    const ITEMS_PER_PAGE = 1;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, PaginationManager $page_manager)
     {
         $this->em = $em;
+        $this->page_manager = $page_manager;
     }
 
-    private function getCommunicationMethods()
+    private function getCommunicationMethods($results)
     {
         $clinic = $this->getUser()->getClinic();
         $clinic_communication_methods = $this->em->getRepository(ClinicCommunicationMethods::class)->findByClinic($clinic->getId());
@@ -54,21 +58,7 @@ class CommunicationMethodsController extends AbstractController
                     Add or remove communication methods from the list below.
                 </span>
             </div>
-        </div>';
-
-        if($clinic_communication_methods == null) {
-
-            $response .= '
-            <div class="row">
-                <div class="col-12 pb-5 pt-2 info text-center text-sm-start">
-                    <p class="mb-0">
-                        Add or remove communication methods from the list below.
-                    </p>
-                </div>
-            </div>';
-        }
-        
-        $response .= '
+        </div>
         <div class="row d-none d-xl-flex  bg-light border-bottom border-right border-left">
             <div class="col-5 pt-3 pb-3 text-primary fw-bold">
                 Method
@@ -83,7 +73,7 @@ class CommunicationMethodsController extends AbstractController
 
         $i = 0;
         
-        foreach($clinic_communication_methods as $method) {
+        foreach($results as $method) {
 
             $mobile_no = 0;
             $i++;
@@ -231,9 +221,18 @@ class CommunicationMethodsController extends AbstractController
     }
 
     #[Route('/clinics/get-communication_methods', name: 'get_communication_methods')]
-    public function getCommunicationMethodsAction(): Response
+    public function getCommunicationMethodsAction(Request $request): Response
     {
-        $response = $this->getCommunicationMethods();
+        $page_id = $request->request->get('page_id') ?? 1;
+        $methods = $this->em->getRepository(ClinicCommunicationMethods::class)->findByClinic($this->getUser()->getClinic()->getId());
+        $results = $this->page_manager->paginate($methods[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($page_id, $results);
+        $html = $this->getCommunicationMethods($results);
+
+        $response = [
+            'html' => $html,
+            'pagination' => $pagination
+        ];
         
         return new JsonResponse($response);
     }
@@ -305,11 +304,16 @@ class CommunicationMethodsController extends AbstractController
         $this->em->persist($clinic_communication_method);
         $this->em->flush();
 
-        $communication_methods = $this->getCommunicationMethods();
+        $page_id = $request->request->get('page_id') ?? 1;
+        $methods = $this->em->getRepository(ClinicCommunicationMethods::class)->findByClinic($this->getUser()->getClinic()->getId());
+        $results = $this->page_manager->paginate($methods[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($page_id, $results);
+        $communication_methods = $this->getCommunicationMethods($results);
 
         $response = [
             'flash' => '<b><i class="fas fa-check-circle"></i> Communication Method successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>',
-            'communication_methods' => $communication_methods
+            'communication_methods' => $communication_methods,
+            'pagination' => $pagination
         ];
 
         return new JsonResponse($response);
@@ -337,5 +341,102 @@ class CommunicationMethodsController extends AbstractController
         ];
 
         return new JsonResponse($response);
+    }
+
+    public function getPagination($page_id, $results)
+    {
+        $current_page = $page_id;
+        $last_page = $this->page_manager->lastPage($results);
+        $pagination = '';
+
+        if(count($results) > 0) {
+
+            $pagination .= '
+            <!-- Pagination -->
+            <div class="row">
+                <div class="col-12">';
+
+            if ($last_page > 1) {
+
+                $previous_page_no = $current_page - 1;
+                $url = '/clinics/communication-methods';
+                $previous_page = $url;
+
+                $pagination .= '
+                <nav class="custom-pagination">
+                    <ul class="pagination justify-content-center">
+                ';
+
+                $disabled = 'disabled';
+                $data_disabled = 'true';
+
+                // Previous Link
+                if ($current_page > 1) {
+
+                    $disabled = '';
+                    $data_disabled = 'false';
+                }
+
+                $pagination .= '
+                <li class="page-item ' . $disabled . '">
+                    <a class="ccm-pagination" aria-disabled="' . $data_disabled . '" data-page-id="' . $current_page - 1 . '" href="' . $previous_page . '">
+                        <span aria-hidden="true">&laquo;</span> Previous
+                    </a>
+                </li>';
+
+                $is_active = false;
+
+                for ($i = 1; $i <= $last_page; $i++) {
+
+                    $active = '';
+
+                    if ($i == (int)$current_page) {
+
+                        $active = 'active';
+                        $is_active = true;
+                    }
+
+                    // Go to previous page if all records for a page have been deleted
+                    if(!$is_active && $i == count($results)){
+
+                        $active = 'active';
+                    }
+
+                    $pagination .= '
+                    <li class="page-item ' . $active . '">
+                        <a class="ccm-pagination" data-page-id="' . $i . '" href="' . $url . '">' . $i . '</a>
+                    </li>';
+                }
+
+                $disabled = 'disabled';
+                $data_disabled = 'true';
+
+                if ($current_page < $last_page) {
+
+                    $disabled = '';
+                    $data_disabled = 'false';
+                }
+
+                $pagination .= '
+                <li class="page-item ' . $disabled . '">
+                    <a class="ccm-pagination" aria-disabled="' . $data_disabled . '" data-page-id="' . $current_page + 1 . '" href="' . $url . '">
+                        Next <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>';
+
+                if(count($results) < $current_page){
+
+                    $current_page = count($results);
+                }
+
+                $pagination .= '
+                        </ul>
+                    </nav>
+                    <input type="hidden" id="page_no" value="' . $current_page . '">
+                </div>';
+            }
+        }
+
+        return $pagination;
     }
 }

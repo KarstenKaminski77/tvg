@@ -25,15 +25,15 @@ class ClinicCommunicationMethodsRepository extends ServiceEntityRepository
 
     public function findByClinic($clinic_id)
     {
-        return $this->createQueryBuilder('c')
+        $queryBuilder =  $this->createQueryBuilder('c')
             ->andWhere('c.clinic = :clinic_id')
             ->setParameter('clinic_id', $clinic_id)
             ->andWhere('c.communicationMethod > 1')
             ->andWhere('c.isActive = 1')
             ->orderBy('c.id', 'DESC')
-            ->getQuery()
-            ->getResult()
         ;
+
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
     }
 
     /*

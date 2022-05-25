@@ -3929,17 +3929,17 @@
             let mobile_number = '';
             iti = '';
             let input = '';
-            function getCommunicationMethods(){
+            function getCommunicationMethods(page_id){
 
-                let page = $('html').html();
                 $('#back_btn').remove();
 
                 $.ajax({
                     url: '{{ path('get_communication_methods') }}',
-                    type: 'GET',
-                    cache: false,
-                    timeout: 600000,
+                    type: 'POST',
                     dataType: 'json',
+                    data:{
+                        page_id: page_id
+                    },
                     beforeSend: function (){
 
                         isLoading(true)
@@ -3949,7 +3949,8 @@
                         getBackButton();
                         $('#inventory').hide();
                         $('#inventory_container').hide();
-                        $('#basket_container').empty().removeClass('col-container').append(response).show();
+                        $('#basket_container').empty().removeClass('col-container').append(response.html).show();
+                        $('#paginator').empty().append(response.pagination).show();
                         clearInterval(get_messages);
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/communication-methods');
@@ -3960,7 +3961,14 @@
 
                 e.preventDefault();
                 getCommunicationMethods();
-                hidePaginator();
+            });
+            $(document).on('click','.ccm-pagination', function (e){
+
+                e.preventDefault();
+
+                let page_id = $(this).data('page-id');
+
+                getCommunicationMethods(page_id);
             });
             $(document).on('click','#communication_methods_new', function (){
                 $('#col_send_to').hide();
@@ -4187,10 +4195,12 @@
 
                     if(communication_method == 3) {
 
+                        let page_id = $('#page_no').val();
                         let iso = iti.getSelectedCountryData().iso2;
                         let intl_code = iti.getSelectedCountryData().dialCode
 
-
+                        $('<input />').attr('type', 'hidden').attr('name', 'page_id')
+                            .attr('value', page_id).appendTo('#form_communication_methods');
                         $('<input />').attr('type', 'hidden').attr('name', 'clinic_communication_methods_form[iso_code]')
                             .attr('value', iso).appendTo('#form_communication_methods');
                         $('<input />').attr('type', 'hidden').attr('name', 'clinic_communication_methods_form[intl_code]')
@@ -4208,6 +4218,9 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        beforeSend: function (){
+                          isLoading(true);
+                        },
                         success: function (response) {
                             getFlash(response.flash);
                             $('#modal_communication_methods').modal('toggle');
@@ -4217,6 +4230,8 @@
                             $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods').val('');
                             $('#send_to').val('');
                             $('#basket_container').empty().append(response.communication_methods);
+                            $('#paginator').empty().append(response.pagination).show();
+                            isLoading(false);
                         }
                     });
                 }
