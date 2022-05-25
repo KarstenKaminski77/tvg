@@ -607,30 +607,30 @@
                 </div>
             </div>
             <div id="users_list">
-                {% for users in distributor.distributorUsers %}
+                {% for user in users %}
                     <div class="list-width">
                         <div class="row t-row">
                             <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                {{ users.firstName }}
+                                {{ user.firstName }}
                             </div>
                             <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                {{ users.lastName }}
+                                {{ user.lastName }}
                             </div>
                             <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                {{ users.email }}
+                                {{ user.email }}
                             </div>
                             <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                {{ users.telephone }}
+                                {{ user.telephone }}
                             </div>
                             <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                {{ users.position }}
+                                {{ user.position }}
                             </div>
                             <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                <a href="" class="float-end update-user" data-user-id="{{ users.id }}" data-bs-toggle="modal" data-bs-target="#modal_user">
+                                <a href="" class="float-end update-user" data-user-id="{{ user.id }}" data-bs-toggle="modal" data-bs-target="#modal_user">
                                     <i class="fa-solid fa-pen-to-square edit-icon"></i>
                                 </a>
                                 <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
-                                   data-user-id="{{ users.id }}" data-bs-target="#modal_user_delete"
+                                   data-user-id="{{ user.id }}" data-bs-target="#modal_user_delete"
                                 >
                                     <i class="fa-solid fa-trash-can"></i>
                                 </a>
@@ -638,6 +638,8 @@
                         </div>
                     </div>
                 {% endfor %}
+
+                {{ users_pagination|raw }}
             </div>
 
             {# Modal Manage Users #}
@@ -2175,6 +2177,29 @@
                 users.show();
                 order_container.hide();
             });
+            $(document).on('click', '.user-pagination', function (e){
+
+                e.preventDefault();
+                let page_id = $(this).data('page-id');
+
+                $.ajax({
+                    url: "{{ path('distributor_refresh_users') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        page_id: page_id
+                    },
+                    beforeSend: function (){
+                        $("div.spanner").addClass("show");
+                        $("div.overlay").addClass("show");
+                    },
+                    success: function (response) {
+                        $('#users_list').empty().append(response);
+                        $("div.spanner").removeClass("show");
+                        $("div.overlay").removeClass("show");
+                    }
+                });
+            });
 
             {# Clear Search #}
             $(document).on('click', '#inventory_clear', function (){
@@ -2307,6 +2332,8 @@
                 }
 
                 if(is_valid == true){
+
+                    $("<input />").attr("type", "hidden").attr("name", "page_id").attr("value", $('#page_id').val()).appendTo("#form_users");
 
                     let data = new FormData(this);
 

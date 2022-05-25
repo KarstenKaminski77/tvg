@@ -18,6 +18,7 @@ use App\Form\AddressesFormType;
 use App\Form\DistributorFormType;
 use App\Form\DistributorProductsFormType;
 use App\Form\DistributorUsersFormType;
+use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,9 +33,12 @@ use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
 class DistributorsController extends AbstractController
 {
     private $em;
+    const ITEMS_PER_PAGE = 1;
+    private $page_manager;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em, PaginationManager $pagination) {
         $this->em = $em;
+        $this->page_manager = $pagination;
     }
 
     #[Route('/distributors', name: 'distributors')]
@@ -183,6 +187,10 @@ class DistributorsController extends AbstractController
 
         $distributor = $this->getUser()->getDistributor();
         $user = $this->getUser();
+        $username = $user->getFirstName() .' '. $user->getLastName();
+        $users = $this->em->getRepository(DistributorUsers::class)->findDistributorUsers($user->getDistributor()->getId());
+        $user_results = $this->page_manager->paginate($users[0], $request, self::ITEMS_PER_PAGE);
+        $users_pagination = $this->getPagination(1, $user_results, $user->getDistributor()->getId());
         $form = $this->createRegisterForm();
         $inventoryForm = $this->createDistributorInventoryForm();
         $addressForm = $this->createDistributorAddressesForm();
@@ -208,7 +216,7 @@ class DistributorsController extends AbstractController
 
         return $this->render('frontend/distributors/dashboard.html.twig',[
             'distributor' => $distributor,
-            'user' => $user,
+            'users' => $user_results,
             'form' => $form->createView(),
             'inventory_form' => $inventoryForm->createView(),
             'address_form' => $addressForm->createView(),
@@ -216,122 +224,9 @@ class DistributorsController extends AbstractController
             'order_list' => $order_list,
             'order_detail' => $order_detail,
             'clinic_id' => $clinic_id,
+            'users_pagination' => $users_pagination,
+            'username' => $username,
         ]);
-    }
-
-    #[Route('/distributors/get-user', name: 'distributor_get_user')]
-    public function distributorGetUserAction(Request $request): Response
-    {
-        $user = $this->em->getRepository(DistributorUsers::class)->find($request->request->get('id'));
-
-        $response = [
-
-            'id' => $user->getId(),
-            'first_name' => $user->getFirstName(),
-            'last_name' => $user->getLastName(),
-            'email' => $user->getEmail(),
-            'telephone' => $user->getTelephone(),
-            'position' => $user->getPosition(),
-        ];
-
-        return new JsonResponse($response);
-    }
-
-    #[Route('/distributors/manage-users', name: 'distributor_users')]
-    public function distributorUsersAction(Request $request, UserPasswordHasherInterface $passwordHasher, MailerInterface $mailer): Response
-    {
-        $data = $request->request->get('distributor_users_form');
-        $distributor = $this->get('security.token_storage')->getToken()->getUser()->getDistributor();
-        $user = $this->em->getRepository(DistributorUsers::class)->findBy(['email' => $data['email']]);
-        $user_id = (int) $data['user_id'];
-
-        if(count($user) > 0 && $user_id == 0){
-
-            $response = [
-                'response' => false
-            ];
-
-            return new JsonResponse($response);
-        }
-
-        if($user_id == 0){
-
-            $distributor_user = new DistributorUsers();
-
-            $plain_text_pwd = $this->generatePassword();
-
-            if (!empty($plain_text_pwd)) {
-
-                $hashed_pwd = $passwordHasher->hashPassword($distributor_user, $plain_text_pwd);
-
-                $distributor_user->setRoles(['ROLE_USER']);
-                $distributor_user->setPassword($hashed_pwd);
-
-                // Send Email
-                $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
-                $body .= '<tr><td colspan="2">Hi '. $data['firstName'] .',</td></tr>';
-                $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
-                $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
-                $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
-                $body .= '<tr>';
-                $body .= '    <td><b>URL: </b></td>';
-                $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/distributors/login">https://'. $_SERVER['HTTP_HOST'] .'/distributors/login</a></td>';
-                $body .= '</tr>';
-                $body .= '<tr>';
-                $body .= '    <td><b>Username: </b></td>';
-                $body .= '    <td>'. $data['email'] .'</td>';
-                $body .= '</tr>';
-                $body .= '<tr>';
-                $body .= '    <td><b>Password: </b></td>';
-                $body .= '    <td>'. $plain_text_pwd .'</td>';
-                $body .= '</tr>';
-                $body .= '</table>';
-
-                $email = (new Email())
-                    ->from($this->getParameter('app.email_from'))
-                    ->addTo($data['email'])
-                    ->subject('Fluid Login Credentials')
-                    ->html($body);
-
-                $mailer->send($email);
-            }
-
-            $message = '<b><i class="fas fa-check-circle"></i> User details successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        } else {
-
-            $distributor_user = $this->em->getRepository(DistributorUsers::class)->find($user_id);
-
-            $distributor_user->setIsPrimary(0);
-
-            $message = '<b><i class="fas fa-check-circle"></i> User successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-        }
-
-        $distributor_user->setDistributor($distributor);
-        $distributor_user->setFirstName($data['firstName']);
-        $distributor_user->setLastName($data['lastName']);
-        $distributor_user->setEmail($data['email']);
-        $distributor_user->setTelephone($data['telephone']);
-        $distributor_user->setPosition($data['position']);
-        $distributor_user->setIsPrimary(0);
-
-        $this->em->persist($distributor_user);
-        $this->em->flush();
-
-        $response = [
-
-            'response' => true,
-            'message' => $message
-        ];
-
-        return new JsonResponse($response);
-    }
-
-    public function createDistributorUserForm()
-    {
-        $distributor_users = new DistributorUsers();
-
-        return $this->createForm(DistributorUsersFormType::class, $distributor_users);
     }
 
     #[Route('/distributor/update/personal-information', name: 'distributor_update_personal_information')]
@@ -359,49 +254,6 @@ class DistributorsController extends AbstractController
         }
 
         return new JsonResponse($response);
-    }
-
-    #[Route('/distributors/users-refresh', name: 'distributor_refresh_users')]
-    public function distributorRefreshUsersAction(Request $request): Response
-    {
-        $distributor_id = $this->get('security.token_storage')->getToken()->getUser()->getDistributor()->getId();
-        $users = $this->em->getRepository(Distributors::class)->getDistributorUsers($distributor_id);
-
-        $html = '';
-
-        foreach($users[0]->getDistributorUsers() as $user){
-
-            $html .= '<div class="list-width">
-                       <div class="row t-row">
-                           <div class="col-md-2 t-cell" id="string_user_first_name_'. $user->getId() .'">
-                               '. $user->getFirstName() .'
-                           </div>
-                           <div class="col-md-2 t-cell" id="string_user_last_name_'. $user->getId() .'">
-                               '. $user->getLastName() .'
-                           </div>
-                           <div class="col-md-2 t-cell" id="string_user_email_'. $user->getId() .'">
-                               '. $user->getEmail() .'
-                           </div>
-                           <div class="col-md-2 t-cell" id="string_user_telephone_'. $user->getId() .'">
-                               '. $user->getEmail() .'
-                           </div>
-                           <div class="col-md-2 t-cell" id="string_user_position_'. $user->getId() .'">
-                               '. $user->getPosition() .'
-                           </div>
-                           <div class="col-md-2 t-cell">
-                               <a href="" class="float-end update-user" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
-                                   <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                               </a>
-                               <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
-                                  data-value="'. $user->getId() .'" data-bs-target="#modal_user_delete" data-user-id="'. $user->getId() .'">
-                                   <i class="fa-solid fa-trash-can"></i>
-                               </a>
-                           </div>
-                       </div>
-                   </div>';
-        }
-
-        return new JsonResponse($html);
     }
 
     #[Route('/distributors/update/company-information', name: 'distributor_update_company_information')]
@@ -854,20 +706,6 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/distributors/user/delete', name: 'distributor_user_delete')]
-    public function distributorDeleteUser(Request $request): Response
-    {
-        $user_id = (int) $request->request->get('id');
-        $user = $this->em->getRepository(DistributorUsers::class)->find($user_id);
-
-        $this->em->remove($user);
-        $this->em->flush();
-
-        $response = '<b><i class="fas fa-check-circle"></i> User successfully deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        return new JsonResponse($response);
-    }
-
     private function generatePassword()
     {
         $sets = [];
@@ -895,5 +733,113 @@ class DistributorsController extends AbstractController
         $this->plain_password = str_shuffle($password);
 
         return $this->plain_password;
+    }
+
+    public function createDistributorUserForm()
+    {
+        $distributor_users = new DistributorUsers();
+
+        return $this->createForm(DistributorUsersFormType::class, $distributor_users);
+    }
+
+    public function getPagination($page_id, $results, $distributor_id)
+    {
+        $current_page = (int) $page_id;
+        $last_page = $this->page_manager->lastPage($results);
+
+        $pagination = '
+        <!-- Pagination -->
+        <div class="row mt-3">
+            <div class="col-12">';
+
+        if($last_page > 1) {
+
+            $previous_page_no = $current_page - 1;
+            $url = '/distributors/users';
+            $previous_page = $url . $previous_page_no;
+
+            $pagination .= '
+            <nav class="custom-pagination">
+                <ul class="pagination justify-content-center">
+            ';
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            // Previous Link
+            if($current_page > 1){
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pagination .= '
+            <li class="page-item '. $disabled .'">
+                <a 
+                    class="user-pagination" 
+                    aria-disabled="'. $data_disabled .'" 
+                    data-page-id="'. $current_page - 1 .'" 
+                    data-distributor-id="'. $distributor_id .'"
+                    href="'. $previous_page .'"
+                >
+                    <span aria-hidden="true">&laquo;</span> Previous
+                </a>
+            </li>';
+
+            for($i = 1; $i <= $last_page; $i++) {
+
+                $active = '';
+
+                if($i == (int) $current_page){
+
+                    $active = 'active';
+                    $page_id = '<input type="hidden" id="page_no" value="'. $current_page .'">';
+                }
+
+                $pagination .= '
+                <li class="page-item '. $active .'">
+                    <a 
+                        class="user-pagination" 
+                        data-page-id="'. $i .'" 
+                        href="'. $url .'"
+                        data-distributor-id="'. $distributor_id .'"
+                    >'. $i .'</a>
+                </li>';
+            }
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            if($current_page < $last_page) {
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pagination .= '
+            <li class="page-item '. $disabled .'">
+                <a 
+                    class="user-pagination" 
+                    aria-disabled="'. $data_disabled .'" 
+                    data-page-id="'. $current_page + 1 .'" 
+                    href="'. $url .'"
+                    data-distributor-id="'. $distributor_id .'"
+                >
+                    Next <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>';
+
+            $pagination .= '
+                    </ul>
+                </nav>';
+
+            $pagination .= $page_id;
+
+            $pagination .= '
+                </div>
+            </div>';
+        }
+
+        return $pagination;
     }
 }

@@ -59,7 +59,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#"> Menu item </a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link  dropdown-toggle" href="{{ path('distributors_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
+                        <a class="nav-link  dropdown-toggle" href="{{ path('distributors_logout') }}" data-bs-toggle="dropdown">{{ username }}</a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a href="#" class="dropdown-item" data-distributor-id="{{ distributor.id }}" id="orders_link">

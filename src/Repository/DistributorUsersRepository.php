@@ -19,32 +19,17 @@ class DistributorUsersRepository extends ServiceEntityRepository
         parent::__construct($registry, DistributorUsers::class);
     }
 
-    // /**
-    //  * @return DistributorUsers[] Returns an array of DistributorUsers objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('d.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
+    /**
+    * @return DistributorUsers[] Returns an array of DistributorUsers objects
     */
+    public function findDistributorUsers($distributor_id)
+    {
+        $queryBuilder = $this->createQueryBuilder('du')
+            ->andWhere('du.distributor = :distributor_id')
+            ->setParameter('distributor_id', $distributor_id)
+            ->orderBy('du.id', 'DESC')
+            ;
 
-    /*
-    public function findOneBySomeField($value): ?DistributorUsers
-    {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
     }
-    */
 }
