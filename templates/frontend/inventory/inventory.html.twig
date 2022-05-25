@@ -3497,11 +3497,15 @@
                         id: address_id,
                         page_id: page_id
                     },
+                    beforeSend: function (){
+                        isLoading(true);
+                    },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.addresses);
                         $('#paginator').empty().append(response.pagination).show();
+                        isLoading(false);
                     }
                 });
             });
@@ -3520,12 +3524,15 @@
                         id: address_id,
                         page_id: page_id,
                     },
+                    beforeSend: function (){
+                      isLoading(true);
+                    },
                     success: function (response) {
 
                         getFlash(response.flash);
                         $('#basket_container').empty().append(response.addresses);
                         $('#paginator').empty().append(response.pagination).show();
-
+                        isLoading(false);
                     }
                 });
             });
