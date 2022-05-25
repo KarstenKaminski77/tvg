@@ -1376,8 +1376,9 @@ class OrdersController extends AbstractController
     {
         $distributor = $this->em->getRepository(Distributors::class)->find($this->getUser()->getDistributor()->getId());
         $orders = $this->em->getRepository(Orders::class)->findByDistributor($distributor);
+        $results = $this->page_manager->paginate($orders[0], $request, self::ITEMS_PER_PAGE);
 
-        $response = '
+        $html = '
         <form name="form_distributor_orders" id="form_distributor_orders" method="post">
             <div class="col-12">
                 <div class="row">
@@ -1389,9 +1390,9 @@ class OrdersController extends AbstractController
                     </div>
                 </div>';
 
-                if(count($orders) > 0) {
+                if(count($orders[1]) > 0) {
 
-                    $response .= '
+                    $html .= '
                     <!-- Actions Row -->
                     <div class="row" id="order_action_row_1">
                         <div class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3 bg-light border-left border-right">
@@ -1422,15 +1423,15 @@ class OrdersController extends AbstractController
                     </div>';
                 }
 
-                $response .= '
+                $html .= '
                 <div class="row">
                     <div class="col-12 border-right bg-light col-cell border-left border-right border-bottom">';
 
-                    if(count($orders) > 0) {
+                    if(count($orders[1]) > 0) {
 
-                        foreach ($orders as $order) {
+                        foreach ($results as $order) {
 
-                            $response .= '
+                            $html .= '
                             <!-- Orders -->
                             <div class="row">
                                 <div class="col-12 col-sm-1 pt-3 pb-3">
@@ -1440,7 +1441,7 @@ class OrdersController extends AbstractController
                                     ' . $order->getClinic()->getClinicName() . '
                                 </div>
                                 <div class="col-12 col-sm-2 pt-3 pb-3">
-                                    $' . $order->getTotal() . '
+                                    $' . number_format($order->getTotal(),2) . '
                                 </div>
                                 <div class="col-12 col-sm-2 pt-3 pb-3">
                                     ' . $order->getCreated()->format('Y-m-d') . '
@@ -1464,7 +1465,7 @@ class OrdersController extends AbstractController
 
                     } else {
 
-                        $response .= '
+                        $html .= '
                         <div class="row">
                             <div class="col-12 text-center mt-5 mb-5 pt-3 pb-3 text-center">
                                 You don\'t have any orders available. 
@@ -1472,11 +1473,89 @@ class OrdersController extends AbstractController
                         </div>';
                     }
 
-                    $response .= '
+                    $html .= '
                     </div>
                 </div>
             </div>
         </form>';
+
+        $current_page = $request->request->get('page_id');
+        $last_page = $this->page_manager->lastPage($results);
+
+        $pageination = '
+        <!-- Pagination -->
+        <div class="row mt-3">
+            <div class="col-12">';
+
+        if($last_page > 1) {
+
+            $previous_page_no = $current_page - 1;
+            $url = '/clinics/orders/'. $request->request->get('clinic_id');
+            $previous_page = $url . $previous_page_no;
+
+            $pageination .= '
+            <nav class="custom-pagination">
+                <ul class="pagination justify-content-center">
+            ';
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            // Previous Link
+            if($current_page > 1){
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pageination .= '
+            <li class="page-item '. $disabled .'">
+                <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
+                    <span aria-hidden="true">&laquo;</span> Previous
+                </a>
+            </li>';
+
+            for($i = 1; $i <= $last_page; $i++) {
+
+                $active = '';
+
+                if($i == (int) $current_page){
+
+                    $active = 'active';
+                }
+
+                $pageination .= '
+                <li class="page-item '. $active .'">
+                    <a class="order-link" data-page-id="'. $i .'" href="'. $url .'">'. $i .'</a>
+                </li>';
+            }
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            if($current_page < $last_page) {
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pageination .= '
+            <li class="page-item '. $disabled .'">
+                <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">
+                    Next <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>';
+
+            $pageination .= '
+                    </ul>
+                </nav>
+            </div>';
+        }
+
+        $response = [
+            'html' => $html,
+            'pagination' => $pageination
+        ];
 
         return new JsonResponse($response);
     }

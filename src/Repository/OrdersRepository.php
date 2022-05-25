@@ -25,7 +25,7 @@ class OrdersRepository extends ServiceEntityRepository
 
     public function findByDistributor($distributor_id)
     {
-        return $this->createQueryBuilder('o')
+        $queryBuilder =  $this->createQueryBuilder('o')
             ->select('o', 'oi', 'os')
             ->join('o.orderItems', 'oi')
             ->join('o.orderStatuses', 'os')
@@ -34,9 +34,9 @@ class OrdersRepository extends ServiceEntityRepository
             ->andWhere('os.distributor = :distributor_id')
             ->setParameter('distributor_id', $distributor_id)
             ->orderBy('o.id', 'DESC')
-            ->getQuery()
-            ->getResult()
         ;
+
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
     }
 
     /**
@@ -45,6 +45,12 @@ class OrdersRepository extends ServiceEntityRepository
 
     public function findClinicOrders($clinic_id)
     {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));";
+
+        $stmt = $conn->prepare($sql)->executeQuery();
+
         $queryBuilder = $this->createQueryBuilder('o')
             ->select('o', 'oi','os')
             ->join('o.orderItems', 'oi')
@@ -57,51 +63,6 @@ class OrdersRepository extends ServiceEntityRepository
             ;
 
         return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
-
-//        dd($queryBuilder[0]->getTotal());
-//        $sql = "
-//            SELECT
-//                o.id,
-//                oi.distributor_id,
-//                d.distributor_name,
-//                o.created,
-//                c.id as clinic_id,
-//                (
-//                    SELECT
-//                        s.status
-//                    FROM
-//                        order_status os
-//                        JOIN status s ON os.status_id = s.id
-//                    WHERE
-//                        os.orders_id = o.id
-//                    AND
-//                        os.distributor_id = oi.distributor_id
-//                ) as status,
-//                (
-//                    SELECT
-//                        SUM(unit_price)
-//                    FROM
-//                        order_items
-//                    WHERE
-//                        orders_id = o.id
-//                    AND
-//                        distributor_id = d.id
-//                ) as total
-//            FROM
-//                orders o
-//                INNER JOIN order_items oi ON o.id = oi.orders_id
-//                INNER JOIN distributors d ON d.id = oi.distributor_id
-//                INNER JOIN clinics c ON o.clinic_id = c.id
-//            WHERE
-//                o.clinic_id = :clinic_id
-//            GROUP BY oi.orders_id, oi.distributor_id
-//            ORDER BY o.id DESC
-//        ";
-//
-//        $conn = $this->getEntityManager()->getConnection();
-//        $stmt = $conn->prepare($sql);
-//        $result = $stmt->executeQuery(['clinic_id' => $clinic_id]);
-//        return $result->fetchAllAssociative();
     }
 
     /*
