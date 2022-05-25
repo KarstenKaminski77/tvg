@@ -19,22 +19,19 @@ class ClinicUsersRepository extends ServiceEntityRepository
         parent::__construct($registry, ClinicUsers::class);
     }
 
-    // /**
-    //  * @return ClinicUsers[] Returns an array of ClinicUsers objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
+    /**
+    * @return ClinicUsers[] Returns an array of ClinicUsers objects
     */
+    public function findClinicUsers($clinic_id)
+    {
+        $queryBuilder = $this->createQueryBuilder('cu')
+            ->andWhere('cu.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id)
+            ->orderBy('cu.id', 'DESC')
+        ;
+
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
+    }
 
     /*
     public function findOneBySomeField($value): ?ClinicUsers

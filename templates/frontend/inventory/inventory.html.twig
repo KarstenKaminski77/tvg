@@ -118,7 +118,7 @@
             {# Users #}
             if(is_users != null) {
 
-                getUsers();
+                getUsers(1);
             }
 
             {# Addresses #}
@@ -3132,17 +3132,20 @@
             {# End Account & Settings #}
 
             {# Users #}
-            function getUsers(){
+            function getUsers(page_id){
 
                 let search = $('#inventory').html();
                 $('#back_btn').remove();
 
                 $.ajax({
                     url: '{{ path('get-clinic-users') }}',
-                    type: 'GET',
+                    type: 'POST',
                     cache: false,
                     timeout: 600000,
                     dataType: 'json',
+                    data:{
+                      page_id:page_id
+                    },
                     beforeSend: function (){
 
                         isLoading(true)
@@ -3152,7 +3155,8 @@
                         getBackButton();
                         $('#inventory').hide();
                         $('#inventory_container').hide();
-                        $('#basket_container').empty().removeClass('col-container').append(response).show();
+                        $('#basket_container').empty().removeClass('col-container').append(response.html).show();
+                        $('#paginator').empty().append(response.pagination).show();
                         clearInterval(get_messages);
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/users');
@@ -3163,9 +3167,16 @@
             $('#users_link').click(function (e) {
 
                 e.preventDefault();
-                getUsers();
-                hidePaginator();
+                getUsers(1);
 
+            });
+            $(document).on('click', '.user-pagination', function (e){
+
+                e.preventDefault();
+
+                let page_id = $(this).data('page-id');
+
+                getUsers(page_id);
             });
             $(document).on('click', '.open-user-modal', function () {
 

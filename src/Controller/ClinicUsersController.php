@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
+use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,21 +18,24 @@ use Symfony\Component\Routing\Annotation\Route;
 class ClinicUsersController extends AbstractController
 {
     private $em;
+    private $page_manager;
+    const ITEMS_PER_PAGE = 1;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, PaginationManager $page_manager)
     {
         $this->em = $em;
+        $this->page_manager = $page_manager;
     }
 
     #[Route('/clinics/get-clinic-users', name: 'get-clinic-users')]
-    public function getClinicUsersAction(): Response
+    public function getClinicUsersAction(Request $request): Response
     {
         $clinic = $this->getUser()->getClinic();
-        $clinic_users = $this->em->getRepository(ClinicUsers::class)->findBy([
-            'clinic' => $clinic->getId()
-        ]);
+        $clinic_users = $this->em->getRepository(ClinicUsers::class)->findClinicUsers($clinic->getId());
+        $results = $this->page_manager->paginate($clinic_users[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->request->get('page_id'), $results);
         
-        $response = '
+        $html = '
         <!-- Users -->
         <div class="row" id="users">
             <div class="col-12 col-md-12 mb-3 mt-0 pe-0">
@@ -73,9 +77,9 @@ class ClinicUsersController extends AbstractController
             </div>
         </div>';
 
-        foreach($clinic_users as $user) {
+        foreach($results as $user) {
 
-            $response .= '
+            $html .= '
            <div class="row bg-light border-bottom border-right border-left">
                <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">First Name</div>
                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
@@ -109,7 +113,7 @@ class ClinicUsersController extends AbstractController
            </div>';
         }
 
-        $response .= '
+        $html .= '
 
             <!-- Modal Manage Users -->
             <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">
@@ -244,6 +248,11 @@ class ClinicUsersController extends AbstractController
             </div>
         </div>
         <!-- End Users -->';
+
+        $response = [
+            'html' => $html,
+            'pagination' => $pagination
+        ];
         
         return new JsonResponse($response);
     }
@@ -452,6 +461,84 @@ class ClinicUsersController extends AbstractController
         return new JsonResponse($response);
     }
 
+    public function getPagination($page_id, $results)
+    {
+        $current_page = $page_id;
+        $last_page = $this->page_manager->lastPage($results);
+
+        $pagination = '
+        <!-- Pagination -->
+        <div class="row">
+            <div class="col-12">';
+
+        if($last_page > 1) {
+
+            $previous_page_no = $current_page - 1;
+            $url = '/clinics/users';
+            $previous_page = $url;
+
+            $pagination .= '
+            <nav class="custom-pagination">
+                <ul class="pagination justify-content-center">
+            ';
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            // Previous Link
+            if($current_page > 1){
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pagination .= '
+            <li class="page-item '. $disabled .'">
+                <a class="user-pagination" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
+                    <span aria-hidden="true">&laquo;</span> Previous
+                </a>
+            </li>';
+
+            for($i = 1; $i <= $last_page; $i++) {
+
+                $active = '';
+
+                if($i == (int) $current_page){
+
+                    $active = 'active';
+                }
+
+                $pagination .= '
+                <li class="page-item '. $active .'">
+                    <a class="user-pagination" data-page-id="'. $i .'" href="'. $url .'">'. $i .'</a>
+                </li>';
+            }
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            if($current_page < $last_page) {
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pagination .= '
+            <li class="page-item '. $disabled .'">
+                <a class="user-pagination" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url .'">
+                    Next <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>';
+
+            $pagination .= '
+                    </ul>
+                </nav>
+            </div>';
+        }
+        
+        return $pagination;
+    }
+    
     private function generatePassword()
     {
         $sets = [];
