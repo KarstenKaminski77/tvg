@@ -697,13 +697,22 @@
                                 {# Telephone Number #}
                                 <div class="col-12 col-sm-6">
                                     {{ form_label(user_form.telephone) }}
-                                    {{ form_widget(user_form.telephone,{'id': 'user_telephone', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': '(123) 456-7890*'
-                                    }}) }}
+                                    <span id="telephone_container">
+                                        <input
+                                                type="text"
+                                                class="form-control"
+                                                name="distributor_users_form[mobile]"
+                                                id="user_mobile" value=""
+                                                placeholder="(123) 456-7890*"
+                                        >
+                                    </span>
+
                                     <div class="hidden_msg" id="error_user_telephone">
                                         Required Field
                                     </div>
+                                    <input type="hidden" name="distributor_users_form[telephone]" id="user_telephone" value="">
+                                    {{ form_widget(user_form.isoCode, {'id': 'user_iso_code'}) }}
+                                    {{ form_widget(user_form.intlCode, {'id': 'user_intl_code'}) }}
                                 </div>
                             </div>
 
@@ -775,6 +784,9 @@
 
         $(document).ready(function(){
 
+            let input = '';
+            let iti = '';
+
             function getFlash(flash){
                 $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
                 $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(flash).removeClass('hidden');
@@ -784,35 +796,6 @@
                     $('#flash').removeClass('users-flash').empty().addClass('hidden');
                 }, 5000);
             }
-
-            // International Numbers
-            let input = document.querySelector('#mobile');
-            let iso_code = '{{ distributor.isoCode }}';
-
-            iti = window.intlTelInput(input, {
-                initialCountry: iso_code,
-                preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
-                autoPlaceholder: "polite",
-                nationalMode: true,
-                utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
-                separateDialCode: true,
-                utilsScript: "/js/utils.js",
-            });
-
-            let handleChange = function() {
-                let mobile = $('#telephone');
-                let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
-                let textNode = document.createTextNode(mobile_number);
-
-                if(mobile_number != false){
-
-                    mobile.val(mobile_number.substring(1));
-                }
-            };
-
-            // listen to "keyup", but also "change" to update when the user selects a country
-            input.addEventListener('change', handleChange);
-            input.addEventListener('keyup', handleChange);
 
             let account_settings = $('#account_settings');
             let about = $('#about');
@@ -1498,6 +1481,37 @@
 
             {# Account & Settings #}
             function getAccountSettings(){
+
+                // International Numbers
+                input = document.querySelector('#mobile');
+                let iso_code = '{{ distributor.isoCode }}';
+                iti = '';
+
+
+                iti = window.intlTelInput(input, {
+                    initialCountry: iso_code,
+                    preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                    autoPlaceholder: "polite",
+                    nationalMode: true,
+                    utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                    separateDialCode: true,
+                    utilsScript: "/js/utils.js",
+                });
+
+                let handleChange = function() {
+                    let mobile = $('#telephone');
+                    let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                    let textNode = document.createTextNode(mobile_number);
+
+                    if(mobile_number != false){
+
+                        mobile.val(mobile_number.substring(1));
+                    }
+                };
+
+                // listen to "keyup", but also "change" to update when the user selects a country
+                input.addEventListener('change', handleChange);
+                input.addEventListener('keyup', handleChange);
 
                 account_settings.show();
                 about.hide();
@@ -2237,16 +2251,62 @@
                         id: user_id
                     },
                     success: function (response) {
+
+                        $('#telephone_container').empty().append('<input type="text" class="form-control" name="distributor_users_form[mobile]" id="user_mobile" value="" placeholder="(123) 456-7890*">');
                         $('#user_first_name').val(response.first_name);
                         $('#user_last_name').val(response.last_name);
                         $('#user_email').val(response.email);
                         $('#user_telephone').val(response.telephone);
+                        $('#user_mobile').val(response.telephone);
                         $('#user_position').val(response.position);
+                        $('#user_iso_code').val(response.iso_code);
+                        $('#user_intl_code').val(response.intl_code);
+
+                        let input = document.querySelector("#user_mobile");
+
+                        iti = window.intlTelInput(input, {
+                            preferredCountries: ['za','ae','qa', 'bh', 'om', 'sa'],
+                            initialCountry: response.iso_code,
+                            autoPlaceholder: "polite",
+                            nationalMode: true,
+                            utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                            separateDialCode: true,
+                            utilsScript: "/js/utils.js",
+                        });
                     }
                 });
 
                 $('#user_id').val(user_id);
                 $('#user_modal_label').empty().append('Update a User');
+            });
+            $(document).on('change','#user_mobile', function (){
+
+                let input = document.querySelector("#user_mobile");
+
+                let handleChange = function() {
+                    let mobile = $('#user_telephone');
+                    let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                    let textNode = document.createTextNode(mobile_number);
+
+                    if(mobile_number != false){
+
+                        $('#user_telephone').val('');
+                        $('#user_iso_code').val('');
+                        $('#user_intl_code').val('');
+
+                        let iso_code = iti.getSelectedCountryData().iso2;
+                        let intl_code = iti.getSelectedCountryData().dialCode;
+
+                        mobile.val(mobile_number.substring(1));
+                        $('#user_iso_code').val(iso_code);
+                        $('#user_intl_code').val(intl_code);
+
+                    }
+                };
+
+                // listen to "keyup", but also "change" to update when the user selects a country
+                input.addEventListener('change', handleChange);
+                input.addEventListener('keyup', handleChange);
             });
 
             {# Delete User #}

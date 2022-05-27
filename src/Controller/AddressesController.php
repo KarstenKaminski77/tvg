@@ -446,11 +446,29 @@ class AddressesController extends AbstractController
                 <!-- Telephone Number -->
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="info">Telephone</label>
+                    <input 
+                        type="text" 
+                        name="addresses_mobile" 
+                        id="address_mobile" 
+                        class="form-control" 
+                        value=""
+                    >
                     <input
-                        type="text"
+                        type="hidden"
                         name="addresses_form[telephone]"
                         id="address_telephone"
-                        class="form-control"
+                        value=""
+                    >
+                    <input
+                        type="hidden"
+                        name="addresses_form[iso_code]"
+                        id="address_iso_code"
+                        value=""
+                    >
+                    <input
+                        type="hidden"
+                        name="addresses_form[intl_code]"
+                        id="address_intl_code"
                         value=""
                     >
                     <div class="hidden_msg" id="error_address_telephone">
@@ -576,6 +594,8 @@ class AddressesController extends AbstractController
             'state' => $address->getState(),
             'postal_code' => $address->getPostalCode(),
             'type' => $address->getType(),
+            'iso_code' => $address->getIsoCode(),
+            'intl_code' => $address->getIntlCode(),
         ];
 
         return new JsonResponse($response);
@@ -613,6 +633,8 @@ class AddressesController extends AbstractController
         $clinic_address->setState($data['state']);
         $clinic_address->setIsDefault(0);
         $clinic_address->setIsActive(1);
+        $clinic_address->setIsoCode($data['iso_code']);
+        $clinic_address->setIntlCode($data['intl_code']);
 
         if(empty($methods)){
 

@@ -107,6 +107,13 @@
             // International Numbers
             let input = document.querySelector('#mobile');
             iti = window.intlTelInput(input, {
+                initialCountry: "auto",
+                geoIpLookup: function(success, failure) {
+                    $.get("https://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+                        var countryCode = (resp && resp.country) ? resp.country : "ae";
+                        success(countryCode);
+                    });
+                },
                 preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
                 autoPlaceholder: "polite",
                 nationalMode: true,

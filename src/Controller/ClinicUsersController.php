@@ -102,7 +102,14 @@ class ClinicUsersController extends AbstractController
                    '. $user->getPosition() .'
                </div>
                <div class="col-12 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
-                   <a href="" class="float-end open-user-modal" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
+                   <a 
+                       href="" 
+                       class="float-end open-user-modal" 
+                       data-page-id="'. $request->request->get('page_id') .'"
+                       data-bs-toggle="modal" 
+                       data-bs-target="#modal_user" 
+                       data-user-id="'. $user->getId() .'"
+                   >
                        <i class="fa-solid fa-pen-to-square edit-icon"></i>
                    </a>
                    <a href="" class="delete-icon float-start float-sm-end open-delete-user-modal" data-bs-toggle="modal"
@@ -184,10 +191,27 @@ class ClinicUsersController extends AbstractController
                                         <label>Telepgone</label>
                                         <input 
                                             type="text" 
-                                            name="clinic_users_form[telephone]" 
-                                            id="user_telephone" 
+                                            id="user_mobile" 
                                             placeholder="(123) 456-7890*"
                                             class="form-control"
+                                            value=""
+                                        >
+                                        <input 
+                                            type="hidden" 
+                                            name="clinic_users_form[telephone]" 
+                                            id="user_telephone"
+                                            value=""
+                                        >
+                                        <input 
+                                            type="hidden" 
+                                            name="clinic_users_form[isoCode]" 
+                                            id="user_iso_code"
+                                            value=""
+                                        >
+                                        <input 
+                                            type="hidden" 
+                                            name="clinic_users_form[intlCode]" 
+                                            id="user_intl_code"
                                             value=""
                                         >
                                         <div class="hidden_msg" id="error_user_telephone">
@@ -270,6 +294,8 @@ class ClinicUsersController extends AbstractController
             'email' => $user->getEmail(),
             'telephone' => $user->getTelephone(),
             'position' => $user->getPosition(),
+            'iso_code' => $user->getIsoCode(),
+            'intl_code' => $user->getIntlCode()
         ];
 
         return new JsonResponse($response);
@@ -378,6 +404,7 @@ class ClinicUsersController extends AbstractController
         $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
         $user = $this->em->getRepository(ClinicUsers::class)->findBy(['email' => $data['email']]);
         $user_id = $data['user_id'];
+        $page_id = $request->request->get('pageId') ?? 1;
 
         if($user_id == 0){
 
@@ -446,6 +473,8 @@ class ClinicUsersController extends AbstractController
         $clinic_user->setLastName($data['lastName']);
         $clinic_user->setEmail($data['email']);
         $clinic_user->setTelephone($data['telephone']);
+        $clinic_user->setIsoCode($data['isoCode']);
+        $clinic_user->setIntlCode($data['intlCode']);
         $clinic_user->setPosition($data['position']);
         $clinic_user->setIsPrimary(0);
 
@@ -455,7 +484,8 @@ class ClinicUsersController extends AbstractController
         $response = [
 
             'response' => true,
-            'message' => $message
+            'message' => $message,
+            'page_id' => $page_id,
         ];
 
         return new JsonResponse($response);

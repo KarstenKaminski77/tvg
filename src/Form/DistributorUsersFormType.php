@@ -32,6 +32,8 @@ class DistributorUsersFormType extends AbstractType
                 'label' => 'Phone Number*',
                 'required' => false
             ])
+            ->add('isoCode', HiddenType::class)
+            ->add('intlCode', HiddenType::class)
             ->add('email', EmailType::class, [
                 'label' => 'Email*',
                 'required' => false

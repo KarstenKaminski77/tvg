@@ -93,6 +93,9 @@
             let is_list = uri.match('/clinics/inventory/list/[0-9]+');
             let orderid = '{{app.request.get('order_id')}}';
             let distributorid = '{{app.request.get('distributor_id')}}';
+            let iti = '';
+            let iso_code = '';
+            let intl_code = '';
 
             function isLoading(status){
 
@@ -2998,7 +3001,6 @@
 
             {# Dashboard #}
             {# Account & Settings #}
-            let iti = '';
             function getAccountSettings(){
 
                 let search = $('#inventory').html();
@@ -3132,6 +3134,7 @@
             {# End Account & Settings #}
 
             {# Users #}
+            let user_telephone = '';
             function getUsers(page_id){
 
                 let search = $('#inventory').html();
@@ -3182,6 +3185,7 @@
 
                 $('#create_user').empty().append('UPDATE USER');
                 let user_id = $(this).data('user-id');
+                let page_id = $(this).data('page-id');
 
                 $.ajax({
                     url: "{{ path('clinic_get_user') }}",
@@ -3190,16 +3194,69 @@
                         id: user_id
                     },
                     success: function (response) {
+
                         $('#user_first_name').val(response.first_name);
                         $('#user_last_name').val(response.last_name);
                         $('#user_email').val(response.email);
                         $('#user_telephone').val(response.telephone);
+                        $('#user_iso_code').val(response.iso_code);
+                        $('#user_intl_code').val(response.intl_code);
+                        $('#user_mobile').val(response.telephone);
                         $('#user_position').val(response.position);
+                        $('#user_page_id').remove();
+                        $("<input />")
+                            .attr("type", "hidden")
+                            .attr("name", "pageId")
+                            .attr("value", page_id)
+                            .attr("id", 'user_page_id')
+                            .appendTo("#form_users");
+
+                        user_telephone = response.telephone;
+                        let input = document.querySelector("#user_mobile");
+
+                        iti = window.intlTelInput(input, {
+                            preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                            initialCountry: response.iso_code,
+                            autoPlaceholder: "polite",
+                            nationalMode: true,
+                            utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                            separateDialCode: true,
+                            utilsScript: "/js/utils.js",
+                        });
                     }
                 });
 
                 $('#user_id').val(user_id);
                 $('#user_modal_label').empty().append('Update a User');
+            });
+            $(document).on('blur','#user_mobile', function (){
+
+                let input = document.querySelector("#user_mobile");
+
+                let handleChange = function() {
+                    let mobile = $('#user_telephone');
+                    let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                    let textNode = document.createTextNode(mobile_number);
+
+                    if(mobile_number != false){
+
+                        $('#user_telephone').val('');
+                        $('#user_iso_code').val('');
+                        $('#user_intl_code').val('');
+
+                        iso_code = iti.getSelectedCountryData().iso2;
+                        intl_code = iti.getSelectedCountryData().dialCode;
+
+                        mobile.val(mobile_number.substring(1));
+                        $('#user_iso_code').val(iso_code);
+                        $('#user_intl_code').val(intl_code);
+
+                    }
+                };
+
+                // listen to "keyup", but also "change" to update when the user selects a country
+                input.addEventListener('change', handleChange);
+                input.addEventListener('keyup', handleChange);
             });
             $(document).on('click','#user_new',function (){
 
@@ -3257,6 +3314,20 @@
 
                 if(is_valid == true){
 
+                    $("<input />")
+                        .attr("type", "hidden")
+                        .attr("name", "clinic_users_form[isoCode]")
+                        .attr("value", iso_code)
+                        .attr("id", 'user_iso_code')
+                        .appendTo("#form_users");
+
+                    $("<input />")
+                        .attr("type", "hidden")
+                        .attr("name", "clinic_users_form[intlCode]")
+                        .attr("value", intl_code)
+                        .attr("id", 'user_intl_code')
+                        .appendTo("#form_users");
+
                     let data = new FormData(this);
 
                     $('#create_user').empty().attr('disabled', true).append('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> PROCESSING...');
@@ -3286,19 +3357,8 @@
                                 $('#user_position').val('');
                                 $('#create_user').empty().append('SAVE').attr('disabled', false);
 
-                                $.ajax({
-                                    url: "{{ path('clinic_refresh_users') }}",
-                                    type: 'POST',
-                                    contentType: false,
-                                    processData: false,
-                                    cache: false,
-                                    timeout: 600000,
-                                    dataType: 'json',
-                                    data: data,
-                                    success: function (response) {
-                                        $('#basket_container').empty().append(response);
-                                    }
-                                });
+                                getUsers(response.page_id);
+
                             } else {
                                 $('#error_user_email').empty();
                                 $('#error_user_email').append('Email address exists.');
@@ -3427,6 +3487,9 @@
                     success: function (response) {
                         $('#address_clinic_name').val(response.clinic_name);
                         $('#address_telephone').val(response.telephone);
+                        $('#address_mobile').val(response.telephone);
+                        $('#address_iso_code').val(response.iso_code);
+                        $('#address_intl_code').val(response.intl_code);
                         $('#address_line_1').val(response.address_line_1);
                         $('#address_suite').val(response.suite);
                         $('#address_postal_code').val(response.postal_code);
@@ -3443,11 +3506,52 @@
 
                             $('#option_shipping').attr('selected', true);
                         }
+
+                        let input = document.querySelector("#address_mobile");
+
+                        iti = window.intlTelInput(input, {
+                            preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                            initialCountry: response.iso_code,
+                            autoPlaceholder: "polite",
+                            nationalMode: true,
+                            utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                            separateDialCode: true,
+                            utilsScript: "/js/utils.js",
+                        });
                     }
                 });
 
                 $('#address_id').val(address_id);
                 $('#address_modal_label').empty().append('Update An Address');
+            });
+            $(document).on('click','#address_mobile', function (){
+
+                let input = document.querySelector("#address_mobile");
+
+                $('#address_telephone').val('');
+                $('#address_iso_code').val('');
+                $('#address_intl_code').val('');
+
+                let handleChange = function() {
+                    let mobile = $('#address_telephone');
+                    let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                    let textNode = document.createTextNode(mobile_number);
+
+                    if(mobile_number != false){
+
+                        let iso_code = iti.getSelectedCountryData().iso2;
+                        let intl_code = iti.getSelectedCountryData().dialCode;
+
+                        mobile.val(mobile_number.substring(1));
+                        $('#address_iso_code').val(iso_code);
+                        $('#address_intl_code').val(intl_code);
+
+                    }
+                };
+
+                // listen to "keyup", but also "change" to update when the user selects a country
+                input.addEventListener('change', handleChange);
+                input.addEventListener('keyup', handleChange);
             });
             $(document).on('click', '.open-delete-address-modal', function (e){
 

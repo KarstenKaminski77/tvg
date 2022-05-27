@@ -40,6 +40,8 @@ class DistributorUsersController extends AbstractController
             'email' => $user->getEmail(),
             'telephone' => $user->getTelephone(),
             'position' => $user->getPosition(),
+            'iso_code' => $user->getIsoCode(),
+            'intl_code' => $user->getIntlCode(),
         ];
 
         return new JsonResponse($response);
@@ -120,6 +122,8 @@ class DistributorUsersController extends AbstractController
         $distributor_user->setLastName($data['lastName']);
         $distributor_user->setEmail($data['email']);
         $distributor_user->setTelephone($data['telephone']);
+        $distributor_user->setIsoCode($data['isoCode']);
+        $distributor_user->setIntlCode($data['intlCode']);
         $distributor_user->setPosition($data['position']);
         $distributor_user->setIsPrimary(0);
 
