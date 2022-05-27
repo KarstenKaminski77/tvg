@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
+use App\Form\ResetPasswordRequestFormType;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,12 +20,14 @@ class ClinicUsersController extends AbstractController
 {
     private $em;
     private $page_manager;
+    private $mailer;
     const ITEMS_PER_PAGE = 1;
 
-    public function __construct(EntityManagerInterface $em, PaginationManager $page_manager)
+    public function __construct(EntityManagerInterface $em, PaginationManager $page_manager, MailerInterface $mailer)
     {
         $this->em = $em;
         $this->page_manager = $page_manager;
+        $this->mailer = $mailer;
     }
 
     #[Route('/clinics/get-clinic-users', name: 'get-clinic-users')]
@@ -425,7 +428,7 @@ class ClinicUsersController extends AbstractController
 
                 $hashed_pwd = $passwordHasher->hashPassword($clinic_user, $plain_text_pwd);
 
-                $clinic_user->setRoles(['ROLE_USER']);
+                $clinic_user->setRoles(['ROLE_CLINIC']);
                 $clinic_user->setPassword($hashed_pwd);
 
                 // Send Email
@@ -491,82 +494,104 @@ class ClinicUsersController extends AbstractController
         return new JsonResponse($response);
     }
 
-    public function getPagination($page_id, $results)
+    #[Route('/clinics/forgot-password', name: 'clinic_forgot_password_request')]
+    public function clinicForgotPasswordAction(Request $request, MailerInterface $mailer): Response
     {
-        $current_page = $page_id;
-        $last_page = $this->page_manager->lastPage($results);
+        $form = $this->createForm(ResetPasswordRequestFormType::class);
+        $form->handleRequest($request);
 
-        $pagination = '
-        <!-- Pagination -->
-        <div class="row">
-            <div class="col-12">';
+        if ($form->isSubmitted() && $form->isValid()) {
 
-        if($last_page > 1) {
+            $clinic_user = $this->em->getRepository(ClinicUsers::class)->findOneBy(
+                [
+                    'email' => $request->request->get('reset_password_request_form')['email']
+                ]
+            );
 
-            $previous_page_no = $current_page - 1;
-            $url = '/clinics/users';
-            $previous_page = $url;
+            if($clinic_user != null){
 
-            $pagination .= '
-            <nav class="custom-pagination">
-                <ul class="pagination justify-content-center">
-            ';
+                $resetToken = uniqid();
 
-            $disabled = 'disabled';
-            $data_disabled = 'true';
+                $clinic_user->setResetKey($resetToken);
 
-            // Previous Link
-            if($current_page > 1){
+                $this->em->persist($clinic_user);
+                $this->em->flush();
 
-                $disabled = '';
-                $data_disabled = 'false';
+                $html = '
+                To reset your password, please visit the following link
+                <br><br>
+                https://'. $_SERVER['HTTP_HOST'] .'/clinics/reset/'. $resetToken;
+
+                $email = (new Email())
+                    ->from($this->getParameter('app.email_from'))
+                    ->addTo($clinic_user->getEmail())
+                    ->subject('Fluid Password Reset')
+                    ->html($html);
+
+                $this->mailer->send($email);
+
+                return $this->render('reset_password/clinics_check_email.html.twig');
             }
-
-            $pagination .= '
-            <li class="page-item '. $disabled .'">
-                <a class="user-pagination" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
-                    <span aria-hidden="true">&laquo;</span> Previous
-                </a>
-            </li>';
-
-            for($i = 1; $i <= $last_page; $i++) {
-
-                $active = '';
-
-                if($i == (int) $current_page){
-
-                    $active = 'active';
-                }
-
-                $pagination .= '
-                <li class="page-item '. $active .'">
-                    <a class="user-pagination" data-page-id="'. $i .'" href="'. $url .'">'. $i .'</a>
-                </li>';
-            }
-
-            $disabled = 'disabled';
-            $data_disabled = 'true';
-
-            if($current_page < $last_page) {
-
-                $disabled = '';
-                $data_disabled = 'false';
-            }
-
-            $pagination .= '
-            <li class="page-item '. $disabled .'">
-                <a class="user-pagination" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url .'">
-                    Next <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>';
-
-            $pagination .= '
-                    </ul>
-                </nav>
-            </div>';
         }
-        
-        return $pagination;
+
+        return $this->render('reset_password/request.html.twig', [
+            'requestForm' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/clinics/reset/{token}', name: 'clinic_reset_password')]
+    public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, string $token = null, MailerInterface $mailer): Response
+    {
+        $plain_text_pwd = $this->generatePassword();
+        $clinic_user = $this->em->getRepository(ClinicUsers::class)->findOneBy([
+            'resetKey' => $request->get('token')
+        ]);
+
+        if (!empty($plain_text_pwd)) {
+
+            $hashed_pwd = $passwordHasher->hashPassword($clinic_user, $plain_text_pwd);
+
+            $clinic_user->setPassword($hashed_pwd);
+
+            $this->em->persist($clinic_user);
+            $this->em->flush();
+
+            // Send Email
+            $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
+            $body .= '<tr><td colspan="2">Hi '. $clinic_user->getFirstName() .',</td></tr>';
+            $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+            $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
+            $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+            $body .= '<tr>';
+            $body .= '    <td><b>URL: </b></td>';
+            $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/clinics/login">https://'. $_SERVER['HTTP_HOST'] .'/clinics/login</a></td>';
+            $body .= '</tr>';
+            $body .= '<tr>';
+            $body .= '    <td><b>Username: </b></td>';
+            $body .= '    <td>'. $clinic_user->getEmail() .'</td>';
+            $body .= '</tr>';
+            $body .= '<tr>';
+            $body .= '    <td><b>Password: </b></td>';
+            $body .= '    <td>'. $plain_text_pwd .'</td>';
+            $body .= '</tr>';
+            $body .= '</table>';
+
+            $email = (new Email())
+                ->from($this->getParameter('app.email_from'))
+                ->addTo($clinic_user->getEmail())
+                ->subject('Fluid Login Credentials')
+                ->html($body);
+
+            $mailer->send($email);
+        }
+
+        return $this->redirectToRoute('clinics_password_reset');
+    }
+
+    #[Route('/clinics/password/reset', name: 'clinics_password_reset')]
+    public function clinicPasswordReset(Request $request): Response
+    {
+        return $this->render('reset_password/clinics_password_reset.html.twig');
     }
     
     private function generatePassword()
@@ -596,5 +621,37 @@ class ClinicUsersController extends AbstractController
         $this->plain_password = str_shuffle($password);
 
         return $this->plain_password;
+    }
+
+    private function sendLoginCredentials($clinic_user, $plain_text_pwd, $data)
+    {
+
+        // Send Email
+        $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
+        $body .= '<tr><td colspan="2">Hi '. $data['firstName'] .',</td></tr>';
+        $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+        $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
+        $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+        $body .= '<tr>';
+        $body .= '    <td><b>URL: </b></td>';
+        $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/clinics/login">https://'. $_SERVER['HTTP_HOST'] .'/clinics/login</a></td>';
+        $body .= '</tr>';
+        $body .= '<tr>';
+        $body .= '    <td><b>Username: </b></td>';
+        $body .= '    <td>'. $data['email'] .'</td>';
+        $body .= '</tr>';
+        $body .= '<tr>';
+        $body .= '    <td><b>Password: </b></td>';
+        $body .= '    <td>'. $plain_text_pwd .'</td>';
+        $body .= '</tr>';
+        $body .= '</table>';
+
+        $email = (new Email())
+            ->from($this->getParameter('app.email_from'))
+            ->addTo($data['email'])
+            ->subject('Fluid Login Credentials')
+            ->html($body);
+
+        $this->mailer->send($email);
     }
 }

@@ -85,11 +85,16 @@ class DistributorUsers implements UserInterface, PasswordAuthenticatedUserInterf
      */
     private $intlCode;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $resetKey;
+
     public function __construct()
     {
-        $this->setCreated(new \DateTime());
-        if ($this->getModified() == null) {
-            $this->setModified(new \DateTime());
+        $this->setModified(new \DateTime());
+        if ($this->getCreated() == null) {
+            $this->setCreated(new \DateTime());
         }
     }
 
@@ -298,6 +303,18 @@ class DistributorUsers implements UserInterface, PasswordAuthenticatedUserInterf
     public function setIntlCode(?string $intlCode): self
     {
         $this->intlCode = $intlCode;
+
+        return $this;
+    }
+
+    public function getResetKey(): ?string
+    {
+        return $this->resetKey;
+    }
+
+    public function setResetKey(?string $resetKey): self
+    {
+        $this->resetKey = $resetKey;
 
         return $this;
     }

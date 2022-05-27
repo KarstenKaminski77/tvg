@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\ClinicUsers;
 use App\Entity\DistributorUsers;
+use App\Form\ResetPasswordRequestFormType;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,13 +20,15 @@ class DistributorUsersController extends AbstractController
 {
     private $em;
     private $page_manager;
+    private $mailer;
 
     const ITEMS_PER_PAGE = 1;
 
-    public function __construct(EntityManagerInterface $em, PaginationManager $pagination)
+    public function __construct(EntityManagerInterface $em, PaginationManager $pagination, MailerInterface $mailer)
     {
         $this->em = $em;
         $this->page_manager = $pagination;
+        $this->mailer = $mailer;
     }
 
     #[Route('/distributors/get-user', name: 'distributor_get_user')]
@@ -74,7 +78,7 @@ class DistributorUsersController extends AbstractController
 
                 $hashed_pwd = $passwordHasher->hashPassword($distributor_user, $plain_text_pwd);
 
-                $distributor_user->setRoles(['ROLE_USER']);
+                $distributor_user->setRoles(['ROLE_DISTRIBUTOR']);
                 $distributor_user->setPassword($hashed_pwd);
 
                 // Send Email
@@ -200,6 +204,167 @@ class DistributorUsersController extends AbstractController
         $response = '<b><i class="fas fa-check-circle"></i> User successfully deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
         return new JsonResponse($response);
+    }
+
+    #[Route('/distributors/forgot-password', name: 'distributors_forgot_password_request')]
+    public function clinicForgotPasswordAction(Request $request, MailerInterface $mailer): Response
+    {
+        $form = $this->createForm(ResetPasswordRequestFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $distributor_user = $this->em->getRepository(DistributorUsers::class)->findOneBy(
+                [
+                    'email' => $request->request->get('reset_password_request_form')['email']
+                ]
+            );
+
+            if($distributor_user != null){
+
+                $resetToken = uniqid();
+
+                $distributor_user->setResetKey($resetToken);
+
+                $this->em->persist($distributor_user);
+                $this->em->flush();
+
+                $html = '
+                To reset your password, please visit the following link
+                <br><br>
+                https://'. $_SERVER['HTTP_HOST'] .'/distributors/reset/'. $resetToken;
+
+                $email = (new Email())
+                    ->from($this->getParameter('app.email_from'))
+                    ->addTo($distributor_user->getEmail())
+                    ->subject('Fluid Password Reset')
+                    ->html($html);
+
+                $this->mailer->send($email);
+
+                return $this->render('reset_password/distributors_check_email.html.twig');
+            }
+        }
+
+        return $this->render('reset_password/request.html.twig', [
+            'requestForm' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/distributors/reset/{token}', name: 'distributors_reset_password')]
+    public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, string $token = null, MailerInterface $mailer): Response
+    {
+        $plain_text_pwd = $this->generatePassword();
+        $distributor_user = $this->em->getRepository(DistributorUsers::class)->findOneBy([
+            'resetKey' => $request->get('token')
+        ]);
+
+        if (!empty($plain_text_pwd)) {
+
+            $hashed_pwd = $passwordHasher->hashPassword($distributor_user, $plain_text_pwd);
+
+            $distributor_user->setPassword($hashed_pwd);
+
+            $this->em->persist($distributor_user);
+            $this->em->flush();
+
+            // Send Email
+            $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
+            $body .= '<tr><td colspan="2">Hi '. $distributor_user->getFirstName() .',</td></tr>';
+            $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+            $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
+            $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+            $body .= '<tr>';
+            $body .= '    <td><b>URL: </b></td>';
+            $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/distributors/login">https://'. $_SERVER['HTTP_HOST'] .'/distributors/login</a></td>';
+            $body .= '</tr>';
+            $body .= '<tr>';
+            $body .= '    <td><b>Username: </b></td>';
+            $body .= '    <td>'. $distributor_user->getEmail() .'</td>';
+            $body .= '</tr>';
+            $body .= '<tr>';
+            $body .= '    <td><b>Password: </b></td>';
+            $body .= '    <td>'. $plain_text_pwd .'</td>';
+            $body .= '</tr>';
+            $body .= '</table>';
+
+            $email = (new Email())
+                ->from($this->getParameter('app.email_from'))
+                ->addTo($distributor_user->getEmail())
+                ->subject('Fluid Login Credentials')
+                ->html($body);
+
+            $mailer->send($email);
+        }
+
+        return $this->redirectToRoute('distributors_password_reset');
+    }
+
+    #[Route('/distributors/password/reset', name: 'distributors_password_reset')]
+    public function distributorPasswordReset(Request $request): Response
+    {
+        return $this->render('reset_password/distributors_password_reset.html.twig');
+    }
+
+    private function generatePassword()
+    {
+        $sets = [];
+        $sets[] = 'abcdefghjkmnpqrstuvwxyz';
+        $sets[] = 'ABCDEFGHJKMNPQRSTUVWXYZ';
+        $sets[] = '23456789';
+        $sets[] = '!@$%*?';
+
+        $all = '';
+        $password = '';
+
+        foreach ($sets as $set) {
+
+            $password .= $set[array_rand(str_split($set))];
+            $all .= $set;
+        }
+
+        $all = str_split($all);
+
+        for ($i = 0; $i < 16 - count($sets); $i++) {
+
+            $password .= $all[array_rand($all)];
+        }
+
+        $this->plain_password = str_shuffle($password);
+
+        return $this->plain_password;
+    }
+
+    private function sendLoginCredentials($clinic_user, $plain_text_pwd, $data)
+    {
+
+        // Send Email
+        $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
+        $body .= '<tr><td colspan="2">Hi '. $data['firstName'] .',</td></tr>';
+        $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+        $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
+        $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+        $body .= '<tr>';
+        $body .= '    <td><b>URL: </b></td>';
+        $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/clinics/login">https://'. $_SERVER['HTTP_HOST'] .'/clinics/login</a></td>';
+        $body .= '</tr>';
+        $body .= '<tr>';
+        $body .= '    <td><b>Username: </b></td>';
+        $body .= '    <td>'. $data['email'] .'</td>';
+        $body .= '</tr>';
+        $body .= '<tr>';
+        $body .= '    <td><b>Password: </b></td>';
+        $body .= '    <td>'. $plain_text_pwd .'</td>';
+        $body .= '</tr>';
+        $body .= '</table>';
+
+        $email = (new Email())
+            ->from($this->getParameter('app.email_from'))
+            ->addTo($data['email'])
+            ->subject('Fluid Login Credentials')
+            ->html($body);
+
+        $this->mailer->send($email);
     }
 
     public function getPagination($page_id, $results, $distributor_id)

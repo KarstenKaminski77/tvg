@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Password Reset Email Sent{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        textarea:-webkit-autofill:hover,
+        textarea:-webkit-autofill:focus,
+        select:-webkit-autofill,
+        select:-webkit-autofill:hover,
+        select:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+        }
+        body {
+            background: none !important;
+        }
+        .form-control:focus {
+            border: solid 1px #7796a8;
+            outline: none;
+            box-shadow: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="logo-custom mb-5 col-12 mt-5">
+            <img src="/images/logo.png" class="img-fluid" style="max-width: 250px">
+        </div>
+
+        <div class="col-12 text-center">
+            <p>
+                If an account matching your email exists, then an email was just sent that contains a link that you can
+                use to reset your password.
+            </p>
+            <p>
+                If you don't receive an email please check your spam folder or
+                <a href="{{ path('clinic_forgot_password_request') }}">try again</a>.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
