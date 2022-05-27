@@ -1362,11 +1362,6 @@ a.address-pagination {
     color: #54565a;
 }
 
-
-
-
-
-
 .ccm-pagination {
     position: relative;
     display: block;
@@ -1459,6 +1454,14 @@ a.address-pagination {
 
 a.ccm-pagination {
     color: #54565a;
+}
+
+#nav-inner {
+    display: flex;
+    width: 100%;
+}
+#nav-left {
+    flex-grow: 100;
 }
 
 @media (min-width: 576px) {

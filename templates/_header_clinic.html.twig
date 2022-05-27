@@ -4,206 +4,212 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="main_nav">
-                <form name="search_form" class="nav-bar-left" id="search_form" method="post">
-                    <ul class="navbar-nav search-bar-w">
-                        <li class="nav-item search-bar-width">
-                            <div class="input-group">
-                                <input type="text" id="search_field" class="form-control form-control-sm" placeholder="Search by item, sku, manufacturer, ingredient, size..." />
-                                <button type="submit" class="btn btn-secondary btn-sm" id="search_btn">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown has-megamenu">
-                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Filters<span id="filter_count"></span></a>
-                            <div class="dropdown-menu megamenu mega-menu" role="menu">
-                                <div class="row g-3">
-                                    <div class="col-12 col-sm-2">
-                                        <div class="col-megamenu">
-                                            <h6 class="title">Category</h6>
-                                            <ul class="list-unstyled">
-                                                {% for category in categories %}
-                                                    <li>
-                                                        <input
-                                                            class="form-check-input me-2"
-                                                            name="category[]"
-                                                            type="checkbox" value="{{ category.id }}"
-                                                            id="cat_{{ category.id }}">
-                                                        <label
-                                                            class="ms-1"
-                                                            for="cat_{{ category.id }}"
-                                                        >
-                                                            ({{ category.products|length }}) {{ category.category }}
-                                                        </label>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>  <!-- col-megamenu.// -->
-                                    </div><!-- end col-3 -->
-                                    <div class="col-12 col-sm-2">
-                                        <div class="col-megamenu">
-                                            <h6 class="title">Filters</h6>
-                                            <ul class="list-unstyled">
-                                                <li>
-                                                    <input
-                                                        class="form-check-input me-2"
-                                                        name="filter[]"
-                                                        type="checkbox"
-                                                        value="favourite"
-                                                        id="filter_favourite"
-                                                    >
-                                                    <label class="form-check-label" for="filter_favourite">Favourite Items</label>
-                                                </li>
-                                                <li>
-                                                    <input
-                                                        class="form-check-input me-2"
-                                                        name="filter[]"
-                                                        type="checkbox"
-                                                        value="promotion"
-                                                        id="filter_on_promotion"
-                                                    >
-                                                    <label class="form-check-label" for="filter_on_promotion">On Promotion</label>
-                                                </li>
-                                                <li>
-                                                    <input
-                                                            class="form-check-input me-2"
-                                                            name="filter[]"
-                                                            type="checkbox"
-                                                            value="in-stock"
-                                                            id="filter_in_stock"
-                                                    >
-                                                    <label class="form-check-label" for="filter_in_stock">In Stock</label>
-                                                </li>
-                                            </ul>
+                <div id="nav-inner">
+                    <div id="nav-left">
+                        <form name="search_form" id="search_form" method="post">
+                            <ul class="navbar-nav search-bar-w">
+                                <li class="nav-item search-bar-width">
+                                    <div class="input-group">
+                                        <input type="text" id="search_field" class="form-control form-control-sm" placeholder="Search by item, sku, manufacturer, ingredient, size..." />
+                                        <button type="submit" class="btn btn-secondary btn-sm" id="search_btn">
+                                            <i class="fa-solid fa-magnifying-glass"></i>
+                                        </button>
+                                    </div>
+                                </li>
+                                <li class="nav-item dropdown has-megamenu">
+                                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Filters<span id="filter_count"></span></a>
+                                    <div class="dropdown-menu megamenu mega-menu" role="menu">
+                                        <div class="row g-3">
+                                            <div class="col-12 col-sm-2">
+                                                <div class="col-megamenu">
+                                                    <h6 class="title">Category</h6>
+                                                    <ul class="list-unstyled">
+                                                        {% for category in categories %}
+                                                            <li>
+                                                                <input
+                                                                    class="form-check-input me-2"
+                                                                    name="category[]"
+                                                                    type="checkbox" value="{{ category.id }}"
+                                                                    id="cat_{{ category.id }}">
+                                                                <label
+                                                                    class="ms-1"
+                                                                    for="cat_{{ category.id }}"
+                                                                >
+                                                                    ({{ category.products|length }}) {{ category.category }}
+                                                                </label>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>  <!-- col-megamenu.// -->
+                                            </div><!-- end col-3 -->
+                                            <div class="col-12 col-sm-2">
+                                                <div class="col-megamenu">
+                                                    <h6 class="title">Filters</h6>
+                                                    <ul class="list-unstyled">
+                                                        <li>
+                                                            <input
+                                                                class="form-check-input me-2"
+                                                                name="filter[]"
+                                                                type="checkbox"
+                                                                value="favourite"
+                                                                id="filter_favourite"
+                                                            >
+                                                            <label class="form-check-label" for="filter_favourite">Favourite Items</label>
+                                                        </li>
+                                                        <li>
+                                                            <input
+                                                                class="form-check-input me-2"
+                                                                name="filter[]"
+                                                                type="checkbox"
+                                                                value="promotion"
+                                                                id="filter_on_promotion"
+                                                            >
+                                                            <label class="form-check-label" for="filter_on_promotion">On Promotion</label>
+                                                        </li>
+                                                        <li>
+                                                            <input
+                                                                    class="form-check-input me-2"
+                                                                    name="filter[]"
+                                                                    type="checkbox"
+                                                                    value="in-stock"
+                                                                    id="filter_in_stock"
+                                                            >
+                                                            <label class="form-check-label" for="filter_in_stock">In Stock</label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-2">
+                                                <div class="col-megamenu">
+                                                    <h6 class="title">Manufacturer</h6>
+                                                    <ul class="list-unstyled">
+                                                        {% for manufacturer in man_1 %}
+                                                            <li class="position-relative">
+                                                                <input
+                                                                    class="form-check-input me-2"
+                                                                    name="manufacturer[]"
+                                                                    type="checkbox"
+                                                                    value="{{ manufacturer.id }}"
+                                                                    id="man_{{ manufacturer.id }}"
+                                                                >
+                                                                <label
+                                                                    class="ms-1"
+                                                                    for="man_{{ manufacturer.id }}"
+                                                                >
+                                                                    ({{ manufacturer.productManufacturers|length }}) {{ manufacturer.name }}
+                                                                </label>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-2">
+                                                <div class="col-megamenu">
+                                                    <h6 class="title">&nbsp;</h6>
+                                                    <ul class="list-unstyled">
+                                                        {% for manufacturer in man_2 %}
+                                                            <li class="position-relative">
+                                                                <input
+                                                                    class="form-check-input me-2"
+                                                                    name="manufaturer[]"
+                                                                    type="checkbox"
+                                                                    value="{{ manufacturer.id }}"
+                                                                    id="man_{{ manufacturer.id }}"
+                                                                >
+                                                                <label
+                                                                    class="ms-1"
+                                                                    for="man_{{ manufacturer.id }}"
+                                                                >
+                                                                    ({{ manufacturer.productManufacturers|length }}) {{ manufacturer.name }}
+                                                                </label>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-2">
+                                                <div class="col-megamenu">
+                                                    <h6 class="title">Distributor</h6>
+                                                    <ul class="list-unstyled">
+                                                        {% for distributor in distributors %}
+                                                            <li>
+                                                                <input
+                                                                    class="form-check-input me-2"
+                                                                    name="distributor[]"
+                                                                    type="checkbox"
+                                                                    value="{{ distributor.id }}"
+                                                                    id="dist_{{ distributor.id }}"
+                                                                >
+                                                                <label
+                                                                    class="ms-1"
+                                                                    for="dist_{{ distributor.id }}"
+                                                                >
+                                                                    ({{ distributor.distributorProducts|length }}) {{ distributor.distributorName }}
+                                                                </label>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-sm-2">
-                                        <div class="col-megamenu">
-                                            <h6 class="title">Manufacturer</h6>
-                                            <ul class="list-unstyled">
-                                                {% for manufacturer in man_1 %}
-                                                    <li class="position-relative">
-                                                        <input
-                                                            class="form-check-input me-2"
-                                                            name="manufacturer[]"
-                                                            type="checkbox"
-                                                            value="{{ manufacturer.id }}"
-                                                            id="man_{{ manufacturer.id }}"
-                                                        >
-                                                        <label
-                                                            class="ms-1"
-                                                            for="man_{{ manufacturer.id }}"
-                                                        >
-                                                            ({{ manufacturer.productManufacturers|length }}) {{ manufacturer.name }}
-                                                        </label>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-2">
-                                        <div class="col-megamenu">
-                                            <h6 class="title">&nbsp;</h6>
-                                            <ul class="list-unstyled">
-                                                {% for manufacturer in man_2 %}
-                                                    <li class="position-relative">
-                                                        <input
-                                                            class="form-check-input me-2"
-                                                            name="manufaturer[]"
-                                                            type="checkbox"
-                                                            value="{{ manufacturer.id }}"
-                                                            id="man_{{ manufacturer.id }}"
-                                                        >
-                                                        <label
-                                                            class="ms-1"
-                                                            for="man_{{ manufacturer.id }}"
-                                                        >
-                                                            ({{ manufacturer.productManufacturers|length }}) {{ manufacturer.name }}
-                                                        </label>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-2">
-                                        <div class="col-megamenu">
-                                            <h6 class="title">Distributor</h6>
-                                            <ul class="list-unstyled">
-                                                {% for distributor in distributors %}
-                                                    <li>
-                                                        <input
-                                                            class="form-check-input me-2"
-                                                            name="distributor[]"
-                                                            type="checkbox"
-                                                            value="{{ distributor.id }}"
-                                                            id="dist_{{ distributor.id }}"
-                                                        >
-                                                        <label
-                                                            class="ms-1"
-                                                            for="dist_{{ distributor.id }}"
-                                                        >
-                                                            ({{ distributor.distributorProducts|length }}) {{ distributor.distributorName }}
-                                                        </label>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </form>
-                <ul class="navbar-nav nav-bar-right ms-auto ms-sm-0">
-                    <li class="nav-item">
-                        <a class="nav-link basket-link" data-basket-id="" id="btn_basket" href="#">
-                            <i class="fa-solid fa-basket-shopping"></i> Basket <span id="basket_count"></span>
-                        </a>
-                    </li>
-                    <li class="nav-item position-relative">
-                        <a class="nav-link btn-notifications" name="notifications" href="#">
-                            <i class="fa-solid fa-bell" id="notifications_icon"></i>
-                        </a>
-                        <span id="notifications_panel">
-                            <span class="notification-panel delete-notification">You have no notifications</span>
-                        </span>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link  dropdown-toggle" href="{{ path('clinics_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a href="#" class="dropdown-item orders_link" data-clinic-id="{{ clinic_id }}" id="orders_link">
-                                    <i class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;Orders
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                    <div>
+                        <ul class="navbar-nav ms-auto ms-sm-0">
+                            <li class="nav-item">
+                                <a class="nav-link basket-link" data-basket-id="" id="btn_basket" href="#">
+                                    <i class="fa-solid fa-basket-shopping"></i> Basket <span id="basket_count"></span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="#" class="dropdown-item" id="account_settings_link">
-                                    <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;Account & Settings
+                            <li class="nav-item position-relative">
+                                <a class="nav-link btn-notifications" name="notifications" href="#">
+                                    <i class="fa-solid fa-bell" id="notifications_icon"></i>
                                 </a>
+                                <span id="notifications_panel">
+                                    <span class="notification-panel delete-notification">You have no notifications</span>
+                                </span>
                             </li>
-                            <li>
-                                <a href="#" class="dropdown-item" id="users_link">
-                                    <i class="fa-solid fa-user-gear"></i>&nbsp;&nbsp;Users
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="dropdown-item" id="addresses_link">
-                                    <i class="fa-solid fa-address-book"></i>&nbsp;&nbsp;Addresses
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="dropdown-item" id="communication_methods_link">
-                                    <i class="fa-solid fa-microphone"></i>&nbsp;&nbsp;Communication Methods
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ path('clinics_logout') }}" class="dropdown-item">
-                                    <i class="fa-solid fa-ban"></i>&nbsp;&nbsp;Sign Out
-                                </a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link  dropdown-toggle" href="{{ path('clinics_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a href="#" class="dropdown-item orders_link" data-clinic-id="{{ clinic_id }}" id="orders_link">
+                                            <i class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;Orders
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item" id="account_settings_link">
+                                            <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;Account & Settings
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item" id="users_link">
+                                            <i class="fa-solid fa-user-gear"></i>&nbsp;&nbsp;Users
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item" id="addresses_link">
+                                            <i class="fa-solid fa-address-book"></i>&nbsp;&nbsp;Addresses
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item" id="communication_methods_link">
+                                            <i class="fa-solid fa-microphone"></i>&nbsp;&nbsp;Communication Methods
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ path('clinics_logout') }}" class="dropdown-item">
+                                            <i class="fa-solid fa-ban"></i>&nbsp;&nbsp;Sign Out
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div> <!-- navbar-collapse.// -->
         </div> <!-- container-fluid.// -->
     </nav>
