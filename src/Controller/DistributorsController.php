@@ -782,7 +782,7 @@ class DistributorsController extends AbstractController
                     data-distributor-id="'. $distributor_id .'"
                     href="'. $previous_page .'"
                 >
-                    <span aria-hidden="true">&laquo;</span> Previous
+                    <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline">Previous</span>
                 </a>
             </li>';
 
@@ -825,7 +825,7 @@ class DistributorsController extends AbstractController
                     href="'. $url .'"
                     data-distributor-id="'. $distributor_id .'"
                 >
-                    Next <span aria-hidden="true">&raquo;</span>
+                    <span class="d-none d-sm-inline">Next</span> <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>';
 

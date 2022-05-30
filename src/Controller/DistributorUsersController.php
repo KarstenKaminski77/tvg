@@ -157,19 +157,19 @@ class DistributorUsersController extends AbstractController
             $html .= '
             <div class="list-width">
                <div class="row t-row">
-                   <div class="col-md-2 t-cell" id="string_user_first_name_'. $user->getId() .'">
+                   <div class="col-md-2 t-cell text-truncate" id="string_user_first_name_'. $user->getId() .'">
                        '. $user->getFirstName() .'
                    </div>
-                   <div class="col-md-2 t-cell" id="string_user_last_name_'. $user->getId() .'">
+                   <div class="col-md-2 t-cell text-truncate" id="string_user_last_name_'. $user->getId() .'">
                        '. $user->getLastName() .'
                    </div>
-                   <div class="col-md-2 t-cell" id="string_user_email_'. $user->getId() .'">
+                   <div class="col-md-2 t-cell text-truncate" id="string_user_email_'. $user->getId() .'">
                        '. $user->getEmail() .'
                    </div>
-                   <div class="col-md-2 t-cell" id="string_user_telephone_'. $user->getId() .'">
-                       '. $user->getEmail() .'
+                   <div class="col-md-2 t-cell text-truncate" id="string_user_telephone_'. $user->getId() .'">
+                       '. $user->getTelephone() .'
                    </div>
-                   <div class="col-md-2 t-cell" id="string_user_position_'. $user->getId() .'">
+                   <div class="col-md-2 t-cell text-truncate" id="string_user_position_'. $user->getId() .'">
                        '. $user->getPosition() .'
                    </div>
                    <div class="col-md-2 t-cell">
@@ -407,7 +407,7 @@ class DistributorUsersController extends AbstractController
                     data-distributor-id="'. $distributor_id .'"
                     href="'. $previous_page .'"
                 >
-                    <span aria-hidden="true">&laquo;</span> Previous
+                    <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline">Previous</span>
                 </a>
             </li>';
 
@@ -449,7 +449,7 @@ class DistributorUsersController extends AbstractController
                     href="'. $url .'"
                     data-distributor-id="'. $distributor_id .'"
                 >
-                    Next <span aria-hidden="true">&raquo;</span>
+                    <span class="d-none d-sm-inline">Next</span> <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>';
 
