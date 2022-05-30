@@ -1464,6 +1464,14 @@ a.ccm-pagination {
     flex-grow: 100;
 }
 
+a.distributor-logo-container {
+    width: 100%;
+    text-align: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {
