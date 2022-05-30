@@ -137,6 +137,29 @@
             input.addEventListener('change', handleChange);
             input.addEventListener('keyup', handleChange);
 
+            $(document).on('change', '#email', function (){
+
+                let email = $('#email').val();
+                let error_email = $('#error_email');
+
+                error_email.hide();
+
+                $.ajax({
+                    url: "{{ path('clinic_check_email') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        email: email
+                    },
+                    success: function (response) {
+
+                        if(!response){
+
+                            error_email.empty().append('Email is associated with another account').show();
+                        }
+                    }
+                });
+            });
             $('#register_form').submit(function(e){
 
                 e.preventDefault();
@@ -185,6 +208,7 @@
 
                 if(email == '' || email == 'undefined'){
 
+                    error_email.empty().append('Required Field');
                     error_email.show();
                     is_valid = false;
                 }
@@ -209,7 +233,7 @@
 
                 if(is_valid == true){
 
-                    var data = new FormData(this);
+                    let data = new FormData(this);
 
                     $.ajax({
                         url: "{{ path('clinic_create') }}",

@@ -8,6 +8,8 @@ use App\Entity\ClinicCommunicationMethods;
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
 use App\Entity\CommunicationMethods;
+use App\Entity\Distributors;
+use App\Entity\DistributorUsers;
 use App\Form\AddressesFormType;
 use App\Form\ClinicCommunicationMethodsFormType;
 use App\Form\ClinicFormType;
@@ -168,6 +170,33 @@ class ClinicsController extends AbstractController
             $response = 'Your Fluid account was successfully created, an email with your login credentials has been sent to your inbox.';
 
         } else {
+
+            $response = false;
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/register/check-email', name: 'clinic_check_email')]
+    public function clinicsCheckEmailAction(Request $request): Response
+    {
+        $email = $request->request->get('email');
+        $response = true;
+
+        $distributor = $this->em->getRepository(Distributors::class)->findOneBy([
+            'email' => $email
+        ]);
+        $distributor_users = $this->em->getRepository(DistributorUsers::class)->findOneBy([
+            'email' => $email
+        ]);
+        $clinic = $this->em->getRepository(Clinics::class)->findOneBy([
+            'email' => $email
+        ]);
+        $clinic_users = $this->em->getRepository(ClinicUsers::class)->findOneBy([
+            'email' => $email
+        ]);
+
+        if($distributor != null || $distributor_users != null || $clinic | null || $clinic_users != null){
 
             $response = false;
         }
