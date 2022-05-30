@@ -7,6 +7,7 @@ use App\Entity\Baskets;
 use App\Entity\ClinicCommunicationMethods;
 use App\Entity\Clinics;
 use App\Entity\ClinicUsers;
+use App\Entity\CommunicationMethods;
 use App\Form\AddressesFormType;
 use App\Form\ClinicCommunicationMethodsFormType;
 use App\Form\ClinicFormType;
@@ -111,7 +112,6 @@ class ClinicsController extends AbstractController
                 $clinic_users->setIsPrimary(1);
 
                 $this->em->persist($clinic_users);
-                $this->em->flush();
 
                 // Create Default Basket
                 $basket = new Baskets();
@@ -121,6 +121,20 @@ class ClinicsController extends AbstractController
                 $basket->setTotal(0);
                 $basket->setStatus('active');
                 $basket->setSavedBy($clinic_users->getFirstName() .' '. $clinic_users->getLastName());
+
+                $this->em->persist($basket);
+
+                // Create In App Communication Method
+                $clinic_communication_method = new ClinicCommunicationMethods();
+                $communication_method = $this->em->getRepository(CommunicationMethods::class)->find(1);
+
+                $clinic_communication_method->setClinic($clinic);
+                $clinic_communication_method->setCommunicationMethod($communication_method);
+                $clinic_communication_method->setIsDefault(1);
+                $clinic_communication_method->setIsActive(1);
+
+                $this->em->persist($clinic_communication_method);
+                $this->em->flush();
 
                 // Send Email
                 $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
