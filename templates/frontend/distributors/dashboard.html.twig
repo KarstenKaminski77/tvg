@@ -312,32 +312,26 @@
 
                     {# About #}
                     <div class="row" id="about">
-                        <div>
-                            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
-                                <h3 class="text-light">About</h3>
-                                <span class="mb-5 mt-2 text-center text-light text-sm-start">
-                        Lorem ipsum dolor sit amet
-                    </span>
-                            </div>
+                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
+                            <h3 class="text-light">About</h3>
+                            <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                                Lorem ipsum dolor sit amet
+                            </span>
                         </div>
-                        {{form_start(form, {'name': 'form_about_us', 'attr': {'id': 'form_about_us'}})}}
+                        {{form_start(form, {'name': 'form_about_us', 'attr': {'id': 'form_about_us', 'class':'col-12 ps-0 pe-0'}})}}
 
-                        <div class="row">
-                            <div class="col-12">
-                                {{ form_widget(form.about,{'id': 'about_us', 'value': distributor.about, 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'About*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_about_us">
-                                    Required Field
-                                </div>
+                        <div class="col-12">
+                            {{ form_widget(form.about,{'id': 'about_us', 'value': distributor.about, 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'About*'
+                            }}) }}
+                            <div class="hidden_msg" id="error_about_us">
+                                Required Field
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-12 mb-5">
-                                <button id="btn_about_us" type="submit" class="btn btn-primary w-100">UPDATE ABOUT US</button>
-                            </div>
+                        <div class="col-12 mb-5">
+                            <button id="btn_about_us" type="submit" class="btn btn-primary w-100">UPDATE ABOUT US</button>
                         </div>
                         {{ form_end(form, {render_rest: false}) }}
                     </div>
@@ -345,15 +339,13 @@
 
                     {# Operating Hours #}
                     <div class="row" id="operating_hours">
-                        <div>
-                            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
-                                <h3 class="text-light">Operating Hours</h3>
-                                <span class="mb-5 mt-2 text-center text-light text-sm-start">
-                        Lorem ipsum dolor sit amet
-                    </span>
-                            </div>
+                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
+                            <h3 class="text-light">Operating Hours</h3>
+                            <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                                Lorem ipsum dolor sit amet
+                            </span>
                         </div>
-                        {{form_start(form, {'name': 'form_operating_hours', 'attr': {'id': 'form_operating_hours'}})}}
+                        {{form_start(form, {'name': 'form_operating_hours', 'attr': {'id': 'form_operating_hours', 'class':'col-12 ps-0 pe-0'}})}}
 
                         <div class="row">
                             <div class="col-12">
@@ -378,15 +370,13 @@
 
                     {# Refund Policy #}
                     <div class="row" id="refund_policy">
-                        <div>
-                            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
-                                <h3 class="text-light">Refund Policy</h3>
-                                <span class="mb-5 mt-2 text-center text-light text-sm-start">
-                        Lorem ipsum dolor sit amet
-                    </span>
-                            </div>
+                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
+                            <h3 class="text-light">Refund Policy</h3>
+                            <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                                Lorem ipsum dolor sit amet
+                            </span>
                         </div>
-                        {{form_start(form, {'name': 'form_refund_policy', 'attr': {'id': 'form_refund_policy'}})}}
+                        {{form_start(form, {'name': 'form_refund_policy', 'attr': {'id': 'form_refund_policy', 'class':'col-12 ps-0 pe-0'}})}}
 
                         <div class="row">
                             <div class="col-12">
@@ -411,15 +401,13 @@
 
                     {# Sales Tax Policy #}
                     <div class="row" id="sales_tax_policy">
-                        <div>
-                            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
-                                <h3 class="text-light">Sales Tax Policy</h3>
-                                <span class="mb-5 mt-2 text-center text-light text-sm-start">
-                        Lorem ipsum dolor sit amet
-                    </span>
-                            </div>
+                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
+                            <h3 class="text-light">Sales Tax Policy</h3>
+                            <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                                Lorem ipsum dolor sit amet
+                            </span>
                         </div>
-                        {{form_start(form, {'name': 'form_sales_tax_policy', 'attr': {'id': 'form_sales_tax_policy'}})}}
+                        {{form_start(form, {'name': 'form_sales_tax_policy', 'attr': {'id': 'form_sales_tax_policy', 'class':'col-12 ps-0 pe-0'}})}}
 
                         <div class="row">
                             <div class="col-12">
@@ -444,15 +432,13 @@
 
                     {# Shipping Policy #}
                     <div class="row" id="shipping_policy">
-                        <div>
-                            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
-                                <h3 class="text-light">Shipping Policy</h3>
-                                <span class="mb-5 mt-2 text-center text-light text-sm-start">
-                        Lorem ipsum dolor sit amet
-                    </span>
-                            </div>
+                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
+                            <h3 class="text-light">Shipping Policy</h3>
+                            <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                                Lorem ipsum dolor sit amet
+                            </span>
                         </div>
-                        {{form_start(form, {'name': 'form_shipping_policy', 'attr': {'id': 'form_shipping_policy'}})}}
+                        {{form_start(form, {'name': 'form_shipping_policy', 'attr': {'id': 'form_shipping_policy', 'class':'col-12 ps-0 pe-0'}})}}
 
                         <div class="row">
                             <div class="col-12">
@@ -649,70 +635,68 @@
 
                     {# Users #}
                     <div class="row" id="users">
-                        <div class="row">
-                            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
-                                <h3 class="text-light">Manage User Accounts</h3>
-                                <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
-                            Fluid supports having several users under a single clinic. Each user will have their own login, can
-                            independently participate in the Fluid discussions. You have full control over editing the permissions
-                            of each user in your clinic. Use the table below to view the available permission levels.
-                        </span>
-                            </div>
+                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
+                            <h3 class="text-light">Manage User Accounts</h3>
+                            <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
+                                Fluid supports having several users under a single clinic. Each user will have their own login, can
+                                independently participate in the Fluid discussions. You have full control over editing the permissions
+                                of each user in your clinic. Use the table below to view the available permission levels.
+                            </span>
                         </div>
-                        <div class="row d-none d-md-flex">
-                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-left">
-                                First Name
-                            </div>
-                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
-                                Last Name
-                            </div>
-                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
-                                Username
-                            </div>
-                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
-                                Telephone
-                            </div>
-                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
-                                Position
-                            </div>
-                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-right">
+                        <div class="col-12 d-none d-sm-block">
+                            <div class="row">
+                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-left">
+                                    First Name
+                                </div>
+                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
+                                    Last Name
+                                </div>
+                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
+                                    Username
+                                </div>
+                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
+                                    Telephone
+                                </div>
+                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
+                                    Position
+                                </div>
+                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-right">
 
+                                </div>
                             </div>
                         </div>
-                        <div id="users_list">
+                        <div class="col-12" id="users_list">
                             {% for user in users %}
-                                <div class="list-width">
-                                    <div class="row t-row">
-                                        <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                            <span class="d-block d-sm-inline fw-bold">First Name: </span>
-                                            {{ user.firstName }}
-                                        </div>
-                                        <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                            <span class="d-block d-sm-inline fw-bold">Last Name: </span>
-                                            {{ user.lastName }}
-                                        </div>
-                                        <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                            <span class="d-block d-sm-inline fw-bold">Email: </span>
-                                            {{ user.email }}
-                                        </div>
-                                        <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                            <span class="d-block d-sm-inline fw-bold">Telephone: </span>
-                                            {{ user.telephone }}
-                                        </div>
-                                        <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                            <span class="d-block d-sm-inline fw-bold">Position: </span>
-                                            {{ user.position }}
-                                        </div>
-                                        <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                            <a href="" class="float-end update-user" data-user-id="{{ user.id }}" data-bs-toggle="modal" data-bs-target="#modal_user">
-                                                <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                                            </a>
-                                            <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
-                                               data-user-id="{{ user.id }}" data-bs-target="#modal_user_delete"
-                                            >
-                                                <i class="fa-solid fa-trash-can"></i>
-                                            </a>
-                                        </div>
+                                <div class="row border-left border-right border-bottom bg-light">
+                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
+                                        <span class="d-block d-sm-none fw-bold">First Name: </span>
+                                        {{ user.firstName }}
+                                    </div>
+                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
+                                        <span class="d-block d-sm-none fw-bold">Last Name: </span>
+                                        {{ user.lastName }}
+                                    </div>
+                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
+                                        <span class="d-block d-sm-none fw-bold">Email: </span>
+                                        {{ user.email }}
+                                    </div>
+                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
+                                        <span class="d-block d-sm-none fw-bold">Telephone: </span>
+                                        {{ user.telephone }}
+                                    </div>
+                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
+                                        <span class="d-block d-sm-none fw-bold">Position: </span>
+                                        {{ user.position }}
+                                    </div>
+                                    <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
+                                        <a href="" class="float-end update-user" data-user-id="{{ user.id }}" data-bs-toggle="modal" data-bs-target="#modal_user">
+                                            <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                                        </a>
+                                        <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
+                                           data-user-id="{{ user.id }}" data-bs-target="#modal_user_delete"
+                                        >
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
                                     </div>
                                 </div>
                             {% endfor %}
