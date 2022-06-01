@@ -933,7 +933,7 @@ class OrdersController extends AbstractController
         ]);
 
         $response = '
-        <form name="form_distributor_orders" id="form_distributor_orders" method="post">
+        <form name="form_distributor_orders" id="form_distributor_orders" class="row" method="post">
             <input type="hidden" name="order_id" value="'. $orders[0]->getOrders()->getId() .'">
             <div class="col-12">
                 <div class="row">
@@ -1251,11 +1251,11 @@ class OrdersController extends AbstractController
                                 $response .= '
                                 <!-- Product Name and Qty -->
                                 '. $prd_id .'
-                                <div class="row">
+                                <div class="row overflow-hidden">
                                     <!-- Product Name -->
                                     <div class="col-12 col-sm-5 pt-3 pb-3">
                                         <span class="info '. $opacity .'">'. $order->getDistributor()->getDistributorName() .'</span>
-                                        <h6 class="fw-bold text-center text-sm-start text-primary lh-base '. $opacity .'">
+                                        <h6 class="fw-bold text-center text-sm-start text-primary lh-base mb-0 '. $opacity .'">
                                             '. $order->getName() .'
                                         </h6>
                                     </div>
@@ -1379,10 +1379,10 @@ class OrdersController extends AbstractController
         $results = $this->page_manager->paginate($orders[0], $request, self::ITEMS_PER_PAGE);
 
         $html = '
-        <form name="form_distributor_orders" id="form_distributor_orders" method="post">
+        <form name="form_distributor_orders" class="row" id="form_distributor_orders" method="post">
             <div class="col-12">
                 <div class="row">
-                    <div class="col-12 bg-primary bg-gradient text-center mt-5 pt-3 pb-3" id="order_header">
+                    <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3" id="order_header">
                         <h4 class="text-white">Manage Fluid Orders</h4>
                         <span class="text-white">
                             Manage All Your Orders In One Place
@@ -1400,7 +1400,7 @@ class OrdersController extends AbstractController
                         </div>
                     </div>
                     <!-- Orders -->
-                    <div class="row">
+                    <div class="row d-none d-sm-block">
                         <div class="col-12 bg-light border-bottom border-right border-left">
                             <div class="row">
                                 <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
@@ -1435,18 +1435,23 @@ class OrdersController extends AbstractController
                             <!-- Orders -->
                             <div class="row">
                                 <div class="col-12 col-sm-1 pt-3 pb-3">
+                                    <span class="d-inline d-sm-none fw-bold">#Id: </span>
                                     ' . $order->getId() . '
                                 </div>
                                 <div class="col-12 col-sm-4 pt-3 pb-3">
+                                    <span class="d-inline d-sm-none fw-bold">Clnic: </span>
                                     ' . $order->getClinic()->getClinicName() . '
                                 </div>
                                 <div class="col-12 col-sm-2 pt-3 pb-3">
+                                    <span class="d-inline d-sm-none fw-bold">Total: </span>
                                     $' . number_format($order->getTotal(),2) . '
                                 </div>
                                 <div class="col-12 col-sm-2 pt-3 pb-3">
+                                    <span class="d-inline d-sm-none fw-bold">Date: </span>
                                     ' . $order->getCreated()->format('Y-m-d') . '
                                 </div>
                                 <div class="col-12 col-sm-2 pt-3 pb-3">
+                                    <span class="d-inline d-sm-none fw-bold">Status: </span>
                                     ' . ucfirst($order->getOrderStatuses()[0]->getStatus()->getStatus()) . '
                                 </div>
                                 <div class="col-12 col-sm-1 pt-3 pb-3 text-end">
@@ -1511,7 +1516,7 @@ class OrdersController extends AbstractController
             $pageination .= '
             <li class="page-item '. $disabled .'">
                 <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
-                    <span aria-hidden="true">&laquo;</span> Previous
+                    <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline">Previous</span>
                 </a>
             </li>';
 
@@ -1542,7 +1547,7 @@ class OrdersController extends AbstractController
             $pageination .= '
             <li class="page-item '. $disabled .'">
                 <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">
-                    Next <span aria-hidden="true">&raquo;</span>
+                    <span class="d-none d-sm-inline">Next</span> <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>';
 
@@ -1597,7 +1602,7 @@ class OrdersController extends AbstractController
         ])->getContent();
 
         $response = '
-        <form name="form_distributor_orders" id="form_distributor_orders" method="post">
+        <form name="form_distributor_orders" class="row" id="form_distributor_orders" method="post">
             <input type="hidden" name="order_id" value="'. $orders[0]->getOrders()->getId() .'">
             <div class="col-12">
                 <div class="row">

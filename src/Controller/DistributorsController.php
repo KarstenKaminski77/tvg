@@ -489,17 +489,18 @@ class DistributorsController extends AbstractController
     #[Route('/distributors/inventory-get', name: 'distributor_inventory_get')]
     public function distributorGetInventoryAction(Request $request,TokenStorageInterface $tokenStorage): Response
     {
-        $products = $this->em->getRepository(Products::class)->find($request->get('product_id'));
+        $product_id = (int) $request->request->get('product_id');
+        $products = $this->em->getRepository(Products::class)->find($product_id);
 
         if($products != null){
 
-            $username = $this->get('security.token_storage')->getToken()->getUser()->getUserIdentifier();
+            $distributor_id = $this->getUser()->getDistributor()->getId();
 
-            $distributor = $this->em->getRepository(Distributors::class)->findOneBy(['email' => $username]);
+            $distributor = $this->em->getRepository(Distributors::class)->find($distributor_id);
             $response = [];
 
             $distributor_product = $this->em->getRepository(Distributors::class)
-                ->getDistributorProduct($distributor->getId(), $request->get('product_id'));
+                ->getDistributorProduct($distributor->getId(), $product_id);
 
             if($distributor_product != null){
 
@@ -514,7 +515,7 @@ class DistributorsController extends AbstractController
 
             } else {
 
-                $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
+                $product = $this->em->getRepository(Products::class)->find($product_id);
 
                 $response['distributor_id'] = $distributor->getId();
                 $response['sku'] = '';
