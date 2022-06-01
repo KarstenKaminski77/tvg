@@ -41,16 +41,16 @@ class ClinicUsersController extends AbstractController
         $html = '
         <!-- Users -->
         <div class="row" id="users">
-            <div class="col-12 col-md-12 mb-3 mt-0 pe-0">
+            <div class="col-12 col-md-12 mt-0 ps-0 pe-0">
                 <!-- Create New -->
-                <button type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
+                <button type="button" class="btn btn-primary float-end w-sm-100 text-truncate" data-bs-toggle="modal" data-bs-target="#modal_user" id="user_new">
                     <i class="fa-solid fa-circle-plus"></i> ADD COLLEAGUE
                 </button>
             </div>
         </div>
         <div class="row">
-            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-4" id="order_header">
-                <h3 class="text-light">Manage User Accounts</h3>
+            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-3 mt-sm-4" id="order_header">
+                <h3 class="text-light text-truncate">Manage User Accounts</h3>
                 <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
                     Fluid supports having several users under a single clinic. Each user will have their own login, can
                     independently participate in the Fluid discussions. You have full control over editing the permissions

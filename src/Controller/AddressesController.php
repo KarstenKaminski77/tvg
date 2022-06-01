@@ -31,9 +31,9 @@ class AddressesController extends AbstractController
         <!-- Addresses -->
         <div class="row">
             <!-- Create New -->
-            <div class="col-12 mb-3 mt-0">
+            <div class="col-12 col-md-12 mt-0 ps-0 pe-0">
                 <button 
-                    type="button" class="btn btn-primary float-end w-sm-100" data-bs-toggle="modal" 
+                    type="button" class="btn btn-primary float-end w-sm-100 text-truncate" data-bs-toggle="modal" 
                     data-bs-target="#modal_address" id="address_new"
                 >
                     <i class="fa-solid fa-circle-plus"></i> CREATE NEW ADDRESS
@@ -41,8 +41,8 @@ class AddressesController extends AbstractController
             </div>
         </div>
         <div class="row">
-            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-4" id="order_header">
-                <h3 class="text-light">Manage Shipping Addresses</h3>
+            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-3 mt-sm-4" id="order_header">
+                <h3 class="text-light text-truncate">Manage Shipping Addresses</h3>
                 <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
                     Add or remove shipping addresses from the list below.
                     <strong>A valid address is required for purchasing Fluid Commerce items and redeeming Fluid rewards.</strong>

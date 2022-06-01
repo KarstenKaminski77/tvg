@@ -45,16 +45,16 @@ class CommunicationMethodsController extends AbstractController
         $response = '
         <div class="row" id="communication_methods">
             <!-- Create New -->
-            <div class="col-12 col-md-12 mb-3 mt-0">
-                <button type="button" class="btn btn-primary w-sm-100 float-end" data-bs-toggle="modal" data-bs-target="#modal_communication_methods" id="communication_methods_new">
+            <div class="col-12 col-md-12 mt-0 ps-0 pe-0">
+                <button type="button" class="btn btn-primary w-sm-100 float-end text-truncate" data-bs-toggle="modal" data-bs-target="#modal_communication_methods" id="communication_methods_new">
                     <i class="fa-solid fa-circle-plus"></i> CREATE NEW COMMUNICATION METHOD
                 </button>
             </div>
         </div>
         <div class="row">
-            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-4" id="order_header">
-                <h3 class="text-light">Manage Communication Methods</h3>
-                <span class="mb-5 mt-2 text-center text-light text-sm-start">
+            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-3 mt-sm-4" id="order_header">
+                <h3 class="text-light text-truncate">Manage Communication Methods</h3>
+                <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
                     Add or remove communication methods from the list below.
                 </span>
             </div>

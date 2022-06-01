@@ -1383,8 +1383,8 @@ class OrdersController extends AbstractController
             <div class="col-12">
                 <div class="row">
                     <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3" id="order_header">
-                        <h4 class="text-white">Manage Fluid Orders</h4>
-                        <span class="text-white">
+                        <h4 class="text-white text-truncate">Manage Fluid Orders</h4>
+                        <span class="text-white d-none d-sm-inline">
                             Manage All Your Orders In One Place
                         </span>
                     </div>
@@ -2146,8 +2146,8 @@ class OrdersController extends AbstractController
         <div class="col-12">
             <div class="row">
                 <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3" id="order_header">
-                    <h4 class="text-white">Manage Fluid Orders</h4>
-                    <span class="text-white">
+                    <h4 class="text-white text-truncate">Manage Fluid Orders</h4>
+                    <span class="text-white d-none d-sm-inline">
                         Manage All Your Orders In One Place
                     </span>
                 </div>

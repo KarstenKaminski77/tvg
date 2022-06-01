@@ -267,8 +267,8 @@ class ClinicsController extends AbstractController
         $response = '
         <div class="row position-relative" id="account_settings">
             <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3" id="order_header">
-                <h3 class="text-light">Account & Settings</h3>
-                <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                <h3 class="text-light text-truncate">Account & Settings</h3>
+                <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
                     Clinic Information
                 </span>
             </div>

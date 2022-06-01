@@ -24,7 +24,7 @@
     <div class="container mb-5  mt-3 mt-sm-5">
         <div class="d-none row" id="back_btn"></div>
         <div class="row ms-1 me-1 ms-md0 me-md-0">
-            <div class="col-container col-12" id="basket_container"></div>
+            <div id="basket_container"></div>
         </div>
         <div class="hidden mt-3" id="paginator"></div>
     </div>
@@ -1157,6 +1157,7 @@
                 e.preventDefault();
                 clearInterval(get_messages);
                 getOrdersList(clinic_id, 1);
+                $('.col-container').removeClass('col-container');
 
             });
             $(document).on('click','.order-link, .orders_link', function (e){
@@ -1166,6 +1167,7 @@
                 e.preventDefault();
                 clearInterval(get_messages);
                 getOrdersList(clinic_id, $(this).data('page-id'));
+                $('.col-container').removeClass('col-container');
 
             });
             {# Order Details #}
