@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="hidden users-flash mb-0" id="flash"></div>
-    <div class="container-fluid">
+    <div class="container-fluid pe-4">
 
         <div class="row flex-nowrap">
             <div class="col-1 col-sm-2 col-md-3 col-xl-2 px-sm-2 px-0 bg-light">
@@ -89,16 +89,14 @@
 
                     {# Account & Settings #}
                     <div class="row" id="account_settings">
-                        <div class="col-12 mb-3 mt-5">
-                            <h3>Account & Settings</h3>
+                        <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3">
+                            <h4 class="text-white">Account & Settings</h4>
+                            <span class="text-white">
+                                Company Information
+                            </span>
                         </div>
-
                         {{form_start(form, {'name': 'form_company_information', 'attr': {'id': 'form_company_information'}})}}
-                        <div class="col-12 mb-3 mt-2">
-                            <h5>Company Information</h5>
-                        </div>
-
-                        <div class="row mb-3">
+                        <div class="row mb-3 pt-2 pt-sm-3 bg-light border-left border-right">
 
                             {# Company name #}
                             <div class="col-12 col-sm-6">
@@ -131,7 +129,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <div class="row mb-3 bg-light border-left border-right">
 
                             {# Email #}
                             <div class="col-12 col-sm-6">
@@ -176,7 +174,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <div class="row mb-3 bg-light border-left border-right">
 
                             {# Logo #}
                             <div class="col-12 col-sm-6">
@@ -219,7 +217,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <div class="row mb-3 bg-light border-left border-right">
 
                             {# Street #}
                             <div class="col-12 col-sm-6">
@@ -252,7 +250,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <div class="row mb-3 pb-3 bg-light border-left border-right border-bottom">
 
                             {# Postal Code #}
                             <div class="col-12 col-sm-6">
@@ -285,8 +283,10 @@
                             </div>
                         </div>
 
-                        <div class="col-12 mt-3 mb-5">
-                            <input id="btn_company_information" type="submit" class="btn btn-primary w-100" value="UPDATE COMPANY INFORMATION">
+                        <div class="row">
+                            <div class="col-12 mt-1 mb-5 ps-0 pe-0">
+                                <input id="btn_company_information" type="submit" class="btn btn-primary w-100" value="UPDATE COMPANY INFORMATION">
+                            </div>
                         </div>
                         {{ form_end(form, {render_rest: false}) }}
 
@@ -476,33 +476,27 @@
                     {# End Sales Tax Policy #}
 
                     {# Invenory / Distributor Products #}
-                    <div id="inventory">
-                        <div class="row mb-3" id="inventory_search">
-                            <div class="col-12 col-sm-6 mb-3 mt-5">
-                                <h3>Inventory</h3>
+                    <div id="inventory" id="inventory_search">
+                        {{form_start(form, {'name': 'form_inventory_item', 'attr': {'id': 'form_inventory_item'}})}}
+                        {{ form_widget(inventory_form.product,{'id': 'product_id'}) }}
+                        {{ form_widget(inventory_form.distributor,{'id': 'distributor_id'}) }}
+                        <div class="row">
+                            <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3" id="order_header">
+                                <h4 class="text-white">Inventory</h4>
+                                <span class="text-white">
+                                    Manage Your Inventory
+                                </span>
                             </div>
-                            <div class="col-12 col-sm-6 mb-3 mt-5">
-                                <button type="button" id="inventory_clear" class="btn btn-primary float-end">
-                                    <i class="fa-solid fa-circle-xmark me-2"></i>
-                                    CLEAR SEARCH
-                                </button>
-                            </div>
-                            <div class="col-12 mb-3 mt-2">
-                                <h5 id="product_name">Manage Your Inventory</h5>
-                            </div>
-                            <div class="col-12 mb-4">
+                            <div class="col-12 pt-2 pb-2 bg-light border-left border-right border-bottom">
                                 <input type="text" id="search_field" class="form-control" placeholder="Inventory Item" autocomplete="off" />
                                 <div id="suggestion_field"></div>
                             </div>
                         </div>
-                        <div class="row" id="inventory_item">
-                            {{form_start(form, {'name': 'form_inventory_item', 'attr': {'id': 'form_inventory_item'}})}}
-                            {{ form_widget(inventory_form.product,{'id': 'product_id'}) }}
-                            {{ form_widget(inventory_form.distributor,{'id': 'distributor_id'}) }}
-                            <div class="row mb-3">
+                        <div id="inventory_item" class="row bg-light border-left border-right border-bottom">
+                            <div class="row mb-3 pe-0">
 
                                 {# Dosage #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
                                     <label>
                                         Dosage
                                     </label>
@@ -510,7 +504,7 @@
                                 </div>
 
                                 {# Size #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0">
                                     <label>
                                         Size
                                     </label>
@@ -518,10 +512,10 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-3 pe-0">
 
                                 {# Active Ingredient #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
                                     <label>
                                         Active Ingredient
                                     </label>
@@ -529,7 +523,7 @@
                                 </div>
 
                                 {# Pack Type #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0">
                                     <label>
                                         Pack Type
                                     </label>
@@ -537,10 +531,10 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-3 pe-0">
 
                                 {# Unit #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
                                     <label>
                                         Unit
                                     </label>
@@ -548,7 +542,7 @@
                                 </div>
 
                                 {# SKU #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0">
                                     <label>
                                         #SKU
                                     </label>
@@ -562,10 +556,10 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-3 pe-0">
 
                                 {# Serial Number #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
                                     <label>
                                         Serial Number
                                     </label>
@@ -579,7 +573,7 @@
                                 </div>
 
                                 {# Unit Price #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0">
                                     <label>
                                         Unit Price
                                     </label>
@@ -593,10 +587,10 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-3 pe-0">
 
                                 {# Stock Level #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
                                     <label>
                                         Stock Level
                                     </label>
@@ -610,7 +604,7 @@
                                 </div>
 
                                 {# Expiry Date #}
-                                <div class="col-6">
+                                <div class="col-12 col-sm-6 pe-0">
                                     <label>
                                         Expiry Date
                                     </label>
@@ -620,7 +614,7 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-3 pe-0">
 
                                 {# Tax Empt #}
                                 <div class="col-12">
@@ -637,21 +631,26 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row mb-3">
-                                <div class="col-12 mt-3 mb-5">
-                                    <button id="btn_inventory" type="submit" class="btn btn-primary w-100"></button>
-                                </div>
-                            </div>
-                            {{ form_end(form, {render_rest: false}) }}
                         </div>
+                        <div class="row mb-3" id="inventory_btn">
+                            <div class="col-12 mt-3 ps-0 pe-0">
+                                <button id="btn_inventory" type="submit" class="btn btn-primary w-100"></button>
+                            </div>
+                            <div class="col-12 mb-3 ps-0 pe-0 mt-3">
+                                <button type="button" id="inventory_clear" class="btn btn-secondary w-100">
+                                    <i class="fa-solid fa-circle-xmark me-2"></i>
+                                    CLEAR SEARCH
+                                </button>
+                            </div>
+                        </div>
+                        {{ form_end(form, {render_rest: false}) }}
                     </div>
                     {# End Invenory / Distributor Products #}
 
                     {# Users #}
                     <div class="row" id="users">
                         <div class="row">
-                            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
+                            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
                                 <h3 class="text-light">Manage User Accounts</h3>
                                 <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
                             Fluid supports having several users under a single clinic. Each user will have their own login, can
@@ -685,18 +684,23 @@
                                 <div class="list-width">
                                     <div class="row t-row">
                                         <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
+                                            <span class="d-block d-sm-inline fw-bold">First Name: </span>
                                             {{ user.firstName }}
                                         </div>
                                         <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
+                                            <span class="d-block d-sm-inline fw-bold">Last Name: </span>
                                             {{ user.lastName }}
                                         </div>
                                         <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
+                                            <span class="d-block d-sm-inline fw-bold">Email: </span>
                                             {{ user.email }}
                                         </div>
                                         <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
+                                            <span class="d-block d-sm-inline fw-bold">Telephone: </span>
                                             {{ user.telephone }}
                                         </div>
                                         <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
+                                            <span class="d-block d-sm-inline fw-bold">Position: </span>
                                             {{ user.position }}
                                         </div>
                                         <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
@@ -841,7 +845,7 @@
                     {# End Users #}
 
                     {# Orders #}
-                    <div class="row" id="order_container"></div>
+                    <div id="order_container"></div>
                     {# End Orders #}
 
                 </div>
@@ -885,6 +889,7 @@
             let inventory = $('#inventory');
             let inventory_search = $('#inventory_search');
             let inventory_item = $('#inventory_item');
+            let inventory_btn = $('#inventory_btn');
             let users = $('#users');
             let inventory_clear = $('#inventory_clear');
             let order_container = $('#order_container');
@@ -905,6 +910,7 @@
             users.hide();
             inventory_clear.hide();
             order_container.hide();
+            $('#btn_inventory').hide();
 
             {# Get correct content on refresh #}
             let uri = '{{ app.request.requestUri }}';
@@ -2311,6 +2317,7 @@
                 $('#search_field').val('');
                 $('#product_name').empty().append('Manage Your Inventory');
                 $('#inventory_item').hide();
+                $('#inventory_btn').hide();
                 inventory_clear.hide();
             });
 
@@ -2551,7 +2558,9 @@
         });
 
         function selectProduct(id, name) {
+
             if (id > 0) {
+
                 $.ajax({
                     type: "POST",
                     url: "{{ path('distributor_inventory_get') }}",
@@ -2575,10 +2584,11 @@
                         $('#unit').val(data.product.unit);
                         $('#active_ingredient').val(data.product.activeIngredient);
                         $('#btn_inventory').empty();
-                        $('#btn_inventory').append('UPDATE ' + name.toUpperCase());
+                        $('#btn_inventory').append('UPDATE ' + name.toUpperCase()).show();
                         $('#product_name').empty();
                         $('#product_name').append(name + data.product.dosage + data.product.unit + data.product.size);
                         $('#inventory_item').show();
+                        $('#inventory_btn').show();
                         $('#inventory_clear').show();
 
                         $('#taxExempt_0').attr('checked', false);
