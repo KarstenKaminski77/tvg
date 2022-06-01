@@ -155,34 +155,68 @@ class DistributorUsersController extends AbstractController
         foreach($user_results as $user){
 
             $html .= '
-            <div class="list-width">
-               <div class="row t-row">
-                   <div class="col-md-2 t-cell text-truncate" id="string_user_first_name_'. $user->getId() .'">
-                       '. $user->getFirstName() .'
-                   </div>
-                   <div class="col-md-2 t-cell text-truncate" id="string_user_last_name_'. $user->getId() .'">
-                       '. $user->getLastName() .'
-                   </div>
-                   <div class="col-md-2 t-cell text-truncate" id="string_user_email_'. $user->getId() .'">
-                       '. $user->getEmail() .'
-                   </div>
-                   <div class="col-md-2 t-cell text-truncate" id="string_user_telephone_'. $user->getId() .'">
-                       '. $user->getTelephone() .'
-                   </div>
-                   <div class="col-md-2 t-cell text-truncate" id="string_user_position_'. $user->getId() .'">
-                       '. $user->getPosition() .'
-                   </div>
-                   <div class="col-md-2 t-cell">
-                       <a href="" class="float-end update-user" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
-                           <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                       </a>
-                       <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
-                          data-value="'. $user->getId() .'" data-bs-target="#modal_user_delete" data-user-id="'. $user->getId() .'">
-                           <i class="fa-solid fa-trash-can"></i>
-                       </a>
-                   </div>
-               </div>
-           </div>';
+            <div class="row">
+                <div 
+                    class="col-5 col-md-2 d-xl-none t-cell fw-bold bg-light border-bottom border-left text-primary text-truncate border-list pt-3 pb-3"
+                >
+                    First Name:
+                </div>
+                <div 
+                    class="col-7 col-md-10 col-xl-2 border-list pt-3 pb-3 t-cell text-truncate bg-light border-right border-bottom" 
+                    id="string_user_first_name_'. $user->getId() .'"
+                >
+                    '. $user->getFirstName() .'
+                </div>
+                <div 
+                    class="col-5 col-md-2 d-xl-none t-cell fw-bold bg-light border-bottom border-left text-primary text-truncate border-list pt-3 pb-3"
+                >
+                    Last Name:
+                </div>
+                <div 
+                    class="col-7 col-md-10 col-xl-2 pt-3 pb-3 bg-light border-list border-right border-bottom t-cell text-truncate"
+                    >
+                    '. $user->getLastName() .'
+                </div>
+                <div 
+                    class="col-5 col-md-2 d-xl-none t-cell fw-bold bg-light border-bottom border-left text-primary text-truncate border-list pt-3 pb-3"
+                >
+                    Username:
+                </div>
+                <div 
+                    class="col-7 col-md-10 col-xl-2 pt-3 pb-3 bg-light border-list border-left border-bottom t-cell text-truncate"
+                >
+                    '. $user->getEmail() .'
+                </div>
+                <div 
+                    class="col-5 col-md-2 d-xl-none t-cell fw-bold bg-light border-bottom border-left text-primary text-truncate border-list pt-3 pb-3"
+                >
+                    Telephone:
+                </div>
+                <div 
+                    class="col-7 col-md-10 col-xl-2 pt-3 pb-3 bg-light border-list border-left border-bottom t-cell text-truncate"
+                >
+                    '. $user->getTelephone() .'
+                </div>
+                <div 
+                    class="col-5 col-md-2 d-xl-none t-cell fw-bold bg-light border-bottom border-left text-primary text-truncate border-list pt-3 pb-3"
+                >
+                    Position:
+                </div>
+                <div 
+                    class="col-7 col-md-10 col-xl-2 pt-3 pb-3 bg-light border-list border-left border-bottom t-cell text-truncate"
+                >
+                    '. $user->getPosition() .'
+                </div>
+                <div class="col-md-2 t-cell">
+                    <a href="" class="float-end update-user" data-bs-toggle="modal" data-bs-target="#modal_user" data-user-id="'. $user->getId() .'">
+                        <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                    </a>
+                    <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
+                        data-value="'. $user->getId() .'" data-bs-target="#modal_user_delete" data-user-id="'. $user->getId() .'">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </div>
+            </div>';
         }
 
         $pagination = $this->getPagination($page_id, $user_results, $distributor_id);

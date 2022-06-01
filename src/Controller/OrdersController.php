@@ -1400,7 +1400,7 @@ class OrdersController extends AbstractController
                         </div>
                     </div>
                     <!-- Orders -->
-                    <div class="row d-none d-sm-block">
+                    <div class="row d-none d-xl-block">
                         <div class="col-12 bg-light border-bottom border-right border-left">
                             <div class="row">
                                 <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
@@ -1434,24 +1434,24 @@ class OrdersController extends AbstractController
                             $html .= '
                             <!-- Orders -->
                             <div class="row">
-                                <div class="col-12 col-sm-1 pt-3 pb-3">
-                                    <span class="d-inline d-sm-none fw-bold">#Id: </span>
+                                <div class="col-4 col-sm-2 d-block d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">#Id: </div>
+                                <div class="col-8 col-sm-10 col-xl-1 pt-3 pb-3 border-list text-truncate">
                                     ' . $order->getId() . '
                                 </div>
-                                <div class="col-12 col-sm-4 pt-3 pb-3">
-                                    <span class="d-inline d-sm-none fw-bold">Clnic: </span>
+                                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Clnic: </div>
+                                <div class="col-8 col-sm-10 col-xl-4 pt-3 pb-3 text-truncate border-list">
                                     ' . $order->getClinic()->getClinicName() . '
                                 </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3">
-                                    <span class="d-inline d-sm-none fw-bold">Total: </span>
+                                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Total: </div>
+                                <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
                                     $' . number_format($order->getTotal(),2) . '
                                 </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3">
-                                    <span class="d-inline d-sm-none fw-bold">Date: </span>
+                                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Date: </div>
+                                <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
                                     ' . $order->getCreated()->format('Y-m-d') . '
                                 </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3">
-                                    <span class="d-inline d-sm-none fw-bold">Status: </span>
+                                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Status: </div>
+                                <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
                                     ' . ucfirst($order->getOrderStatuses()[0]->getStatus()->getStatus()) . '
                                 </div>
                                 <div class="col-12 col-sm-1 pt-3 pb-3 text-end">

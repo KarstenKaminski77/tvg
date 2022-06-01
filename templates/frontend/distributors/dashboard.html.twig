@@ -636,14 +636,14 @@
                     {# Users #}
                     <div class="row" id="users">
                         <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
-                            <h3 class="text-light">Manage User Accounts</h3>
+                            <h3 class="text-light text-truncate">Manage User Accounts</h3>
                             <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
                                 Fluid supports having several users under a single clinic. Each user will have their own login, can
                                 independently participate in the Fluid discussions. You have full control over editing the permissions
                                 of each user in your clinic. Use the table below to view the available permission levels.
                             </span>
                         </div>
-                        <div class="col-12 d-none d-sm-block">
+                        <div class="col-12 d-none d-xl-block">
                             <div class="row">
                                 <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-left">
                                     First Name
@@ -668,24 +668,34 @@
                         <div class="col-12" id="users_list">
                             {% for user in users %}
                                 <div class="row border-left border-right border-bottom bg-light">
-                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
-                                        <span class="d-block d-sm-none fw-bold">First Name: </span>
+                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                        First Name:
+                                    </div>
+                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
                                         {{ user.firstName }}
                                     </div>
-                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
-                                        <span class="d-block d-sm-none fw-bold">Last Name: </span>
+                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                        Last Name:
+                                    </div>
+                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
                                         {{ user.lastName }}
                                     </div>
-                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
-                                        <span class="d-block d-sm-none fw-bold">Email: </span>
+                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                        Email:
+                                    </div>
+                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
                                         {{ user.email }}
                                     </div>
-                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
-                                        <span class="d-block d-sm-none fw-bold">Telephone: </span>
+                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                        Telephone:
+                                    </div>
+                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
                                         {{ user.telephone }}
                                     </div>
-                                    <div class="col-md-2 text-truncate border-list pt-3 pb-3">
-                                        <span class="d-block d-sm-none fw-bold">Position: </span>
+                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                        Position:
+                                    </div>
+                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
                                         {{ user.position }}
                                     </div>
                                     <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
