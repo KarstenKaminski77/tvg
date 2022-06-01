@@ -654,4 +654,99 @@ class ClinicUsersController extends AbstractController
 
         $this->mailer->send($email);
     }
+
+    public function getPagination($page_id, $results)
+    {
+        $current_page = (int) $page_id;
+        $last_page = $this->page_manager->lastPage($results);
+
+        $pagination = '
+        <!-- Pagination -->
+        <div class="row mt-3">
+            <div class="col-12">';
+
+        if($last_page > 1) {
+
+            $previous_page_no = $current_page - 1;
+            $url = '/distributors/users';
+            $previous_page = $url . $previous_page_no;
+
+            $pagination .= '
+            <nav class="custom-pagination">
+                <ul class="pagination justify-content-center">
+            ';
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            // Previous Link
+            if($current_page > 1){
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pagination .= '
+            <li class="page-item '. $disabled .'">
+                <a 
+                    class="user-pagination" 
+                    aria-disabled="'. $data_disabled .'" 
+                    data-page-id="'. $current_page - 1 .'" 
+                    href="'. $previous_page .'"
+                >
+                    <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline">Previous</span>
+                </a>
+            </li>';
+
+            for($i = 1; $i <= $last_page; $i++) {
+
+                $active = '';
+
+                if($i == (int) $current_page){
+
+                    $active = 'active';
+                }
+
+                $pagination .= '
+                <li class="page-item '. $active .'">
+                    <a 
+                        class="user-pagination" 
+                        data-page-id="'. $i .'" 
+                        href="'. $url .'"
+                    >'. $i .'</a>
+                </li>';
+            }
+
+            $disabled = 'disabled';
+            $data_disabled = 'true';
+
+            if($current_page < $last_page) {
+
+                $disabled = '';
+                $data_disabled = 'false';
+            }
+
+            $pagination .= '
+            <li class="page-item '. $disabled .'">
+                <a 
+                    class="user-pagination" 
+                    aria-disabled="'. $data_disabled .'" 
+                    data-page-id="'. $current_page + 1 .'" 
+                    href="'. $url .'"
+                >
+                    <span class="d-none d-sm-inline">Next</span> <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>';
+
+            $pagination .= '
+                    </ul>
+                </nav>';
+
+            $pagination .= '
+                </div>
+            </div>';
+        }
+
+        return $pagination;
+    }
 }
