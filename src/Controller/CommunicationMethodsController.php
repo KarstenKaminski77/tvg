@@ -380,7 +380,7 @@ class CommunicationMethodsController extends AbstractController
                 $pagination .= '
                 <li class="page-item ' . $disabled . '">
                     <a class="ccm-pagination" aria-disabled="' . $data_disabled . '" data-page-id="' . $current_page - 1 . '" href="' . $previous_page . '">
-                        <span aria-hidden="true">&laquo;</span> Previous
+                        <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline">Previous</span>
                     </a>
                 </li>';
 
@@ -420,7 +420,7 @@ class CommunicationMethodsController extends AbstractController
                 $pagination .= '
                 <li class="page-item ' . $disabled . '">
                     <a class="ccm-pagination" aria-disabled="' . $data_disabled . '" data-page-id="' . $current_page + 1 . '" href="' . $url . '">
-                        Next <span aria-hidden="true">&raquo;</span>
+                        <span class="d-none d-sm-inline">Next</span> <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>';
 

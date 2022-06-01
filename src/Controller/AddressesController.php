@@ -43,7 +43,7 @@ class AddressesController extends AbstractController
         <div class="row">
             <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-4" id="order_header">
                 <h3 class="text-light">Manage Shipping Addresses</h3>
-                <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
                     Add or remove shipping addresses from the list below.
                     <strong>A valid address is required for purchasing Fluid Commerce items and redeeming Fluid rewards.</strong>
                 </span>
@@ -807,7 +807,7 @@ class AddressesController extends AbstractController
                 $pagination .= '
                 <li class="page-item ' . $disabled . '">
                     <a class="address-pagination" aria-disabled="' . $data_disabled . '" data-page-id="' . $current_page - 1 . '" href="' . $previous_page . '">
-                        <span aria-hidden="true">&laquo;</span> Previous
+                        <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline">Previous</span>
                     </a>
                 </li>';
 
@@ -847,7 +847,7 @@ class AddressesController extends AbstractController
                 $pagination .= '
                 <li class="page-item ' . $disabled . '">
                     <a class="address-pagination" aria-disabled="' . $data_disabled . '" data-page-id="' . $current_page + 1 . '" href="' . $url . '">
-                        Next <span aria-hidden="true">&raquo;</span>
+                        <span class="d-none d-sm-inline">Next</span> <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>';
 

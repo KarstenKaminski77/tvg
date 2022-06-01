@@ -51,7 +51,7 @@ class ClinicUsersController extends AbstractController
         <div class="row">
             <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-4" id="order_header">
                 <h3 class="text-light">Manage User Accounts</h3>
-                <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
                     Fluid supports having several users under a single clinic. Each user will have their own login, can
                     independently participate in the Fluid discussions. You have full control over editing the permissions
                     of each user in your clinic. Use the table below to view the available permission levels.

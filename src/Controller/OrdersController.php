@@ -2157,7 +2157,7 @@ class OrdersController extends AbstractController
 
                 $html .= '
                 <!-- Orders -->
-                <div class="row">
+                <div class="row d-none d-xl-block">
                     <div class="col-12 bg-light border-bottom border-right border-left">
                         <div class="row">
                             <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
@@ -2186,25 +2186,30 @@ class OrdersController extends AbstractController
                     $html .= '
                     <!-- Orders -->
                     <div class="row">
-                        <div class="col-12 col-sm-1 pt-3 pb-3">
+                        <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">#Id </div>
+                        <div class="col-8 col-md-10 col-xl-1 t-cell text-truncate border-list pt-3 pb-3">
                             ' . $order->getId() . '
                         </div>
-                        <div class="col-12 col-sm-4 pt-3 pb-3">
+                        <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Distributor </div>
+                        <div class="col-8 col-md-10 col-xl-4 t-cell text-truncate border-list pt-3 pb-3">
                             ' . $order->getOrderItems()[0]->getDistributor()->getDistributorName() . '
                         </div>
-                        <div class="col-12 col-sm-2 pt-3 pb-3">
+                        <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Total </div>
+                        <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                             $' . number_format($order->getTotal(),2) . '
                         </div>
-                        <div class="col-12 col-sm-2 pt-3 pb-3">
+                        <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Daste </div>
+                        <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                             ' . $order->getCreated()->format('Y-m-d') . '
                         </div>
-                        <div class="col-12 col-sm-2 pt-3 pb-3">
+                        <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Status </div>
+                        <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                             ' . ucfirst($order->getOrderStatuses()[0]->getStatus()->getStatus()) . '
                         </div>
-                        <div class="col-12 col-sm-1 pt-3 pb-3 text-end">
+                        <div class="col-12 col-sm-1 pt-3 pb-3 text-end border-list">
                             <a 
                                 href="' . $this->getParameter('app.base_url') . '/clinics/order/' . $order->getId() . '/' . $order->getOrderStatuses()[0]->getDistributor()->getId() . '" 
-                                class="pe-0 pe-sm-3"
+                                class="pe-0 pe-sm-3 float-end"
                                 id="order_detail_link"
                                 data-order-id="' . $order->getId() . '"
                                 data-distributor-id="' . $order->getOrderStatuses()[0]->getDistributor()->getId() . '"
@@ -2263,7 +2268,7 @@ class OrdersController extends AbstractController
             $pageination .= '
             <li class="page-item '. $disabled .'">
                 <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
-                    <span aria-hidden="true">&laquo;</span> Previous
+                    <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline-block">Previous</span>
                 </a>
             </li>';
 
@@ -2294,7 +2299,7 @@ class OrdersController extends AbstractController
             $pageination .= '
             <li class="page-item '. $disabled .'">
                 <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">
-                    Next <span aria-hidden="true">&raquo;</span>
+                    <span class="d-none d-sm-inline-block">Next</span> <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>';
 

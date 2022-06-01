@@ -265,19 +265,19 @@ class ClinicsController extends AbstractController
         $clinic = $this->getUser()->getClinic();
 
         $response = '
-        <div class="row position-relative p-3" id="account_settings">
-            <div class="col-12 mb-3">
-                <h3>Account & Settings</h3>
-            </div>
-            <div class="col-12 mb-3 mt-2">
-                <h5>Clinic Information</h5>
+        <div class="row position-relative" id="account_settings">
+            <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3" id="order_header">
+                <h3 class="text-light">Account & Settings</h3>
+                <span class="mb-5 mt-2 text-center text-light text-sm-start">
+                    Clinic Information
+                </span>
             </div>
             <form name="form_clinic_information" id="form_clinic_information" method="post">
                 <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
         
-                <div class="row mb-3">
+                <div class="row pb-3 pt-2 border-left border-right bg-light">
         
-                    <!-- First name -->
+                    <!-- Clinic name -->
                     <div class="col-12 col-sm-12">
                         <label>
                             Clinic Name
@@ -296,7 +296,7 @@ class ClinicsController extends AbstractController
                     </div>
                 </div>
         
-                <div class="row mb-3">
+                <div class="row pb-3 border-left border-right bg-light">
         
                     <!-- Email -->
                     <div class="col-12 col-sm-6">
@@ -346,7 +346,7 @@ class ClinicsController extends AbstractController
                     </div>
                 </div>
         
-                <div class="row mt-5 mb-3">
+                <div class="row pt-5 pb-3 border-left border-right border-bottom bg-light">
         
                     <label class="mb-4 d-block">
                         Select All Species Treated By Your Practice
@@ -415,7 +415,7 @@ class ClinicsController extends AbstractController
                 </div>
         
                 <div class="row mb-3">
-                    <div class="col-12 mt-3 mb-5">
+                    <div class="col-12 mt-2 mb-5 ps-0 pe-0">
                         <button id="btn_personal_information" type="submit" class="btn btn-primary w-100">UPDATE CLINIC INFORMATION</button>
                     </div>
                 </div>
