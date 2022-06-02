@@ -21,6 +21,7 @@
 <main>
     <p>Latitude: <span id="lat"></span></p>
     <p>Longitude: <span id="long"></span></p>
+    <p>Accuracy: <span id="accuracy"></span></p>
     <div id="map" class="mapArea"></div>
     <div id="errorArea" class="alert d-none">  </div>
 </main>
@@ -36,6 +37,7 @@
     function initialize() {
 
         let map = null;
+        let address = '';
         let location = {
             "latitude": 36.036020,
             "longitude": -86.787600,
@@ -47,22 +49,11 @@
             let coords = pos.coords;
             $("#lat").text(coords.latitude);
             $("#long").text(coords.longitude);
+            $("#accuracy").text(coords.accuracy);
             addMap(coords);
 
             // Add marker for location
             addMarker(coords);
-        }
-
-        function addMarker(coords) {
-            // Create a new marker
-            coords.marker = new google.maps.Marker( {
-                position: new google.maps.LatLng(coords.latitude, coords.longitude),
-                map: map,
-                title: coords.title
-            });
-            console.log(coords);
-            // Add marker to the map
-            coords.marker.setMap(map);
         }
 
         function addMap(location) {
@@ -72,12 +63,49 @@
             // Create map options
             let mapOptions = {
                 center: pos,
-                zoom: 16,
+                zoom: 17,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
 
             // Create new google map
             map = new google.maps.Map(document.getElementById("map"), mapOptions);
+        }
+
+        function addMarker(coords) {
+
+            let lat = coords.latitude;
+            let lng = coords.longitude;
+            let geocoder = new google.maps.Geocoder();
+            let latLng = {lat, lng};
+            let infowindow = '';
+            geocoder.geocode({
+                latLng: latLng
+            }, function(responses) {
+                infowindow = new google.maps.InfoWindow({
+                    content: responses[0].formatted_address,
+                });
+                console.log(responses[0].formatted_address);
+            });
+
+            // Create a new marker
+            coords.marker = new google.maps.Marker( {
+                position: new google.maps.LatLng(coords.latitude, coords.longitude),
+                draggable: true,
+                map: map,
+                title: address
+            });
+
+            coords.marker.addListener("click", () => {
+
+                infowindow.open({
+                    anchor: coords.marker,
+                    map,
+                    shouldFocus: false,
+                });
+            });
+
+            // Add marker to the map
+            coords.marker.setMap(map);
         }
 
         function displayError(msg) {
