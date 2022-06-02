@@ -7,6 +7,7 @@ use App\Entity\Clinics;
 use App\Entity\Orders;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -768,6 +769,12 @@ class AddressesController extends AbstractController
         ];
 
         return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/address', name: 'find_address')]
+    public function clinicFindAddress(Request $request): Response
+    {
+        return $this->render('frontend/clinics/map.html.twig');
     }
 
     public function getPagination($page_id, $results)

@@ -1,0 +1,42 @@
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOX2X9tgaJA1LCfyf8tAFdqa8ueVJqzm8=initMap" async></script>
+
+<script type="text/javascript">
+    function initMap() {
+        var myLatlng = new google.maps.LatLng(-25.363882, 131.044922);
+        var mapOptions = {
+            zoom: 4,
+            center: myLatlng
+        }
+        var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+        //Create a marker
+        marker = new google.maps.Marker(
+            {
+                map: map,
+                draggable: true,
+                animation: google.maps.Animation.DROP,
+                position: myLatlng,
+            });
+
+        google.maps.event.addListener(marker, 'dragend', function () {
+            geocodePosition(marker.getPosition());
+        });
+
+        //Callback function of the drag event.
+        function geocodePosition(pos) {
+            geocoder = new google.maps.Geocoder();
+            geocoder.geocode
+            ({
+                    latLng: pos
+                },
+                function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK)
+                        console.log(results[0].formatted_address);
+                    else
+                        console.log('Cannot determine address at this location.' + status);
+                }
+            );
+        }
+    }
+
+</script>
