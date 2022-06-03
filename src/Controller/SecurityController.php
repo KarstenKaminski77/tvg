@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use EasyCorp\Bundle\EasyAdminBundle\Security\AuthorizationChecker;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,8 +54,20 @@ class SecurityController extends AbstractController
     /**
      * @Route("/clinics/login", name="clinics_login")
      */
-    public function clinicLogin(AuthenticationUtils $authenticationUtils, Request $request): Response
+    public function clinicLogin(AuthenticationUtils $authenticationUtils, Request $request, AuthorizationChecker $checker): Response
     {
+        if (true === $checker->isGranted('ROLE_CLINIC')) {
+
+            $clinic_id = $this->getUser()->getClinic()->getId();
+
+            header('Location: '. $this->getParameter('app.base_url') . '/clinics/orders/' . $clinic_id);
+//            $this->redirectToRoute('clinic_orders_list',[
+//                'clinic_id' => $clinic_id
+//            ]);
+
+            die();
+        }
+
         $uri = explode('/', $request->getPathInfo());
 
         // get the login error if there is one

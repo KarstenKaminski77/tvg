@@ -61,7 +61,7 @@ class ClinicUsersController extends AbstractController
 
         <div class="row d-none d-xl-flex bg-light border-bottom border-right border-left">
             <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
-                First Name
+                Fir                console.log(coords.marker.getPosition().lng());st Name
             </div>
             <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                 Last Name

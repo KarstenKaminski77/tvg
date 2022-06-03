@@ -170,7 +170,7 @@ class AddressesController extends AbstractController
     
                 <!-- Modal Manage Address -->
                 <div class="modal fade" id="modal_address" tabindex="-1" aria-labelledby="address_delete_label" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-dialog modal-dialog-centered modal-xl">
                         <div class="modal-content">
                             <form name="form_addresses" id="form_addresses" method="post">
                                 ' . $this->getAddressModal()->getContent() . '
@@ -479,7 +479,7 @@ class AddressesController extends AbstractController
 
                 <!-- Address Line 1 -->
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="info">Address</label>
+                    <label class="info">Address <span class="text-success" id="btn_map">Use Map</span></label>
                     <input
                         type="text"
                         name="addresses_form[address]"
@@ -550,6 +550,11 @@ class AddressesController extends AbstractController
                     <div class="hidden_msg" id="error_address_state">
                         Required Field
                     </div>
+                </div>
+                
+                <!-- Google Map -->
+                <div class="col-12 hidden position-relative" id="address_map">
+                    '. $this->render('frontend/clinics/map.html.twig')->getContent() .'
                 </div>
             </div>
         </div>

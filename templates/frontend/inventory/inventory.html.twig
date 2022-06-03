@@ -4036,6 +4036,23 @@
                     }
                 });
             });
+            $(document).on('click', '#btn_map', function (){
+
+                let width = $(window).width();
+
+                alert(width);
+
+                if(width < 579) {
+
+                    $('#modal_address .modal-body').css('height', 810);
+
+                } else {
+
+                    $('#modal_address .modal-body').css('height', 600);
+                }
+
+                $('#address_map').show(700);
+            });
             {# End Addresses #}
 
             {# Communication Methods #}

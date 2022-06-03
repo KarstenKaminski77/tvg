@@ -1472,6 +1472,18 @@ a.distributor-logo-container {
     display: block !important;
 }
 
+.map-responsive{
+    left:16px !important;
+    right:16px !important;
+    bottom: 0;
+    top: 25px !important;
+    height:300px;
+    width:calc(100% - 32px);
+    overflow: hidden;
+    position:absolute !important;
+    border: solid 1px #bfbfbf;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {
@@ -1527,3 +1539,4 @@ a.distributor-logo-container {
         border-bottom: none !important;
     }
 }
+
