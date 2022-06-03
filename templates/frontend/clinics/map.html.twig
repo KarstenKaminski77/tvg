@@ -1,122 +1,141 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <title>Get Latitude/Longitude</title>
-    <style>
-        header, main { padding-left: 2em; }
-        .alert {  margin-top: 1em;  margin-bottom: 1em;  padding: 1em;  background-color: red;  color: white;}
-        .d-none { display: none; }
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-        }
-        .mapArea { width: 90%;  height: 500px; }
-    </style>
-</head>
-<body>
-<header>
-    <h1>Get Latitude/Longitude</h1>
+    <head>
+        <meta charset="utf-8" />
+        <title>Get Latitude/Longitude</title>
+        <style>
+            header, main { padding-left: 2em; }
+            .alert {  margin-top: 1em;  margin-bottom: 1em;  padding: 1em;  background-color: red;  color: white;}
+            .d-none { display: none; }
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            .mapArea { width: 90%;  height: 500px; }
+        </style>
+    </head>
+    <body>
+    <header>
+        <h1>Get Latitude/Longitude</h1>
 
-</header>
-<main>
-    <p>Latitude: <span id="lat"></span></p>
-    <p>Longitude: <span id="long"></span></p>
-    <p>Accuracy: <span id="accuracy"></span></p>
-    <div id="map" class="mapArea"></div>
-    <div id="errorArea" class="alert d-none">  </div>
-</main>
-<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"> </script>
-<script src="{{ asset('js/geo_map.js') }}" type="text/javascript"></script>
-<script>
-    'use strict';
+    </header>
+    <main>
+        <p>Latitude: <span id="lat"></span></p>
+        <p>Longitude: <span id="long"></span></p>
+        <p>Accuracy: <span id="accuracy"></span></p>
+        <div id="map" class="mapArea"></div>
+        <div id="errorArea" class="alert d-none">  </div>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"> </script>
+    <script src="{{ asset('js/geo_map.js') }}" type="text/javascript"></script>
+    <script>
+        'use strict';
 
-    var gmapController = (function () {
-        return initialize();
-    })();
+        var gmapController = (function () {
+            return initialize();
+        })();
 
-    function initialize() {
+        function initialize() {
 
-        let map = null;
-        let address = '';
-        let location = {
-            "latitude": 36.036020,
-            "longitude": -86.787600,
-            "title": "Paul's Training Company",
-            "marker": null
+            let map = null;
+            let address = 'My Address';
+
+            function displayPosition(pos) {
+                let coords = pos.coords;
+                $("#lat").text(coords.latitude);
+                $("#long").text(coords.longitude);
+                $("#accuracy").text(coords.accuracy);
+                addMap(coords);
+
+                // Add marker for location
+                addMarker(coords);
+            }
+
+            function addMap(location) {
+                // Create a lat/lng object
+                let pos = new google.maps.LatLng(location.latitude, location.longitude);
+
+                // Create map options
+                let mapOptions = {
+                    center: pos,
+                    zoom: 17,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+
+                // Create new google map
+                map = new google.maps.Map(document.getElementById("map"), mapOptions);
+            }
+
+            function addMarker(coords) {
+
+                let lat = coords.latitude;
+                let lng = coords.longitude;
+                let geocoder = new google.maps.Geocoder();
+                let latLng = {lat, lng};
+                let infowindow = '';
+                geocoder.geocode({
+                    latLng: latLng
+                }, function(responses) {
+                    infowindow = new google.maps.InfoWindow({
+                        content: responses[0].formatted_address,
+                    });
+                });
+
+                // Create a new marker
+                coords.marker = new google.maps.Marker( {
+                    position: new google.maps.LatLng(coords.latitude, coords.longitude),
+                    draggable: true,
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    title: address
+                });
+
+                coords.marker.addListener("click", () => {
+
+                    infowindow.open({
+                        anchor: coords.marker,
+                        map,
+                        shouldFocus: false,
+                    });
+                });
+
+                // Add marker to the map
+                coords.marker.setMap(map);
+
+                google.maps.event.addListener(coords.marker, 'dragend', function () {
+                    geocodePosition(coords.marker.getPosition());
+                });
+            }
+
+            function geocodePosition(pos){
+                let geocoder = new google.maps.Geocoder();
+                geocoder.geocode
+                ({
+                        latLng: pos
+                    },
+                    function(results, status)
+                    {
+                        if (status == google.maps.GeocoderStatus.OK)
+                        {
+                            $("#mapSearchInput").val(results[0].formatted_address);
+                            $("#mapErrorMsg").hide(100);
+                            alert(results[0].formatted_address);
+                        }
+                        else
+                        {
+                            $("#mapErrorMsg").html('Cannot determine address at this location.'+status).show(100);
+                        }
+                    }
+                );
+            }
+
+            function displayError(msg) {
+                $("#errorArea").removeClass("d-none");
+                $("#errorArea").html(msg);
+            }
+
+            geoController.getCurrentPosition(displayPosition, displayError);
         };
-
-        function displayPosition(pos) {
-            let coords = pos.coords;
-            $("#lat").text(coords.latitude);
-            $("#long").text(coords.longitude);
-            $("#accuracy").text(coords.accuracy);
-            addMap(coords);
-
-            // Add marker for location
-            addMarker(coords);
-        }
-
-        function addMap(location) {
-            // Create a lat/lng object
-            let pos = new google.maps.LatLng(location.latitude, location.longitude);
-
-            // Create map options
-            let mapOptions = {
-                center: pos,
-                zoom: 17,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            };
-
-            // Create new google map
-            map = new google.maps.Map(document.getElementById("map"), mapOptions);
-        }
-
-        function addMarker(coords) {
-
-            let lat = coords.latitude;
-            let lng = coords.longitude;
-            let geocoder = new google.maps.Geocoder();
-            let latLng = {lat, lng};
-            let infowindow = '';
-            geocoder.geocode({
-                latLng: latLng
-            }, function(responses) {
-                infowindow = new google.maps.InfoWindow({
-                    content: responses[0].formatted_address,
-                });
-                console.log(responses[0].formatted_address);
-            });
-
-            // Create a new marker
-            coords.marker = new google.maps.Marker( {
-                position: new google.maps.LatLng(coords.latitude, coords.longitude),
-                draggable: true,
-                map: map,
-                title: address
-            });
-
-            coords.marker.addListener("click", () => {
-
-                infowindow.open({
-                    anchor: coords.marker,
-                    map,
-                    shouldFocus: false,
-                });
-            });
-
-            // Add marker to the map
-            coords.marker.setMap(map);
-        }
-
-        function displayError(msg) {
-            $("#errorArea").removeClass("d-none");
-            $("#errorArea").html(msg);
-        }
-
-        geoController.getCurrentPosition(displayPosition, displayError);
-    };
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOX2X9tgaJA1LCfyf8tAFdqa8ueVJqzm8&;callback=gmapController.initialize" type="text/javascript">
-</script >
-</body>
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOX2X9tgaJA1LCfyf8tAFdqa8ueVJqzm8&;callback=gmapController.initialize" type="text/javascript"></script >
+    </body>
 </html>
