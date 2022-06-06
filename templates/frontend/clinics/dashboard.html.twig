@@ -1,16 +1,9 @@
+<div class="row">
+    <div class="col-12 overflow-hidden" id="charts_container"></div>
+</div>
 
-    <div class="container-fluid">
+<script>
 
-        <div class="row">
-            <div class="col-12" id="charts_container"></div>
-        </div>
+    {{ gc_draw(pieChart, 'charts_container') }}
 
-    </div>
-
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
-    <script>
-
-        {{ gc_draw(pieChart, 'charts_container') }}
-
-    </script>
+</script>
