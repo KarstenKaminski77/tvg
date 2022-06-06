@@ -25,8 +25,6 @@ class ChartsController extends AbstractController
             ]
         );
         $pieChart->getOptions()->setTitle('My Daily Activities');
-        $pieChart->getOptions()->setHeight(500);
-        $pieChart->getOptions()->setWidth(900);
         $pieChart->getOptions()->getTitleTextStyle()->setBold(true);
         $pieChart->getOptions()->getTitleTextStyle()->setColor('#009900');
         $pieChart->getOptions()->getTitleTextStyle()->setItalic(true);
