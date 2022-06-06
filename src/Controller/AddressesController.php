@@ -63,21 +63,12 @@ class AddressesController extends AbstractController
                         <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
                             Telephone
                         </div>
-                        <div class="col-md-4 pt-3 pb-3 text-primary fw-bold">
-                            Address Line 1
-                        </div>
-                        <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
-                            City
-                        </div>
-                        <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
-                            State
+                        <div class="col-md-8 pt-3 pb-3 text-primary fw-bold">
+                            Address
                         </div>
                     </div>
                 </div>
-                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold">
-                    Zip
-                </div>
-                <div class="col-md-1">
+                <div class="col-md-3">
     
                 </div>
             </div>
@@ -126,26 +117,14 @@ class AddressesController extends AbstractController
                                 ' . $address->getTelephone() . '
                             </div>
                             <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Address</div>
-                            <div class="col-8 col-md-10 col-xl-4 t-cell text-truncate border-list pt-3 pb-3">
+                            <div class="col-8 col-md-10 col-xl-8 t-cell text-truncate border-list pt-3 pb-3">
                                 ' . $address->getAddress() . '
-                            </div>
-                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">City</div>
-                            <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
-                                ' . $address->getCity() . '
-                            </div>
-                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">State</div>
-                            <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
-                                ' . $address->getState() . '
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-xl-3 text-center text-sm-start border-right bg-light col-cell border-right border-bottom">
                         <div class="row">
-                            <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-start border-list pt-3 pb-3">Zip</div>
-                            <div class="col-8 col-md-4 t-cell text-truncate text-start border-list pt-3 pb-3">
-                                ' . $address->getPostalCode() . '
-                            </div>
-                            <div class="col-12 col-xl-8 t-cell pt-3 pb-3">
+                            <div class="col-12 col-xl-12 t-cell pt-3 pb-3">
                                 <a href="" class="float-end address_update" data-address-id="' . $address->getId() . '" data-bs-toggle="modal" data-bs-target="#modal_address">
                                     <i class="fa-solid fa-pen-to-square edit-icon"></i>
                                 </a>
@@ -478,76 +457,21 @@ class AddressesController extends AbstractController
                 </div>
 
                 <!-- Address Line 1 -->
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="info">Address <span class="text-success" id="btn_map">Use Map</span></label>
-                    <input
-                        type="text"
+                <div class="col-12 mb-3">
+                    <label class="info">
+                        Address
+                    </label>
+                    <span role="button" class="text-primary float-end d-sm-block" id="btn_map">
+                        <img src="/images/google-maps.png" class="google-map-icon">
+                        Find on Map
+                    </span>
+                    <textarea
                         name="addresses_form[address]"
                         id="address_line_1"
                         class="form-control"
-                        value=""
-                    >
+                        rows="5"
+                    ></textarea>
                     <div class="hidden_msg" id="error_address_line_1">
-                        Required Field
-                    </div>
-                </div>
-
-                <!-- Suite -->
-                <div class="col-6 mb-3">
-                    <label class="info">Suite / APT</label>
-                    <input
-                        type="text"
-                        name="addresses_form[suite]"
-                        id="address_suite"
-                        class="form-control"
-                        value=""
-                    >
-                    <div class="hidden_msg" id="error_address_suite">
-                        Required Field
-                    </div>
-                </div>
-
-                <!-- Postal Code -->
-                <div class="col-6 col-sm-4 mb-3">
-                    <label class="info">Postal Code</label>
-                    <input
-                        type="text"
-                        name="addresses_form[postalCode]"
-                        id="address_postal_code"
-                        class="form-control"
-                        value=""
-                    >
-                    <div class="hidden_msg" id="error_address_postal_code">
-                        Required Field
-                    </div>
-                </div>
-
-                <!-- City -->
-                <div class="col-6 col-sm-4 mb-3">
-                    <label class="info">City</label>
-                    <input
-                        type="text"
-                        name="addresses_form[city]"
-                        id="address_city"
-                        class="form-control"
-                        value=""
-                    >
-                    <div class="hidden_msg" id="error_address_city">
-                        Required Field
-                    </div>
-                </div>
-
-                <!-- State -->
-                <div class="col-6 col-sm-4 mb-3">
-                    <label class="info">State</label>
-                    <input
-                        type="text"
-                        name="addresses_form[state]"
-                        id="address_state"
-                        class="form-control"
-                        value=""
-                    >
-                    <div class="hidden_msg" id="error_address_state">
                         Required Field
                     </div>
                 </div>
@@ -558,7 +482,6 @@ class AddressesController extends AbstractController
                 </div>
             </div>
         </div>
-        <div class="modal-body modal-body-address-existing hidden pb-0 mb-0 pt-0"></div>
         <div class="modal-footer border-0">
             <button type="button" class="btn btn-secondary w-sm-100 mb-3 mb-sm-0 w-sm-100" data-bs-dismiss="modal">CANCEL</button>
             <button type="submit" class="btn btn-primary w-sm-100 mb-sm-0 w-sm-100" id="btn_save_address">SAVE</button>
@@ -633,10 +556,6 @@ class AddressesController extends AbstractController
         $clinic_address->setClinicName($data['clinicName']);
         $clinic_address->setTelephone($data['telephone']);
         $clinic_address->setAddress($data['address']);
-        $clinic_address->setSuite($data['suite']);
-        $clinic_address->setPostalCode($data['postalCode']);
-        $clinic_address->setCity($data['city']);
-        $clinic_address->setState($data['state']);
         $clinic_address->setIsDefault(0);
         $clinic_address->setIsActive(1);
         $clinic_address->setIsoCode($data['iso_code']);

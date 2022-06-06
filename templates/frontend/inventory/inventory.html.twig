@@ -97,6 +97,8 @@
             let iso_code = '';
             let intl_code = '';
 
+            $('#btn_map').hide();
+
             function isLoading(status){
 
                 if(status) {
@@ -3650,24 +3652,15 @@
                 let clinic_name = $('#address_clinic_name').val()
                 let telephone = $('#address_telephone').val();
                 let address_line_1 = $('#address_line_1').val();
-                let postal_code = $('#address_postal_code').val();
-                let city = $('#address_city').val();
-                let state = $('#address_state').val();
                 let type = $('#address_type').val();
                 let error_clinic_name = $('#error_address_clinic_name');
                 let error_telephone = $('#error_address_telephone');
                 let error_address_line_1 = $('#error_address_line_1');
-                let error_postal_code = $('#error_address_postal_code');
-                let error_city = $('#error_address_city');
-                let error_state = $('#error_address_state');
                 let error_type = $('#error_address_type');
 
                 error_clinic_name.hide();
                 error_telephone.hide();
                 error_address_line_1.hide();
-                error_postal_code.hide();
-                error_city.hide();
-                error_state.hide();
                 error_type.hide();
 
                 if(clinic_name == '' || clinic_name == 'undefined'){
@@ -3685,24 +3678,6 @@
                 if(address_line_1 == '' || address_line_1 == 'undefined'){
 
                     error_address_line_1.show();
-                    is_valid = false;
-                }
-
-                if(city == '' || city == 'undefined'){
-
-                    error_city.show();
-                    is_valid = false;
-                }
-
-                if(postal_code == '' || postal_code == 'undefined'){
-
-                    error_postal_code.show();
-                    is_valid = false;
-                }
-
-                if(state == '' || state == 'undefined'){
-
-                    error_state.show();
                     is_valid = false;
                 }
 
@@ -3732,11 +3707,13 @@
                         },
                         success: function (response) {
                             getFlash(response.flash);
+
                             $('#basket_container').empty().append(response.addresses);
                             $('#paginator').empty().append(response.pagination).show();
                             $('#modal_address').modal('hide');
                             $('.modal-backdrop').removeClass('modal-backdrop');
                             $('.fade').removeClass('fade');
+                            isLoading(false);
                             $('#address_clinic_name').val('');
                             $('#address_telephone').val('');
                             $('#address_line_1').val('');
@@ -3744,7 +3721,6 @@
                             $('#address_postal_code').val('');
                             $('#address_city').val('');
                             $('#address_state').val('');
-                            isLoading(false);
                         }
                     });
                 }
@@ -4038,20 +4014,48 @@
             });
             $(document).on('click', '#btn_map', function (){
 
+                let visible = $('#address_map').is(":visible");
                 let width = $(window).width();
+                let modal_height = $('#modal_address .modal-body').height();
+                $('#address_map').toggle(700);
 
-                alert(width);
+                if(visible == false){
 
-                if(width < 579) {
+                    let height = $('#modal_address .modal-body').height();
+                    $.session.set('modal_height', height);
 
-                    $('#modal_address .modal-body').css('height', 810);
+                    if(width < 579) {
+
+                        $('#modal_address .modal-body').css('height', (modal_height + 370));
+
+                    } else {
+
+                        $('#modal_address .modal-body').css('height', (modal_height + 370));
+                    }
 
                 } else {
-
-                    $('#modal_address .modal-body').css('height', 600);
+                    alert($.session.get('modal_height'));
+                    $('#modal_address .modal-body').css('height', $.session.get('modal_height'));
                 }
 
-                $('#address_map').show(700);
+                // if($('#btn_map:visible').length > 0) {
+                //
+                //     //$('#address_map').show(700);
+                //
+                // } else {
+                //
+                //     //$('#address_map').hide(700);
+                //     $('#modal_address .modal-body').css('height', 327);
+                //
+                //     if(width < 579) {
+                //
+                //         $('#modal_address .modal-body').css('height', 810);
+                //
+                //     } else {
+                //
+                //         $('#modal_address .modal-body').css('height', 600);
+                //     }
+                // }
             });
             {# End Addresses #}
 

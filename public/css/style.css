@@ -1484,6 +1484,11 @@ a.distributor-logo-container {
     border: solid 1px #bfbfbf;
 }
 
+.google-map-icon {
+    width: 18px;
+    height: 18px;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {
