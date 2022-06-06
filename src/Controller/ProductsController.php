@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Baskets;
 use App\Entity\Categories;
 use App\Entity\ClinicUsers;
-use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
 use App\Entity\ListItems;
 use App\Entity\Lists;
@@ -16,7 +15,6 @@ use App\Entity\ProductNotes;
 use App\Entity\Products;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,6 +60,7 @@ class ProductsController extends AbstractController
         ]);
         $clinic_order_details = false;
         $clinic_order_list = false;
+        $charts = $this->forward('App\Controller\ChartsController::getChartsAction')->getContent();
 
         if(substr($request->getPathInfo(),0,16) == '/clinics/orders/'){
 
@@ -89,7 +88,8 @@ class ProductsController extends AbstractController
             'basket_id' => $basket->getId(),
             'clinic_order_details' => $clinic_order_details,
             'clinic_order_list' => $clinic_order_list,
-            'clinic_id' => $clinic->getId()
+            'clinic_id' => $clinic->getId(),
+            'charts' => $charts
         ]);
     }
 

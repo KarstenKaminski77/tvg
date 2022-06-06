@@ -19,8 +19,8 @@
             </div>
         </div>
     </div>
-    <div class="container-xl mt-5 mb-1 mb-sm-5 d-none" id="lists_container">
-    </div>
+    <div class="container-xl mt-5 mb-1 mb-sm-5 d-none" id="lists_container"></div>
+    <div class="container-xl mt-5 mb-1 mb-sm-5" id="charts"></div>
     <div class="container mb-5  mt-3 mt-sm-5">
         <div class="d-none row" id="back_btn"></div>
         <div class="row ms-1 me-1 ms-md0 me-md-0">
@@ -3004,6 +3004,22 @@
             });
 
             {# Dashboard #}
+            function getDashboard(){
+
+                $('#back_btn').remove();
+
+                $('#charts').show();
+                $("#charts").load('{{ path('get_clinic_charts') }}');
+            }
+            $('#dashboard_link').click(function (e) {
+
+                e.preventDefault();
+                getDashboard();
+                hidePaginator();
+
+            });
+            {# Ebd Dashboard #}
+
             {# Account & Settings #}
             function getAccountSettings(){
 
@@ -4389,7 +4405,6 @@
                 }
             });
             {# End Species #}
-            {# Dashboard #}
         });
 
         {# Popovers #}
