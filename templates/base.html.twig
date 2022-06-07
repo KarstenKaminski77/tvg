@@ -17,6 +17,13 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
         <link rel="icon" href="{{ asset('images/favicon.ico') }}">
+        <link rel="manifest" href="{{ asset('manifest.json') }}" />
+
+        <script type="module">
+            import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+            const el = document.createElement('pwa-update');
+            document.body.appendChild(el);
+        </script>
 
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
