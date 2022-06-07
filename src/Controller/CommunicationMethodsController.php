@@ -183,7 +183,9 @@ class CommunicationMethodsController extends AbstractController
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
-                                <button type="submit" class="btn btn-primary">CREATE COMMUNICATION METHOD</button>
+                                <button type="submit" id="btn_save_communication_method" class="btn btn-primary">
+                                    CREATE COMMUNICATION METHOD
+                                </button>
                             </div>
                         </form>
                     </div>

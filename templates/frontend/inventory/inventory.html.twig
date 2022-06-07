@@ -3013,6 +3013,7 @@
             function getDashboard(){
 
                 $('#back_btn').remove();
+                $('#inventory_container').hide();
                 $('#basket_container').show();
                 isLoading(true);
                 $("#basket_container").load('{{ path('get_clinic_charts') }}');
@@ -4130,6 +4131,7 @@
             });
             $(document).on('click','#communication_methods_new', function (){
                 $('#col_send_to').hide();
+                $('#btn_save_communication_method').empty().append('CREATE COMMUNICATION METHOD');
             });
             $(document).on('change','#communication_methods_type',function (){
 
@@ -4262,6 +4264,7 @@
                 $('#clinic_communication_methods_form_communicationMethod_clinicCommunicationMethods option[value="'+ communication_method +'"]').attr('selected','selected');
                 $('#communication_method_id').val(clinic_method_id);
                 $('#communication_methods_modal_label').empty().append('Update A Communication Method');
+                $('#btn_save_communication_method').empty().append('UPDATE COMMUNICATION METHOD');
             });
             $(document).on('focus','#send_to', function (){
 
