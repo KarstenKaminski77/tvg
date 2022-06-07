@@ -29,7 +29,6 @@ class ChartsController extends AbstractController
                 ['Commute',2],
                 ['Watch TV',2],
                 ['Sleep',7],
-                ['Playstation',10],
             ]
         );
         $pieChart->getOptions()->setTitle('Pie Chart');
@@ -38,6 +37,7 @@ class ChartsController extends AbstractController
         $pieChart->getOptions()->getTitleTextStyle()->setItalic(true);
         $pieChart->getOptions()->getTitleTextStyle()->setFontName('Arial');
         $pieChart->getOptions()->getTitleTextStyle()->setFontSize(20);
+        $pieChart->getOptions()->setColors(['#54565a','#90969b','#aab0b5','#c5ccd2','#e3e9ef']);
         $pieChart->getOptions()->setIs3D(true);
 
         $histogram = new Histogram();
@@ -69,6 +69,7 @@ class ChartsController extends AbstractController
         $histogram->getOptions()->setColors(['#e7711c']);
         $histogram->getOptions()->getHistogram()->setLastBucketPercentile(10);
         $histogram->getOptions()->getHistogram()->setBucketSize(100000000);
+        $histogram->getOptions()->setColors(['#54565a','#90969b','#aab0b5']);
 
         $area = new AreaChart();
         $area->getData()->setArrayToDataTable([
@@ -87,6 +88,7 @@ class ChartsController extends AbstractController
         $area->getOptions()->getHAxis()->setTitle('Year');
         $area->getOptions()->getHAxis()->getTitleTextStyle()->setColor('#333');
         $area->getOptions()->getVAxis()->setMinValue(0);
+        $area->getOptions()->setColors(['#90969b','#aab0b5']);
 
         $bar = new BarChart();
         $bar->getData()->setArrayToDataTable([
@@ -106,6 +108,7 @@ class ChartsController extends AbstractController
         $bar->getOptions()->getHAxis()->setTitle('Population of Largest U.S. Cities');
         $bar->getOptions()->getHAxis()->setMinValue(0);
         $bar->getOptions()->getVAxis()->setTitle('City');
+        $bar->getOptions()->setColors(['#54565a','#aab0b5']);
 
         $col = new ColumnChart();
         $col->getData()->setArrayToDataTable(
@@ -138,6 +141,7 @@ class ChartsController extends AbstractController
         $col->getOptions()->getHAxis()->getViewWindow()->setMin([7, 30, 0]);
         $col->getOptions()->getHAxis()->getViewWindow()->setMax([17, 30, 0]);
         $col->getOptions()->getVAxis()->setTitle('Rating (scale of 1-10)');
+        $col->getOptions()->setColors(['#54565a','#aab0b5']);
 
         $line = new LineChart();
         $line->getData()->setArrayToDataTable(
@@ -168,6 +172,7 @@ class ChartsController extends AbstractController
         $line->getOptions()->setCurveType('function');
         $line->getOptions()->setLineWidth(4);
         $line->getOptions()->getLegend()->setPosition('none');
+        $line->getOptions()->setColors(['#54565a']);
 
         $geo = new GeoChart();
         $geo->getData()->setArrayToDataTable(
@@ -189,6 +194,7 @@ class ChartsController extends AbstractController
         );
         $geo->getOptions()->setDisplayMode('region');
         $geo->getOptions()->getColorAxis()->setColors(['green', 'blue']);
+        $geo->getOptions()->setDefaultColor('#54565a');
 
         $combo = new ComboChart();
         $combo->getData()->setArrayToDataTable([
@@ -208,6 +214,7 @@ class ChartsController extends AbstractController
         $combo->getOptions()->getVAxis()->setTitle('Cups');
         $combo->getOptions()->getHAxis()->setTitle('Month');
         $combo->getOptions()->setSeriesType('bars');
+        $combo->getOptions()->setColors(['#54565a','#90969b','#aab0b5','#c5ccd2','#e3e9ef']);
 
         $series5 = new Series();
         $series5->setType('line');
@@ -230,10 +237,12 @@ class ChartsController extends AbstractController
         $candle->getOptions()->getTitleTextStyle()->setFontName('Arial');
         $candle->getOptions()->getTitleTextStyle()->setFontSize(20);
         $candle->getOptions()->getBar()->setGroupWidth('100%');
-        $candle->getOptions()->getCandlestick()->getFallingColor()->setStrokeWidth(0);
-        $candle->getOptions()->getCandlestick()->getFallingColor()->setFill('#a52714');
+        $candle->getOptions()->getCandlestick()->getFallingColor()->setStroke('#90969b');
+        $candle->getOptions()->getCandlestick()->getFallingColor()->setStrokeWidth(2);
+        $candle->getOptions()->setColors(['#54565a']);
         $candle->getOptions()->getCandlestick()->getRisingColor()->setStrokeWidth(0);
-        $candle->getOptions()->getCandlestick()->getRisingColor()->setFill('#0f9d58');
+        $candle->getOptions()->getCandlestick()->getRisingColor()->setFill('#54565a');
+        $candle->getOptions()->setTheme('Gray');
 
         return $this->render('frontend/clinics/dashboard.html.twig', [
             'pieChart' => $pieChart,
