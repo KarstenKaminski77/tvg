@@ -7,14 +7,60 @@
         margin:0 !important;
     }
 </style>
-<div class="row" style="">
-    <div class="col-12 col-md-6">
-        <div id="charts_container" class="chart"></div>
+<div class="row">
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="pie_chart" class="chart border-left border-right border-top border-bottom"></div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="histogram" class="chart border-left border-right border-top border-bottom"></div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="area_chart" class="chart border-left border-right border-top border-bottom"></div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="bar_chart" class="chart border-left border-right border-top border-bottom mt-4"></div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="column_chart" class="chart border-left border-right border-top border-bottom mt-4"></div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="line_chart" class="chart border-left border-right border-top border-bottom mt-4"></div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="geo_chart" class="chart border-left border-right border-top border-bottom mt-4"></div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="combo_chart" class="chart border-left border-right border-top border-bottom mt-4"></div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div id="candle_chart" class="chart border-left border-right border-top border-bottom mt-4"></div>
     </div>
 </div>
 
 <script>
 
-    {{ gc_draw(pieChart, 'charts_container') }}
+{#    {{ gc_draw(pieChart, 'charts_container') }}#}
+    {{ gc_draw([
+        pieChart,
+        histogram,
+        areaChart,
+        barChart,
+        columnChart,
+        lineChart,
+        geoChart,
+        comboChart,
+        candleChart
+    ], [
+        'pie_chart',
+        'histogram',
+        'area_chart',
+        'bar_chart',
+        'column_chart',
+        'line_chart',
+        'geo_chart',
+        'combo_chart',
+        'candle_chart',
+
+    ]) }}
 
 </script>
