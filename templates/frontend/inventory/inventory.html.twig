@@ -90,6 +90,7 @@
             let is_addresses = uri.match('/clinics/addresses');
             let is_communication_method = uri.match('/clinics/communication-methods');
             let is_list = uri.match('/clinics/inventory/list/[0-9]+');
+            let is_dashboard = uri.match('/clinics/dashboard');
             let orderid = '{{app.request.get('order_id')}}';
             let distributorid = '{{app.request.get('distributor_id')}}';
             let iti = '';
@@ -113,6 +114,12 @@
             }
 
             {# Get correct content on refresh #}
+            {# Dashboard #}
+            if(is_dashboard != null) {
+
+                getDashboard();
+            }
+
             {# Account & Settings #}
             if(is_account_settings != null) {
 
@@ -3007,7 +3014,10 @@
 
                 $('#back_btn').remove();
                 $('#basket_container').show();
+                isLoading(true);
                 $("#basket_container").load('{{ path('get_clinic_charts') }}');
+                isLoading(false);
+                window.history.pushState(null, "Fluid", '/clinics/dashboard');
             }
             $('#dashboard_link').click(function (e) {
 
