@@ -17,24 +17,24 @@
 {% block body %}
 <div class="container-fluid ontainer w-100 h-100">
     <div class="row align-items-center h-100">
-        <div class="col-12 text-center">
+        <div class="col-12 col-md-4 offset-xs-0 offset-md-4 text-center">
             <table class="w-100">
                 <tr>
                     <td class="text-center">
-                        <table align="center">
+                        <table class="w-100" align="center">
                             <tr>
                                 <td>
-                                    <img src="{{ asset('images/logo.png') }}" class="img-fluid" alt="Fluid" style="max-width: 250px">
+                                    <img src="{{ asset('images/logo.png') }}" class="img-fluid mb-5" alt="Fluid" style="max-width: 250px">
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <a href="{{ path('clinics_login') }}" class="btn btn-primary w-100">CLINIC LOGIN</a>
+                                    <a href="{{ path('clinics_login') }}" class="btn btn-lg btn-primary w-100">CLINIC LOGIN</a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <a href="{{ path('distributor_login') }}" class="btn btn-secondary mt-3 w-100">DISTRIBUTOR LOGIN</a>
+                                    <a href="{{ path('distributor_login') }}" class="btn btn-secondary btn-lg mt-3 w-100">DISTRIBUTOR LOGIN</a>
                                 </td>
                             </tr>
                         </table>
