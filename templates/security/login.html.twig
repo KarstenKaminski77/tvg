@@ -40,8 +40,10 @@
         {% endif %}
 
         {% if error %}
-            <div class="col-12 col-md-4 offset-4">
-                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            <div class="col-12 col-md-4 offset-md-4">
+                <div class="alert alert-danger">
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </div>
             </div>
         {% endif %}
 

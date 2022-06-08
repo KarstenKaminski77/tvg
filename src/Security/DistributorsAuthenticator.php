@@ -51,7 +51,9 @@ class DistributorsAuthenticator extends AbstractLoginFormAuthenticator
 
         // For example:
         //return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        return new RedirectResponse($this->urlGenerator->generate('distributor_dashboard'));
+        return new RedirectResponse($this->urlGenerator->generate('distributor_order_list',[
+            'distributor_id' => $token->getUser()->getDistributor()->getId()
+        ]));
     }
 
     protected function getLoginUrl(Request $request): string
