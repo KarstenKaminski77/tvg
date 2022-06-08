@@ -9,7 +9,6 @@
   "start_url": "/",
   "theme_color": "#545659",
   "icons": [
-    [
     {
       "src": "images/icons/icon-72x72.png",
       "sizes": "72x72",
@@ -58,6 +57,5 @@
       "type": "image/png",
       "purpose": "maskable any"
     }
-  ]
   ]
 }
