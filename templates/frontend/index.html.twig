@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Hello HomePageController!{% endblock %}
+{% block meta_decription %}
+    {{ parent() }}
+{% endblock %}
 {% block stylesheets %}
     {{ parent() }}
     <style>
@@ -23,7 +24,7 @@
                         <table align="center">
                             <tr>
                                 <td>
-                                    <img src="{{ asset('images/logo.png') }}" class="img-fluid" style="max-width: 250px">
+                                    <img src="{{ asset('images/logo.png') }}" class="img-fluid" alt="Fluid" style="max-width: 250px">
                                 </td>
                             </tr>
                             <tr>

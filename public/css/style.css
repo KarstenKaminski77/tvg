@@ -1,5 +1,6 @@
 html {
     box-sizing: unset !important;
+    overflow-x: hidden;
 }
 
 body {
