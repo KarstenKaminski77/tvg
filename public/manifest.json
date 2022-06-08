@@ -2,10 +2,10 @@
   "background_color": "#ffffff",
   "dir": "ltr",
   "display": "standalone",
-  "name": "fluid",
+  "name": "Fluid Commerce",
   "orientation": "any",
   "scope": "/",
-  "short_name": "fluid",
+  "short_name": "Fluid",
   "start_url": "/",
   "theme_color": "#ffffff",
   "icons": [
