@@ -5,7 +5,6 @@
 {% block body %}
     <div class="hidden users-flash mb-0" id="flash"></div>
     <div class="container-fluid pe-4">
-
         <div class="row flex-nowrap">
             <div class="col-1 col-sm-2 col-md-3 col-xl-2 px-sm-2 px-0 bg-light">
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
@@ -84,11 +83,10 @@
                 </div>
             </div>
             <div class="col-11 col-sm-10 py-3">
-
                 <div class="ps-3">
 
                     {# Account & Settings #}
-                    <div class="row" id="account_settings">
+                    <div class="row hidden" id="account_settings">
                         <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3">
                             <h4 class="text-white text-truncate">Account & Settings</h4>
                             <span class="text-white d-none d-sm-inline">
@@ -311,7 +309,7 @@
                     {# End Account & Settings #}
 
                     {# About #}
-                    <div class="row" id="about">
+                    <div class="row hidden" id="about">
                         <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
                             <h3 class="text-light text-truncate">About</h3>
                             <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
@@ -338,7 +336,7 @@
                     {# End About #}
 
                     {# Operating Hours #}
-                    <div class="row" id="operating_hours">
+                    <div class="row hidden" id="operating_hours">
                         <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
                             <h3 class="text-light text-truncate">Operating Hours</h3>
                             <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
@@ -369,7 +367,7 @@
                     {# End Operating Hours #}
 
                     {# Refund Policy #}
-                    <div class="row" id="refund_policy">
+                    <div class="row hidden" id="refund_policy">
                         <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
                             <h3 class="text-light text-truncate">Refund Policy</h3>
                             <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
@@ -400,7 +398,7 @@
                     {# End Refund Policy #}
 
                     {# Sales Tax Policy #}
-                    <div class="row" id="sales_tax_policy">
+                    <div class="row hidden" id="sales_tax_policy">
                         <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
                             <h3 class="text-light text-truncate">Sales Tax Policy</h3>
                             <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
@@ -431,7 +429,7 @@
                     {# End Sales Tax Policy #}
 
                     {# Shipping Policy #}
-                    <div class="row" id="shipping_policy">
+                    <div class="row hidden" id="shipping_policy">
                         <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-5">
                             <h3 class="text-light text-truncate">Shipping Policy</h3>
                             <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
@@ -634,7 +632,7 @@
                     {# End Invenory / Distributor Products #}
 
                     {# Users #}
-                    <div class="row" id="users">
+                    <div class="row hidden" id="users">
                         <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
                             <h3 class="text-light text-truncate">Manage User Accounts</h3>
                             <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
@@ -892,6 +890,7 @@
             let date_time = date.getFullYear() +'-'+ (date.getMonth() + 1) +'-'+ date.getDate() +' '+ String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") +':'+ String(date.getSeconds()).padStart(2, '0');
             sessionStorage.setItem('date_time', date_time);
 
+            account_settings.hide();
             brand.empty().hide();
             about.hide();
             operating_hours.hide();

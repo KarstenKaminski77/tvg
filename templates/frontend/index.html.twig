@@ -1,18 +1,45 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Hello HomePageController!{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        html,body{
+            width:100%;
+            margin:0;
+            height:100%;
+            background: #fff !important;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="row">
+<div class="container-fluid ontainer w-100 h-100">
+    <div class="row align-items-center h-100">
         <div class="col-12 text-center">
-            <picture>
-                <source srcset="{{ asset('images/logo.png') | imagine_filter('logo') }}" type="image/webp">
-                <source srcset="{{ asset('images/logo.png') | imagine_filter('logo') }}" type="image/png">
-                <img src="{{ asset('images/logo.png') | imagine_filter('logo') }}"
-                     alt=""
-                >
-            </picture>
+            <table class="w-100">
+                <tr>
+                    <td class="text-center">
+                        <table align="center">
+                            <tr>
+                                <td>
+                                    <img src="{{ asset('images/logo.png') }}" class="img-fluid" style="max-width: 250px">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="{{ path('clinics_login') }}" class="btn btn-primary w-100">CLINIC LOGIN</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="{{ path('distributor_login') }}" class="btn btn-secondary mt-3 w-100">DISTRIBUTOR LOGIN</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>

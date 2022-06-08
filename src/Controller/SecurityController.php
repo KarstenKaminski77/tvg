@@ -33,8 +33,19 @@ class SecurityController extends AbstractController
     /**
      * @Route("/distributors/login", name="distributor_login")
      */
-    public function daistributorLogin(AuthenticationUtils $authenticationUtils, Request$request): Response
+    public function daistributorLogin(AuthenticationUtils $authenticationUtils, Request$request, AuthorizationChecker $checker): Response
     {
+        if (true === $checker->isGranted('ROLE_DISTRIBUTOR')) {
+
+            $distributor_id = $this->getUser()->getDistributor()->getId();
+
+            header('Location: '. $this->getParameter('app.base_url') . '/distributors/orders/' . $distributor_id);
+//            $this->redirectToRoute('clinic_orders_list',[
+//                'clinic_id' => $clinic_id
+//            ]);
+
+            die();
+        }
         $uri = explode('/', $request->getPathInfo());
 
         // get the login error if there is one
