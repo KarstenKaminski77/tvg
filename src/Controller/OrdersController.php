@@ -937,7 +937,7 @@ class OrdersController extends AbstractController
             <input type="hidden" name="order_id" value="'. $orders[0]->getOrders()->getId() .'">
             <div class="col-12">
                 <div class="row">
-                    <div class="col-12 bg-primary bg-gradient text-center mt-5 pt-3 pb-3" id="order_header">
+                    <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3" id="order_header">
                         <h4 class="text-white">'. $orders[0]->getPoNumber() .'</h4>
                         <span class="text-white">
                             '. $orders[0]->getOrders()->getClinic()->getClinicName() .'

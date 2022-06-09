@@ -1,21 +1,20 @@
-{% extends 'layout.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Hello DistributorsController!{% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="col-12 mb-3 mt-5">
-        <h3>Account & Settings</h3>
-    </div>
-    <div class="col-12 mb-3 mt-2">
-        <h5>PersonaL Information</h5>
-    </div>
-
-    <form name="register_form" id="register_form" method="post">
-        <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
-
-        <div class="row mb-3">
-
+<form name="register_form" id="register_form" method="post">
+    <div class="container">
+        <div class="row pt-3">
+            <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3" id="order_header">
+                <h4 class="text-white">Let's Create Your Account.</h4>
+                <span class="text-white">
+                    Signing up for your Fluid is fast and free - be up and running in under a minute.
+                </span>
+            </div>
+        </div>
+        <div class="row pb-3 bg-light border-left border-right pt-3">
+            <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
             {# First Name #}
             <div class="col-12 col-sm-3">
                 <label>First Name*</label>
@@ -44,7 +43,7 @@
             </div>
         </div>
 
-        <div class="row mb-3">
+        <div class="row pb-3 bg-light border-left border-right">
 
             {# Email #}
             <div class="col-12 col-sm-6">
@@ -65,15 +64,7 @@
                 </div>
             </div>
         </div>
-
-        <div class="row mb-3">
-            <div class="col-12 mb-3 mt-2">
-                <h5>Clinic Information</h5>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-
+        <div class="row mb-3 bg-light border-left border-right border-bottom">
             {# Clinic Name #}
             <div class="col-12 col-sm-6">
                 <label>Clinic Name*</label>
@@ -82,9 +73,8 @@
                     Required Field
                 </div>
             </div>
-
             {# Telephone #}
-            <div class="col-12 col-sm-6">
+            <div class="col-12 col-sm-6 pb-3">
                 <label>Clinic Phone Number*</label>
                 <input type="text" name="clinicTelephone" id="clinic_telephone" class="form-control" placeholder="Clinic Phone Number">
                 <div class="hidden_msg" id="error_clinic_telephone">
@@ -92,9 +82,13 @@
                 </div>
             </div>
         </div>
-        <button id="form_save" type="submit" class="btn btn-primary w-100">CREATE ACCOUNT</button>
-    </form>
-</div>
+        <div class="row">
+            <div class="col-12 ps-0 pe-0">
+                <button id="form_save" type="submit" class="btn btn-primary w-100">CREATE ACCOUNT</button>
+            </div>
+        </div>
+    </div>
+</form>
 {% endblock %}
 
 {% block javascripts %}
