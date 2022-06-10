@@ -138,7 +138,6 @@
                         geocoder.geocode({
                             latLng: latLng
                         }, function(responses) {
-                            console.log(responses)
                             infowindow = new google.maps.InfoWindow({
                                 content: responses[0].formatted_address,
                             });
