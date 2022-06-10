@@ -7,7 +7,7 @@
     <div class="container-fluid pe-4">
         <div class="row flex-nowrap">
             <div class="col-1 col-sm-2 col-md-3 col-xl-2 px-sm-2 px-0 bg-light border-right">
-                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 text-truncate overflow-hidden">
                     <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none distributor-logo-container">
                         <img src="{{ asset('images/logo-150.png') }}" class="img-fluid distributor-logo">
                     </a>
@@ -17,6 +17,56 @@
                                 <i class="fa-solid fa-house"></i>
                                 <span class="ms-1 d-none d-sm-inline">Home</span>
                             </a>
+                        </li>
+                        <li class="text">
+                            <a href="#submenu1" data-bs-toggle="collapse" class="nav-link px-0 align-middle text-primary collapsed text-center text-sm-start" aria-expanded="false">
+                                <i class="fa-solid fa-user-gear"></i>
+                                <span class="ms-1 d-none d-sm-inline">My Account</span>
+                            </a>
+                            <ul class="nav flex-column ms-1 collapse" id="submenu1" data-bs-parent="#menu" style="">
+                                <li class="w-100">
+                                    <a href="#" class="nav-link align-middle text-primary" id="account_settings_link">
+                                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                                        <span class="ms-1 d-none d-sm-inline">Company Information</span>
+                                    </a>
+                                </li>
+                                <li class="w-100">
+                                    <a href="#" class="nav-link align-middle text-primary" id="about_link">
+                                        <i class="fa-solid fa-circle-question"></i>
+                                        <span class="ms-1 d-none d-sm-inline">About</span>
+                                    </a>
+                                </li>
+                                <li class="w-100">
+                                    <a href="#" class="nav-link align-middle text-primary" id="operating_hours_link">
+                                        <i class="fa-solid fa-clock"></i>
+                                        <span class="ms-1 d-none d-sm-inline">Operating Hours</span>
+                                    </a>
+                                </li>
+                                <li class="w-100">
+                                    <a href="#" class="nav-link align-middle text-primary" id="refund_policy_link">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                        <span class="ms-1 d-none d-sm-inline">Refund Policy</span>
+                                    </a>
+                                </li>
+                                <li class="w-100">
+                                    <a href="#" class="nav-link align-middle text-primary" id="sales_tax_policy_link">
+                                        <i class="fa-solid fa-scale-unbalanced"></i>
+                                        <span class="ms-1 d-none d-sm-inline">Sale Tax Policy</span>
+                                    </a>
+                                </li>
+                                <li class="w-100">
+                                    <a href="#" class="nav-link align-middle text-primary" id="shipping_policy_link">
+                                        <i class="fa-solid fa-truck"></i>
+                                        <span class="ms-1 d-none d-sm-inline">Shipping Policy</span>
+                                    </a>
+                                </li>
+                                <li class="w-100">
+                                    <a class="nav-link align-middle text-primary" href="#" id="users_link">
+                                        <i class="fa-solid fa-address-book"></i>
+                                        <span class="ms-1 d-none d-sm-inline">Users</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li>
                             <a
@@ -31,52 +81,9 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="nav-link px-0 align-middle text-primary" id="account_settings_link">
-                                <i class="fa-solid fa-screwdriver-wrench"></i>
-                                <span class="ms-1 d-none d-sm-inline">Account & Settings</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-link px-0 align-middle text-primary" id="about_link">
-                                <i class="fa-solid fa-circle-question"></i>
-                                <span class="ms-1 d-none d-sm-inline">About</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-link px-0 align-middle text-primary" id="operating_hours_link">
-                                <i class="fa-solid fa-clock"></i>
-                                <span class="ms-1 d-none d-sm-inline">Operating Hours</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-link px-0 align-middle text-primary" id="refund_policy_link">
-                                <i class="fa-solid fa-rotate-left"></i>
-                                <span class="ms-1 d-none d-sm-inline">Refund Policy</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-link px-0 align-middle text-primary" id="sales_tax_policy_link">
-                                <i class="fa-solid fa-scale-unbalanced"></i>
-                                <span class="ms-1 d-none d-sm-inline">Sale Tax Policy</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-link px-0 align-middle text-primary" id="shipping_policy_link">
-                                <i class="fa-solid fa-truck"></i>
-                                <span class="ms-1 d-none d-sm-inline">Shipping Policy</span>
-                            </a>
-                        </li>
-                        <li>
                             <a class="nav-link px-0 align-middle text-primary" href="#" id="inventory_link">
                                 <i class="fa-solid fa-cart-flatbed"></i>
                                 <span class="ms-1 d-none d-sm-inline">Invetory</span>
-                            </a>
-                        </li>
-                        <li>
-                        <li>
-                            <a class="nav-link px-0 align-middle text-primary" href="#" id="users_link">
-                                <i class="fa-solid fa-address-book"></i>
-                                <span class="ms-1 d-none d-sm-inline">Users</span>
                             </a>
                         </li>
                     </ul>
