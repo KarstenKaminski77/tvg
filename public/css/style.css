@@ -23,6 +23,10 @@ a.note-link {
     color: #523e02;
 }
 
+.w-sm-100-md-50 {
+    width: 50%;
+}
+
 .navbar .megamenu{ padding: 1rem; }
 /* ============ desktop view ============ */
 @media all and (min-width: 992px) {
@@ -1537,6 +1541,14 @@ a.distributor-logo-container {
 @media (max-width: 1199px) {
     .border-list {
         border-bottom: 1px dashed #e2e7eb !important;
+    }
+
+    .w-sm-100-md-50 {
+        width: 100%;
+    }
+
+    .ms-md-auto {
+        margin-left: 0 !important;
     }
 }
 
