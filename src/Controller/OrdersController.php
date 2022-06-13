@@ -3164,6 +3164,7 @@ class OrdersController extends AbstractController
         }
  
         $snappy = new Pdf(__DIR__ .'/../../vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        dd($snappy);
         $html = 'xxxx';
 //        $html = '
 //        <table style="width: 100%; border: none; border-collapse: collapse; font-size: 12px">
