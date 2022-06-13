@@ -3164,207 +3164,206 @@ class OrdersController extends AbstractController
         }
  
         $snappy = new Pdf(__DIR__ .'/../../vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+\
+        $html = '
+        <table style="width: 100%; border: none; border-collapse: collapse; font-size: 12px">
+            <tr>
+                <td style=" line-height: 25px">
+                    <img
+                        src="'. __DIR__ .'/../../public/images/logos/'. $distributor->getLogo() .'"
+                        style="width:100%; max-width: 200px"
+                    >
+                    <br>
+                    '. $distributor->getDistributorName() .'<br>
+                    '. $address .'
+                    '. $distributor->getTelephone() .'<br>
+                    '. $distributor->getEmail() .'
+                </td>
+                <td style="text-align: right">
+                    <h1>PURCHASE ORDER</h1>
+                    <table style="width: auto;margin-right: 0px;margin-left: auto; text-align: right;font-size: 12px">
+                        <tr>
+                            <td>
+                                DATE:
+                            </td>
+                            <td style="padding-left: 20px; line-height: 25px">
+                                '. date('Y-m-d') .'
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                PO#:
+                            </td>
+                            <td style="line-height: 25px">
+                                '. $order_items[0]->getPoNumber() .'
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Status:
+                            </td>
+                            <td style="line-height: 25px">
+                                '. $status .'
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 50%; vertical-align: top">
+                    <table style="width: 80%; border-collapse: collapse;font-size: 12px">
+                        <tr style="background: #7796a8; color: #fff; border: solid 1px #7796a8;">
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Vendor
+                            </th>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 10px; line-height: 25px">
+                                '. $billing_address->getClinicName() .'<br>
+                                '. $billing_address->getAddress() .'<br>
+                                '. $billing_address->getPostalCode() .'<br>
+                                '. $billing_address->getCity() .'<br>
+                                '. $billing_address->getState() .'<br>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="width: 50%; vertical-align: top">
+                    <table style="width: 80%; border-collapse: collapse; margin-left: auto;margin-right: 0; font-size: 12px">
+                        <tr style="background: #7796a8; color: #fff">
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Deliver To
+                            </th>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 10px; line-height: 25px">
+                                '. $shipping_address->getClinicName() .'<br>
+                                '. $shipping_address->getAddress() .'<br>
+                                '. $shipping_address->getPostalCode() .'<br>
+                                '. $shipping_address->getCity() .'<br>
+                                '. $shipping_address->getState() .'<br>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px">
+                        <tr style="background: #7796a8; color: #fff">
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                #SKU
+                            </th>
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Description
+                            </th>
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Qty
+                            </th>
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Unit Priice
+                            </th>
+                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                                Total
+                            </th>
+                        </tr>';
 
-        $html = 'xxxx';
-//        $html = '
-//        <table style="width: 100%; border: none; border-collapse: collapse; font-size: 12px">
-//            <tr>
-//                <td style=" line-height: 25px">
-//                    <img
-//                        src="'. __DIR__ .'/../../public/images/logos/'. $distributor->getLogo() .'"
-//                        style="width:100%; max-width: 200px"
-//                    >
-//                    <br>
-//                    '. $distributor->getDistributorName() .'<br>
-//                    '. $address .'
-//                    '. $distributor->getTelephone() .'<br>
-//                    '. $distributor->getEmail() .'
-//                </td>
-//                <td style="text-align: right">
-//                    <h1>PURCHASE ORDER</h1>
-//                    <table style="width: auto;margin-right: 0px;margin-left: auto; text-align: right;font-size: 12px">
-//                        <tr>
-//                            <td>
-//                                DATE:
-//                            </td>
-//                            <td style="padding-left: 20px; line-height: 25px">
-//                                '. date('Y-m-d') .'
-//                            </td>
-//                        </tr>
-//                        <tr>
-//                            <td>
-//                                PO#:
-//                            </td>
-//                            <td style="line-height: 25px">
-//                                '. $order_items[0]->getPoNumber() .'
-//                            </td>
-//                        </tr>
-//                        <tr>
-//                            <td>
-//                                Status:
-//                            </td>
-//                            <td style="line-height: 25px">
-//                                '. $status .'
-//                            </td>
-//                        </tr>
-//                    </table>
-//                </td>
-//            </tr>
-//            <tr>
-//                <td colspan="2">
-//                    &nbsp;
-//                </td>
-//            </tr>
-//            <tr>
-//                <td style="width: 50%; vertical-align: top">
-//                    <table style="width: 80%; border-collapse: collapse;font-size: 12px">
-//                        <tr style="background: #7796a8; color: #fff; border: solid 1px #7796a8;">
-//                            <th style="padding: 8px; border: solid 1px #7796a8;">
-//                                Vendor
-//                            </th>
-//                        </tr>
-//                        <tr>
-//                            <td style="padding-top: 10px; line-height: 25px">
-//                                '. $billing_address->getClinicName() .'<br>
-//                                '. $billing_address->getAddress() .'<br>
-//                                '. $billing_address->getPostalCode() .'<br>
-//                                '. $billing_address->getCity() .'<br>
-//                                '. $billing_address->getState() .'<br>
-//                            </td>
-//                        </tr>
-//                    </table>
-//                </td>
-//                <td style="width: 50%; vertical-align: top">
-//                    <table style="width: 80%; border-collapse: collapse; margin-left: auto;margin-right: 0; font-size: 12px">
-//                        <tr style="background: #7796a8; color: #fff">
-//                            <th style="padding: 8px; border: solid 1px #7796a8;">
-//                                Deliver To
-//                            </th>
-//                        </tr>
-//                        <tr>
-//                            <td style="padding-top: 10px; line-height: 25px">
-//                                '. $shipping_address->getClinicName() .'<br>
-//                                '. $shipping_address->getAddress() .'<br>
-//                                '. $shipping_address->getPostalCode() .'<br>
-//                                '. $shipping_address->getCity() .'<br>
-//                                '. $shipping_address->getState() .'<br>
-//                            </td>
-//                        </tr>
-//                    </table>
-//                </td>
-//            </tr>
-//            <tr>
-//                <td colspan="2">
-//                    &nbsp;
-//                </td>
-//            </tr>
-//            <tr>
-//                <td colspan="2">
-//                    <table style="width: 100%; border-collapse: collapse; font-size: 12px">
-//                        <tr style="background: #7796a8; color: #fff">
-//                            <th style="padding: 8px; border: solid 1px #7796a8;">
-//                                #SKU
-//                            </th>
-//                            <th style="padding: 8px; border: solid 1px #7796a8;">
-//                                Description
-//                            </th>
-//                            <th style="padding: 8px; border: solid 1px #7796a8;">
-//                                Qty
-//                            </th>
-//                            <th style="padding: 8px; border: solid 1px #7796a8;">
-//                                Unit Priice
-//                            </th>
-//                            <th style="padding: 8px; border: solid 1px #7796a8;">
-//                                Total
-//                            </th>
-//                        </tr>';
-//
-//                    foreach($order_items as $item) {
-//
-//                        if ($item->getIsAccepted() == 1) {
-//
-//                            $name = $item->getName() . ': ';
-//                            $dosage = $item->getProduct()->getDosage() . $item->getProduct()->getUnit() . ', ' . $item->getProduct()->getSize() . ' Count';
-//
-//                            if ($item->getProduct()->getForm() == 'Each') {
-//
-//                                $dosage = $item->getProduct()->getSize() . $item->getProduct()->getUnit();
-//                            }
-//
-//                            $html .= '
-//                            <tr>
-//                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
-//                                    ' . $item->getProduct()->getDistributorProducts()[0]->getSku() . '
-//                                </td>
-//                                <td style="padding: 8px; border: solid 1px #7796a8;">
-//                                    ' . $name . $dosage . '
-//                                </td>
-//                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
-//                                    ' . $item->getQuantity() . '
-//                                </td>
-//                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
-//                                    $' . number_format($item->getUnitPrice(), 2) . '
-//                                </td>
-//                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
-//                                    $' . number_format($item->getTotal(), 2) . '
-//                                </td>
-//                            </tr>';
-//                        }
-//                    }
-//
-//                    $html .= '
-//                        <tr>
-//                            <td colspan="3" rowspan="4" style="padding: 8px; padding-top: 16px; border: none;">
-//                                '. $additional_notes .'
-//                            </td>
-//                            <td style="padding: 8px; padding-top: 16px; border: none;text-align: right">
-//                                Subtotal
-//                            </td>
-//                            <td style="padding: 8px; padding-top: 16px;text-align: right; border: none">
-//                                $'. number_format($order->getSubTotal(),2) .'
-//                            </td>
-//                        </tr>';
-//
-//                        if($order->getDeliveryFee() > 0) {
-//
-//                            $html .= '
-//                            <tr>
-//                                <td style="padding: 8px; border: none;text-align: right">
-//                                    Delivery
-//                                </td>
-//                                <td style="padding: 8px;text-align: right; border: none">
-//                                    $' . number_format($order->getDeliveryFee(), 2) . '
-//                                </td>
-//                            </tr>';
-//                        }
-//
-//                        if($order->getTax() > 0) {
-//
-//                            $html .= '
-//                            <tr>
-//                                <td style="padding: 8px; border: none;text-align: right">
-//                                    Tax
-//                                </td>
-//                                <td style="padding: 8px; border:none; text-align: right">
-//                                    $' . number_format($order->getTax(), 2) . '
-//                                </td>
-//                            </tr>';
-//                        }
-//
-//                        $html .= '
-//                        <tr>
-//                            <td style="padding: 8px; border: none;text-align: right">
-//                                <b>Total</b>
-//                            </td>
-//                            <td style="padding: 8px;text-align: right; border: none">
-//                                <b>$'. number_format($order->getTotal(),2) .'</b>
-//                            </td>
-//                        </tr>
-//                    </table>
-//                </td>
-//            </tr>
-//        </table>';
+                    foreach($order_items as $item) {
 
+                        if ($item->getIsAccepted() == 1) {
+
+                            $name = $item->getName() . ': ';
+                            $dosage = $item->getProduct()->getDosage() . $item->getProduct()->getUnit() . ', ' . $item->getProduct()->getSize() . ' Count';
+
+                            if ($item->getProduct()->getForm() == 'Each') {
+
+                                $dosage = $item->getProduct()->getSize() . $item->getProduct()->getUnit();
+                            }
+
+                            $html .= '
+                            <tr>
+                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
+                                    ' . $item->getProduct()->getDistributorProducts()[0]->getSku() . '
+                                </td>
+                                <td style="padding: 8px; border: solid 1px #7796a8;">
+                                    ' . $name . $dosage . '
+                                </td>
+                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
+                                    ' . $item->getQuantity() . '
+                                </td>
+                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
+                                    $' . number_format($item->getUnitPrice(), 2) . '
+                                </td>
+                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
+                                    $' . number_format($item->getTotal(), 2) . '
+                                </td>
+                            </tr>';
+                        }
+                    }
+
+                    $html .= '
+                        <tr>
+                            <td colspan="3" rowspan="4" style="padding: 8px; padding-top: 16px; border: none;">
+                                '. $additional_notes .'
+                            </td>
+                            <td style="padding: 8px; padding-top: 16px; border: none;text-align: right">
+                                Subtotal
+                            </td>
+                            <td style="padding: 8px; padding-top: 16px;text-align: right; border: none">
+                                $'. number_format($order->getSubTotal(),2) .'
+                            </td>
+                        </tr>';
+
+                        if($order->getDeliveryFee() > 0) {
+
+                            $html .= '
+                            <tr>
+                                <td style="padding: 8px; border: none;text-align: right">
+                                    Delivery
+                                </td>
+                                <td style="padding: 8px;text-align: right; border: none">
+                                    $' . number_format($order->getDeliveryFee(), 2) . '
+                                </td>
+                            </tr>';
+                        }
+
+                        if($order->getTax() > 0) {
+
+                            $html .= '
+                            <tr>
+                                <td style="padding: 8px; border: none;text-align: right">
+                                    Tax
+                                </td>
+                                <td style="padding: 8px; border:none; text-align: right">
+                                    $' . number_format($order->getTax(), 2) . '
+                                </td>
+                            </tr>';
+                        }
+
+                        $html .= '
+                        <tr>
+                            <td style="padding: 8px; border: none;text-align: right">
+                                <b>Total</b>
+                            </td>
+                            <td style="padding: 8px;text-align: right; border: none">
+                                <b>$'. number_format($order->getTotal(),2) .'</b>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>';
+dd('xxxx');
         $file = uniqid() .'.pdf';
         $snappy->generateFromHtml($html,__DIR__ . '/../../public/pdf/'. $file,['page-size' => 'A4']);
 
