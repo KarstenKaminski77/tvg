@@ -27,6 +27,10 @@ a.note-link {
     width: 50%;
 }
 
+.row:before, .row:after{
+    display: none !important;
+}
+
 .navbar .megamenu{ padding: 1rem; }
 /* ============ desktop view ============ */
 @media all and (min-width: 992px) {
