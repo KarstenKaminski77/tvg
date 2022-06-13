@@ -3164,12 +3164,11 @@ class OrdersController extends AbstractController
         }
  
         $snappy = new Pdf(__DIR__ .'/../../vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
-
         $html = '
         <table style="width: 100%; border: none; border-collapse: collapse; font-size: 12px">
             <tr>
                 <td style=" line-height: 25px">
-                    <img
+                    <img 
                         src="'. __DIR__ .'/../../public/images/logos/'. $distributor->getLogo() .'"
                         style="width:100%; max-width: 200px"
                     >
@@ -3205,7 +3204,7 @@ class OrdersController extends AbstractController
                             <td style="line-height: 25px">
                                 '. $status .'
                             </td>
-                        </tr>
+                        </tr>  
                     </table>
                 </td>
             </tr>
@@ -3363,9 +3362,9 @@ class OrdersController extends AbstractController
                 </td>
             </tr>
         </table>';
-dd('xxxx');
+
         $file = uniqid() .'.pdf';
-        $snappy->generateFromHtml($html,__DIR__ . '/../../public/pdf/'. $file,['page-size' => 'A4']);
+        $snappy->generateFromHtml($html,'pdf/'. $file,['page-size' => 'A4']);
 
         $order_status->setPoFile($file);
 
