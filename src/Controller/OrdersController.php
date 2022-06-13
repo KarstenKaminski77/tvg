@@ -3168,10 +3168,10 @@ class OrdersController extends AbstractController
         <table style="width: 100%; border: none; border-collapse: collapse; font-size: 12px">
             <tr>
                 <td style=" line-height: 25px">
-                    <img 
+                    <!--<img 
                         src="'. __DIR__ .'/../../public/images/logos/'. $distributor->getLogo() .'"
                         style="width:100%; max-width: 200px"
-                    >
+                    >-->
                     <br>
                     '. $distributor->getDistributorName() .'<br>
                     '. $address .'
