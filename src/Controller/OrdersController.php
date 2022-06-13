@@ -2667,7 +2667,8 @@ class OrdersController extends AbstractController
 
         $response = [
             'orders' => json_decode($orders),
-            'flash' => $flash
+            'flash' => $flash,
+            'distributor_id' => $distributor_id,
         ];
 
         return new JsonResponse($response);

@@ -1097,6 +1097,10 @@
                         order_id: order_id
                     },
                     dataType: 'json',
+                    beforeSend: function (){
+
+                        isLoading(true);
+                    },
                     success: function (response) {
 
                         // Reset page load time for refresh button alert
@@ -1114,6 +1118,8 @@
                         }).get() );
 
                         $('.badge').css({'width':maxWidth+'px'});
+
+                        isLoading(false);
                     }
                 });
             }
@@ -2555,6 +2561,20 @@
             $('#flash').click(function (){
                 $('#flash').addClass('hidden');
             });
+
+            function isLoading(status){
+
+                if(status) {
+
+                    $("div.spanner").addClass("show");
+                    $("div.overlay").addClass("show");
+
+                } else {
+
+                    $("div.spanner").removeClass("show");
+                    $("div.overlay").removeClass("show");
+                }
+            }
         });
 
         function selectProduct(id, name) {

@@ -1349,7 +1349,7 @@
                         $('#basket_container').empty().removeClass('col-container').append(response.orders).show();
                         clearInterval(get_messages);
                         isLoading(false);
-                        window.history.pushState(null, "Fluid", '/clinics/orders');
+                        window.history.pushState(null, "Fluid", '/clinics/orders/'+ response.distributor_id);
                     }
                 });
             });
