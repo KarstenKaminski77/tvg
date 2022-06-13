@@ -1171,7 +1171,6 @@
             $(document).on('click','.order-link, .orders_link', function (e){
 
                 let clinic_id = $(this).data('clinic-id');
-
                 e.preventDefault();
                 clearInterval(get_messages);
                 getOrdersList(clinic_id, $(this).data('page-id'));
@@ -1349,7 +1348,7 @@
                         $('#basket_container').empty().removeClass('col-container').append(response.orders).show();
                         clearInterval(get_messages);
                         isLoading(false);
-                        window.history.pushState(null, "Fluid", '/clinics/orders/'+ response.distributor_id);
+                        window.history.pushState(null, "Fluid", '/clinics/orders/'+ response.clinic_id);
                     }
                 });
             });

@@ -1515,7 +1515,12 @@ class OrdersController extends AbstractController
 
             $pageination .= '
             <li class="page-item '. $disabled .'">
-                <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
+                <a 
+                    class="order-link" 
+                    aria-disabled="'. $data_disabled .'" 
+                    data-page-id="'. $current_page - 1 .'" 
+                    href="'. $previous_page .'"
+                >
                     <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline">Previous</span>
                 </a>
             </li>';
@@ -2267,12 +2272,18 @@ class OrdersController extends AbstractController
 
             $pageination .= '
             <li class="page-item '. $disabled .'">
-                <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page - 1 .'" href="'. $previous_page .'">
+                <a 
+                    class="order-link" 
+                    aria-disabled="'. $data_disabled .'" 
+                    data-page-id="'. $current_page - 1 .'" 
+                    data-clinic-id="'. $clinic->getId() .'"
+                    href="'. $previous_page .'"
+                >
                     <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline-block">Previous</span>
                 </a>
             </li>';
 
-            for($i = 1; $i <= $last_page; $i++) {
+            for($i = 1; $i < $last_page; $i++) {
 
                 $active = '';
 
@@ -2283,7 +2294,12 @@ class OrdersController extends AbstractController
 
                 $pageination .= '
                 <li class="page-item '. $active .'">
-                    <a class="order-link" data-page-id="'. $i .'" href="'. $url .'">'. $i .'</a>
+                    <a 
+                        class="order-link" 
+                        data-page-id="'. $i .'" 
+                        href="'. $url .'"
+                        data-clinic-id="'. $clinic->getId() .'"    
+                    >'. $i .'</a>
                 </li>';
             }
 
@@ -2298,7 +2314,13 @@ class OrdersController extends AbstractController
 
             $pageination .= '
             <li class="page-item '. $disabled .'">
-                <a class="order-link" aria-disabled="'. $data_disabled .'" data-page-id="'. $current_page + 1 .'" href="'. $url . $current_page + 1 .'">
+                <a 
+                    class="order-link" 
+                    aria-disabled="'. $data_disabled .'" 
+                    data-page-id="'. $current_page + 1 .'" 
+                    href="'. $url . $current_page + 1 .'"
+                    data-clinic-id="'. $clinic->getId() .'"
+                >
                     <span class="d-none d-sm-inline-block">Next</span> <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>';
@@ -2668,7 +2690,7 @@ class OrdersController extends AbstractController
         $response = [
             'orders' => json_decode($orders),
             'flash' => $flash,
-            'distributor_id' => $distributor_id,
+            'clinic_id' => $clinic_id,
         ];
 
         return new JsonResponse($response);
