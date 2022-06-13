@@ -12,6 +12,10 @@ body, form-control {
     font-size: 0.9rem;
 }
 
+.bady-mt {
+    margin-top: 100px;
+}
+
 a, a:hover {
     text-decoration: none;
     color: #b3b4b2;
@@ -21,6 +25,10 @@ a.note-link {
     display: block;
     width: 100%;
     color: #523e02;
+}
+
+.nav-z-index {
+    z-index: 9999;
 }
 
 .w-sm-100-md-50 {
@@ -1519,6 +1527,10 @@ a.distributor-logo-container {
 
     .w-sm-100 {
         width: 100% !important;
+    }
+
+    .bady-mt {
+        margin-top: 75px;
     }
 }
 
