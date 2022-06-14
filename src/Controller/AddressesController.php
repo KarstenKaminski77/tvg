@@ -18,7 +18,7 @@ class AddressesController extends AbstractController
 {
     private $em;
     private $page_manager;
-    const ITEMS_PER_PAGE = 1;
+    const ITEMS_PER_PAGE = 10;
 
     public function __construct(EntityManagerInterface $em, PaginationManager $page_manager)
     {
@@ -130,14 +130,26 @@ class AddressesController extends AbstractController
                                 </a>
                                 <a href="" class="delete-icon float-none float-sm-end open-delete-address-modal" data-bs-toggle="modal" data-address-id="' . $address->getId() . '" data-bs-target="#modal_address_delete">
                                     <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                                <a href="#" class="address_default_billing float-start float-sm-none" data-billing-address-id="' . $address->getId() . '">
-                                    <i class="fa-solid fa-star float-end ' . $class_billing . '"></i>
-                                </a>
-                                </a>
-                                <a href="#" class="address_default float-start float-sm-none" data-address-id="' . $address->getId() . '">
-                                    <i class="fa-solid fa-star float-end ' . $class . '"></i>
-                                </a>
+                                </a>';
+
+                                if($type == 'Billing') {
+
+                                    $response .= '
+                                    <a href="#" class="address_default_billing float-start float-sm-none" data-billing-address-id="' . $address->getId() . '">
+                                        <i class="fa-solid fa-star float-end ' . $class_billing . '"></i>
+                                    </a>';
+
+                                }
+
+                                if($type == 'Shipping') {
+
+                                    $response .= '
+                                    <a href="#" class="address_default float-start float-sm-none" data-address-id="' . $address->getId() . '">
+                                        <i class="fa-solid fa-star float-end ' . $class . '"></i>
+                                    </a>';
+                                }
+
+                            $response .= '
                             </div>
                         </div>
                     </div>

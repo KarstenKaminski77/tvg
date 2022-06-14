@@ -707,6 +707,14 @@ class DistributorsController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/distributors/error', name: 'distributor_error_500')]
+    public function distributor500ErrorAction(Request $request): Response
+    {
+        return $this->render(':bundles/TwigBundle/Exception:error500.html.twig',[
+            'type' => 'clinics'
+        ]);
+    }
+
     private function generatePassword()
     {
         $sets = [];

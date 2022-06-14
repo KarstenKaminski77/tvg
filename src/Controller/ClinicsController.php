@@ -15,6 +15,7 @@ use App\Form\ClinicCommunicationMethodsFormType;
 use App\Form\ClinicFormType;
 use App\Form\ClinicUsersFormType;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -515,6 +516,14 @@ class ClinicsController extends AbstractController
         }
 
         return new JsonResponse($html);
+    }
+
+    #[Route('/clinics/error', name: 'clinic_error_500')]
+    public function clinic500ErrorAction(Request $request): Response
+    {
+        return $this->render('bundles/TwigBundle/Exception/error500.html.twig',[
+            'type' => 'clinics',
+        ]);
     }
 
     private function generatePassword()

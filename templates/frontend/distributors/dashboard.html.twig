@@ -986,6 +986,11 @@
                         $("div.spanner").addClass("show");
                         $("div.overlay").addClass("show");
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
                         $('#order_container').empty().append(response.html).append(response.pagination);
                         account_settings.hide();

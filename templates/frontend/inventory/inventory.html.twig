@@ -620,7 +620,7 @@
                 $('#btn_checkout').hide();
 
                 let basket = $('#basket_items').html();
-                let htm = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Fluid Inventory Search</title>';
+                let htm = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Fluid Commerce</title>';
                 htm += '<link rel="stylesheet" media="all" href="{{ asset('css/bootstrap.min.css') }}"><link rel="stylesheet" media="all" href="{{ asset('css/style.min.css') }}">';
                 htm += '<style type="text/css" media="print">@page { size: landscape; }</style>';
                 htm += '<link rel="stylesheet" href="/css/fontawesome/css/all.min.css"></head><body><div class="container-fluid">'+ basket;
@@ -1155,7 +1155,14 @@
 
                         isLoading(true)
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
+
+                        console.log(response);
                         $('#inventory_container').hide();
                         $('#basket_container').empty().append(response.html).show();
                         $('#paginator').empty().append(response.pagination).show();
@@ -3052,6 +3059,11 @@
 
                         isLoading(true)
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         getBackButton();
@@ -3188,6 +3200,11 @@
                     beforeSend: function (){
 
                         isLoading(true)
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
                     },
                     success: function (response) {
 
@@ -3470,6 +3487,11 @@
 
                         isLoading(true)
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         getBackButton();
@@ -3509,6 +3531,24 @@
                 $('#address_city').val('');
                 $('#address_state').val('');
                 $('#address_modal_label').empty().append('Create An Address');
+
+                let input = document.querySelector("#address_mobile");
+
+                iti = window.intlTelInput(input, {
+                    initialCountry: "auto",
+                    geoIpLookup: function(success, failure) {
+                        $.get("https://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+                            var countryCode = (resp && resp.country) ? resp.country : "ae";
+                            success(countryCode);
+                        });
+                    },
+                    preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                    autoPlaceholder: "polite",
+                    nationalMode: true,
+                    utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                    separateDialCode: true,
+                    utilsScript: "/js/utils.js",
+                });
             });
             $(document).on('click', '.address_update', function () {
 
@@ -4090,6 +4130,11 @@
                     beforeSend: function (){
 
                         isLoading(true)
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
                     },
                     success: function (response) {
 
