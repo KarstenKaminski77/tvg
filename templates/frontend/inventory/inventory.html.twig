@@ -259,6 +259,11 @@
                     beforeSend: function (){
                         isLoading(true);
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
                         $('#inventory').empty().append(response.html).show();
                         $('.container').removeClass('mt-5').addClass('mt-5');
@@ -306,6 +311,11 @@
                     type: 'POST',
                     data: {
                         product_id: product_id
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
                     },
                     success: function (response) {
 
@@ -398,6 +408,11 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
+                        },
                         success: function (response) {
 
                             if(response.error.length == 0) {
@@ -432,6 +447,11 @@
                     beforeSend: function (){
 
                         isLoading(true);
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
                     },
                     success: function (response) {
 
@@ -1203,6 +1223,11 @@
                         distributor_id: distributor_id
                     },
                     dataType: 'json',
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         $('#basket_container').empty().append(response);
@@ -3394,6 +3419,11 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
+                        },
                         success: function (response) {
 
                             if (response.response) {
@@ -3437,6 +3467,11 @@
                     type: 'POST',
                     data: {
                         id: user_id
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
                     },
                     success: function (response) {
                         $('#flash').addClass('alert-success');
@@ -4245,6 +4280,11 @@
                     data: {
                         id: clinic_method_id
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         iso_code = response.iso_code;
@@ -4341,6 +4381,11 @@
                     data: {
                         id: method_id
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
                         $('#modal_method_delete').modal('toggle');
                         $('#modal_method_delete').modal('hide');
@@ -4414,6 +4459,11 @@
                         data: data,
                         beforeSend: function (){
                           isLoading(true);
+                        },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
                         },
                         success: function (response) {
                             getFlash(response.flash);
