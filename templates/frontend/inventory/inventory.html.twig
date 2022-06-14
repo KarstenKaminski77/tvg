@@ -629,9 +629,8 @@
                 let w = window.open( '', "Customer Listing", "menubar=0,location=0,height=670,width=700" );
                 w.document.write(htm);
 
-                w.print();
+                setTimeout(function(){w.print();w.close();},1000);
 
-                w.close();
             });
             $(document).on('click', '.save-item', function(e) {
 
@@ -966,7 +965,7 @@
 
                 e.preventDefault();
 
-                let basket_id = $(this).data('basket-id');
+                let basket_id = $(this).attr('data-basket-id');
 
                 if(basket_id > 0) {
 
@@ -1095,9 +1094,13 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        beforeSend: function (){
+                            isLoading(true);
+                        },
                         success: function (response) {
 
                             $('#basket_inner').empty().append(response);
+                            isLoading(false);
                         }
                     });
                 }
@@ -1116,17 +1119,22 @@
                         order_id: order_id
                     },
                     beforeSend: function () {
-                        let height = document.documentElement.scrollHeight;
+
                         isLoading(true);
+                        window.scrollTo(0, 0);
+                        $('body').scrollTop($('body').prop("scrollHeight"));
                     },
                     success: function (response) {
 
                         isLoading(false);
                         getFlash(response.flash);
                         $('#inventory_container').hide();
-                        $('#basket_container').empty().append(response.orders);
+                        $('#basket_container').empty().append(response.orders.html).show();
+                        $('#paginator').empty().append(response.orders.pagination).show();
+                        $('#btn_basket').attr('data-basket-id', response.basket_id);
                         window.scrollTo(0, 0);
                         $('body').scrollTop($('body').prop("scrollHeight"));
+                        window.history.pushState(null, "Fluid", '/clinics/orders/'+ response.clinic_id);
                     }
                 });
             });

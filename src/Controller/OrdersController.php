@@ -33,7 +33,7 @@ class OrdersController extends AbstractController
     private $em;
     private $mailer;
     private $page_manager;
-    const ITEMS_PER_PAGE = 1;
+    const ITEMS_PER_PAGE = 3;
 
     public function __construct(EntityManagerInterface $em, MailerInterface $mailer, PaginationManager $pagination)
     {
@@ -110,7 +110,6 @@ class OrdersController extends AbstractController
         $this->em->flush();
 
         $response['order_id'] = $order->getId();
-        $purchase_orders = $this->em->getRepository(Distributors::class)->findByOrderId($order->getId());
         $order_items = $this->em->getRepository(OrderItems::class)->findBy([
             'orders' => $order->getId(),
         ]);
@@ -208,6 +207,7 @@ class OrdersController extends AbstractController
         }
 
         $plural = '';
+        $purchase_orders = $this->em->getRepository(Distributors::class)->findByOrderId($order->getId());
 
         if(count($purchase_orders) > 1){
 
@@ -817,10 +817,12 @@ class OrdersController extends AbstractController
 
         $flash = '<b><i class="fa-solid fa-circle-check"></i></i></b> Order successfully placed.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
         $orders = $this->forward('App\Controller\OrdersController::clinicGetOrdersAction')->getContent();
-
+        //dd($basket_new->getId());
         $response = [
             'flash' => $flash,
-            'orders' => json_decode($orders)
+            'orders' => json_decode($orders),
+            'basket_id' => $basket_new->getId(),
+            'clinic_id' => $clinic->getId(),
         ];
 
         return new JsonResponse($response);
@@ -2283,7 +2285,7 @@ class OrdersController extends AbstractController
                 </a>
             </li>';
 
-            for($i = 1; $i < $last_page; $i++) {
+            for($i = 1; $i <= $last_page; $i++) {
 
                 $active = '';
 
