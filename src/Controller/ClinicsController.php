@@ -521,8 +521,16 @@ class ClinicsController extends AbstractController
     #[Route('/clinics/error', name: 'clinic_error_500')]
     public function clinic500ErrorAction(Request $request): Response
     {
+        $id = $this->getUser()->getClinic()->getId();
+
+        if($id == null){
+
+            return $this->redirectToRoute('distributor_login');
+        }
+
         return $this->render('bundles/TwigBundle/Exception/error500.html.twig',[
             'type' => 'clinics',
+            'id' => $id,
         ]);
     }
 

@@ -35,7 +35,7 @@
                                             {% if type == 'clinics' %}
                                                 {% set url = path('clinic_dashboard') %}
                                             {% elseif type == 'distributors' %}
-                                                {% set url = path('distributor_get_order_list') %}
+                                                {% set url = path('distributor_order_list',{'distributor_id': id}) %}
                                             {% endif %}
                                             There was an loading the requested page. <a href="{{ url }}">Return to the homepage</a>.
                                         </p>

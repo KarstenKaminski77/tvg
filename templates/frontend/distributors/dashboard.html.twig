@@ -988,7 +988,7 @@
                     },
                     complete: function(e, xhr, settings){
                         if(e.status === 500){
-                            window.location.href = '{{ path('clinic_error_500') }}';
+                            window.location.href = '{{ path('distributor_error_500') }}';
                         }
                     },
                     success: function (response) {
@@ -1105,6 +1105,11 @@
                     beforeSend: function (){
 
                         isLoading(true);
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('distributor_error_500') }}';
+                        }
                     },
                     success: function (response) {
 
@@ -1990,6 +1995,11 @@
                         contentType: false,
                         data: data,
                         dataType: 'json',
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('distributor_error_500') }}';
+                            }
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');
@@ -2039,6 +2049,11 @@
                         data: {
                             about_us: about_us
                         },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('distributor_error_500') }}';
+                            }
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');
@@ -2081,6 +2096,11 @@
                             operating_hours: operating_hours
                         },
                         dataType: 'json',
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('distributor_error_500') }}';
+                            }
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');
@@ -2123,6 +2143,11 @@
                             refund_policy: refund_policy
                         },
                         dataType: 'json',
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('distributor_error_500') }}';
+                            }
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');
@@ -2165,6 +2190,11 @@
                             sales_tax_policy: sales_tax_policy
                         },
                         dataType: 'json',
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('distributor_error_500') }}';
+                            }
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');
@@ -2207,6 +2237,11 @@
                             shipping_policy: shipping_policy
                         },
                         dataType: 'json',
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('distributor_error_500') }}';
+                            }
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');
@@ -2253,6 +2288,11 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('distributor_error_500') }}';
+                            }
+                        },
                         success: function (response) {
                             $('#flash').addClass('alert-success');
                             $('#flash').removeClass('alert-danger');
@@ -2433,6 +2473,11 @@
                     data: {
                         id: user_id
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('distributor_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         getFlash(response);
@@ -2516,6 +2561,11 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('distributor_error_500') }}';
+                            }
+                        },
                         success: function (response) {
 
                             if (response.response) {

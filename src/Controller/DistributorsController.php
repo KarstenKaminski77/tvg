@@ -710,8 +710,23 @@ class DistributorsController extends AbstractController
     #[Route('/distributors/error', name: 'distributor_error_500')]
     public function distributor500ErrorAction(Request $request): Response
     {
-        return $this->render(':bundles/TwigBundle/Exception:error500.html.twig',[
-            'type' => 'clinics'
+        $id = $this->getUser()->getDistributor()->getId();
+
+        if($id == null){
+
+            return $this->render('security/login.html.twig', [
+                'last_username' => '',
+                'error' => '',
+                'csrf_token_intention' => 'authenticate',
+                'user_type' => 'distributors',
+
+            ]);
+        }
+
+        return $this->render('bundles/TwigBundle/Exception/error500.html.twig',[
+            'type' => 'distributors',
+            'id' => $id,
+
         ]);
     }
 

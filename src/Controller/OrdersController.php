@@ -33,7 +33,7 @@ class OrdersController extends AbstractController
     private $em;
     private $mailer;
     private $page_manager;
-    const ITEMS_PER_PAGE = 3;
+    const ITEMS_PER_PAGE = 10;
 
     public function __construct(EntityManagerInterface $em, MailerInterface $mailer, PaginationManager $pagination)
     {
