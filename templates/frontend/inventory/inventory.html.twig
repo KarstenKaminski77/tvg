@@ -499,6 +499,11 @@
                     beforeSend: function () {
                         isLoading(true);
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (saved_basket_response) {
 
                         isLoading(false);
@@ -578,6 +583,11 @@
                         },
                         beforeSend: function (){
                             isLoading(true);
+                        },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
                         },
                         success: function (response) {
                             $('#inventory_container').hide();
@@ -674,6 +684,11 @@
                         beforeSend: function (){
                             isLoading(true);
                         },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
+                        },
                         success: function (response) {
 
                             let basket_id = response.basket_id;
@@ -709,6 +724,11 @@
                         beforeSend: function (){
                             isLoading(true);
                         },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
+                        },
                         success: function (response) {
 
                             let basket_id = response.basket_id;
@@ -737,6 +757,11 @@
                         },
                         beforeSend: function (){
                             isLoading(true);
+                        },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
                         },
                         success: function (response) {
 
@@ -858,6 +883,11 @@
                         },
                         beforeSend: function () {
                             isLoading(true);
+                        },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
                         },
                         success: function (response) {
 
@@ -1019,6 +1049,11 @@
                     beforeSend: function (){
                         isLoading(true);
                     },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         $('#modal_address').remove();
@@ -1143,6 +1178,11 @@
                         isLoading(true);
                         window.scrollTo(0, 0);
                         $('body').scrollTop($('body').prop("scrollHeight"));
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
                     },
                     success: function (response) {
 
