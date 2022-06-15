@@ -2160,7 +2160,7 @@ class OrdersController extends AbstractController
                 </div>
             </div>';
 
-            if(count($orders) > 0) {
+            if(count($results) > 0) {
 
                 $html .= '
                 <!-- Orders -->
@@ -2231,8 +2231,8 @@ class OrdersController extends AbstractController
             } else {
 
                 $html .= '
-                <div class="row">
-                    <div class="col-12 text-center mt-5 mb-5 pt-3 pb-3 text-center">
+                <div class="row border-left border-right border-top border-bottom bg-light">
+                    <div class="col-12 text-center mt-3 mb-3 pt-3 pb-3 text-center">
                         You don\'t have any orders available. 
                     </div>
                 </div>';

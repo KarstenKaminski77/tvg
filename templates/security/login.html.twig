@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_distributor.html.twig' %}
 
 {% block title %}Log in!{% endblock %}
 {% block stylesheets %}
@@ -87,9 +87,9 @@
 
         <div class="col-12 col-md-4 offset-xs-0 offset-md-4">
             <button
-                    class="btn btn-lg"
-                    type="submit"
-                    style="width: 100%;background-color:#b3b4b2 !important;border-color:#b3b4b2;color: #fff">
+                class="btn btn-secondary w-100 btn-lg"
+                type="submit"
+            >
                 SIGN IN
             </button>
         </div>
@@ -105,9 +105,9 @@
 
         <div class="col-12 col-md-4 offset-xs-0 offset-md-4">
             <a
-                    href="{{ path(url) }}"
-                    class="btn btn-lg" type="submit"
-                    style="width: 100%;background-color:#54565a !important;border-color:#54565a;margin-top:20px;color:#fff">
+                href="{{ path(url) }}"
+                class="btn btn-primary w-100 btn-lg mt-3" type="submit"
+            >
                 FORGOT PASSWORD
             </a>
         </div>

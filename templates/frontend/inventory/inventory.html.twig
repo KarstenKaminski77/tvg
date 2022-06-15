@@ -4539,6 +4539,96 @@
                 }
             });
             {# End Species #}
+
+            {# Menu Drop Downs #}
+            if ($(window).width() < 700){
+
+                $('#dd_categories').hide();
+                $('#dd_filters').hide();
+                $('#dd_manufacturers_1').hide();
+                $('#dd_manufacturers_2').hide();
+                $('#dd_distributors').hide();
+
+            } else {
+
+                $('#megamenu').addClass('pb-3')
+            }
+
+            let dropdowns = ''
+
+            $('#btn_categories').click(function (){
+
+                $('#dd_categories').toggle();
+
+                dropdowns = $('#dd_categories, #dd_filters, #dd_manufacturers_1, #dd_manufacturers_2, #dd_distributors').is(':visible');
+
+                if(dropdowns == false){
+
+                    $('#megamenu').removeClass('pb-3');
+
+                }
+
+                if($('#dd_categories').is(':visible')){
+
+                    $('#megamenu').addClass('pb-3');
+                }
+            });
+
+            $('#btn_filters').click(function (){
+
+                $('#dd_filters').toggle();
+
+                dropdowns = $('#dd_categories, #dd_filters, #dd_manufacturers_1, #dd_manufacturers_2, #dd_distributors').is(':visible');
+
+                if(dropdowns == false){
+
+                    $('#megamenu').removeClass('pb-3');
+
+                }
+
+                if($('#dd_filters').is(':visible')){
+
+                    $('#megamenu').addClass('pb-3')
+                }
+            });
+
+            $('#btn_manufacturers').click(function (){
+
+                $('#dd_manufacturers_1').toggle();
+                $('#dd_manufacturers_2').toggle();
+
+                dropdowns = $('#dd_categories, #dd_filters, #dd_manufacturers_1, #dd_manufacturers_2, #dd_distributors').is(':visible');
+
+                if(dropdowns == false){
+
+                    $('#megamenu').removeClass('pb-3');
+
+                }
+
+                if($('#dd_manufacturers_1').is(':visible')){
+
+                    $('#megamenu').addClass('pb-3')
+                }
+            });
+
+            $('#btn_distributors').click(function (){
+
+                $('#dd_distributors').toggle();
+
+                dropdowns = $('#dd_categories, #dd_filters, #dd_manufacturers_1, #dd_manufacturers_2, #dd_distributors').is(':visible');
+
+                if(dropdowns == false){
+
+                    $('#megamenu').removeClass('pb-3');
+
+                }
+
+                if($('#dd_distributors').is(':visible')){
+
+                    $('#megamenu').addClass('pb-3')
+                }
+            });
+            {# End Mebu Drop Downs #}
         });
 
         {# Popovers #}

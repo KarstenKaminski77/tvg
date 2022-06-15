@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_distributor.html.twig' %}
 
 {% block title %}Hello DistributorsController!{% endblock %}
 
@@ -13,7 +13,7 @@
                 </span>
             </div>
         </div>
-        <div class="row pb-3 bg-light border-left border-right pt-3">
+        <div class="row pb-3 bg-light border-left border-right pt-3" id="row_1">
             <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
             {# First Name #}
             <div class="col-12 col-sm-3">
@@ -42,8 +42,7 @@
                 </div>
             </div>
         </div>
-
-        <div class="row pb-3 bg-light border-left border-right">
+        <div class="row pb-3 bg-light border-left border-right" id="row_2">
 
             {# Email #}
             <div class="col-12 col-sm-6">
@@ -64,7 +63,7 @@
                 </div>
             </div>
         </div>
-        <div class="row mb-3 bg-light border-left border-right border-bottom">
+        <div class="row mb-3 bg-light border-left border-right border-bottom" id="row_3">
             {# Clinic Name #}
             <div class="col-12 col-sm-6">
                 <label>Clinic Name*</label>
@@ -76,19 +75,25 @@
             {# Telephone #}
             <div class="col-12 col-sm-6 pb-3">
                 <label>Clinic Phone Number*</label>
-                <input type="text" name="clinicTelephone" id="clinic_telephone" class="form-control" placeholder="Clinic Phone Number">
+                <input type="text" name="mobile_clinic" id="mobile_clinic" class="form-control" placeholder="Clinic Phone Number">
+                <input type="hidden" value="0" name="clinicTelephone" id="clinicTelephone">
                 <div class="hidden_msg" id="error_clinic_telephone">
                     Required Field
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" id="row_4">
             <div class="col-12 ps-0 pe-0">
                 <button id="form_save" type="submit" class="btn btn-primary w-100">CREATE ACCOUNT</button>
             </div>
         </div>
     </div>
 </form>
+<div class="overlay"></div>
+<div class="spanner">
+    <div class="loader"></div>
+    <p class="text-light fw-bold" style="font-size: 36px;">Loading...</p>
+</div>
 {% endblock %}
 
 {% block javascripts %}
@@ -98,7 +103,7 @@
 
         $(document).ready(function (){
 
-            // International Numbers
+            // International Numbers Personal
             let input = document.querySelector('#mobile');
             iti = window.intlTelInput(input, {
                 initialCountry: "auto",
@@ -116,20 +121,59 @@
                 utilsScript: "/js/utils.js",
             });
 
-            let handleChange = function() {
-                let mobile = $('#telephone');
-                let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
-                let textNode = document.createTextNode(mobile_number);
+            $(document).on('change keyup', '#mobile', function (){
 
-                if(mobile_number != false){
+                let handleChange = function() {
+                    let mobile = $('#telephone');
+                    let mobile_number = (iti.isValidNumber()) ? iti.getNumber() : false;
+                    let textNode = document.createTextNode(mobile_number);
+                    console.log(mobile_number);
+                    if(mobile_number != false){
 
-                    mobile.val(mobile_number.substring(1));
-                }
-            };
+                        mobile.val(mobile_number.substring(1));
+                    }
+                };
 
-            // listen to "keyup", but also "change" to update when the user selects a country
-            input.addEventListener('change', handleChange);
-            input.addEventListener('keyup', handleChange);
+                // listen to "keyup", but also "change" to update when the user selects a country
+                input.addEventListener('change', handleChange);
+                input.addEventListener('keyup', handleChange);
+            });
+
+            // International Numbers Personal
+            let input_clinic = document.querySelector('#mobile_clinic');
+            iti_clinic = window.intlTelInput(input_clinic, {
+                initialCountry: "auto",
+                geoIpLookup: function(success, failure) {
+                    $.get("https://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+                        var countryCode = (resp && resp.country) ? resp.country : "ae";
+                        success(countryCode);
+                    });
+                },
+                preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                autoPlaceholder: "polite",
+                nationalMode: true,
+                utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                separateDialCode: true,
+                utilsScript: "/js/utils.js",
+            });
+
+            $(document).on('change keyup', '#mobile_clinic', function (){
+
+                let handleChange = function() {
+                    let mobile = $('#clinicTelephone');
+                    let mobile_number = (iti_clinic.isValidNumber()) ? iti_clinic.getNumber() : false;
+                    let textNode = document.createTextNode(mobile_number);
+                    console.log(mobile_number);
+                    if(mobile_number != false){
+
+                        mobile.val(mobile_number.substring(1));
+                    }
+                };
+
+                // listen to "keyup", but also "change" to update when the user selects a country
+                input_clinic.addEventListener('change', handleChange);
+                input_clinic.addEventListener('keyup', handleChange);
+            });
 
             $(document).on('change', '#email', function (){
 
@@ -144,6 +188,11 @@
                     dataType: 'json',
                     data: {
                         email: email
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
                     },
                     success: function (response) {
 
@@ -238,14 +287,40 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        beforeSend: function (){
+                            isLoading(true);
+                        },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
+                        },
                         success: function (response) {
-                            $('#register_form').empty();
-                            $('#register_form').append(response);
-                            $('#error_email').show();
+                            $('#row_1').empty().addClass('border-bottom');
+                            $('#row_2').remove();
+                            $('#row_3').remove();
+                            $('#row_4').remove();
+                            $('#row_1').append('<div class="col-12 text-center text-primary pt-3 pb-3">'+response+'</div>');
+                            $('#error_email').hide();
+                            isLoading(false);
                         }
                     });
                 }
             });
+
+            function isLoading(status){
+
+                if(status) {
+
+                    $("div.spanner").addClass("show");
+                    $("div.overlay").addClass("show");
+
+                } else {
+
+                    $("div.spanner").removeClass("show");
+                    $("div.overlay").removeClass("show");
+                }
+            }
 
         });
 

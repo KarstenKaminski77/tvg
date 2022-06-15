@@ -195,6 +195,15 @@ class AddressesController extends AbstractController
                 </div>
             </div>
             <!-- End Addresses -->';
+
+        } else {
+
+            $response .= '
+            <div class="row border-left border-right border-top border-bottom bg-light">
+                <div class="col-12 text-center mt-3 mb-3 pt-3 pb-3 text-center">
+                    You don\'t have any addresses saved. 
+                </div>
+            </div>';
         }
 
         return $response;

@@ -123,6 +123,7 @@ class ClinicsController extends AbstractController
                 $basket->setName('Fluid Commerce');
                 $basket->setTotal(0);
                 $basket->setStatus('active');
+                $basket->setIsDefault(1);
                 $basket->setSavedBy($clinic_users->getFirstName() .' '. $clinic_users->getLastName());
 
                 $this->em->persist($basket);
@@ -133,6 +134,7 @@ class ClinicsController extends AbstractController
 
                 $clinic_communication_method->setClinic($clinic);
                 $clinic_communication_method->setCommunicationMethod($communication_method);
+                $clinic_communication_method->setSendTo($data->get('email'));
                 $clinic_communication_method->setIsDefault(1);
                 $clinic_communication_method->setIsActive(1);
 
@@ -197,7 +199,7 @@ class ClinicsController extends AbstractController
             'email' => $email
         ]);
 
-        if($distributor != null || $distributor_users != null || $clinic | null || $clinic_users != null){
+        if($distributor != null || $distributor_users != null || $clinic != null || $clinic_users != null){
 
             $response = false;
         }
@@ -521,14 +523,15 @@ class ClinicsController extends AbstractController
     #[Route('/clinics/error', name: 'clinic_error_500')]
     public function clinic500ErrorAction(Request $request): Response
     {
-        $id = $this->getUser()->getClinic()->getId();
+        $username = $this->getUser();
+        $id = '';
 
-        if($id == null){
+        if($username != null) {
 
-            return $this->redirectToRoute('distributor_login');
+            $id = $this->getUser()->getClinic()->getId();
         }
 
-        return $this->render('bundles/TwigBundle/Exception/error500.html.twig',[
+        return $this->render('bundles/TwigBundle/Exception/error500.html.twig', [
             'type' => 'clinics',
             'id' => $id,
         ]);

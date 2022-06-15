@@ -58,166 +58,180 @@ class CommunicationMethodsController extends AbstractController
                     Add or remove communication methods from the list below.
                 </span>
             </div>
-        </div>
-        <div class="row d-none d-xl-flex  bg-light border-bottom border-right border-left">
-            <div class="col-5 pt-3 pb-3 text-primary fw-bold">
-                Method
-            </div>
-            <div class="col-5 pt-3 pb-3 text-primary fw-bold">
-                Send To
-            </div>
-            <div class="col-2 pt-3 pb-3 text-primary fw-bold">
-
-            </div>
         </div>';
 
-        $i = 0;
-        
-        foreach($results as $method) {
-
-            $mobile_no = 0;
-            $i++;
-
-            $col = 10;
-
-            if(!empty($method->getSendTo())) {
-
-                $col = 5;
-            }
-
-            if($method->getCommunicationMethod()->getId() == 3){
-
-                $mobile_no = $method->getSendTo();
-
-            } else {
-
-                $mobile_no = 0;
-            }
+        if($results->count() > 0) {
 
             $response .= '
-            <div class="row t-row">
-                <div class="col-4 col-sm-2 d-xl-none  t-cell text-truncate border-list pt-3 pb-3">Method</div>
-                <div class="col-8 col-sm-10 col-xl-'. $col .'  t-cell text-truncate border-list pt-3 pb-3">
-                    '. $method->getCommunicationMethod()->getMethod() .'
-                </div>';
-
-            if(!empty($method->getSendTo())) {
-
-                $response .= '
-                <div class="col-4 col-sm-2 d-xl-none  t-cell text-truncate border-list pt-3 pb-3">Send To</div>
-                <div class="col-8 col-sm-10 col-xl-5  t-cell text-truncate border-list pt-3 pb-3">
-                    ' . $method->getSendTo() . '
-                </div>';
-            }
-
-            $response .= '
-                <div class="col-12 col-xl-2 t-cell text-truncate pt-3 pb-3" id="">
-                    <a href="" 
-                        class="float-end communication_method_update" 
-                        data-communication-method-id="' . $method->getCommunicationMethod()->getId() . '"
-                        data-clinic-communication-method-id="' . $method->getId() . '"
-                        data-mobile-no="'. $mobile_no .'"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#modal_communication_methods"
-                    >
-                        <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                    </a>
-                    <a 
-                        href="" 
-                        class="delete-icon float-start float-sm-end method-delete" 
-                        data-bs-toggle="modal" data-clinic-communication-method-id="' . $method->getId() . '" 
-                        data-bs-target="#modal_method_delete"
-                    >
-                        <i class="fa-solid fa-trash-can"></i>
-                    </a>
+            <div class="row d-none d-xl-flex  bg-light border-bottom border-right border-left">
+                <div class="col-5 pt-3 pb-3 text-primary fw-bold">
+                    Method
+                </div>
+                <div class="col-5 pt-3 pb-3 text-primary fw-bold">
+                    Send To
+                </div>
+                <div class="col-2 pt-3 pb-3 text-primary fw-bold">
+    
                 </div>
             </div>';
-        }
-        
-        $response .= '
+
+            $i = 0;
+
+            foreach ($results as $method) {
+
+                $mobile_no = 0;
+                $i++;
+
+                $col = 10;
+
+                if (!empty($method->getSendTo())) {
+
+                    $col = 5;
+                }
+
+                if ($method->getCommunicationMethod()->getId() == 3) {
+
+                    $mobile_no = $method->getSendTo();
+
+                } else {
+
+                    $mobile_no = 0;
+                }
+
+                $response .= '
+                <div class="row t-row">
+                    <div class="col-4 col-sm-2 d-xl-none  t-cell text-truncate border-list pt-3 pb-3">Method</div>
+                    <div class="col-8 col-sm-10 col-xl-' . $col . '  t-cell text-truncate border-list pt-3 pb-3">
+                        ' . $method->getCommunicationMethod()->getMethod() . '
+                    </div>';
+
+                if (!empty($method->getSendTo())) {
+
+                    $response .= '
+                    <div class="col-4 col-sm-2 d-xl-none  t-cell text-truncate border-list pt-3 pb-3">Send To</div>
+                    <div class="col-8 col-sm-10 col-xl-5  t-cell text-truncate border-list pt-3 pb-3">
+                        ' . $method->getSendTo() . '
+                    </div>';
+                }
+
+                $response .= '
+                    <div class="col-12 col-xl-2 t-cell text-truncate pt-3 pb-3" id="">
+                        <a href="" 
+                            class="float-end communication_method_update" 
+                            data-communication-method-id="' . $method->getCommunicationMethod()->getId() . '"
+                            data-clinic-communication-method-id="' . $method->getId() . '"
+                            data-mobile-no="' . $mobile_no . '"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modal_communication_methods"
+                        >
+                            <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                        </a>
+                        <a 
+                            href="" 
+                            class="delete-icon float-start float-sm-end method-delete" 
+                            data-bs-toggle="modal" data-clinic-communication-method-id="' . $method->getId() . '" 
+                            data-bs-target="#modal_method_delete"
+                        >
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                    </div>
+                </div>';
+            }
+
+            $response .= '
+                    </div>
                 </div>
-            </div>
-    
-            <!-- Modal Manage Communication Methods -->
-            <div class="modal fade" id="modal_communication_methods" tabindex="-1" aria-labelledby="communication_methods_modal_label" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content">
-                        <form name="form_communication_methods" id="form_communication_methods" method="post">
-                            <input type="hidden" value="0" name="clinic_communication_methods_form[clinic_communication_method_id]" id="communication_method_id">
-                            <input type="hidden" value="0" name="clinic_communication_methods_form[mobile]" id="mobile_no">
+        
+                <!-- Modal Manage Communication Methods -->
+                <div class="modal fade" id="modal_communication_methods" tabindex="-1" aria-labelledby="communication_methods_modal_label" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <form name="form_communication_methods" id="form_communication_methods" method="post">
+                                <input type="hidden" value="0" name="clinic_communication_methods_form[clinic_communication_method_id]" id="communication_method_id">
+                                <input type="hidden" value="0" name="clinic_communication_methods_form[mobile]" id="mobile_no">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="communication_methods_modal_label">Create a Communication Method</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row mb-3">
+                                        <div class="col-12" id="col_communication_method">
+                                            <label>Method</label>
+                                            ' . $select . '
+                                            <div class="hidden_msg" id="error_communication_method">
+                                                Required Field
+                                            </div>
+                                        </div>
+            
+                                        <div class="col-6" id="col_send_to">
+                                            <label id="label_send_to">
+                                            </label>
+                                            <span id="send_to_container">
+                                            <input 
+                                                type="text" 
+                                                name="clinic_communication_methods_form[sendTo]" 
+                                                id="send_to"
+                                                class="form-control"
+                                            >
+                                            </span>
+                                            <div class="hidden_msg" id="error_send_to">
+                                                Required Field
+                                            </div>
+                                            <div class="hidden_msg" id="error_communication_method_mobile">
+                                                Invalid Number
+                                            </div>
+                                        </div>
+            
+                                    </div>
+            
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                                    <button type="submit" id="btn_save_communication_method" class="btn btn-primary">
+                                        CREATE COMMUNICATION METHOD
+                                    </button>
+                                saved</div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Modal Delete Communication Method -->
+                <div class="modal fade" id="modal_method_delete" tabindex="-1" aria-labelledby="method_delete_label" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="communication_methods_modal_label">Create a Communication Method</h5>
+                                <h5 class="modal-title" id="method_delete_label">Delete Communication Method</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="row mb-3">
-                                    <div class="col-12" id="col_communication_method">
-                                        <label>Method</label>
-                                        '. $select .'
-                                        <div class="hidden_msg" id="error_communication_method">
-                                            Required Field
-                                        </div>
+                                <div class="row">
+                                    <div class="col-12 mb-0">
+                                        Are you sure you would like to delete this communication method? This action cannot be undone.
                                     </div>
-        
-                                    <div class="col-6" id="col_send_to">
-                                        <label id="label_send_to">
-                                        </label>
-                                        <span id="send_to_container">
-                                        <input 
-                                            type="text" 
-                                            name="clinic_communication_methods_form[sendTo]" 
-                                            id="send_to"
-                                            class="form-control"
-                                        >
-                                        </span>
-                                        <div class="hidden_msg" id="error_send_to">
-                                            Required Field
-                                        </div>
-                                        <div class="hidden_msg" id="error_communication_method_mobile">
-                                            Invalid Number
-                                        </div>
-                                    </div>
-        
                                 </div>
-        
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
-                                <button type="submit" id="btn_save_communication_method" class="btn btn-primary">
-                                    CREATE COMMUNICATION METHOD
-                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                                <button 
+                                    type="button" 
+                                    class="btn btn-danger btn-sm communication-method-delete" 
+                                    id="delete_method">DELETE</button>
                             </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-    
-            <!-- Modal Delete Communication Method -->
-            <div class="modal fade" id="modal_method_delete" tabindex="-1" aria-labelledby="method_delete_label" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="method_delete_label">Delete Communication Method</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-12 mb-0">
-                                    Are you sure you would like to delete this communication method? This action cannot be undone.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
-                            <button 
-                                type="button" 
-                                class="btn btn-danger btn-sm communication-method-delete" 
-                                id="delete_method">DELETE</button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>';
+            </div>';
+
+        } else {
+
+            $response .= '
+            <div class="row border-left border-right border-top border-bottom bg-light">
+                <div class="col-12 text-center mt-3 mb-3 pt-3 pb-3 text-center">
+                    You don\'t have any communication methods saved. 
+                </div>
+            </div>';
+        }
 
         return $response;
     }
