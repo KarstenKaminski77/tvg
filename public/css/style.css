@@ -1300,6 +1300,10 @@ a.user-pagination {
     width: 22.6px;
 }
 
+.navbar-toggler:focus {
+    box-shadow: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .address-pagination {
         transition: none;
