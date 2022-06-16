@@ -1294,6 +1294,12 @@ a.user-pagination {
     border: 1px solid #dee2e6;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
+
+.fa-width {
+    font-size: 16px;
+    width: 22.6px;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .address-pagination {
         transition: none;

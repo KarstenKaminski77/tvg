@@ -4551,82 +4551,34 @@
 
             } else {
 
-                $('#megamenu').addClass('pb-3')
+                //$('#megamenu').addClass('pb-3')
             }
 
             let dropdowns = ''
 
-            $('#btn_categories').click(function (){
+            $('#btn_categories').click(function (e){
 
-                $('#dd_categories').toggle();
-
-                dropdowns = $('#dd_categories, #dd_filters, #dd_manufacturers_1, #dd_manufacturers_2, #dd_distributors').is(':visible');
-
-                if(dropdowns == false){
-
-                    $('#megamenu').removeClass('pb-3');
-
-                }
-
-                if($('#dd_categories').is(':visible')){
-
-                    $('#megamenu').addClass('pb-3');
-                }
+                e.preventDefault();
+                $('#dd_categories').toggle(700,'linear');
             });
 
-            $('#btn_filters').click(function (){
+            $('#btn_filters').click(function (e){
 
-                $('#dd_filters').toggle();
-
-                dropdowns = $('#dd_categories, #dd_filters, #dd_manufacturers_1, #dd_manufacturers_2, #dd_distributors').is(':visible');
-
-                if(dropdowns == false){
-
-                    $('#megamenu').removeClass('pb-3');
-
-                }
-
-                if($('#dd_filters').is(':visible')){
-
-                    $('#megamenu').addClass('pb-3')
-                }
+                e.preventDefault();
+                $('#dd_filters').toggle(700,'linear');
             });
 
-            $('#btn_manufacturers').click(function (){
+            $('#btn_manufacturers').click(function (e){
 
-                $('#dd_manufacturers_1').toggle();
-                $('#dd_manufacturers_2').toggle();
-
-                dropdowns = $('#dd_categories, #dd_filters, #dd_manufacturers_1, #dd_manufacturers_2, #dd_distributors').is(':visible');
-
-                if(dropdowns == false){
-
-                    $('#megamenu').removeClass('pb-3');
-
-                }
-
-                if($('#dd_manufacturers_1').is(':visible')){
-
-                    $('#megamenu').addClass('pb-3')
-                }
+                e.preventDefault();
+                $('#dd_manufacturers_1').toggle(700,'linear');
+                $('#dd_manufacturers_2').toggle(700,'linear');
             });
 
-            $('#btn_distributors').click(function (){
+            $('#btn_distributors').click(function (e){
 
-                $('#dd_distributors').toggle();
-
-                dropdowns = $('#dd_categories, #dd_filters, #dd_manufacturers_1, #dd_manufacturers_2, #dd_distributors').is(':visible');
-
-                if(dropdowns == false){
-
-                    $('#megamenu').removeClass('pb-3');
-
-                }
-
-                if($('#dd_distributors').is(':visible')){
-
-                    $('#megamenu').addClass('pb-3')
-                }
+                e.preventDefault();
+                $('#dd_distributors').toggle(700,'linear');
             });
             {# End Mebu Drop Downs #}
         });

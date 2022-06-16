@@ -15,18 +15,17 @@
                                     </button>
                                 </div>
                             </li>
-                            <li class="nav-item dropdown has-megamenu">
+                            <li class="nav-item dropdown has-megamenu pt-2 pb-1 pt-sm-0 pb-sm-0">
                                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Filters<span id="filter_count"></span></a>
-                                <div class="dropdown-menu megamenu mega-menu pb-0" role="menu" id="megamenu">
+                                <div class="dropdown-menu megamenu mega-menu pb-0 pb-sm-3" role="menu" id="megamenu">
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6 col-md-2 mt-0">
                                             <div class="col-megamenu">
                                                 <ul class="navbar-nav ms-auto ms-md-auto ms-sm-0">
                                                     <li class="nav-item dropdown">
                                                         <a
-                                                            class="nav-link  dropdown-toggle text-primary"
-                                                            href="{{ path('clinics_logout') }}"
-                                                            data-bs-toggle="dropdown"
+                                                            class="nav-link dropdown-toggle text-primary"
+                                                            href=""
                                                             id="btn_categories"
                                                         >
                                                             <h6 class="title d-inline">Category</h6>
@@ -59,8 +58,7 @@
                                                     <li class="nav-item dropdown">
                                                         <a
                                                             class="nav-link  dropdown-toggle text-primary"
-                                                            href="{{ path('clinics_logout') }}"
-                                                            data-bs-toggle="dropdown"
+                                                            href=""
                                                             id="btn_filters"
                                                         >
                                                             <h6 class="title d-inline">Filters</h6>
@@ -105,8 +103,7 @@
                                             <div class="col-megamenu">
                                                 <a
                                                     class="nav-link dropdown-toggle text-primary ps-0"
-                                                    href="{{ path('clinics_logout') }}"
-                                                    data-bs-toggle="dropdown"
+                                                    href=""
                                                     id="btn_manufacturers"
                                                 >
                                                     <h6 class="title d-inline">Manufacturers</h6>
@@ -139,15 +136,15 @@
                                                     {% for manufacturer in man_2 %}
                                                         <li>
                                                             <input
-                                                                    class="form-check-input me-2"
-                                                                    name="manufacturer[]"
-                                                                    type="checkbox"
-                                                                    value="{{ manufacturer.id }}"
-                                                                    id="man_{{ manufacturer.id }}"
+                                                                class="form-check-input me-2"
+                                                                name="manufacturer[]"
+                                                                type="checkbox"
+                                                                value="{{ manufacturer.id }}"
+                                                                id="man_{{ manufacturer.id }}"
                                                             >
                                                             <label
-                                                                    class="ms-1"
-                                                                    for="man_{{ manufacturer.id }}"
+                                                                class="ms-1"
+                                                                for="man_{{ manufacturer.id }}"
                                                             >
                                                                 ({{ manufacturer.productManufacturers|length }}) {{ manufacturer.name }}
                                                             </label>
@@ -160,8 +157,7 @@
                                             <div class="col-megamenu">
                                                 <a
                                                     class="nav-link dropdown-toggle text-primary ps-0"
-                                                    href="{{ path('clinics_logout') }}"
-                                                    data-bs-toggle="dropdown"
+                                                    href=""
                                                     id="btn_distributors"
                                                 >
                                                     <h6 class="title d-inline">Distributor</h6>
@@ -195,58 +191,67 @@
                 </div>
                 <div class="navbar-nav">
                     <ul class="navbar-nav ms-auto ms-md-auto ms-sm-0">
-                        <li class="nav-item">
+                        <li class="nav-item pt-1 pb-1 pt-sm-0 pb-sm-0">
                             <a class="nav-link basket-link" data-basket-id="" id="btn_basket" href="#">
-                                <i class="fa-solid fa-basket-shopping"></i>
+                                <i class="fa-solid fa-basket-shopping pe-2 fa-width"></i>
                                 <span class="d-sm-inline-block d-sm-none d-md-inline-block">Basket</span>
-                                <span id="basket_count"></span>
                             </a>
                         </li>
-                        <li class="nav-item position-relative">
+                        <li class="nav-item position-relative pt-1 pb-1 pt-sm-0 pb-sm-0">
                             <a class="nav-link btn-notifications" name="notifications" href="#">
-                                <i class="fa-solid fa-bell" id="notifications_icon"></i>
-                                <span class="d-inline-block d-md-none">Notifications</span>
+                                <i class="fa-solid fa-bell pe-2 fa-width" id="notifications_icon"></i>
+                                <span class="">Notifications</span>
                             </a>
                             <span id="notifications_panel">
                                 <span class="notification-panel delete-notification">You have no notifications</span>
                             </span>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link  dropdown-toggle" href="{{ path('clinics_logout') }}" data-bs-toggle="dropdown">{{ user.firstName ~' '~ user.lastName }}</a>
+                        <li class="nav-item dropdown pt-1 pb-1 pt-sm-0 pb-sm-0">
+                            <a class="nav-link  dropdown-toggle" href="{{ path('clinics_logout') }}" data-bs-toggle="dropdown">
+                                <i class="fa-solid fa-user pe-2 fa-width"></i>
+                                {{ user.firstName ~' '~ user.lastName }}
+                            </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
+                                <li class="pt-0 pb-1 pb-md-0">
                                     <a href="#" class="dropdown-item dashboard_link" data-clinic-id="{{ clinic_id }}" id="dashboard_link">
-                                        <i class="fa-solid fa-chart-pie"></i>&nbsp;&nbsp;Dasboard
+                                        <i class="fa-solid fa-chart-pie pe-2 fa-width"></i>
+                                        Dasboard
                                     </a>
                                 </li>
-                                <li>
+                                <li class="pt-1 pb-1 pt-md-0 pb-md-0">
                                     <a href="#" class="dropdown-item orders_link" data-clinic-id="{{ clinic_id }}" id="orders_link">
-                                        <i class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;Orders
+                                        <i class="fa-solid fa-file-invoice pe-2 fa-width"></i>
+                                        Orders
                                     </a>
                                 </li>
-                                <li>
+                                <li class="pt-1 pb-1 pt-md-0 pb-md-0">
                                     <a href="#" class="dropdown-item" id="account_settings_link">
-                                        <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;Account & Settings
+                                        <i class="fa-solid fa-screwdriver-wrench pe-2 fa-width"></i>
+                                        Account & Settings
                                     </a>
                                 </li>
-                                <li>
+                                <li class="pt-1 pb-1 pt-md-0 pb-md-0">
                                     <a href="#" class="dropdown-item" id="users_link">
-                                        <i class="fa-solid fa-user-gear"></i>&nbsp;&nbsp;Users
+                                        <i class="fa-solid fa-user-gear pe-2 fa-width"></i>
+                                        Users
                                     </a>
                                 </li>
-                                <li>
+                                <li class="pt-1 pb-1 pt-md-0 pb-md-0">
                                     <a href="#" class="dropdown-item" id="addresses_link">
-                                        <i class="fa-solid fa-address-book"></i>&nbsp;&nbsp;Addresses
+                                        <i class="fa-solid fa-address-book pe-2 fa-width"></i>
+                                        Addresses
                                     </a>
                                 </li>
-                                <li>
+                                <li class="pt-1 pb-1 pt-md-0 pb-md-0">
                                     <a href="#" class="dropdown-item" id="communication_methods_link">
-                                        <i class="fa-solid fa-microphone"></i>&nbsp;&nbsp;Communication Methods
+                                        <i class="fa-solid fa-microphone pe-2 fa-width"></i>
+                                        Communication Methods
                                     </a>
                                 </li>
-                                <li>
+                                <li class="pt-1 pb-1 pt-md-0 pb-md-0">
                                     <a href="{{ path('clinics_logout') }}" class="dropdown-item">
-                                        <i class="fa-solid fa-ban"></i>&nbsp;&nbsp;Sign Out
+                                        <i class="fa-solid fa-ban pe-2 fa-width"></i>
+                                        Sign Out
                                     </a>
                                 </li>
                             </ul>
