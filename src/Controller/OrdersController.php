@@ -2215,6 +2215,7 @@ class OrdersController extends AbstractController
                         autocomplete="off"
                         id="datepicker"
                         placeholder="Date"
+                        value="Date"
                     >
             
                     '. $status_select .'
@@ -2233,11 +2234,40 @@ class OrdersController extends AbstractController
                     </button>
                 </div>
                 
-                <div class="col-12 col-sm-5 d-flex justify-content-center pt-3 pb-3 d-block d-sm-none">
+                <div class="col-12 col-sm-5 d-flex  pt-3 d-block d-sm-none">
                     '. $distributors_select .'
                 </div>
-                <div class="col-12 col-sm-5 d-flex justify-content-center pt-3 pb-3 d-block d-sm-none">
-                    <input type="text" class="form-control" name="datetimes" id="datepicker" autocomplete="off">
+                <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
+                    <input 
+                        type="text" 
+                        class="form-control datepicker" 
+                        name="datetimes" 
+                        id="datepicker_mobile" 
+                        autocomplete="off"
+                        value="Date"
+                        placeholder="Date"
+                    >
+                </div>
+                <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
+                    '. $status_select .'
+                </div>
+                <div class="col-12 pt-3 d-block d-sm-none">
+                    <button 
+                        class="btn btn-primary distributor_search w-sm-100 text-center"
+                        data-clinic-id="'. $clinic->getId() .'"
+                    >
+                        <i class="fa-solid fa-magnifying-glass me-3"></i>
+                        SEARCH
+                    </button>
+                </div>
+                <div class="col-12 pt-3 pb-3 d-block d-sm-none">
+                    <button 
+                        class="btn btn-secondary distributor_refresh w-sm-100 text-center"
+                        data-clinic-id="'. $clinic->getId() .'"
+                    >
+                        <i class="fa-solid fa-rotate me-3"></i>
+                        CANCEL
+                    </button>
                 </div>
             </div>';
 

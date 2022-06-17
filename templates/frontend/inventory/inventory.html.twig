@@ -1218,11 +1218,11 @@
 
                         isLoading(true)
                     },
-                    {#complete: function(e, xhr, settings){#}
-                    {#    if(e.status === 500){#}
-                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
-                    {#    }#}
-                    {#},#}
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
                         $('#inventory_container').hide();
                         $('#basket_container').empty().append(response.html).show();
@@ -1230,8 +1230,17 @@
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/orders/'+ clinic_id);
 
+                        let selector = '#datepicker';
+
+                        if ($(window).width() < 769){
+
+                            selector = '#datepicker_mobile';
+                            $('.distributor_select').removeClass('me-2');
+                            $('.status_select').removeClass('me-2 ms-3');
+                        }
+
                         const picker = new easepick.create({
-                            element: "#datepicker",
+                            element: selector,
                             css: [
                                 'https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.0/dist/index.css',
                                 '{{ asset('css/date_picker.min.css') }}',
@@ -1267,6 +1276,24 @@
                 $('.col-container').removeClass('col-container');
 
             });
+            $(document).on('change', '.distributor_select', function (){
+                $('.distributor_search').attr('data-distributor-id', $(this).val());
+            });
+            setInterval(function(){
+
+                if($('#datepicker_mobile').val() != '' && $('#datepicker_mobile').val() != 'Date') {
+
+                    $('.distributor_search').attr('data-date', $('#datepicker_mobile').val());
+                }
+
+                if($('#datepicker').val() != '' && $('#datepicker').val() != 'Date') {
+
+                    $('.distributor_search').attr('data-date', $('#datepicker').val());
+                }
+            } , 1000);
+            $(document).on('change', '.status_select', function (){
+                $('.distributor_search').attr('data-status-id', $(this).val());
+            });
             $(document).on('click', '.distributor_refresh', function (){
 
                 $('.datepicker').val('');
@@ -1279,10 +1306,10 @@
             })
             $(document).on('click', '.distributor_search', function (){
 
-                let distributor_id = $('.distributor_select').val();
-                let date = $('.datepicker').val();
+                let distributor_id = $(this).attr('data-distributor-id');
+                let date = $(this).attr('data-date');
                 let clinic_id = $(this).data('clinic-id');
-                let status = $('.status_select').val();
+                let status = $(this).attr('data-status-id');
 
                 getOrdersList(clinic_id, 1, distributor_id, date, status);
             });
@@ -4567,7 +4594,7 @@
             {# End Species #}
 
             {# Menu Drop Downs #}
-            if ($(window).width() < 700){
+            if ($(window).width() < 769){
 
                 $('#dd_categories').hide();
                 $('#dd_filters').hide();
