@@ -149,7 +149,7 @@
 
                 let clinic_id = '{{ app.request.get('clinic_id') }}';
 
-                getOrdersList(clinic_id, 1,'','');
+                getOrdersList(clinic_id, 1,'','','');
             }
 
             {# Order Details #}
@@ -1201,7 +1201,7 @@
 
             {# Orders #}
             {# Orders List #}
-            function getOrdersList(clinic_id, page_id, distributor_id,date){
+            function getOrdersList(clinic_id, page_id, distributor_id,date,status){
 
                 $.ajax({
                     url: "{{ path('clinic_get_order_list') }}",
@@ -1211,7 +1211,8 @@
                         page_id: page_id,
                         clinic_id: clinic_id,
                         distributor_id: distributor_id,
-                        date: date
+                        date: date,
+                        status: status
                     },
                     beforeSend: function (){
 
@@ -1253,7 +1254,7 @@
 
                 e.preventDefault();
                 clearInterval(get_messages);
-                getOrdersList(clinic_id, 1,'','');
+                getOrdersList(clinic_id, 1,'','','');
                 $('.col-container').removeClass('col-container');
 
             });
@@ -1262,7 +1263,7 @@
                 let clinic_id = $(this).data('clinic-id');
                 e.preventDefault();
                 clearInterval(get_messages);
-                getOrdersList(clinic_id, $(this).data('page-id'),'','');
+                getOrdersList(clinic_id, $(this).data('page-id'),'','','');
                 $('.col-container').removeClass('col-container');
 
             });
@@ -1270,14 +1271,20 @@
 
                 $('.datepicker').val('');
                 $('.distributor_select').val('');
+                $('.status_select').val('');
+
+                let clinic_id = $(this).data('clinic-id');
+
+                getOrdersList(clinic_id, 1, '','','');
             })
             $(document).on('click', '.distributor_search', function (){
 
                 let distributor_id = $('.distributor_select').val();
                 let date = $('.datepicker').val();
                 let clinic_id = $(this).data('clinic-id');
+                let status = $('.status_select').val();
 
-                getOrdersList(clinic_id, 1, distributor_id, date);
+                getOrdersList(clinic_id, 1, distributor_id, date, status);
             });
             {# Order Details #}
             function getOrderDetails(order_id, distributor_id, clinic_id){

@@ -2145,13 +2145,14 @@ class OrdersController extends AbstractController
     #[Route('/clinics/orders', name: 'clinic_get_order_list')]
     public function clinicGetOrdersAction(Request $request): Response
     {
-        //dd($request->request);
         $clinic = $this->getUser()->getClinic();
-        $orders = $this->em->getRepository(Orders::class)->findClinicOrders($clinic->getId());
-        $results = $this->page_manager->paginate($orders[0], $request, self::ITEMS_PER_PAGE);
-        $distributors = $this->em->getRepository(OrderItems::class)->findDistributorsByClinicOrders(
-            $clinic->getId(), $request->request->get('distributor_id'), $request->request->get('date')
+        $orders = $this->em->getRepository(Orders::class)->findClinicOrders(
+            $clinic->getId(),$request->request->get('distributor_id'),
+            $request->request->get('date'), $request->request->get('status')
         );
+        $results = $this->page_manager->paginate($orders[0], $request, self::ITEMS_PER_PAGE);
+        $distributors = $this->em->getRepository(OrderItems::class)->findDistributorsByClinicOrders($clinic->getId());
+        $statuses = $this->em->getRepository(Status::class)->findAll();
 
         $html = '
         <div class="col-12">
@@ -2164,60 +2165,88 @@ class OrdersController extends AbstractController
                 </div>
             </div>';
 
+            $distributors_select = '
+            <select class="form-control me-2 distributor_select">';
+
+            $distributors_select .= '
+            <option value = "">Distributor</option>
+                        ';
+
+            foreach ($distributors as $distributor){
+
+                $distributors_select .= '
+                <option value = "'. $distributor->getDistributor()->getId() .'">
+                                '. $distributor->getDistributor()->getDistributorName() .'
+                            </option>
+                            ';
+            };
+
+            $distributors_select .= '
+            </select>';
+
+            $status_select = '
+            <select class="form-control me-2 ms-3 status_select">';
+
+            $status_select .= '
+            <option value = "">Status</option>
+                        ';
+
+            foreach ($statuses as $status){
+
+                $status_select .= '
+                <option value = "'. $status->getId() .'">
+                    '. $status->getStatus() .'
+                </option>
+                            ';
+            };
+
+            $status_select .= '
+            </select>';
+
+            $html .= '
+            <!-- Filters -->
+            <div class="row bg-light border-left border-right">
+                <div class="col-12 col-sm-12 col-md-8 offset-sm-0 offset-md-2 d-flex justify-content-center pt-3 pb-3 d-none d-sm-flex">
+                    '. $distributors_select .'
+                    <input 
+                        type="text" 
+                        class="form-control ms-2 datepicker" 
+                        name="datetimes" 
+                        autocomplete="off"
+                        id="datepicker"
+                        placeholder="Date"
+                    >
+            
+                    '. $status_select .'
+            
+                    <button 
+                        class="btn btn-primary ms-3 distributor_search"
+                        data-clinic-id="'. $clinic->getId() .'"
+                    >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <button 
+                        class="btn btn-secondary ms-3 distributor_refresh"
+                        data-clinic-id="'. $clinic->getId() .'"
+                    >
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+                
+                <div class="col-12 col-sm-5 d-flex justify-content-center pt-3 pb-3 d-block d-sm-none">
+                    '. $distributors_select .'
+                </div>
+                <div class="col-12 col-sm-5 d-flex justify-content-center pt-3 pb-3 d-block d-sm-none">
+                    <input type="text" class="form-control" name="datetimes" id="datepicker" autocomplete="off">
+                </div>
+            </div>';
+
             if(count($results) > 0) {
 
-                $select = '
-                <select class="form-control me-2 distributor_select">';
-
-                    $select .= '
-                    <option value = "">Select a Distributor</option>
-                    ';
-
-                    foreach ($distributors as $distributor){
-
-                        $select .= '
-                        <option value = "'. $distributor->getDistributor()->getId() .'">
-                            '. $distributor->getDistributor()->getDistributorName() .'
-                        </option>
-                        ';
-                    };
-
-                $select .= '
-                </select>';
-
                 $html .= '
-                <!-- Filters -->
-                <div class="row bg-light border-bottom border-left border-right">
-                    <div class="col-12 col-sm-12 col-md-6 offset-sm-0 offset-md-3 d-flex justify-content-center pt-3 pb-3 d-none d-sm-flex">
-                        '. $select .'
-                        <input 
-                            type="text" 
-                            class="form-control ms-2 datepicker" 
-                            name="datetimes" 
-                            autocomplete="off"
-                            id="datepicker"
-                        >
-                        <button 
-                            class="btn btn-primary ms-3 distributor_search"
-                            data-clinic-id="'. $clinic->getId() .'"
-                        >
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                        <button class="btn btn-secondary ms-3 distributor_refresh">
-                            <i class="fa-solid fa-rotate"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="col-12 col-sm-5 d-flex justify-content-center pt-3 pb-3 d-block d-sm-none">
-                        '. $select .'
-                    </div>
-                    <div class="col-12 col-sm-5 d-flex justify-content-center pt-3 pb-3 d-block d-sm-none">
-                        <input type="text" class="form-control" name="datetimes" id="datepicker" autocomplete="off">
-                    </div>
-                </div>
                 <!-- Orders -->
                 <div class="row d-none d-xl-block">
-                    <div class="col-12 bg-light border-bottom border-right border-left">
+                    <div class="col-12 bg-light border-top border-bottom border-right border-left">
                         <div class="row">
                             <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
                                 #Id
