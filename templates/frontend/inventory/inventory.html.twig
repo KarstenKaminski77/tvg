@@ -1313,6 +1313,9 @@
 
                 getOrdersList(clinic_id, 1, distributor_id, date, status);
             });
+            $(document).on('click', '#filter_orders', function (){
+                $('#filter_row').toggle(700, 'linear');
+            });
             {# Order Details #}
             function getOrderDetails(order_id, distributor_id, clinic_id){
 
