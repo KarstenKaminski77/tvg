@@ -110,31 +110,71 @@ class OrderItemsRepository extends ServiceEntityRepository
      */
     public function findByDistributorOrder($order_id, $distributor_id, $status)
     {
-        $queryBuilder =  $this->createQueryBuilder('o')
-            ->select('o', 'oi', 'os')
-            ->join('o.orders', 'oi')
-            ->join('oi.distributor', 'os')
-            ->andWhere('o.orders = :order_id')
+        $queryBuilder =  $this->createQueryBuilder('oi')
+            ->select('oi', 'o', 'd')
+            ->join('oi.orders', 'o')
+            ->join('oi.distributor', 'd')
+            ->andWhere('oi.orders = :order_id')
             ->setParameter('order_id', $order_id)
-            ->andWhere('o.distributor = :distributor_id')
+            ->andWhere('oi.distributor = :distributor_id')
             ->setParameter('distributor_id', $distributor_id);
 
         if($status == 'Draft'){
 
             $queryBuilder
-                ->andWhere('o.isAccepted = 1');
+                ->andWhere('oi.isAccepted = 1');
         }
 
         if($status == 'Confirmed'){
 
             $queryBuilder
-                ->andWhere('o.isAcceptedOnDelivery = 1');
+                ->andWhere('oi.isAcceptedOnDelivery = 1');
         }
 
         return $queryBuilder
             ->getQuery()
             ->getResult()
             ;
+    }
+
+    /**
+     * @return OrderItems[] Returns an array of OrderItems objects
+     */
+    public function findDistributorsByClinicOrders($clinic_id, $distributor_id, $date)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));";
+        $stmt = $conn->prepare($sql)->executeQuery();
+
+        $queryBuilder = $this->createQueryBuilder('oi')
+            ->select('o','oi')
+            ->join('oi.orders', 'o')
+            ->andWhere('o.clinic = :clinic_id')
+            ->setParameter('clinic_id', $clinic_id);
+
+        if(!empty($distributor_id)){
+
+            $queryBuilder
+                ->andWhere('oi.distributor = :distributor_id')
+                ->setParameter('distributor_id', (int) $distributor_id);
+        }
+
+        if(!empty($date)){
+
+            $dates = explode(' - ', $date);
+
+            $queryBuilder
+                ->andWhere('DATE(o.created) >= :start')
+                ->setParameter('start', $dates[0])
+                ->andWhere('DATE(o.created) <= :end')
+                ->setParameter('end', $dates[1]);
+        }
+
+        $queryBuilder
+            ->addGroupBy('oi.distributor')
+            ->orderBy('oi.distributor', 'ASC');
+
+        return $queryBuilder->getQuery()->getResult();
     }
 
     /*

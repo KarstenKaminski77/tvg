@@ -69,6 +69,8 @@
         {% block body %}{% endblock %}
 
         {% block javascripts %}
+            <script src="https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.0/dist/index.umd.min.js"></script>
+
             <!-- jQuery -->
             <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
             <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
@@ -76,6 +78,7 @@
             <script src="{{ asset('js/intlTelInput.min.js') }}"></script>
 
             <script>
+
                 $(document).ready(function() {
 
                     $(document).on('click', '#btn_map', function (){

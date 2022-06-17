@@ -2145,9 +2145,13 @@ class OrdersController extends AbstractController
     #[Route('/clinics/orders', name: 'clinic_get_order_list')]
     public function clinicGetOrdersAction(Request $request): Response
     {
+        //dd($request->request);
         $clinic = $this->getUser()->getClinic();
         $orders = $this->em->getRepository(Orders::class)->findClinicOrders($clinic->getId());
         $results = $this->page_manager->paginate($orders[0], $request, self::ITEMS_PER_PAGE);
+        $distributors = $this->em->getRepository(OrderItems::class)->findDistributorsByClinicOrders(
+            $clinic->getId(), $request->request->get('distributor_id'), $request->request->get('date')
+        );
 
         $html = '
         <div class="col-12">
@@ -2162,7 +2166,55 @@ class OrdersController extends AbstractController
 
             if(count($results) > 0) {
 
+                $select = '
+                <select class="form-control me-2 distributor_select">';
+
+                    $select .= '
+                    <option value = "">Select a Distributor</option>
+                    ';
+
+                    foreach ($distributors as $distributor){
+
+                        $select .= '
+                        <option value = "'. $distributor->getDistributor()->getId() .'">
+                            '. $distributor->getDistributor()->getDistributorName() .'
+                        </option>
+                        ';
+                    };
+
+                $select .= '
+                </select>';
+
                 $html .= '
+                <!-- Filters -->
+                <div class="row bg-light border-bottom border-left border-right">
+                    <div class="col-12 col-sm-12 col-md-6 offset-sm-0 offset-md-3 d-flex justify-content-center pt-3 pb-3 d-none d-sm-flex">
+                        '. $select .'
+                        <input 
+                            type="text" 
+                            class="form-control ms-2 datepicker" 
+                            name="datetimes" 
+                            autocomplete="off"
+                            id="datepicker"
+                        >
+                        <button 
+                            class="btn btn-primary ms-3 distributor_search"
+                            data-clinic-id="'. $clinic->getId() .'"
+                        >
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        <button class="btn btn-secondary ms-3 distributor_refresh">
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="col-12 col-sm-5 d-flex justify-content-center pt-3 pb-3 d-block d-sm-none">
+                        '. $select .'
+                    </div>
+                    <div class="col-12 col-sm-5 d-flex justify-content-center pt-3 pb-3 d-block d-sm-none">
+                        <input type="text" class="form-control" name="datetimes" id="datepicker" autocomplete="off">
+                    </div>
+                </div>
                 <!-- Orders -->
                 <div class="row d-none d-xl-block">
                     <div class="col-12 bg-light border-bottom border-right border-left">
@@ -3241,8 +3293,8 @@ class OrdersController extends AbstractController
             <tr>
                 <td style="width: 50%; vertical-align: top">
                     <table style="width: 80%; border-collapse: collapse;font-size: 12px">
-                        <tr style="background: #7796a8; color: #fff; border: solid 1px #7796a8;">
-                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                        <tr style="background: #54565a; color: #fff; border: solid 1px #54565a;">
+                            <th style="padding: 8px; border: solid 1px #54565a;">
                                 Vendor
                             </th>
                         </tr>
@@ -3259,8 +3311,8 @@ class OrdersController extends AbstractController
                 </td>
                 <td style="width: 50%; vertical-align: top">
                     <table style="width: 80%; border-collapse: collapse; margin-left: auto;margin-right: 0; font-size: 12px">
-                        <tr style="background: #7796a8; color: #fff">
-                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                        <tr style="background: #54565a; color: #fff">
+                            <th style="padding: 8px; border: solid 1px #54565a;">
                                 Deliver To
                             </th>
                         </tr>
@@ -3284,20 +3336,20 @@ class OrdersController extends AbstractController
             <tr>
                 <td colspan="2">
                     <table style="width: 100%; border-collapse: collapse; font-size: 12px">
-                        <tr style="background: #7796a8; color: #fff">
-                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                        <tr style="background: #54565a; color: #fff">
+                            <th style="padding: 8px; border: solid 1px #54565a;">
                                 #SKU
                             </th>
-                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                            <th style="padding: 8px; border: solid 1px #54565a;">
                                 Description
                             </th>
-                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                            <th style="padding: 8px; border: solid 1px #54565a;">
                                 Qty
                             </th>
-                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                            <th style="padding: 8px; border: solid 1px #54565a;">
                                 Unit Priice
                             </th>
-                            <th style="padding: 8px; border: solid 1px #7796a8;">
+                            <th style="padding: 8px; border: solid 1px #54565a;">
                                 Total
                             </th>
                         </tr>';
@@ -3316,19 +3368,19 @@ class OrdersController extends AbstractController
 
                             $html .= '
                             <tr>
-                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
+                                <td style="padding: 8px; border: solid 1px #54565a;text-align: center">
                                     ' . $item->getProduct()->getDistributorProducts()[0]->getSku() . '
                                 </td>
-                                <td style="padding: 8px; border: solid 1px #7796a8;">
+                                <td style="padding: 8px; border: solid 1px #54565a;">
                                     ' . $name . $dosage . '
                                 </td>
-                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: center">
+                                <td style="padding: 8px; border: solid 1px #54565a;text-align: center">
                                     ' . $item->getQuantity() . '
                                 </td>
-                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
+                                <td style="padding: 8px; border: solid 1px #54565a;text-align: right; padding-right: 8px; width: 10%">
                                     $' . number_format($item->getUnitPrice(), 2) . '
                                 </td>
-                                <td style="padding: 8px; border: solid 1px #7796a8;text-align: right; padding-right: 8px; width: 10%">
+                                <td style="padding: 8px; border: solid 1px #54565a;text-align: right; padding-right: 8px; width: 10%">
                                     $' . number_format($item->getTotal(), 2) . '
                                 </td>
                             </tr>';

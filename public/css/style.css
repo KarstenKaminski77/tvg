@@ -985,6 +985,11 @@ a.page-link {
     color: #54565a;
 }
 
+.start {
+    background-color: #54565a !important;
+    color: #fff !important;
+}
+
 @keyframes dotPulseBefore {
     0% {
         box-shadow: 9984px 0 0 -5px #b3b4b2;

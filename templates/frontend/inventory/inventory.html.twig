@@ -149,7 +149,7 @@
 
                 let clinic_id = '{{ app.request.get('clinic_id') }}';
 
-                getOrdersList(clinic_id, 1);
+                getOrdersList(clinic_id, 1,'','');
             }
 
             {# Order Details #}
@@ -1201,7 +1201,7 @@
 
             {# Orders #}
             {# Orders List #}
-            function getOrdersList(clinic_id, page_id){
+            function getOrdersList(clinic_id, page_id, distributor_id,date){
 
                 $.ajax({
                     url: "{{ path('clinic_get_order_list') }}",
@@ -1209,25 +1209,39 @@
                     dataType: 'json',
                     data: {
                         page_id: page_id,
-                        clinic_id: clinic_id
+                        clinic_id: clinic_id,
+                        distributor_id: distributor_id,
+                        date: date
                     },
                     beforeSend: function (){
 
                         isLoading(true)
                     },
-                    complete: function(e, xhr, settings){
-                        if(e.status === 500){
-                            window.location.href = '{{ path('clinic_error_500') }}';
-                        }
-                    },
+                    {#complete: function(e, xhr, settings){#}
+                    {#    if(e.status === 500){#}
+                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
+                    {#    }#}
+                    {#},#}
                     success: function (response) {
-
-                        console.log(response);
                         $('#inventory_container').hide();
                         $('#basket_container').empty().append(response.html).show();
                         $('#paginator').empty().append(response.pagination).show();
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/orders/'+ clinic_id);
+
+                        const picker = new easepick.create({
+                            element: "#datepicker",
+                            css: [
+                                'https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.0/dist/index.css',
+                                '{{ asset('css/date_picker.min.css') }}',
+                            ],
+                            zIndex: 11,
+                            readonly: false,
+                            plugins: [
+                                "AmpPlugin",
+                                "RangePlugin",
+                            ]
+                        })
                     }
                 });
             }
@@ -1239,7 +1253,7 @@
 
                 e.preventDefault();
                 clearInterval(get_messages);
-                getOrdersList(clinic_id, 1);
+                getOrdersList(clinic_id, 1,'','');
                 $('.col-container').removeClass('col-container');
 
             });
@@ -1248,9 +1262,22 @@
                 let clinic_id = $(this).data('clinic-id');
                 e.preventDefault();
                 clearInterval(get_messages);
-                getOrdersList(clinic_id, $(this).data('page-id'));
+                getOrdersList(clinic_id, $(this).data('page-id'),'','');
                 $('.col-container').removeClass('col-container');
 
+            });
+            $(document).on('click', '.distributor_refresh', function (){
+
+                $('.datepicker').val('');
+                $('.distributor_select').val('');
+            })
+            $(document).on('click', '.distributor_search', function (){
+
+                let distributor_id = $('.distributor_select').val();
+                let date = $('.datepicker').val();
+                let clinic_id = $(this).data('clinic-id');
+
+                getOrdersList(clinic_id, 1, distributor_id, date);
             });
             {# Order Details #}
             function getOrderDetails(order_id, distributor_id, clinic_id){
@@ -1425,7 +1452,7 @@
                     },
                     success: function (response) {
                         getFlash(response.flash);
-                        $('#basket_container').empty().removeClass('col-container').append(response.orders).show();
+                        $('#basket_container').empty().removeClass('col-container').append(response.orders.html).show();
                         clearInterval(get_messages);
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/orders/'+ response.clinic_id);
@@ -2308,14 +2335,7 @@
                 e.preventDefault();
                 getNotifications();
 
-                if($('#notifications_panel:visible').length == 0) {
-
-                    $('#notifications_panel').show();
-
-                } else {
-
-                    $('#notifications_panel').hide();
-                }
+                $('#notifications_panel').toggle();
             });
             $(document).on('click', '.delete-notification', function (e){
 
@@ -3733,7 +3753,6 @@
                         $('.modal-backdrop').removeClass('modal-backdrop');
                         $('#modal_address_delete').addClass('fade');
                         isLoading(false);
-                        console.log(response.addresses);
                     }
                 });
             });
@@ -3988,7 +4007,7 @@
                             id: address_id
                         },
                         success: function (response) {
-                            console.log(response);
+
                             $('#modal_shipping_address').modal('toggle');
                             $('#basket_container').css({overflow: "auto"});
                             $('#shipping_address_id').val(address_id);
@@ -4581,6 +4600,7 @@
                 $('#dd_distributors').toggle(700,'linear');
             });
             {# End Mebu Drop Downs #}
+
         });
 
         {# Popovers #}
