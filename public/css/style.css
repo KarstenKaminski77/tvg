@@ -1531,6 +1531,27 @@ a.distributor-logo-container {
     height: 18px;
 }
 
+.distributor-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 999;
+}
+
+.distributor-left-col {
+    width: 16%;
+    position: fixed;
+    left: 0;
+    top: 54px;
+}
+
+.distributor-right-col {
+    position: absolute;
+    left: 16%;
+    top: 65px;
+    overflow-y: auto;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {
