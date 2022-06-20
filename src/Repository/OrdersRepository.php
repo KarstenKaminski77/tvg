@@ -23,16 +23,44 @@ class OrdersRepository extends ServiceEntityRepository
     * @return Orders[] Returns an array of Orders objects
     */
 
-    public function findByDistributor($distributor_id)
+    public function findByDistributor($distributor_id, $clinic_id, $status_id, $dates)
     {
         $queryBuilder =  $this->createQueryBuilder('o')
             ->select('o', 'oi', 'os')
             ->join('o.orderItems', 'oi')
             ->join('o.orderStatuses', 'os')
+            ->join('os.status', 's')
             ->andWhere('oi.distributor = :distributor_id')
             ->setParameter('distributor_id', $distributor_id)
             ->andWhere('os.distributor = :distributor_id')
-            ->setParameter('distributor_id', $distributor_id)
+            ->setParameter('distributor_id', $distributor_id);
+
+        if(!empty($clinic_id)){
+
+            $queryBuilder
+                ->andWhere('o.clinic = :clinic_id')
+                ->setParameter('clinic_id', $clinic_id);
+        }
+
+        if($dates != null){
+
+            $date = explode(' - ', $dates);
+
+            $queryBuilder
+                ->andWhere('DATE(o.created) >= :start')
+                ->setParameter('start', $date[0])
+                ->andWhere('DATE(o.created) <= :end')
+                ->setParameter('end', $date[1]);
+        }
+
+        if(!empty($status_id)){
+
+            $queryBuilder
+                ->andWhere('s.id = :status')
+                ->setParameter('status', $status_id);
+        }
+
+        $queryBuilder
             ->orderBy('o.id', 'DESC')
         ;
 

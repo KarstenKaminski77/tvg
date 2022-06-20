@@ -159,6 +159,25 @@ class OrderItemsRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
+    public function findClinicsByDistributorOrders($distributor_id)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));";
+
+        $stmt = $conn->prepare($sql)->executeQuery();
+
+        $queryBuilder = $this->createQueryBuilder('oi')
+            ->select('o','oi')
+            ->join('oi.orders', 'o')
+            ->andWhere('oi.distributor = :distributor_id')
+            ->setParameter('distributor_id', $distributor_id)
+            ->addGroupBy('oi.distributor')
+            ->orderBy('oi.distributor', 'ASC');
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
     /*
     public function findOneBySomeField($value): ?OrderItems
     {

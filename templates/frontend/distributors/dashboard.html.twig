@@ -973,24 +973,28 @@
 
             {# Orders #}
             {# Orders List #}
-            function getOrdersList(distributor_id, page_id){
+            function getOrdersList(distributor_id, page_id, clinic_id = '', status_id = '', date = ''){
 
                 $.ajax({
                     url: "{{ path('distributor_get_order_list') }}",
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        page_id: page_id
+                        page_id: page_id,
+                        distributor_id: distributor_id,
+                        clinic_id: clinic_id,
+                        status_id: status_id,
+                        date: date
                     },
                     beforeSend: function () {
                         $("div.spanner").addClass("show");
                         $("div.overlay").addClass("show");
                     },
-                    complete: function(e, xhr, settings){
-                        if(e.status === 500){
-                            window.location.href = '{{ path('distributor_error_500') }}';
-                        }
-                    },
+                    {#complete: function(e, xhr, settings){#}
+                    {#    if(e.status === 500){#}
+                    {#        window.location.href = '{{ path('distributor_error_500') }}';#}
+                    {#    }#}
+                    {#},#}
                     success: function (response) {
                         $('#order_container').empty().append(response.html).append(response.pagination);
                         account_settings.hide();
@@ -1009,6 +1013,29 @@
                         $("div.overlay").removeClass("show");
 
                         window.history.pushState(null, "Fluid", '/distributors/orders/'+ distributor_id);
+
+                        let selector = '#datepicker';
+
+                        if ($(window).width() < 769){
+
+                            selector = '#datepicker_mobile';
+                            $('.clinic_select').removeClass('me-2');
+                            $('.status_select').removeClass('me-2 ms-3');
+                        }
+
+                        const picker = new easepick.create({
+                            element: selector,
+                            css: [
+                                'https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.0/dist/index.css',
+                                '{{ asset('css/date_picker.min.css') }}',
+                            ],
+                            zIndex: 11,
+                            readonly: false,
+                            plugins: [
+                                "AmpPlugin",
+                                "RangePlugin",
+                            ]
+                        })
                     }
                 });
             }
@@ -1061,6 +1088,45 @@
                 clearInterval(get_messages);
                 getOrdersList(distributor_id, $(this).data('page-id'));
 
+            });
+            $(document).on('change', '.clinic_select', function (){
+                $('.clinic_search').attr('data-clinic-id', $(this).val());
+            });
+            setInterval(function(){
+
+                if($('#datepicker_mobile').val() != '' && $('#datepicker_mobile').val() != 'Date') {
+
+                    $('.clinic_search').attr('data-date', $('#datepicker_mobile').val());
+                }
+
+                if($('#datepicker').val() != '' && $('#datepicker').val() != 'Date') {
+
+                    $('.clinic_search').attr('data-date', $('#datepicker').val());
+                }
+            } , 1000);
+            $(document).on('change', '.status_select', function (){
+                $('.clinic_search').attr('data-status-id', $(this).val());
+            });
+            $(document).on('click', '.clinic_refresh', function (){
+
+                $('.datepicker').val('');
+                $('.clinic_select').val('');
+                $('.status_select').val('');
+
+                let distributor_id = $(this).data('distributor-id');
+
+                getOrdersList(distributor_id, 1);
+            });
+            $(document).on('click', '.clinic_search', function (){
+                let distributor_id = $(this).data('distributor-id');
+                let date = $(this).data('date');
+                let clinic_id = $(this).data('clinic-id');
+                let status = $(this).data('status-id');
+
+                getOrdersList(distributor_id, 1, clinic_id, status, date);
+            });
+            $(document).on('click', '#filter_orders', function (){
+                $('#filter_row').toggle(700, 'linear');
             });
             {# Order Details #}
             let is_order_detail = uri.match('/distributors/order/[0-9]+');

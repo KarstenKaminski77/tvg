@@ -1376,115 +1376,227 @@ class OrdersController extends AbstractController
     #[Route('/distributors/orders', name: 'distributor_get_order_list')]
     public function distributorGetOrdersAction(Request $request): Response
     {
+        $data = $request->request;
         $distributor = $this->em->getRepository(Distributors::class)->find($this->getUser()->getDistributor()->getId());
-        $orders = $this->em->getRepository(Orders::class)->findByDistributor($distributor);
+        $orders = $this->em->getRepository(Orders::class)->findByDistributor(
+            $distributor,
+            $data->get('clinic_id'),
+            $data->get('status_id'),
+            $data->get('date')
+        );
         $results = $this->page_manager->paginate($orders[0], $request, self::ITEMS_PER_PAGE);
+        $statuses = $this->em->getRepository(Status::class)->findAll();
+        $clinics = $this->em->getRepository(OrderItems::class)->findClinicsByDistributorOrders($distributor->getId());
 
         $html = '
-        <form name="form_distributor_orders" class="row" id="form_distributor_orders" method="post">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3" id="order_header">
-                        <h4 class="text-white text-truncate">Manage Fluid Orders</h4>
-                        <span class="text-white d-none d-sm-inline">
-                            Manage All Your Orders In One Place
-                        </span>
+        <div class="col-12">
+            <div class="row">
+                <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3" id="order_header">
+                    <h4 class="text-white text-truncate">Manage Fluid Orders</h4>
+                    <span class="text-white d-none d-sm-inline">
+                        Manage All Your Orders In One Place
+                    </span>
+                </div>
+            </div>';
+
+            if(count($orders[1]) > 0) {
+
+                $clinics_select = '
+                 <select class="form-control me-2 clinic_select">';
+
+                $clinics_select .= '
+                 <option value = "">Clinic</option>
+                    ';
+
+                foreach ($clinics as $clinic){
+
+                    $clinics_select .= '
+                    <option value = "'. $clinic->getOrders()->getClinic()->getId() .'">
+                        '. $clinic->getOrders()->getClinic()->getClinicName() .'
+                     </option>';
+                };
+
+                $clinics_select .= '
+                </select>';
+
+                $status_select = '
+                <select class="form-control me-2 ms-3 status_select">';
+
+                $status_select .= '
+                <option value = "">Status</option>
+                    ';
+
+                foreach ($statuses as $status){
+
+                    $status_select .= '
+                    <option value = "'. $status->getId() .'">
+                    '. $status->getStatus() .'
+                    </option>
+                        ';
+                };
+
+                $status_select .= '
+                </select>';
+
+                $html .= '
+                <!-- Actions Row -->
+                <div class="row bg-light border-left border-right">
+                    <div class="col-12 col-sm-12 col-md-8 offset-sm-0 offset-md-2 d-flex justify-content-center pt-3 pb-3 d-none d-sm-flex">
+                        '. $clinics_select .'
+                        <input 
+                            type="text" 
+                            class="form-control ms-2 datepicker" 
+                            name="datetimes" 
+                            autocomplete="off"
+                            id="datepicker"
+                            placeholder="Date"
+                            value="Date"
+                        >
+                
+                        '. $status_select .'
+                
+                        <button 
+                            class="btn btn-primary ms-3 clinic_search"
+                            data-distributor-id="'. $distributor->getId() .'"
+                        >
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        <button 
+                            class="btn btn-secondary ms-3 clinic_refresh"
+                            data-distributor-id="'. $distributor->getId() .'"
+                        >
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="col-12 d-block d-sm-none">
+                        <div class="row border-bottom">
+                            <div role="button" class="col-12 text-danger pt-3 pb-3" id="filter_orders">
+                                <i class="fa-solid fa-filter me-3"></i>Filter Orders
+                            </div>
+                        </div>
+                        <div class="row hidden border-bottom" id="filter_row">
+                            <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
+                                '. $clinics_select .'
+                            </div>
+                            <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
+                                <input 
+                                    type="text" 
+                                    class="form-control datepicker" 
+                                    name="datetimes" 
+                                    id="datepicker_mobile" 
+                                    autocomplete="off"
+                                    value="Date"
+                                    placeholder="Date"
+                                >
+                            </div>
+                            <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
+                                '. $status_select .'
+                            </div>
+                            <div class="col-12 pt-3 d-block d-sm-none">
+                                <button 
+                                    class="btn btn-primary clinic_search w-sm-100 text-center"
+                                    data-distributor-id="'. $distributor->getId() .'"
+                                >
+                                    <i class="fa-solid fa-magnifying-glass me-3"></i>
+                                    SEARCH
+                                </button>
+                            </div>
+                            <div class="col-12 pt-3 pb-3 d-block d-sm-none">
+                                <button 
+                                    class="btn btn-secondary clinic_refresh w-sm-100 text-center"
+                                    data-distributor-id="'. $distributor->getId() .'"
+                                >
+                                    <i class="fa-solid fa-rotate me-3"></i>
+                                    CANCEL
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Orders -->
+                <div class="row d-none d-xl-block">
+                    <div class="col-12 bg-light border-bottom border-right border-left">
+                        <div class="row">
+                            <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
+                                #Id
+                            </div>
+                            <div class="col-12 col-sm-4 pt-3 pb-3 text-primary fw-bold">
+                                Clinic
+                            </div>
+                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                                Total
+                            </div>
+                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                                Date
+                            </div>
+                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                                Status
+                            </div>
+                        </div>    
                     </div>
                 </div>';
+            }
+
+            $html .= '
+            <div class="row">
+                <div class="col-12 border-right bg-light col-cell border-left border-right border-bottom">';
 
                 if(count($orders[1]) > 0) {
 
+                    foreach ($results as $order) {
+
+                        $html .= '
+                        <!-- Orders -->
+                        <div class="row">
+                            <div class="col-4 col-sm-2 d-block d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">#Id: </div>
+                            <div class="col-8 col-sm-10 col-xl-1 pt-3 pb-3 border-list text-truncate">
+                                ' . $order->getId() . '
+                            </div>
+                            <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Clnic: </div>
+                            <div class="col-8 col-sm-10 col-xl-4 pt-3 pb-3 text-truncate border-list">
+                                ' . $order->getClinic()->getClinicName() . '
+                            </div>
+                            <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Total: </div>
+                            <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
+                                $' . number_format($order->getTotal(),2) . '
+                            </div>
+                            <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Date: </div>
+                            <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
+                                ' . $order->getCreated()->format('Y-m-d') . '
+                            </div>
+                            <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Status: </div>
+                            <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
+                                ' . ucfirst($order->getOrderStatuses()[0]->getStatus()->getStatus()) . '
+                            </div>
+                            <div class="col-12 col-sm-1 pt-3 pb-3 text-end">
+                                <a 
+                                    href="' . $this->getParameter('app.base_url') . '/distributors/order/' . $order->getId() . '" 
+                                    class="pe-0 pe-sm-3 order_detail_link"
+                                    data-order-id="' . $order->getId() . '"
+                                    data-distributor-id="' . $distributor->getId() . '"
+                                    data-clinic-id="' . $order->getClinic()->getId() . '"
+                                >
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                            </div>
+                        </div>';
+                    }
+
+                } else {
+
                     $html .= '
-                    <!-- Actions Row -->
-                    <div class="row" id="order_action_row_1">
-                        <div class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3 bg-light border-left border-right">
-                            
-                        </div>
-                    </div>
-                    <!-- Orders -->
-                    <div class="row d-none d-xl-block">
-                        <div class="col-12 bg-light border-bottom border-right border-left">
-                            <div class="row">
-                                <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
-                                    #Id
-                                </div>
-                                <div class="col-12 col-sm-4 pt-3 pb-3 text-primary fw-bold">
-                                    Clinic
-                                </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                    Total
-                                </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                    Date
-                                </div>
-                                <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                    Status
-                                </div>
-                            </div>    
+                    <div class="row">
+                        <div class="col-12 text-center mt-5 mb-5 pt-3 pb-3 text-center">
+                            You don\'t have any orders available. 
                         </div>
                     </div>';
                 }
 
                 $html .= '
-                <div class="row">
-                    <div class="col-12 border-right bg-light col-cell border-left border-right border-bottom">';
-
-                    if(count($orders[1]) > 0) {
-
-                        foreach ($results as $order) {
-
-                            $html .= '
-                            <!-- Orders -->
-                            <div class="row">
-                                <div class="col-4 col-sm-2 d-block d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">#Id: </div>
-                                <div class="col-8 col-sm-10 col-xl-1 pt-3 pb-3 border-list text-truncate">
-                                    ' . $order->getId() . '
-                                </div>
-                                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Clnic: </div>
-                                <div class="col-8 col-sm-10 col-xl-4 pt-3 pb-3 text-truncate border-list">
-                                    ' . $order->getClinic()->getClinicName() . '
-                                </div>
-                                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Total: </div>
-                                <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
-                                    $' . number_format($order->getTotal(),2) . '
-                                </div>
-                                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Date: </div>
-                                <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
-                                    ' . $order->getCreated()->format('Y-m-d') . '
-                                </div>
-                                <div class="col-4 col-sm-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">Status: </div>
-                                <div class="col-8 col-sm-10 col-xl-2 pt-3 pb-3 border-list">
-                                    ' . ucfirst($order->getOrderStatuses()[0]->getStatus()->getStatus()) . '
-                                </div>
-                                <div class="col-12 col-sm-1 pt-3 pb-3 text-end">
-                                    <a 
-                                        href="' . $this->getParameter('app.base_url') . '/distributors/order/' . $order->getId() . '" 
-                                        class="pe-0 pe-sm-3 order_detail_link"
-                                        data-order-id="' . $order->getId() . '"
-                                        data-distributor-id="' . $distributor->getId() . '"
-                                        data-clinic-id="' . $order->getClinic()->getId() . '"
-                                    >
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-                                </div>
-                            </div>';
-                        }
-
-                    } else {
-
-                        $html .= '
-                        <div class="row">
-                            <div class="col-12 text-center mt-5 mb-5 pt-3 pb-3 text-center">
-                                You don\'t have any orders available. 
-                            </div>
-                        </div>';
-                    }
-
-                    $html .= '
-                    </div>
                 </div>
             </div>
-        </form>';
+        </div>';
 
         $current_page = $request->request->get('page_id');
         $last_page = $this->page_manager->lastPage($results);
@@ -2240,7 +2352,7 @@ class OrdersController extends AbstractController
                             <i class="fa-solid fa-filter me-3"></i>Filter Orders
                         </div>
                     </div>
-                    <div class="row hidden" id="filter_row">
+                    <div class="row hidden border-bottom" id="filter_row">
                         <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
                             '. $distributors_select .'
                         </div>
