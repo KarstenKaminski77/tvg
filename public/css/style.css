@@ -1551,6 +1551,7 @@ a.distributor-logo-container {
     right: 1em;
     top: 65px;
     overflow-y: auto;
+    overflow-x: hidden;
     width: calc(84% - 2em);
 }
 
