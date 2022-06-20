@@ -990,6 +990,19 @@ a.page-link {
     color: #fff !important;
 }
 
+.fa-fw {
+    text-align: center !important;
+    width: 1.25em !important;
+}
+
+.nav-icon {
+    border: 1px solid silver;
+    border-radius: 0.25em;
+    padding: 0.5em;
+    display: inherit;
+    text-align: center;
+}
+
 @keyframes dotPulseBefore {
     0% {
         box-shadow: 9984px 0 0 -5px #b3b4b2;

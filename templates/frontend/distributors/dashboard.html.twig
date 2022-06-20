@@ -11,77 +11,82 @@
                     <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none distributor-logo-container">
                         <img src="{{ asset('images/logo-150.png') }}" class="img-fluid distributor-logo">
                     </a>
-                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
-                        <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0 text-primary">
-                                <i class="fa-solid fa-house"></i>
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start w-100" id="menu">
+                        <li class="nav-item py-3 w-100">
+                            <a href="#" class="align-middle px-0 text-primary nav-icon text-truncate">
+                                <i class="fa-solid fa-house fa-fw"></i>
                                 <span class="ms-1 d-none d-sm-inline">Home</span>
                             </a>
                         </li>
-                        <li class="text">
-                            <a href="#submenu1" data-bs-toggle="collapse" class="nav-link px-0 align-middle text-primary collapsed text-center text-sm-start" aria-expanded="false">
-                                <i class="fa-solid fa-user-gear"></i>
+                        <li class="w-100">
+                            <a
+                                href="#submenu1"
+                                data-bs-toggle="collapse"
+                                class="px-0 align-middle text-primary collapsed text-center text-sm-start nav-icon mb-3 text-truncate"
+                                aria-expanded="false"
+                            >
+                                <i class="fa-solid fa-user-gear fa-fw"></i>
                                 <span class="ms-1 d-none d-sm-inline">My Account</span>
                             </a>
-                            <ul class="nav flex-column ms-1 collapse" id="submenu1" data-bs-parent="#menu" style="">
-                                <li class="w-100">
-                                    <a href="#" class="nav-link align-middle text-primary" id="account_settings_link">
-                                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                            <ul class="nav flex-column collapse" id="submenu1" data-bs-parent="#menu" style="">
+                                <li class="w-100 mb-3">
+                                    <a href="#" class="align-middle text-primary nav-icon" id="account_settings_link text-truncate">
+                                        <i class="fa-solid fa-screwdriver-wrench fa-fw"></i>
                                         <span class="ms-1 d-none d-sm-inline">Company Information</span>
                                     </a>
                                 </li>
-                                <li class="w-100">
-                                    <a href="#" class="nav-link align-middle text-primary" id="about_link">
-                                        <i class="fa-solid fa-circle-question"></i>
+                                <li class="w-100 mb-3">
+                                    <a href="#" class="align-middle text-primary nav-icon" id="about_link">
+                                        <i class="fa-solid fa-circle-question fa-fw"></i>
                                         <span class="ms-1 d-none d-sm-inline">About</span>
                                     </a>
                                 </li>
-                                <li class="w-100">
-                                    <a href="#" class="nav-link align-middle text-primary" id="operating_hours_link">
-                                        <i class="fa-solid fa-clock"></i>
+                                <li class="w-100 mb-3">
+                                    <a href="#" class="align-middle text-primary nav-icon" id="operating_hours_link">
+                                        <i class="fa-solid fa-clock fa-fw"></i>
                                         <span class="ms-1 d-none d-sm-inline">Operating Hours</span>
                                     </a>
                                 </li>
-                                <li class="w-100">
-                                    <a href="#" class="nav-link align-middle text-primary" id="refund_policy_link">
-                                        <i class="fa-solid fa-rotate-left"></i>
+                                <li class="w-100 mb-3">
+                                    <a href="#" class="align-middle text-primary nav-icon" id="refund_policy_link">
+                                        <i class="fa-solid fa-rotate-left fa-fw"></i>
                                         <span class="ms-1 d-none d-sm-inline">Refund Policy</span>
                                     </a>
                                 </li>
-                                <li class="w-100">
-                                    <a href="#" class="nav-link align-middle text-primary" id="sales_tax_policy_link">
-                                        <i class="fa-solid fa-scale-unbalanced"></i>
+                                <li class="w-100 mb-3">
+                                    <a href="#" class="align-middle text-primary nav-icon" id="sales_tax_policy_link">
+                                        <i class="fa-solid fa-scale-unbalanced fa-fw"></i>
                                         <span class="ms-1 d-none d-sm-inline">Sale Tax Policy</span>
                                     </a>
                                 </li>
-                                <li class="w-100">
-                                    <a href="#" class="nav-link align-middle text-primary" id="shipping_policy_link">
-                                        <i class="fa-solid fa-truck"></i>
+                                <li class="w-100 mb-3">
+                                    <a href="#" class="align-middle text-primary nav-icon" id="shipping_policy_link">
+                                        <i class="fa-solid fa-truck fa-fw"></i>
                                         <span class="ms-1 d-none d-sm-inline">Shipping Policy</span>
                                     </a>
                                 </li>
-                                <li class="w-100">
-                                    <a class="nav-link align-middle text-primary" href="#" id="users_link">
-                                        <i class="fa-solid fa-address-book"></i>
+                                <li class="w-100 mb-3">
+                                    <a class="align-middle text-primary nav-icon" href="#" id="users_link">
+                                        <i class="fa-solid fa-address-book fa-fw"></i>
                                         <span class="ms-1 d-none d-sm-inline">Users</span>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <li>
+                        <li class="w-100">
                             <a
                                 href="#"
                                 data-bs-toggle="collapse"
-                                class="nav-link px-0 align-middle text-primary"
+                                class="px-0 align-middle text-primary nav-icon mb-3"
                                 data-distributor-id="{{ distributor.id }}"
                                 id="orders_link"
                             >
-                                <i class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;
+                                <i class="fa-solid fa-file-invoice"></i>
                                 <span class="ms-1 d-none d-sm-inline">Orders</span>
                             </a>
                         </li>
-                        <li>
-                            <a class="nav-link px-0 align-middle text-primary" href="#" id="inventory_link">
+                        <li class="w-100">
+                            <a class="px-0 align-middle text-primary nav-icon mb-3" href="#" id="inventory_link">
                                 <i class="fa-solid fa-cart-flatbed"></i>
                                 <span class="ms-1 d-none d-sm-inline">Invetory</span>
                             </a>
