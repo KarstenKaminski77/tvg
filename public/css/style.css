@@ -997,7 +997,7 @@ a.page-link {
 
 .nav-icon {
     display: inherit;
-    text-align: center;
+    text-align: left;
 }
 
 @keyframes dotPulseBefore {
@@ -1556,6 +1556,10 @@ a.distributor-logo-container {
 
     .bady-mt {
         margin-top: 75px;
+    }
+
+    .nav-icon {
+        text-align: center;
     }
 }
 
