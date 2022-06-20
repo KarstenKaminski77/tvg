@@ -1547,9 +1547,11 @@ a.distributor-logo-container {
 
 .distributor-right-col {
     position: absolute;
-    left: 16%;
+    left: calc(16% + 1em);
+    right: 1em;
     top: 65px;
     overflow-y: auto;
+    width: calc(84% - 2em);
 }
 
 /* width */
