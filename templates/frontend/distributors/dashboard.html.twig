@@ -990,11 +990,11 @@
                         $("div.spanner").addClass("show");
                         $("div.overlay").addClass("show");
                     },
-                    {#complete: function(e, xhr, settings){#}
-                    {#    if(e.status === 500){#}
-                    {#        window.location.href = '{{ path('distributor_error_500') }}';#}
-                    {#    }#}
-                    {#},#}
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('distributor_error_500') }}';
+                        }
+                    },
                     success: function (response) {
                         $('#order_container').empty().append(response.html).append(response.pagination);
                         account_settings.hide();
@@ -1011,6 +1011,7 @@
                         order_container.show();
                         $("div.spanner").removeClass("show");
                         $("div.overlay").removeClass("show");
+                        $('#filter_row_toggle').removeClass('border-bottom');
 
                         window.history.pushState(null, "Fluid", '/distributors/orders/'+ distributor_id);
 
@@ -1021,6 +1022,12 @@
                             selector = '#datepicker_mobile';
                             $('.clinic_select').removeClass('me-2');
                             $('.status_select').removeClass('me-2 ms-3');
+                        }
+
+                        if($('#filter_row').is( ":visible" )){
+
+                            $('#filter_row_toggle').removeClass('border-bottom');
+                            $('#filter_row_toggle').addClass('border-bottom');
                         }
 
                         const picker = new easepick.create({
@@ -1127,6 +1134,18 @@
             });
             $(document).on('click', '#filter_orders', function (){
                 $('#filter_row').toggle(700, 'linear');
+
+                setInterval(function(){
+
+                    if($('#filter_row').is( ":visible" )){
+
+                        $('#filter_row_toggle').addClass('border-bottom');
+
+                    } else {
+
+                        $('#filter_row_toggle').removeClass('border-bottom');
+                    }
+                } , 1000);
             });
             {# Order Details #}
             let is_order_detail = uri.match('/distributors/order/[0-9]+');

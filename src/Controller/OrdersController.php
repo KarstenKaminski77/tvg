@@ -1399,148 +1399,150 @@ class OrdersController extends AbstractController
                 </div>
             </div>';
 
-            if(count($orders[1]) > 0) {
-
-                $clinics_select = '
+        $clinics_select = '
                  <select class="form-control me-2 clinic_select">';
 
-                $clinics_select .= '
+        $clinics_select .= '
                  <option value = "">Clinic</option>
                     ';
 
-                foreach ($clinics as $clinic){
+        foreach ($clinics as $clinic){
 
-                    $clinics_select .= '
+            $clinics_select .= '
                     <option value = "'. $clinic->getOrders()->getClinic()->getId() .'">
                         '. $clinic->getOrders()->getClinic()->getClinicName() .'
                      </option>';
-                };
+        };
 
-                $clinics_select .= '
+        $clinics_select .= '
                 </select>';
 
-                $status_select = '
+        $status_select = '
                 <select class="form-control me-2 ms-3 status_select">';
 
-                $status_select .= '
+        $status_select .= '
                 <option value = "">Status</option>
                     ';
 
-                foreach ($statuses as $status){
+        foreach ($statuses as $status){
 
-                    $status_select .= '
+            $status_select .= '
                     <option value = "'. $status->getId() .'">
                     '. $status->getStatus() .'
                     </option>
                         ';
-                };
+        };
 
-                $status_select .= '
+        $status_select .= '
                 </select>';
 
-                $html .= '
-                <!-- Actions Row -->
-                <div class="row bg-light border-left border-right">
-                    <div class="col-12 col-sm-12 col-md-8 offset-sm-0 offset-md-2 d-flex justify-content-center pt-3 pb-3 d-none d-sm-flex">
-                        '. $clinics_select .'
-                        <input 
-                            type="text" 
-                            class="form-control ms-2 datepicker" 
-                            name="datetimes" 
-                            autocomplete="off"
-                            id="datepicker"
-                            placeholder="Date"
-                            value="Date"
-                        >
-                
-                        '. $status_select .'
-                
-                        <button 
-                            class="btn btn-primary ms-3 clinic_search"
-                            data-distributor-id="'. $distributor->getId() .'"
-                        >
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                        <button 
-                            class="btn btn-secondary ms-3 clinic_refresh"
-                            data-distributor-id="'. $distributor->getId() .'"
-                        >
-                            <i class="fa-solid fa-rotate"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="col-12 d-block d-sm-none">
-                        <div class="row border-bottom">
-                            <div role="button" class="col-12 text-danger pt-3 pb-3" id="filter_orders">
-                                <i class="fa-solid fa-filter me-3"></i>Filter Orders
-                            </div>
-                        </div>
-                        <div class="row hidden border-bottom" id="filter_row">
-                            <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
-                                '. $clinics_select .'
-                            </div>
-                            <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
-                                <input 
-                                    type="text" 
-                                    class="form-control datepicker" 
-                                    name="datetimes" 
-                                    id="datepicker_mobile" 
-                                    autocomplete="off"
-                                    value="Date"
-                                    placeholder="Date"
-                                >
-                            </div>
-                            <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
-                                '. $status_select .'
-                            </div>
-                            <div class="col-12 pt-3 d-block d-sm-none">
-                                <button 
-                                    class="btn btn-primary clinic_search w-sm-100 text-center"
-                                    data-distributor-id="'. $distributor->getId() .'"
-                                >
-                                    <i class="fa-solid fa-magnifying-glass me-3"></i>
-                                    SEARCH
-                                </button>
-                            </div>
-                            <div class="col-12 pt-3 pb-3 d-block d-sm-none">
-                                <button 
-                                    class="btn btn-secondary clinic_refresh w-sm-100 text-center"
-                                    data-distributor-id="'. $distributor->getId() .'"
-                                >
-                                    <i class="fa-solid fa-rotate me-3"></i>
-                                    CANCEL
-                                </button>
-                            </div>
-                        </div>
+        $html .= '
+        <!-- Actions Row -->
+        <div class="row bg-light border-left border-right border-bottom">
+            <div class="col-12 col-sm-12 col-md-8 offset-sm-0 offset-md-2 d-flex justify-content-center pt-3 pb-3 d-none d-sm-flex">
+                '. $clinics_select .'
+                <input 
+                    type="text" 
+                    class="form-control ms-2 datepicker" 
+                    name="datetimes" 
+                    autocomplete="off"
+                    id="datepicker"
+                    placeholder="Date"
+                    value="Date"
+                >
+        
+                '. $status_select .'
+        
+                <button 
+                    class="btn btn-primary ms-3 clinic_search"
+                    data-distributor-id="'. $distributor->getId() .'"
+                >
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button 
+                    class="btn btn-secondary ms-3 clinic_refresh"
+                    data-distributor-id="'. $distributor->getId() .'"
+                >
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
+            
+            <div class="col-12 d-block d-sm-none">
+                <div class="row border-bottom" id="filter_row_toggle">
+                    <div role="button" class="col-12 text-danger pt-3 pb-3" id="filter_orders">
+                        <i class="fa-solid fa-filter me-3"></i>Filter Orders
                     </div>
                 </div>
-                <!-- Orders -->
-                <div class="row d-none d-xl-block">
-                    <div class="col-12 bg-light border-bottom border-right border-left">
-                        <div class="row">
-                            <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
-                                #Id
-                            </div>
-                            <div class="col-12 col-sm-4 pt-3 pb-3 text-primary fw-bold">
-                                Clinic
-                            </div>
-                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                Total
-                            </div>
-                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                Date
-                            </div>
-                            <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
-                                Status
-                            </div>
-                        </div>    
+                <div class="row hidden border-bottom" id="filter_row">
+                    <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
+                        '. $clinics_select .'
                     </div>
-                </div>';
-            }
+                    <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
+                        <input 
+                            type="text" 
+                            class="form-control datepicker" 
+                            name="datetimes" 
+                            id="datepicker_mobile" 
+                            autocomplete="off"
+                            value="Date"
+                            placeholder="Date"
+                        >
+                    </div>
+                    <div class="col-12 col-sm-5 d-flex pt-3 d-block d-sm-none">
+                        '. $status_select .'
+                    </div>
+                    <div class="col-12 pt-3 d-block d-sm-none">
+                        <button 
+                            class="btn btn-primary clinic_search w-sm-100 text-center"
+                            data-distributor-id="'. $distributor->getId() .'"
+                        >
+                            <i class="fa-solid fa-magnifying-glass me-3"></i>
+                            SEARCH
+                        </button>
+                    </div>
+                    <div class="col-12 pt-3 pb-3 d-block d-sm-none">
+                        <button 
+                            class="btn btn-secondary clinic_refresh w-sm-100 text-center"
+                            data-distributor-id="'. $distributor->getId() .'"
+                        >
+                            <i class="fa-solid fa-rotate me-3"></i>
+                            CANCEL
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>';
+
+        if(count($orders[1]) > 0) {
 
             $html .= '
-            <div class="row">
-                <div class="col-12 border-right bg-light col-cell border-left border-right border-bottom">';
+            <!-- Orders -->
+            <div class="row d-none d-xl-block">
+                <div class="col-12 bg-light border-bottom border-right border-left">
+                    <div class="row">
+                        <div class="col-12 col-sm-1 pt-3 pb-3 text-primary fw-bold">
+                            #Id
+                        </div>
+                        <div class="col-12 col-sm-4 pt-3 pb-3 text-primary fw-bold">
+                            Clinic
+                        </div>
+                        <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                            Total
+                        </div>
+                        <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                            Date
+                        </div>
+                        <div class="col-12 col-sm-2 pt-3 pb-3 text-primary fw-bold">
+                            Status
+                        </div>
+                    </div>    
+                </div>
+            </div>';
+        }
+
+        $html .= '
+        <div class="row">
+            <div class="col-12 border-right bg-light col-cell border-left border-right border-bottom">';
 
                 if(count($orders[1]) > 0) {
 
