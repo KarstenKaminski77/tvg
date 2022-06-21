@@ -105,7 +105,7 @@
                         </span>
                     </div>
                     {{form_start(form, {'name': 'form_company_information', 'attr': {'id': 'form_company_information'}})}}
-                    <div class="row mb-3 pt-2 pt-sm-3 bg-light border-left border-right">
+                    <div class="row pb-3 pt-2 pt-sm-3 bg-light border-left border-right">
 
                         {# Company name #}
                         <div class="col-12 col-sm-6">
@@ -123,7 +123,7 @@
                         </div>
 
                         {# Website #}
-                        <div class="col-12 col-sm-6">
+                        <div class="col-12 col-sm-6 pt-2 pt-sm-0">
                             <label>
                                 Website
                             </label>
@@ -138,7 +138,7 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3 bg-light border-left border-right">
+                    <div class="row pb-3 bg-light border-left border-right">
 
                         {# Email #}
                         <div class="col-12 col-sm-6">
@@ -159,7 +159,7 @@
                         </div>
 
                         {# Telephone #}
-                        <div class="col-12 col-sm-6">
+                        <div class="col-12 col-sm-6 pt-2 pt-sm-0">
                             <label>
                                 Telephone
                             </label>
@@ -183,7 +183,7 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3 bg-light border-left border-right">
+                    <div class="row pb-3 bg-light border-left border-right">
 
                         {# Logo #}
                         <div class="col-12 col-sm-6">
@@ -207,7 +207,7 @@
                         </div>
 
                         {# Country #}
-                        <div class="col-12 col-sm-6">
+                        <div class="col-12 col-sm-6 pt-2 pt-sm-0">
                             <label>
                                 Country
                             </label>
@@ -226,13 +226,13 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3 bg-light border-left border-right">
+                    <div class="row pb-3 bg-light border-left border-right">
 
                         {# Street #}
                         <div class="col-12 col-sm-6">
-                            <labe>
+                            <label>
                                 Street Address
-                            </labe>
+                            </label>
                             {{ form_widget(form.addressStreet,{id: 'street_address', 'attr': {
                                 'class': 'form-control',
                                 'placeholder': 'Street Address',
@@ -244,10 +244,10 @@
                         </div>
 
                         {# City #}
-                        <div class="col-12 col-sm-6">
-                            <labe>
+                        <div class="col-12 col-sm-6 pt-2 pt-sm-0">
+                            <label>
                                 City
-                            </labe>
+                            </label>
                             {{ form_widget(form.addressCity,{id: 'city', 'attr': {
                                 'class': 'form-control',
                                 'placeholder': 'City',
@@ -259,13 +259,13 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3 pb-3 bg-light border-left border-right border-bottom">
+                    <div class="row pb-3 pb-3 bg-light border-left border-right border-bottom">
 
                         {# Postal Code #}
                         <div class="col-12 col-sm-6">
-                            <labe>
+                            <label>
                                 Postal Code
-                            </labe>
+                            </label>
                             {{ form_widget(form.addressPostalCode,{id: 'postal_code', 'attr': {
                                 'class': 'form-control',
                                 'placeholder': 'Postal Code',
@@ -277,10 +277,10 @@
                         </div>
 
                         {# State #}
-                        <div class="col-12 col-sm-6">
-                            <labe>
+                        <div class="col-12 col-sm-6 pt-2 pt-sm-0">
+                            <label>
                                 State
-                            </labe>
+                            </label>
                             {{ form_widget(form.addressState,{id: 'state', 'attr': {
                                 'class': 'form-control',
                                 'placeholder': 'State',
@@ -488,10 +488,10 @@
                         </div>
                     </div>
                     <div id="inventory_item" class="row bg-light border-left border-right border-bottom">
-                        <div class="row mb-3 pe-0">
+                        <div class="row mb-0 mb-sm-3 pe-0">
 
                             {# Dosage #}
-                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2 pt-2">
                                 <label>
                                     Dosage
                                 </label>
@@ -499,7 +499,7 @@
                             </div>
 
                             {# Size #}
-                            <div class="col-12 col-sm-6 pe-0">
+                            <div class="col-12 col-sm-6 pe-0 pt-2">
                                 <label>
                                     Size
                                 </label>
@@ -507,10 +507,10 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3 pe-0">
+                        <div class="row mb-0 mb-sm-3 pe-0">
 
                             {# Active Ingredient #}
-                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2 pt-2 pt-sm-0">
                                 <label>
                                     Active Ingredient
                                 </label>
@@ -518,7 +518,7 @@
                             </div>
 
                             {# Pack Type #}
-                            <div class="col-12 col-sm-6 pe-0">
+                            <div class="col-12 col-sm-6 pe-0 pt-2 pt-sm-0">
                                 <label>
                                     Pack Type
                                 </label>
@@ -526,10 +526,10 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3 pe-0">
+                        <div class="row mb-0 mb-sm-3 pe-0">
 
                             {# Unit #}
-                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2 pt-2 pt-sm-0">
                                 <label>
                                     Unit
                                 </label>
@@ -537,7 +537,7 @@
                             </div>
 
                             {# SKU #}
-                            <div class="col-12 col-sm-6 pe-0">
+                            <div class="col-12 col-sm-6 pe-0 pt-2 pt-sm-0">
                                 <label>
                                     #SKU
                                 </label>
@@ -551,10 +551,10 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3 pe-0">
+                        <div class="row mb-0 mb-sm-3 pe-0">
 
                             {# Serial Number #}
-                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2 pt-2 pt-sm-0">
                                 <label>
                                     Serial Number
                                 </label>
@@ -568,7 +568,7 @@
                             </div>
 
                             {# Unit Price #}
-                            <div class="col-12 col-sm-6 pe-0">
+                            <div class="col-12 col-sm-6 pe-0 pt-2 pt-sm-0">
                                 <label>
                                     Unit Price
                                 </label>
@@ -582,10 +582,10 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3 pe-0">
+                        <div class="row mb-0 mb-sm-3 pe-0">
 
                             {# Stock Level #}
-                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2 pt-2 pt-sm-0">
                                 <label>
                                     Stock Level
                                 </label>
@@ -599,7 +599,7 @@
                             </div>
 
                             {# Expiry Date #}
-                            <div class="col-12 col-sm-6 pe-0">
+                            <div class="col-12 col-sm-6 pe-0 pt-2 pt-sm-0">
                                 <label>
                                     Expiry Date
                                 </label>
@@ -609,10 +609,10 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3 pe-0">
+                        <div class="row mb-0 mb-sm-3 pe-0">
 
                             {# Tax Empt #}
-                            <div class="col-12">
+                            <div class="col-12 pt-2 pt-sm-0">
                                 <label class="d-block">
                                     Tax Exempt
                                 </label>
