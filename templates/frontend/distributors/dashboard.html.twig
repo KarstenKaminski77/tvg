@@ -6,7 +6,7 @@
     <div class="hidden users-flash mb-0" id="flash"></div>
     <div class="container-fluid pe-4">
         <div class="row flex-nowrap">
-            <div class="col-2 col-sm-2 col-md-3 col-xl-2 px-sm-2 px-0 bg-light border-right">
+            <div class="col-2 col-sm-2 col-md-3 col-xl-2 px-sm-2 px-0 bg-light border-right distributor-left-col">
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 text-truncate overflow-hidden">
                     <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none distributor-logo-container">
                         <img src="{{ asset('images/logo-150.png') }}" class="img-fluid distributor-logo">
@@ -94,765 +94,762 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-10 col-sm-10 py-3">
-                <div class="ps-3">
+            <div class="col-10 col-sm-10 pb-3 distributor-right-col">
 
-                    {# Account & Settings #}
-                    <div class="row hidden" id="account_settings">
-                        <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3">
-                            <h4 class="text-white text-truncate">Account & Settings</h4>
-                            <span class="text-white d-none d-sm-inline">
-                                Company Information
-                            </span>
-                        </div>
-                        {{form_start(form, {'name': 'form_company_information', 'attr': {'id': 'form_company_information'}})}}
-                        <div class="row mb-3 pt-2 pt-sm-3 bg-light border-left border-right">
-
-                            {# Company name #}
-                            <div class="col-12 col-sm-6">
-                                <label>
-                                    Company Name
-                                </label>
-                                {{ form_widget(form.distributorName,{id: 'distributor_name', 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'Distributor Name*',
-                                    'value': distributor.distributorName
-                                }}) }}
-                                <div class="hidden_msg" id="error_distributor_name">
-                                    Required Field
-                                </div>
-                            </div>
-
-                            {# Website #}
-                            <div class="col-12 col-sm-6">
-                                <label>
-                                    Website
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text" id="basic-addon1">https://</span>
-                                    {{ form_widget(form.website,{id: 'website', 'attr': {
-                                        'class': 'form-control',
-                                        'placeholder': 'Website',
-                                        'value': distributor.website
-                                    }}) }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3 bg-light border-left border-right">
-
-                            {# Email #}
-                            <div class="col-12 col-sm-6">
-                                <label>
-                                    Email Address
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text" id="basic-addon1">@</span>
-                                    {{ form_widget(form.email,{id: 'email', 'attr': {
-                                        'class': 'form-control',
-                                        'placeholder': 'Email*',
-                                        'value': distributor.email
-                                    }}) }}
-                                </div>
-                                <div class="hidden_msg" id="error_email">
-                                    Required Field
-                                </div>
-                            </div>
-
-                            {# Telephone #}
-                            <div class="col-12 col-sm-6">
-                                <label>
-                                    Telephone
-                                </label>
-                                <input
-                                        type="hidden"
-                                        name="distributor_form[telephone]"
-                                        value="{{ distributor.telephone }}"
-                                        id="telephone"
-                                >
-                                <input
-                                        type="text"
-                                        name="mobile"
-                                        placeholder="Telephone*"
-                                        value="{{ distributor.telephone }}"
-                                        id="mobile"
-                                        class="form-control"
-                                >
-                                <div class="hidden_msg" id="error_telephone">
-                                    Required Field
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3 bg-light border-left border-right">
-
-                            {# Logo #}
-                            <div class="col-12 col-sm-6">
-                                <div class="row m-0">
-                                    <div class="col-11 ps-0" id="logo_file">
-                                        <label>
-                                            Logo
-                                        </label>
-                                        {{ form_widget(form.logo,{id: 'logo', 'attr': {
-                                            'class': 'form-control',
-                                            'placeholder': 'Logo',
-                                            'value': distributor.logo
-                                        }}) }}
-                                    </div>
-                                    <div class="col-1 hidden ps-0 pe-0" id="logo_col">
-                                        <a href="" data-bs-toggle="modal" data-bs-target="#modal_logo">
-                                            <i class="fa-solid fa-image img-icon float-end"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {# Country #}
-                            <div class="col-12 col-sm-6">
-                                <label>
-                                    Country
-                                </label>
-                                {% set country_id = '' %}
-                                {% if distributor.addressCountry|length > 0 %}
-                                    {% set country_id = distributor.addressCountry.id %}
-                                {% endif %}
-                                {{ form_widget(form.addressCountry,{id: 'country', 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'Country',
-                                    'value': country_id,
-                                }}) }}
-                                <div class="hidden_msg" id="error_country">
-                                    Required Field
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3 bg-light border-left border-right">
-
-                            {# Street #}
-                            <div class="col-12 col-sm-6">
-                                <labe>
-                                    Street Address
-                                </labe>
-                                {{ form_widget(form.addressStreet,{id: 'street_address', 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'Street Address',
-                                    'value': distributor.addressStreet
-                                }}) }}
-                                <div class="hidden_msg" id="error_street_address">
-                                    Required Field
-                                </div>
-                            </div>
-
-                            {# City #}
-                            <div class="col-12 col-sm-6">
-                                <labe>
-                                    City
-                                </labe>
-                                {{ form_widget(form.addressCity,{id: 'city', 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'City',
-                                    'value': distributor.addressCity
-                                }}) }}
-                                <div class="hidden_msg" id="error_city">
-                                    Required Field
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3 pb-3 bg-light border-left border-right border-bottom">
-
-                            {# Postal Code #}
-                            <div class="col-12 col-sm-6">
-                                <labe>
-                                    Postal Code
-                                </labe>
-                                {{ form_widget(form.addressPostalCode,{id: 'postal_code', 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'Postal Code',
-                                    'value': distributor.addressPostalCode
-                                }}) }}
-                                <div class="hidden_msg" id="error_postal_code">
-                                    Required Field
-                                </div>
-                            </div>
-
-                            {# State #}
-                            <div class="col-12 col-sm-6">
-                                <labe>
-                                    State
-                                </labe>
-                                {{ form_widget(form.addressState,{id: 'state', 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'State',
-                                    'value': distributor.addressState
-                                }}) }}
-                                <div class="hidden_msg" id="error_state">
-                                    Required Field
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12 mt-1 mb-5 ps-0 pe-0">
-                                <input id="btn_company_information" type="submit" class="btn btn-primary w-100" value="UPDATE COMPANY INFORMATION">
-                            </div>
-                        </div>
-                        {{ form_end(form, {render_rest: false}) }}
-
-                        {# Modal Logo #}
-                        <div class="modal fade" id="modal_logo" tabindex="-1" aria-labelledby="product_delete_label" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header" style="border: none; padding-bottom: 0">
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body" style="padding: 0">
-                                        <div class="row">
-                                            <div class="col-12 mb-0 text-center">
-                                                <img src="{{ asset('images/logos/' ~ distributor.logo) }}" id="logo_img" class="img-fluid">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                {# Account & Settings #}
+                <div class="row hidden" id="account_settings">
+                    <div class="col-12 bg-primary bg-gradient text-center mt-1 pt-3 pb-3">
+                        <h4 class="text-white text-truncate">Account & Settings</h4>
+                        <span class="text-white d-none d-sm-inline">
+                            Company Information
+                        </span>
                     </div>
-                    {# End Account & Settings #}
+                    {{form_start(form, {'name': 'form_company_information', 'attr': {'id': 'form_company_information'}})}}
+                    <div class="row mb-3 pt-2 pt-sm-3 bg-light border-left border-right">
 
-                    {# About #}
-                    <div class="row hidden" id="about">
-                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
-                            <h3 class="text-light text-truncate">About</h3>
-                            <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
-                                Lorem ipsum dolor sit amet
-                            </span>
-                        </div>
-                        {{form_start(form, {'name': 'form_about_us', 'attr': {'id': 'form_about_us', 'class':'col-12 ps-0 pe-0'}})}}
-
-                        <div class="col-12">
-                            {{ form_widget(form.about,{'id': 'about_us', 'value': distributor.about, 'attr': {
+                        {# Company name #}
+                        <div class="col-12 col-sm-6">
+                            <label>
+                                Company Name
+                            </label>
+                            {{ form_widget(form.distributorName,{id: 'distributor_name', 'attr': {
                                 'class': 'form-control',
-                                'placeholder': 'About*'
+                                'placeholder': 'Distributor Name*',
+                                'value': distributor.distributorName
                             }}) }}
-                            <div class="hidden_msg" id="error_about_us">
+                            <div class="hidden_msg" id="error_distributor_name">
                                 Required Field
                             </div>
                         </div>
 
-                        <div class="col-12 mb-5">
-                            <button id="btn_about_us" type="submit" class="btn btn-primary w-100">UPDATE ABOUT US</button>
-                        </div>
-                        {{ form_end(form, {render_rest: false}) }}
-                    </div>
-                    {# End About #}
-
-                    {# Operating Hours #}
-                    <div class="row hidden" id="operating_hours">
-                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
-                            <h3 class="text-light text-truncate">Operating Hours</h3>
-                            <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
-                                Lorem ipsum dolor sit amet
-                            </span>
-                        </div>
-                        {{form_start(form, {'name': 'form_operating_hours', 'attr': {'id': 'form_operating_hours', 'class':'col-12 ps-0 pe-0'}})}}
-
-                        <div class="row">
-                            <div class="col-12">
-                                {{ form_widget(form.operatingHours,{'id': 'operating_hours_field', 'value': distributor.operatingHours, 'attr': {
+                        {# Website #}
+                        <div class="col-12 col-sm-6">
+                            <label>
+                                Website
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon1">https://</span>
+                                {{ form_widget(form.website,{id: 'website', 'attr': {
                                     'class': 'form-control',
-                                    'placeholder': 'Operating Hours*'
+                                    'placeholder': 'Website',
+                                    'value': distributor.website
                                 }}) }}
-                                <div class="hidden_msg" id="error_operating_hours">
-                                    Required Field
-                                </div>
                             </div>
                         </div>
-
-                        <div class="row mb-3">
-                            <div class="col-12 mb-5">
-                                <button id="btn_operating_hours" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
-                            </div>
-                        </div>
-                        {{ form_end(form, {render_rest: false}) }}
                     </div>
-                    {# End Operating Hours #}
 
-                    {# Refund Policy #}
-                    <div class="row hidden" id="refund_policy">
-                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
-                            <h3 class="text-light text-truncate">Refund Policy</h3>
-                            <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
-                                Lorem ipsum dolor sit amet
-                            </span>
-                        </div>
-                        {{form_start(form, {'name': 'form_refund_policy', 'attr': {'id': 'form_refund_policy', 'class':'col-12 ps-0 pe-0'}})}}
+                    <div class="row mb-3 bg-light border-left border-right">
 
-                        <div class="row">
-                            <div class="col-12">
-                                {{ form_widget(form.refundPolicy,{'id': 'refund_policy_field', 'value': distributor.refundPolicy, 'attr': {
+                        {# Email #}
+                        <div class="col-12 col-sm-6">
+                            <label>
+                                Email Address
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon1">@</span>
+                                {{ form_widget(form.email,{id: 'email', 'attr': {
                                     'class': 'form-control',
-                                    'placeholder': 'Refund Policy*'
+                                    'placeholder': 'Email*',
+                                    'value': distributor.email
                                 }}) }}
-                                <div class="hidden_msg" id="error_refund_policy">
-                                    Required Field
-                                </div>
+                            </div>
+                            <div class="hidden_msg" id="error_email">
+                                Required Field
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-12 mb-5">
-                                <button id="btn_refund_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                        {# Telephone #}
+                        <div class="col-12 col-sm-6">
+                            <label>
+                                Telephone
+                            </label>
+                            <input
+                                    type="hidden"
+                                    name="distributor_form[telephone]"
+                                    value="{{ distributor.telephone }}"
+                                    id="telephone"
+                            >
+                            <input
+                                    type="text"
+                                    name="mobile"
+                                    placeholder="Telephone*"
+                                    value="{{ distributor.telephone }}"
+                                    id="mobile"
+                                    class="form-control"
+                            >
+                            <div class="hidden_msg" id="error_telephone">
+                                Required Field
                             </div>
                         </div>
-                        {{ form_end(form, {render_rest: false}) }}
                     </div>
-                    {# End Refund Policy #}
 
-                    {# Sales Tax Policy #}
-                    <div class="row hidden" id="sales_tax_policy">
-                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
-                            <h3 class="text-light text-truncate">Sales Tax Policy</h3>
-                            <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
-                                Lorem ipsum dolor sit amet
-                            </span>
-                        </div>
-                        {{form_start(form, {'name': 'form_sales_tax_policy', 'attr': {'id': 'form_sales_tax_policy', 'class':'col-12 ps-0 pe-0'}})}}
+                    <div class="row mb-3 bg-light border-left border-right">
 
-                        <div class="row">
-                            <div class="col-12">
-                                {{ form_widget(form.salesTaxPolicy,{'id': 'sales_tax_policy_field', 'value': distributor.salesTaxPolicy, 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'Sales Tax Policy*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_sales_tax_policy">
-                                    Required Field
+                        {# Logo #}
+                        <div class="col-12 col-sm-6">
+                            <div class="row m-0">
+                                <div class="col-11 ps-0" id="logo_file">
+                                    <label>
+                                        Logo
+                                    </label>
+                                    {{ form_widget(form.logo,{id: 'logo', 'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Logo',
+                                        'value': distributor.logo
+                                    }}) }}
+                                </div>
+                                <div class="col-1 hidden ps-0 pe-0" id="logo_col">
+                                    <a href="" data-bs-toggle="modal" data-bs-target="#modal_logo">
+                                        <i class="fa-solid fa-image img-icon float-end"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-12 mb-5">
-                                <button id="btn_sales_tax_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                        {# Country #}
+                        <div class="col-12 col-sm-6">
+                            <label>
+                                Country
+                            </label>
+                            {% set country_id = '' %}
+                            {% if distributor.addressCountry|length > 0 %}
+                                {% set country_id = distributor.addressCountry.id %}
+                            {% endif %}
+                            {{ form_widget(form.addressCountry,{id: 'country', 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Country',
+                                'value': country_id,
+                            }}) }}
+                            <div class="hidden_msg" id="error_country">
+                                Required Field
                             </div>
                         </div>
-                        {{ form_end(form, {render_rest: false}) }}
                     </div>
-                    {# End Sales Tax Policy #}
 
-                    {# Shipping Policy #}
-                    <div class="row hidden" id="shipping_policy">
-                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
-                            <h3 class="text-light text-truncate">Shipping Policy</h3>
-                            <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
-                                Lorem ipsum dolor sit amet
-                            </span>
-                        </div>
-                        {{form_start(form, {'name': 'form_shipping_policy', 'attr': {'id': 'form_shipping_policy', 'class':'col-12 ps-0 pe-0'}})}}
+                    <div class="row mb-3 bg-light border-left border-right">
 
-                        <div class="row">
-                            <div class="col-12">
-                                {{ form_widget(form.shippingPolicy,{'id': 'shipping_policy_field', 'value': distributor.shippingPolicy, 'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': 'Shipping Policy*'
-                                }}) }}
-                                <div class="hidden_msg" id="error_shipping_policy">
-                                    Required Field
-                                </div>
+                        {# Street #}
+                        <div class="col-12 col-sm-6">
+                            <labe>
+                                Street Address
+                            </labe>
+                            {{ form_widget(form.addressStreet,{id: 'street_address', 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Street Address',
+                                'value': distributor.addressStreet
+                            }}) }}
+                            <div class="hidden_msg" id="error_street_address">
+                                Required Field
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-12 mb-5">
-                                <button id="btn_shipping_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                        {# City #}
+                        <div class="col-12 col-sm-6">
+                            <labe>
+                                City
+                            </labe>
+                            {{ form_widget(form.addressCity,{id: 'city', 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'City',
+                                'value': distributor.addressCity
+                            }}) }}
+                            <div class="hidden_msg" id="error_city">
+                                Required Field
                             </div>
                         </div>
-                        {{ form_end(form, {render_rest: false}) }}
                     </div>
-                    {# End Sales Tax Policy #}
 
-                    {# Invenory / Distributor Products #}
-                    <div id="inventory" id="inventory_search">
-                        {{form_start(form, {'name': 'form_inventory_item', 'attr': {'id': 'form_inventory_item'}})}}
-                        {{ form_widget(inventory_form.product,{'id': 'product_id'}) }}
-                        {{ form_widget(inventory_form.distributor,{'id': 'distributor_id'}) }}
-                        <div class="row">
-                            <div class="col-12 bg-primary bg-gradient text-center mt-1 mt-sm-5 pt-3 pb-3" id="order_header">
-                                <h4 class="text-white text-truncate">Inventory</h4>
-                                <span class="text-white d-none d-sm-inline">
-                                    Manage Your Inventory
-                                </span>
-                            </div>
-                            <div class="col-12 pt-2 pb-2 bg-light border-left border-right border-bottom">
-                                <input type="text" id="search_field" class="form-control" placeholder="Inventory Item" autocomplete="off" />
-                                <div id="suggestion_field"></div>
+                    <div class="row mb-3 pb-3 bg-light border-left border-right border-bottom">
+
+                        {# Postal Code #}
+                        <div class="col-12 col-sm-6">
+                            <labe>
+                                Postal Code
+                            </labe>
+                            {{ form_widget(form.addressPostalCode,{id: 'postal_code', 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Postal Code',
+                                'value': distributor.addressPostalCode
+                            }}) }}
+                            <div class="hidden_msg" id="error_postal_code">
+                                Required Field
                             </div>
                         </div>
-                        <div id="inventory_item" class="row bg-light border-left border-right border-bottom">
-                            <div class="row mb-3 pe-0">
 
-                                {# Dosage #}
-                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
-                                    <label>
-                                        Dosage
-                                    </label>
-                                    <input type="text" class="form-control" id="dosage" disabled value="">
-                                </div>
-
-                                {# Size #}
-                                <div class="col-12 col-sm-6 pe-0">
-                                    <label>
-                                        Size
-                                    </label>
-                                    <input type="text" class="form-control" id="size" disabled value="">
-                                </div>
-                            </div>
-
-                            <div class="row mb-3 pe-0">
-
-                                {# Active Ingredient #}
-                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
-                                    <label>
-                                        Active Ingredient
-                                    </label>
-                                    <input type="text" class="form-control" id="active_ingredient" disabled value="">
-                                </div>
-
-                                {# Pack Type #}
-                                <div class="col-12 col-sm-6 pe-0">
-                                    <label>
-                                        Pack Type
-                                    </label>
-                                    <input type="text" class="form-control" id="pack_type" disabled value="">
-                                </div>
-                            </div>
-
-                            <div class="row mb-3 pe-0">
-
-                                {# Unit #}
-                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
-                                    <label>
-                                        Unit
-                                    </label>
-                                    <input type="text" class="form-control" id="unit" disabled value="">
-                                </div>
-
-                                {# SKU #}
-                                <div class="col-12 col-sm-6 pe-0">
-                                    <label>
-                                        #SKU
-                                    </label>
-                                    {{ form_widget(inventory_form.sku,{'id': 'sku', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': 'SKU'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_sku">
-                                        Required Field
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3 pe-0">
-
-                                {# Serial Number #}
-                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
-                                    <label>
-                                        Serial Number
-                                    </label>
-                                    {{ form_widget(inventory_form.distributorNo,{'id': 'distributor_no', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': 'Serial Number'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_distributor_no">
-                                        Required Field
-                                    </div>
-                                </div>
-
-                                {# Unit Price #}
-                                <div class="col-12 col-sm-6 pe-0">
-                                    <label>
-                                        Unit Price
-                                    </label>
-                                    {{ form_widget(inventory_form.unitPrice,{'id': 'unit_price', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': 'Unit Price'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_unit_price">
-                                        Required Field
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3 pe-0">
-
-                                {# Stock Level #}
-                                <div class="col-12 col-sm-6 pe-0 pe-sm-2">
-                                    <label>
-                                        Stock Level
-                                    </label>
-                                    {{ form_widget(inventory_form.stockCount,{'id': 'stock_count', 'attr':{
-                                        'class': 'form-control',
-                                        'placeholder': 'Stock Level'
-                                    }}) }}
-                                    <div class="hidden_msg" id="error_stock_count">
-                                        Required Field
-                                    </div>
-                                </div>
-
-                                {# Expiry Date #}
-                                <div class="col-12 col-sm-6 pe-0">
-                                    <label>
-                                        Expiry Date
-                                    </label>
-                                    {{ form_widget(inventory_form.expiryDate,{'id': 'expiry_date', 'attr':{
-                                        'class': 'form-control',
-                                    }}) }}
-                                </div>
-                            </div>
-
-                            <div class="row mb-3 pe-0">
-
-                                {# Tax Empt #}
-                                <div class="col-12">
-                                    <label class="d-block">
-                                        Tax Exempt
-                                    </label>
-                                    <div class="form-check form-check-inline radio-label">
-                                        <input type="radio" class="form-check-input" id="taxExempt_1" name="distributor_products_form[taxExempt]" value="1">
-                                        <label for="distributor_products_form_taxExempt_1" class="radio-text">Yes</label>
-                                    </div>
-                                    <div class="form-check form-check-inline radio-label">
-                                        <input type="radio" class="form-check-input" id="taxExempt_0" name="distributor_products_form[taxExempt]" value="0">
-                                        <label for="distributor_products_form_taxExempt_0" class="radio-text">No</label>
-                                    </div>
-                                </div>
+                        {# State #}
+                        <div class="col-12 col-sm-6">
+                            <labe>
+                                State
+                            </labe>
+                            {{ form_widget(form.addressState,{id: 'state', 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'State',
+                                'value': distributor.addressState
+                            }}) }}
+                            <div class="hidden_msg" id="error_state">
+                                Required Field
                             </div>
                         </div>
-                        <div class="row mb-3" id="inventory_btn">
-                            <div class="col-12 mt-3 ps-0 pe-0">
-                                <button id="btn_inventory" type="submit" class="btn btn-primary w-100"></button>
-                            </div>
-                            <div class="col-12 mb-3 ps-0 pe-0 mt-3">
-                                <button type="button" id="inventory_clear" class="btn btn-secondary w-100">
-                                    <i class="fa-solid fa-circle-xmark me-2"></i>
-                                    CLEAR SEARCH
-                                </button>
-                            </div>
-                        </div>
-                        {{ form_end(form, {render_rest: false}) }}
                     </div>
-                    {# End Invenory / Distributor Products #}
 
-                    {# Users #}
-                    <div class="row hidden" id="users">
-                        <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1 mt-sm-5">
-                            <h3 class="text-light text-truncate">Manage User Accounts</h3>
-                            <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
-                                Fluid supports having several users under a single clinic. Each user will have their own login, can
-                                independently participate in the Fluid discussions. You have full control over editing the permissions
-                                of each user in your clinic. Use the table below to view the available permission levels.
-                            </span>
+                    <div class="row">
+                        <div class="col-12 mt-1 mb-5 ps-0 pe-0">
+                            <input id="btn_company_information" type="submit" class="btn btn-primary w-100" value="UPDATE COMPANY INFORMATION">
                         </div>
-                        <div class="col-12 d-none d-xl-block">
-                            <div class="row">
-                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-left">
-                                    First Name
+                    </div>
+                    {{ form_end(form, {render_rest: false}) }}
+
+                    {# Modal Logo #}
+                    <div class="modal fade" id="modal_logo" tabindex="-1" aria-labelledby="product_delete_label" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header" style="border: none; padding-bottom: 0">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
-                                    Last Name
-                                </div>
-                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
-                                    Username
-                                </div>
-                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
-                                    Telephone
-                                </div>
-                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
-                                    Position
-                                </div>
-                                <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-right">
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12" id="users_list">
-                            {% for user in users %}
-                                <div class="row border-left border-right border-bottom bg-light">
-                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
-                                        First Name:
-                                    </div>
-                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
-                                        {{ user.firstName }}
-                                    </div>
-                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
-                                        Last Name:
-                                    </div>
-                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
-                                        {{ user.lastName }}
-                                    </div>
-                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
-                                        Email:
-                                    </div>
-                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
-                                        {{ user.email }}
-                                    </div>
-                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
-                                        Telephone:
-                                    </div>
-                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
-                                        {{ user.telephone }}
-                                    </div>
-                                    <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
-                                        Position:
-                                    </div>
-                                    <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
-                                        {{ user.position }}
-                                    </div>
-                                    <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
-                                        <a href="" class="float-end update-user" data-user-id="{{ user.id }}" data-bs-toggle="modal" data-bs-target="#modal_user">
-                                            <i class="fa-solid fa-pen-to-square edit-icon"></i>
-                                        </a>
-                                        <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
-                                           data-user-id="{{ user.id }}" data-bs-target="#modal_user_delete"
-                                        >
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            {% endfor %}
-
-                            {{ users_pagination|raw }}
-                        </div>
-
-                        {# Modal Manage Users #}
-                        <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                <div class="modal-content">
-                                    {{form_start(form, {'name': 'form_users', 'attr': {'id': 'form_users'}})}}
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="user_modal_label"></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row mb-3">
-
-                                            {# First Name #}
-                                            <div class="col-12 col-sm-6">
-                                                {{ form_label(user_form.firstName) }}
-                                                <input type="hidden" value="" name="distributor_users_form[user_id]" id="user_id">
-                                                {{ form_widget(user_form.firstName,{'id': 'user_first_name', 'attr':{
-                                                    'class': 'form-control',
-                                                    'placeholder': 'First Name*'
-                                                }}) }}
-                                                <div class="hidden_msg" id="error_user_first_name">
-                                                    Required Field
-                                                </div>
-                                            </div>
-
-                                            {# Last Name #}
-                                            <div class="col-12 col-sm-6">
-                                                {{ form_label(user_form.lastName) }}
-                                                {{ form_widget(user_form.lastName,{'id': 'user_last_name', 'attr':{
-                                                    'class': 'form-control',
-                                                    'placeholder': 'Last Name*'
-                                                }}) }}
-                                                <div class="hidden_msg" id="error_user_last_name">
-                                                    Required Field
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row mb-3">
-
-                                            {# Email #}
-                                            <div class="col-12 col-sm-6">
-                                                {{ form_label(user_form.email) }}
-                                                {{ form_widget(user_form.email,{'id': 'user_email', 'attr':{
-                                                    'class': 'form-control',
-                                                    'placeholder': 'Email Address'
-                                                }}) }}
-                                                <div class="hidden_msg" id="error_user_email">
-                                                    Required Field
-                                                </div>
-                                            </div>
-
-                                            {# Telephone Number #}
-                                            <div class="col-12 col-sm-6">
-                                                {{ form_label(user_form.telephone) }}
-                                                <span id="telephone_container">
-                                            <input
-                                                    type="text"
-                                                    class="form-control"
-                                                    name="distributor_users_form[mobile]"
-                                                    id="user_mobile" value=""
-                                                    placeholder="(123) 456-7890*"
-                                            >
-                                        </span>
-
-                                                <div class="hidden_msg" id="error_user_telephone">
-                                                    Required Field
-                                                </div>
-                                                <input type="hidden" name="distributor_users_form[telephone]" id="user_telephone" value="">
-                                                {{ form_widget(user_form.isoCode, {'id': 'user_iso_code'}) }}
-                                                {{ form_widget(user_form.intlCode, {'id': 'user_intl_code'}) }}
-                                            </div>
-                                        </div>
-
-                                        <div class="row mb-3">
-
-                                            {# Position #}
-                                            <div class="col-12">
-                                                {{ form_label(user_form.position) }}
-                                                {{ form_widget(user_form.position,{'id': 'user_position', 'attr':{
-                                                    'class': 'form-control',
-                                                    'placeholder': 'Position'
-                                                }}) }}
-                                                <div class="hidden_msg" id="error_user_telephone">
-                                                    Required Field
-                                                </div>
-                                            </div>
+                                <div class="modal-body" style="padding: 0">
+                                    <div class="row">
+                                        <div class="col-12 mb-0 text-center">
+                                            <img src="{{ asset('images/logos/' ~ distributor.logo) }}" id="logo_img" class="img-fluid">
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
-                                        <button type="submit" class="btn btn-primary" id="create_user">SAVE</button>
-                                    </div>
-                                    {{ form_end(form, {render_rest: false}) }}
-                                </div>
-                            </div>
-                        </div>
-
-                        {# Modal Delete User #}
-                        <div class="modal fade" id="modal_user_delete" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="user_delete_label">Delete User</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-12 mb-0">
-                                                Are you sure you would like to delete this user? This action cannot be undone.
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
-                                        <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {# End Users #}
-
-                    {# Orders #}
-                    <div id="order_container"></div>
-                    {# End Orders #}
-
                 </div>
+                {# End Account & Settings #}
+
+                {# About #}
+                <div class="row hidden" id="about">
+                    <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1">
+                        <h3 class="text-light text-truncate">About</h3>
+                        <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
+                            Lorem ipsum dolor sit amet
+                        </span>
+                    </div>
+                    {{form_start(form, {'name': 'form_about_us', 'attr': {'id': 'form_about_us', 'class':'col-12 ps-0 pe-0'}})}}
+
+                    <div class="col-12">
+                        {{ form_widget(form.about,{'id': 'about_us', 'value': distributor.about, 'attr': {
+                            'class': 'form-control',
+                            'placeholder': 'About*'
+                        }}) }}
+                        <div class="hidden_msg" id="error_about_us">
+                            Required Field
+                        </div>
+                    </div>
+
+                    <div class="col-12 mb-5">
+                        <button id="btn_about_us" type="submit" class="btn btn-primary w-100">UPDATE ABOUT US</button>
+                    </div>
+                    {{ form_end(form, {render_rest: false}) }}
+                </div>
+                {# End About #}
+
+                {# Operating Hours #}
+                <div class="row hidden" id="operating_hours">
+                    <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1">
+                        <h3 class="text-light text-truncate">Operating Hours</h3>
+                        <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
+                            Lorem ipsum dolor sit amet
+                        </span>
+                    </div>
+                    {{form_start(form, {'name': 'form_operating_hours', 'attr': {'id': 'form_operating_hours', 'class':'col-12 ps-0 pe-0'}})}}
+
+                    <div class="row">
+                        <div class="col-12">
+                            {{ form_widget(form.operatingHours,{'id': 'operating_hours_field', 'value': distributor.operatingHours, 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Operating Hours*'
+                            }}) }}
+                            <div class="hidden_msg" id="error_operating_hours">
+                                Required Field
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12 mb-5">
+                            <button id="btn_operating_hours" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                        </div>
+                    </div>
+                    {{ form_end(form, {render_rest: false}) }}
+                </div>
+                {# End Operating Hours #}
+
+                {# Refund Policy #}
+                <div class="row hidden" id="refund_policy">
+                    <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1">
+                        <h3 class="text-light text-truncate">Refund Policy</h3>
+                        <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
+                            Lorem ipsum dolor sit amet
+                        </span>
+                    </div>
+                    {{form_start(form, {'name': 'form_refund_policy', 'attr': {'id': 'form_refund_policy', 'class':'col-12 ps-0 pe-0'}})}}
+
+                    <div class="row">
+                        <div class="col-12">
+                            {{ form_widget(form.refundPolicy,{'id': 'refund_policy_field', 'value': distributor.refundPolicy, 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Refund Policy*'
+                            }}) }}
+                            <div class="hidden_msg" id="error_refund_policy">
+                                Required Field
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12 mb-5">
+                            <button id="btn_refund_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                        </div>
+                    </div>
+                    {{ form_end(form, {render_rest: false}) }}
+                </div>
+                {# End Refund Policy #}
+
+                {# Sales Tax Policy #}
+                <div class="row hidden" id="sales_tax_policy">
+                    <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1">
+                        <h3 class="text-light text-truncate">Sales Tax Policy</h3>
+                        <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
+                            Lorem ipsum dolor sit amet
+                        </span>
+                    </div>
+                    {{form_start(form, {'name': 'form_sales_tax_policy', 'attr': {'id': 'form_sales_tax_policy', 'class':'col-12 ps-0 pe-0'}})}}
+
+                    <div class="row">
+                        <div class="col-12">
+                            {{ form_widget(form.salesTaxPolicy,{'id': 'sales_tax_policy_field', 'value': distributor.salesTaxPolicy, 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Sales Tax Policy*'
+                            }}) }}
+                            <div class="hidden_msg" id="error_sales_tax_policy">
+                                Required Field
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12 mb-5">
+                            <button id="btn_sales_tax_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                        </div>
+                    </div>
+                    {{ form_end(form, {render_rest: false}) }}
+                </div>
+                {# End Sales Tax Policy #}
+
+                {# Shipping Policy #}
+                <div class="row hidden" id="shipping_policy">
+                    <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1">
+                        <h3 class="text-light text-truncate">Shipping Policy</h3>
+                        <span class="mb-5 mt-2 text-center text-light text-sm-start d-none d-sm-inline">
+                            Lorem ipsum dolor sit amet
+                        </span>
+                    </div>
+                    {{form_start(form, {'name': 'form_shipping_policy', 'attr': {'id': 'form_shipping_policy', 'class':'col-12 ps-0 pe-0'}})}}
+
+                    <div class="row">
+                        <div class="col-12">
+                            {{ form_widget(form.shippingPolicy,{'id': 'shipping_policy_field', 'value': distributor.shippingPolicy, 'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Shipping Policy*'
+                            }}) }}
+                            <div class="hidden_msg" id="error_shipping_policy">
+                                Required Field
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12 mb-5">
+                            <button id="btn_shipping_policy" type="submit" class="btn btn-primary w-100">UPDATE OPERATING HOURS</button>
+                        </div>
+                    </div>
+                    {{ form_end(form, {render_rest: false}) }}
+                </div>
+                {# End Sales Tax Policy #}
+
+                {# Invenory / Distributor Products #}
+                <div id="inventory" id="inventory_search">
+                    {{form_start(form, {'name': 'form_inventory_item', 'attr': {'id': 'form_inventory_item'}})}}
+                    {{ form_widget(inventory_form.product,{'id': 'product_id'}) }}
+                    {{ form_widget(inventory_form.distributor,{'id': 'distributor_id'}) }}
+                    <div class="row">
+                        <div class="col-12 bg-primary bg-gradient text-center mt-1 pt-3 pb-3" id="order_header">
+                            <h4 class="text-white text-truncate">Inventory</h4>
+                            <span class="text-white d-none d-sm-inline">
+                                Manage Your Inventory
+                            </span>
+                        </div>
+                        <div class="col-12 pt-2 pb-2 bg-light border-left border-right border-bottom">
+                            <input type="text" id="search_field" class="form-control" placeholder="Inventory Item" autocomplete="off" />
+                            <div id="suggestion_field"></div>
+                        </div>
+                    </div>
+                    <div id="inventory_item" class="row bg-light border-left border-right border-bottom">
+                        <div class="row mb-3 pe-0">
+
+                            {# Dosage #}
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                                <label>
+                                    Dosage
+                                </label>
+                                <input type="text" class="form-control" id="dosage" disabled value="">
+                            </div>
+
+                            {# Size #}
+                            <div class="col-12 col-sm-6 pe-0">
+                                <label>
+                                    Size
+                                </label>
+                                <input type="text" class="form-control" id="size" disabled value="">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 pe-0">
+
+                            {# Active Ingredient #}
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                                <label>
+                                    Active Ingredient
+                                </label>
+                                <input type="text" class="form-control" id="active_ingredient" disabled value="">
+                            </div>
+
+                            {# Pack Type #}
+                            <div class="col-12 col-sm-6 pe-0">
+                                <label>
+                                    Pack Type
+                                </label>
+                                <input type="text" class="form-control" id="pack_type" disabled value="">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 pe-0">
+
+                            {# Unit #}
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                                <label>
+                                    Unit
+                                </label>
+                                <input type="text" class="form-control" id="unit" disabled value="">
+                            </div>
+
+                            {# SKU #}
+                            <div class="col-12 col-sm-6 pe-0">
+                                <label>
+                                    #SKU
+                                </label>
+                                {{ form_widget(inventory_form.sku,{'id': 'sku', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'SKU'
+                                }}) }}
+                                <div class="hidden_msg" id="error_sku">
+                                    Required Field
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 pe-0">
+
+                            {# Serial Number #}
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                                <label>
+                                    Serial Number
+                                </label>
+                                {{ form_widget(inventory_form.distributorNo,{'id': 'distributor_no', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'Serial Number'
+                                }}) }}
+                                <div class="hidden_msg" id="error_distributor_no">
+                                    Required Field
+                                </div>
+                            </div>
+
+                            {# Unit Price #}
+                            <div class="col-12 col-sm-6 pe-0">
+                                <label>
+                                    Unit Price
+                                </label>
+                                {{ form_widget(inventory_form.unitPrice,{'id': 'unit_price', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'Unit Price'
+                                }}) }}
+                                <div class="hidden_msg" id="error_unit_price">
+                                    Required Field
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 pe-0">
+
+                            {# Stock Level #}
+                            <div class="col-12 col-sm-6 pe-0 pe-sm-2">
+                                <label>
+                                    Stock Level
+                                </label>
+                                {{ form_widget(inventory_form.stockCount,{'id': 'stock_count', 'attr':{
+                                    'class': 'form-control',
+                                    'placeholder': 'Stock Level'
+                                }}) }}
+                                <div class="hidden_msg" id="error_stock_count">
+                                    Required Field
+                                </div>
+                            </div>
+
+                            {# Expiry Date #}
+                            <div class="col-12 col-sm-6 pe-0">
+                                <label>
+                                    Expiry Date
+                                </label>
+                                {{ form_widget(inventory_form.expiryDate,{'id': 'expiry_date', 'attr':{
+                                    'class': 'form-control',
+                                }}) }}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 pe-0">
+
+                            {# Tax Empt #}
+                            <div class="col-12">
+                                <label class="d-block">
+                                    Tax Exempt
+                                </label>
+                                <div class="form-check form-check-inline radio-label">
+                                    <input type="radio" class="form-check-input" id="taxExempt_1" name="distributor_products_form[taxExempt]" value="1">
+                                    <label for="distributor_products_form_taxExempt_1" class="radio-text">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline radio-label">
+                                    <input type="radio" class="form-check-input" id="taxExempt_0" name="distributor_products_form[taxExempt]" value="0">
+                                    <label for="distributor_products_form_taxExempt_0" class="radio-text">No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="inventory_btn">
+                        <div class="col-12 mt-3 ps-0 pe-0">
+                            <button id="btn_inventory" type="submit" class="btn btn-primary w-100"></button>
+                        </div>
+                        <div class="col-12 mb-3 ps-0 pe-0 mt-3">
+                            <button type="button" id="inventory_clear" class="btn btn-secondary w-100">
+                                <i class="fa-solid fa-circle-xmark me-2"></i>
+                                CLEAR SEARCH
+                            </button>
+                        </div>
+                    </div>
+                    {{ form_end(form, {render_rest: false}) }}
+                </div>
+                {# End Invenory / Distributor Products #}
+
+                {# Users #}
+                <div class="row hidden" id="users">
+                    <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3 mt-1">
+                        <h3 class="text-light text-truncate">Manage User Accounts</h3>
+                        <span class="d-none d-sm-inline mb-5 mt-2 text-center text-light text-sm-start">
+                            Fluid supports having several users under a single clinic. Each user will have their own login, can
+                            independently participate in the Fluid discussions. You have full control over editing the permissions
+                            of each user in your clinic. Use the table below to view the available permission levels.
+                        </span>
+                    </div>
+                    <div class="col-12 d-none d-xl-block">
+                        <div class="row">
+                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-left">
+                                First Name
+                            </div>
+                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
+                                Last Name
+                            </div>
+                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
+                                Username
+                            </div>
+                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
+                                Telephone
+                            </div>
+                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom">
+                                Position
+                            </div>
+                            <div class="col-md-2 pt-3 pb-3 text-primary fw-bold bg-light border-bottom border-right">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12" id="users_list">
+                        {% for user in users %}
+                            <div class="row border-left border-right border-bottom bg-light">
+                                <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                    First Name:
+                                </div>
+                                <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
+                                    {{ user.firstName }}
+                                </div>
+                                <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                    Last Name:
+                                </div>
+                                <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
+                                    {{ user.lastName }}
+                                </div>
+                                <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                    Email:
+                                </div>
+                                <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
+                                    {{ user.email }}
+                                </div>
+                                <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                    Telephone:
+                                </div>
+                                <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
+                                    {{ user.telephone }}
+                                </div>
+                                <div class="col-5 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">
+                                    Position:
+                                </div>
+                                <div class="col-7 col-md-10 col-xl-2 text-truncate border-list pt-3 pb-3">
+                                    {{ user.position }}
+                                </div>
+                                <div class="col-md-2  t-cell text-truncate border-list pt-3 pb-3">
+                                    <a href="" class="float-end update-user" data-user-id="{{ user.id }}" data-bs-toggle="modal" data-bs-target="#modal_user">
+                                        <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                                    </a>
+                                    <a href="" class="delete-icon float-end delete-user" data-bs-toggle="modal"
+                                       data-user-id="{{ user.id }}" data-bs-target="#modal_user_delete"
+                                    >
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        {{ users_pagination|raw }}
+                    </div>
+
+                    {# Modal Manage Users #}
+                    <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                {{form_start(form, {'name': 'form_users', 'attr': {'id': 'form_users'}})}}
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="user_modal_label"></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row mb-3">
+
+                                        {# First Name #}
+                                        <div class="col-12 col-sm-6">
+                                            {{ form_label(user_form.firstName) }}
+                                            <input type="hidden" value="" name="distributor_users_form[user_id]" id="user_id">
+                                            {{ form_widget(user_form.firstName,{'id': 'user_first_name', 'attr':{
+                                                'class': 'form-control',
+                                                'placeholder': 'First Name*'
+                                            }}) }}
+                                            <div class="hidden_msg" id="error_user_first_name">
+                                                Required Field
+                                            </div>
+                                        </div>
+
+                                        {# Last Name #}
+                                        <div class="col-12 col-sm-6">
+                                            {{ form_label(user_form.lastName) }}
+                                            {{ form_widget(user_form.lastName,{'id': 'user_last_name', 'attr':{
+                                                'class': 'form-control',
+                                                'placeholder': 'Last Name*'
+                                            }}) }}
+                                            <div class="hidden_msg" id="error_user_last_name">
+                                                Required Field
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+
+                                        {# Email #}
+                                        <div class="col-12 col-sm-6">
+                                            {{ form_label(user_form.email) }}
+                                            {{ form_widget(user_form.email,{'id': 'user_email', 'attr':{
+                                                'class': 'form-control',
+                                                'placeholder': 'Email Address'
+                                            }}) }}
+                                            <div class="hidden_msg" id="error_user_email">
+                                                Required Field
+                                            </div>
+                                        </div>
+
+                                        {# Telephone Number #}
+                                        <div class="col-12 col-sm-6">
+                                            {{ form_label(user_form.telephone) }}
+                                            <span id="telephone_container">
+                                        <input
+                                                type="text"
+                                                class="form-control"
+                                                name="distributor_users_form[mobile]"
+                                                id="user_mobile" value=""
+                                                placeholder="(123) 456-7890*"
+                                        >
+                                    </span>
+
+                                            <div class="hidden_msg" id="error_user_telephone">
+                                                Required Field
+                                            </div>
+                                            <input type="hidden" name="distributor_users_form[telephone]" id="user_telephone" value="">
+                                            {{ form_widget(user_form.isoCode, {'id': 'user_iso_code'}) }}
+                                            {{ form_widget(user_form.intlCode, {'id': 'user_intl_code'}) }}
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+
+                                        {# Position #}
+                                        <div class="col-12">
+                                            {{ form_label(user_form.position) }}
+                                            {{ form_widget(user_form.position,{'id': 'user_position', 'attr':{
+                                                'class': 'form-control',
+                                                'placeholder': 'Position'
+                                            }}) }}
+                                            <div class="hidden_msg" id="error_user_telephone">
+                                                Required Field
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                                    <button type="submit" class="btn btn-primary" id="create_user">SAVE</button>
+                                </div>
+                                {{ form_end(form, {render_rest: false}) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Modal Delete User #}
+                    <div class="modal fade" id="modal_user_delete" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <input type="hidden" value="" name="addresses_form[address_id]" id="address_id">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="user_delete_label">Delete User</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-12 mb-0">
+                                            Are you sure you would like to delete this user? This action cannot be undone.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {# End Users #}
+
+                {# Orders #}
+                <div id="order_container"></div>
+                {# End Orders #}
             </div>
         </div>
     </div>

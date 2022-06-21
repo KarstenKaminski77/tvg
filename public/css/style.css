@@ -1547,6 +1547,52 @@ a.distributor-logo-container {
     height: 18px;
 }
 
+.distributor-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 999;
+}
+
+.distributor-left-col {
+    width: 16%;
+    position: fixed;
+    left: 0;
+    top: 54px;
+}
+
+.distributor-right-col {
+    position: absolute;
+    left: calc(16% + 1em);
+    right: 1em;
+    top: 65px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: calc(84% - 2em);
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.3);
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {
