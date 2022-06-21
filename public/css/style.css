@@ -1654,6 +1654,10 @@ a.distributor-logo-container {
         margin-bottom: 16px;
         padding: 8px;
     }
+
+    .d-table-cell {
+        display: block !important;
+    }
 }
 
 @media (min-width: 577px) {

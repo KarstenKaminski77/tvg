@@ -1929,8 +1929,15 @@ class OrdersController extends AbstractController
                             // Display the qty delivered field if delivered
                             $col_exp_date = 6;
                             $col_qty_delivered = '
-                            <div class="col-1 d-table-cell align-bottom text-end alert-text-grey">
-                                '. $order->getQuantityDelivered() .'
+                            <div class="col-12 col-sm-1 d-table-cell align-bottom alert-text-grey">
+                                <div class="row pb-2">
+                                    <div class="col-5 d-block d-sm-none fw-bold text-truncate">
+                                        Qty Delivered:
+                                    </div>
+                                    <div class="col-7 col-sm-12">
+                                        '. $order->getQuantityDelivered() .'
+                                    </div>
+                                </div>
                             </div>';
 
                             if($order_status_id == 7){
@@ -1956,23 +1963,44 @@ class OrdersController extends AbstractController
                             <!-- Product Name and Qty -->
                             <div class="row">
                                 <!-- Product Name -->
-                                <div class="col-12 col-sm-6 text-center text-sm-start pt-3 pb-3 '. $opacity .'">
+                                <div class="col-12 col-md-6 text-center text-sm-start pt-3 pb-3 '. $opacity .'">
                                     <span class="info">'. $order->getDistributor()->getDistributorName() .'</span>
                                     <h6 class="fw-bold text-center text-sm-start text-primary lh-base">
                                         '. $order->getName() .'
                                     </h6>
                                 </div>
                                 <!-- Expiry Date -->
-                                <div class="col-12 col-sm-6 pt-3 pb-3 d-table '. $opacity .'">
+                                <div class="col-12 col-md-6 pt-md-3 pb-md-3 d-table '. $opacity .'">
                                     <div class="row d-table-row">
-                                        <div class="col-'. $col_exp_date .' text-truncate text-center text-sm-end d-table-cell align-bottom text-end alert-text-grey">
-                                            '. $expiry .'
+                                        <div class="col-12 col-sm-3 col-md-'. $col_exp_date .' text-truncate text-start text-md-end d-table-cell align-bottom alert-text-grey">
+                                            <div class="row pb-2">
+                                                <div class="col-5 d-block d-sm-none fw-bold text-truncate">
+                                                    Expiry Date:
+                                                </div>
+                                                <div class="col-7 col-sm-12 ps-sm-0">
+                                                    '. $expiry .'
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-2 text-truncate text-center d-table-cell align-bottom text-end alert-text-grey">
-                                            $'. number_format($order->getUnitPrice(),2) .'
+                                        <div class="col-12 col-sm-2 text-truncate d-table-cell align-bottom alert-text-grey">
+                                            <div class="row pb-2">
+                                                <div class="col-5 d-block d-sm-none fw-bold text-truncate">
+                                                    Unit Price:
+                                                </div>
+                                                <div class="col-7 col-sm-12">
+                                                    $'. number_format($order->getUnitPrice(),2) .'
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-1 text-truncate d-table-cell align-bottom text-end alert-text-grey">
-                                            '. $order->getQuantity() .'
+                                        <div class="col-12 col-sm-1 text-truncate d-table-cell align-bottom alert-text-grey">
+                                            <div class="row pb-2">
+                                                <div class="col-5 d-block d-sm-none fw-bold text-truncate">
+                                                    Qty Ordered:
+                                                </div>
+                                                <div class="col-7 col-sm-12">
+                                                    '. $order->getQuantity() .'
+                                                </div>
+                                            </div>
                                         </div>';
 
                                         $response .= $col_qty_delivered;
@@ -1993,10 +2021,17 @@ class OrdersController extends AbstractController
                                         }
 
                                         $response .= '
-                                        <div class="col-2 text-truncate text-center text-sm-end fw-bold d-table-cell align-bottom alert-text-grey">
-                                            $'. number_format($order->getUnitPrice() * $order->getQuantityDelivered(),2) .'
+                                        <div class="col-12 col-sm-2 text-truncate text-sm-end fw-bold d-table-cell align-bottom alert-text-grey">
+                                            <div class="row pb-2">
+                                                <div class="col-5 d-block d-sm-none fw-bold text-truncate">
+                                                    Total:
+                                                </div>
+                                                <div class="col-7 col-sm-12">
+                                                    $'. number_format($order->getUnitPrice() * $order->getQuantityDelivered(),2) .'
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-2 d-table-cell align-bottom text-end">
+                                        <div class="col-2 d-table-cell align-bottom text-end pb-2">
                                             <button
                                                 type="button"
                                                 class="bg-transparent border-0 text-secondary"
