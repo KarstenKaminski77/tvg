@@ -1751,127 +1751,127 @@ class OrdersController extends AbstractController
                         <span class=" d-none d-md-inline-block pe-4">Back To Orders</span>
                     </a>';
 
-                        // If order is preparing for shipping or later
-                        $order_status_id = $order_status->getStatus()->getId();
-                        if($order_status_id < 5 && $order_status_id != 9) {
+                    // If order is preparing for shipping or later
+                    $order_status_id = $order_status->getStatus()->getId();
+                    if($order_status_id < 5 && $order_status_id != 9) {
 
-                            $response .= '
-                            <a 
-                                href="#" 
-                                class="refresh-clinic-order" 
-                                data-order-id="' . $order_id . '"
-                                data-distributor-id="' . $distributor_id . '"
-                                data-clinic-id="' . $orders[0]->getOrders()->getClinic()->getId() . '"
-                            >
-                                <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
-                                <span class=" d-none d-md-inline-block pe-4">Refresh Order</span>
-                            </a>
-                            ' . $this->btnConfirmOrder($orders, $order_id, $distributor_id);
+                        $response .= '
+                        <a 
+                            href="#" 
+                            class="refresh-clinic-order" 
+                            data-order-id="' . $order_id . '"
+                            data-distributor-id="' . $distributor_id . '"
+                            data-clinic-id="' . $orders[0]->getOrders()->getClinic()->getId() . '"
+                        >
+                            <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">Refresh Order</span>
+                        </a>
+                        ' . $this->btnConfirmOrder($orders, $order_id, $distributor_id);
+
+                    } else {
+
+                        if($order_status_id == 6 || $order_status_id == 7) {
+
+                            $status_string = '
+                            <select 
+                                data-distributor-id="'. $distributor_id .'" 
+                                data-order-id="'. $order_id .'" 
+                                id="order_status" 
+                                class="status-dropdown"
+                            >';
+
+                            foreach ($statuses as $status) {
+
+                                $selected = '';
+                                $disabled = '';
+                                $option_id = '';
+                                $data_order_id = '';
+                                $data_distributor_id = '';
+                                $is_accepted = 0;
+                                $is_rejected = 0;
+                                $is_quantity_adjust = true;
+
+                                // Disable Close Option
+                                $can_close = false;
+                                $item_count = count($orders);
+
+                                foreach($orders as $order){
+
+                                    if($order->getIsQuantityAdjust() == 1){
+
+                                        $is_quantity_adjust = false;
+                                    }
+
+                                    if($order->getIsAcceptedOnDelivery() == 1){
+
+                                        $is_accepted += 1;
+                                    }
+
+                                    if($order->getIsRejectedOnDelivery() == 1){
+
+                                        $is_rejected += 1;
+                                    }
+                                }
+
+                                if($is_rejected + $is_accepted == $item_count && $is_quantity_adjust = true){
+
+                                    $can_close = true;
+                                }
+
+                                if($status->getId() == 8 && $order_status_id == 6){
+
+                                    $disabled = 'disabled';
+                                }
+
+                                if($status->getId() == 8 && $order_status_id == 7){
+
+                                    $option_id = 'id="close_order" ';
+                                    $data_order_id = 'data-order-id="'. $order_id .'" ';
+                                    $data_distributor_id = 'data-distributor-id="'. $distributor_id .'" ';
+                                }
+
+                                if($status->getId() == 8 && !$can_close){
+
+                                    $disabled = 'disabled ';
+                                }
+
+                                if ($status->getId() == $order_status_id) {
+
+                                    $selected = 'selected ';
+                                }
+
+                                $status_string .= '
+                                <option
+                                   
+                                    value="' . $status->getId() . '" 
+                                    ' . $selected . $disabled . $option_id . $data_order_id . $data_distributor_id .'
+                                >
+                                    ' . $status->getStatus() . '
+                                </option>';
+                            }
+
+                            $status_string .= '</select>';
 
                         } else {
 
-                            if($order_status_id == 6 || $order_status_id == 7) {
-
-                                $status_string = '
-                                <select 
-                                    data-distributor-id="'. $distributor_id .'" 
-                                    data-order-id="'. $order_id .'" 
-                                    id="order_status" 
-                                    class="status-dropdown"
-                                >';
-
-                                foreach ($statuses as $status) {
-
-                                    $selected = '';
-                                    $disabled = '';
-                                    $option_id = '';
-                                    $data_order_id = '';
-                                    $data_distributor_id = '';
-                                    $is_accepted = 0;
-                                    $is_rejected = 0;
-                                    $is_quantity_adjust = true;
-
-                                    // Disable Close Option
-                                    $can_close = false;
-                                    $item_count = count($orders);
-
-                                    foreach($orders as $order){
-
-                                        if($order->getIsQuantityAdjust() == 1){
-
-                                            $is_quantity_adjust = false;
-                                        }
-
-                                        if($order->getIsAcceptedOnDelivery() == 1){
-
-                                            $is_accepted += 1;
-                                        }
-
-                                        if($order->getIsRejectedOnDelivery() == 1){
-
-                                            $is_rejected += 1;
-                                        }
-                                    }
-
-                                    if($is_rejected + $is_accepted == $item_count && $is_quantity_adjust = true){
-
-                                        $can_close = true;
-                                    }
-
-                                    if($status->getId() == 8 && $order_status_id == 6){
-
-                                        $disabled = 'disabled';
-                                    }
-
-                                    if($status->getId() == 8 && $order_status_id == 7){
-
-                                        $option_id = 'id="close_order" ';
-                                        $data_order_id = 'data-order-id="'. $order_id .'" ';
-                                        $data_distributor_id = 'data-distributor-id="'. $distributor_id .'" ';
-                                    }
-
-                                    if($status->getId() == 8 && !$can_close){
-
-                                        $disabled = 'disabled ';
-                                    }
-
-                                    if ($status->getId() == $order_status_id) {
-
-                                        $selected = 'selected ';
-                                    }
-
-                                    $status_string .= '
-                                    <option
-                                       
-                                        value="' . $status->getId() . '" 
-                                        ' . $selected . $disabled . $option_id . $data_order_id . $data_distributor_id .'
-                                    >
-                                        ' . $status->getStatus() . '
-                                    </option>';
-                                }
-
-                                $status_string .= '</select>';
-
-                            } else {
-
-                                $status_string = $order_status->getStatus()->getStatus();
-                            }
-
-                            $response .= '
-                            <span class="text-primary pe-4">
-                                <b class="pe-2 d-none d-md-inline-block">Order Status:</b>
-                                '. $status_string .'
-                            </span>
-                            <a 
-                                href="'. $this->getParameter('app.base_url') .'/pdf_po.php?pdf='. $order_status->getPoFile() .'"
-                                id="btn_download_po"
-                                data-pdf="'. $order_status->getPoFile() .'"
-                                target="_blank"
-                            >
-                                <i class="fa-solid fa-file-pdf me-5 me-md-2"></i>
-                                <span class="d-none d-md-inline-block pe-4">Download</span>
-                            </a>';
+                            $status_string = $order_status->getStatus()->getStatus();
                         }
+
+                        $response .= '
+                        <span class="text-primary pe-4">
+                            <b class="pe-2 d-none d-md-inline-block">Order Status:</b>
+                            '. $status_string .'
+                        </span>
+                        <a 
+                            href="'. $this->getParameter('app.base_url') .'/pdf_po.php?pdf='. $order_status->getPoFile() .'"
+                            id="btn_download_po"
+                            data-pdf="'. $order_status->getPoFile() .'"
+                            target="_blank"
+                        >
+                            <i class="fa-solid fa-file-pdf me-5 me-md-2"></i>
+                            <span class="d-none d-md-inline-block pe-4">Download</span>
+                        </a>';
+                    }
 
                     $response .= '
                     </div>
@@ -1904,7 +1904,7 @@ class OrdersController extends AbstractController
 
                             } else {
 
-                                $badge_accept = 'badge-success-outline-only';
+                                $badge_accept = 'badge-success-outline-only badge-success-sm';
                             }
 
                             if($order->getIsRenegotiate() == 1){
@@ -1913,7 +1913,7 @@ class OrdersController extends AbstractController
 
                             } else {
 
-                                $badge_renegotiate = 'badge-warning-outline-only';
+                                $badge_renegotiate = 'badge-warning-outline-only badge-warning-sm';
                             }
 
                             if($order->getIsCancelled() == 1){
@@ -1923,7 +1923,7 @@ class OrdersController extends AbstractController
 
                             } else {
 
-                                $badge_cancelled = 'badge-danger-outline-only';
+                                $badge_cancelled = 'badge-danger-outline-only badge-danger-sm';
                             }
 
                             // Display the qty delivered field if delivered
@@ -1956,7 +1956,7 @@ class OrdersController extends AbstractController
                             <!-- Product Name and Qty -->
                             <div class="row">
                                 <!-- Product Name -->
-                                <div class="col-12 col-sm-6 pt-3 pb-3 '. $opacity .'">
+                                <div class="col-12 col-sm-6 text-center text-sm-start pt-3 pb-3 '. $opacity .'">
                                     <span class="info">'. $order->getDistributor()->getDistributorName() .'</span>
                                     <h6 class="fw-bold text-center text-sm-start text-primary lh-base">
                                         '. $order->getName() .'
@@ -1965,13 +1965,13 @@ class OrdersController extends AbstractController
                                 <!-- Expiry Date -->
                                 <div class="col-12 col-sm-6 pt-3 pb-3 d-table '. $opacity .'">
                                     <div class="row d-table-row">
-                                        <div class="col-'. $col_exp_date .' text-center text-sm-end d-table-cell align-bottom text-end alert-text-grey">
+                                        <div class="col-'. $col_exp_date .' text-truncate text-center text-sm-end d-table-cell align-bottom text-end alert-text-grey">
                                             '. $expiry .'
                                         </div>
-                                        <div class="col-2 text-center d-table-cell align-bottom text-end alert-text-grey">
+                                        <div class="col-2 text-truncate text-center d-table-cell align-bottom text-end alert-text-grey">
                                             $'. number_format($order->getUnitPrice(),2) .'
                                         </div>
-                                        <div class="col-1 d-table-cell align-bottom text-end alert-text-grey">
+                                        <div class="col-1 text-truncate d-table-cell align-bottom text-end alert-text-grey">
                                             '. $order->getQuantity() .'
                                         </div>';
 
@@ -1993,7 +1993,7 @@ class OrdersController extends AbstractController
                                         }
 
                                         $response .= '
-                                        <div class="col-2 text-center text-sm-end fw-bold d-table-cell align-bottom alert-text-grey">
+                                        <div class="col-2 text-truncate text-center text-sm-end fw-bold d-table-cell align-bottom alert-text-grey">
                                             $'. number_format($order->getUnitPrice() * $order->getQuantityDelivered(),2) .'
                                         </div>
                                         <div class="col-2 d-table-cell align-bottom text-end">
@@ -2028,7 +2028,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_accept = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept"
+                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept w-sm-100"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                     >Accept</a>';
@@ -2037,7 +2037,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_accept = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-success border-success badge-success-outline-only btn-item-accept"
+                                                        class="badge float-end ms-2 text-success border-success badge-success-outline-only btn-item-accept w-sm-100"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                     >Accept</a>';
@@ -2048,7 +2048,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_reject = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-danger bg-danger btn-item-reject"
+                                                        class="badge float-end ms-2 text-light border-danger bg-danger btn-item-reject w-sm-100"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                         data-bs-toggle="modal" 
@@ -2059,7 +2059,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_reject = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-danger border-danger badge-danger-outline-only btn-item-reject"
+                                                        class="badge float-end ms-2 text-danger border-danger badge-danger-outline-only btn-item-reject w-sm-100"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                         data-bs-toggle="modal" 
@@ -2072,7 +2072,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_qty = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-warning bg-warning btn-item-qty"
+                                                        class="badge float-end ms-2 text-light border-warning bg-warning btn-item-qty w-sm-100"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                     >Adjust Quantity</a>';
@@ -2081,7 +2081,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_qty = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-warning border-warning badge-warning-outline-only btn-item-qty"
+                                                        class="badge float-end ms-2 text-warning border-warning badge-warning-outline-only btn-item-qty w-sm-100"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                     >Adjust Quantity</a>';
@@ -2426,7 +2426,7 @@ class OrdersController extends AbstractController
 
                     $html .= '
                     <!-- Orders -->
-                    <div class="row">
+                    <div class="row border-bottom">
                         <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">#Id </div>
                         <div class="col-8 col-md-10 col-xl-1 t-cell text-truncate border-list pt-3 pb-3">
                             ' . $order->getId() . '

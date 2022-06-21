@@ -106,7 +106,7 @@ class AddressesController extends AbstractController
 
                 $response .= '
                 <div class="row">
-                    <div class="col-12 col-xl-9 bg-light col-cell border-left border-bottom">
+                    <div class="col-12 col-xl-9 bg-light col-cell border-left border-bottom border-bottom-sm-users border-right-sm-users">
                         <div class="row">
                             <div class="col-4 col-md-2 d-xl-none t-cell fw-bold text-primary border-list pt-3 pb-3">Name</div>
                             <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
@@ -124,7 +124,7 @@ class AddressesController extends AbstractController
                     </div>
                     <div class="col-12 col-xl-3 text-center text-sm-start border-right bg-light col-cell border-right border-bottom">
                         <div class="row">
-                            <div class="col-12 col-xl-12 t-cell pt-3 pb-3">
+                            <div class="col-12 col-xl-12 t-cell pt-3 pb-3 border-left-sm-users">
                                 <a href="" class="float-end address_update" data-address-id="' . $address->getId() . '" data-bs-toggle="modal" data-bs-target="#modal_address">
                                     <i class="fa-solid fa-pen-to-square edit-icon"></i>
                                 </a>

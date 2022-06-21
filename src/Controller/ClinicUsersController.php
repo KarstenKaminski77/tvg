@@ -104,7 +104,7 @@ class ClinicUsersController extends AbstractController
                <div class="col-8 col-md-10 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
                    '. $user->getPosition() .'
                </div>
-               <div class="col-12 col-xl-2 t-cell text-truncate border-list pt-3 pb-3">
+               <div class="col-12 col-xl-2 t-cell text-truncate pt-3 pb-3">
                    <a 
                        href="" 
                        class="float-end open-user-modal" 

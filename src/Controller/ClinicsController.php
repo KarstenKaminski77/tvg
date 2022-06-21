@@ -278,10 +278,10 @@ class ClinicsController extends AbstractController
             <form name="form_clinic_information" id="form_clinic_information" method="post">
                 <input type="checkbox" name="call_back_form[contact_me_by_fax_only]" value="1" tabindex="-1" class="hidden" autocomplete="off">
         
-                <div class="row pb-3 pt-2 border-left border-right bg-light">
+                <div class="row pt-0 pt-sm-3 border-left border-right bg-light">
         
                     <!-- Clinic name -->
-                    <div class="col-12 col-sm-12">
+                    <div class="col-12 col-sm-12 pt-3 pt-sm-0">
                         <label>
                             Clinic Name
                         </label>
@@ -299,10 +299,10 @@ class ClinicsController extends AbstractController
                     </div>
                 </div>
         
-                <div class="row pb-3 border-left border-right bg-light">
+                <div class="row pt-0 pt-sm-3 border-left border-right bg-light">
         
                     <!-- Email -->
-                    <div class="col-12 col-sm-6">
+                    <div class="col-12 col-sm-6 pt-3 pt-sm-0">
                         <label>
                             Clinic Email Address
                         </label>
@@ -320,7 +320,7 @@ class ClinicsController extends AbstractController
                     </div>
         
                     <!-- Telephone -->
-                    <div class="col-12 col-sm-6">
+                    <div class="col-12 col-sm-6 pt-3 pt-sm-0">
                         <label>Enter Your Telephone*</label>
                         <input 
                             type="hidden"
@@ -349,7 +349,7 @@ class ClinicsController extends AbstractController
                     </div>
                 </div>
         
-                <div class="row pt-5 pb-3 border-left border-right border-bottom bg-light">
+                <div class="row pt-3 pb-3 border-left border-right border-bottom bg-light">
         
                     <label class="mb-4 d-block">
                         Select All Species Treated By Your Practice
