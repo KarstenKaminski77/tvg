@@ -630,16 +630,32 @@ a.page-link {
     border-left: 1px solid #e2e7eb;
 }
 
+.border-sm-left-0 {
+    border-left: none;
+}
+
 .border-right {
     border-right: 1px solid #e2e7eb;
+}
+
+.border-sm-right-0 {
+    border-right: none;
 }
 
 .border-top {
     border-top: 1px solid #e2e7eb;
 }
 
+.border-sm-top-0 {
+    border-top: none;
+}
+
 .border-bottom {
     border-bottom: 1px solid #e2e7eb;
+}
+
+.border-sm-bottom-0 {
+    border-bottom: none;
 }
 
 .border-bottom-dashed {

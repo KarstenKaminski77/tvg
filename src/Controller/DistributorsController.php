@@ -33,7 +33,7 @@ use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
 class DistributorsController extends AbstractController
 {
     private $em;
-    const ITEMS_PER_PAGE = 1;
+    const ITEMS_PER_PAGE = 10;
     private $page_manager;
 
     public function __construct(EntityManagerInterface $em, PaginationManager $pagination) {
@@ -768,7 +768,7 @@ class DistributorsController extends AbstractController
 
     public function getPagination($page_id, $results, $distributor_id)
     {
-        $current_page = (int) $page_id;
+        $current_page = (int)$page_id;
         $last_page = $this->page_manager->lastPage($results);
 
         $pagination = '
@@ -776,7 +776,7 @@ class DistributorsController extends AbstractController
         <div class="row mt-3">
             <div class="col-12">';
 
-        if($last_page > 1) {
+        if ($last_page > 1) {
 
             $previous_page_no = $current_page - 1;
             $url = '/distributors/users';
@@ -791,63 +791,63 @@ class DistributorsController extends AbstractController
             $data_disabled = 'true';
 
             // Previous Link
-            if($current_page > 1){
+            if ($current_page > 1) {
 
                 $disabled = '';
                 $data_disabled = 'false';
             }
-
+            
             $pagination .= '
-            <li class="page-item '. $disabled .'">
+            <li class="page-item ' . $disabled . '">
                 <a 
                     class="user-pagination" 
-                    aria-disabled="'. $data_disabled .'" 
-                    data-page-id="'. $current_page - 1 .'" 
-                    data-distributor-id="'. $distributor_id .'"
-                    href="'. $previous_page .'"
+                    aria-disabled="' . $data_disabled . '" 
+                    data-page-id="' . $current_page - 1 . '" 
+                    data-distributor-id="' . $distributor_id . '"
+                    href="' . $previous_page . '"
                 >
                     <span aria-hidden="true">&laquo;</span> <span class="d-none d-sm-inline">Previous</span>
                 </a>
             </li>';
 
-            for($i = 1; $i <= $last_page; $i++) {
+            for ($i = 1; $i <= $last_page; $i++) {
 
                 $active = '';
 
-                if($i == (int) $current_page){
+                if ($i == (int)$current_page) {
 
                     $active = 'active';
-                    $page_id = '<input type="hidden" id="page_no" value="'. $current_page .'">';
+                    $page_id = '<input type="hidden" id="page_no" value="' . $current_page . '">';
                 }
 
                 $pagination .= '
-                <li class="page-item '. $active .'">
+                <li class="page-item ' . $active . '">
                     <a 
                         class="user-pagination" 
-                        data-page-id="'. $i .'" 
-                        href="'. $url .'"
-                        data-distributor-id="'. $distributor_id .'"
-                    >'. $i .'</a>
+                        data-page-id="' . $i . '" 
+                        href="' . $url . '"
+                        data-distributor-id="' . $distributor_id . '"
+                    >' . $i . '</a>
                 </li>';
             }
 
             $disabled = 'disabled';
             $data_disabled = 'true';
 
-            if($current_page < $last_page) {
+            if ($current_page < $last_page) {
 
                 $disabled = '';
                 $data_disabled = 'false';
             }
 
             $pagination .= '
-            <li class="page-item '. $disabled .'">
+            <li class="page-item ' . $disabled . '">
                 <a 
                     class="user-pagination" 
-                    aria-disabled="'. $data_disabled .'" 
-                    data-page-id="'. $current_page + 1 .'" 
-                    href="'. $url .'"
-                    data-distributor-id="'. $distributor_id .'"
+                    aria-disabled="' . $data_disabled . '" 
+                    data-page-id="' . $current_page + 1 . '" 
+                    href="' . $url . '"
+                    data-distributor-id="' . $distributor_id . '"
                 >
                     <span class="d-none d-sm-inline">Next</span> <span aria-hidden="true">&raquo;</span>
                 </a>
@@ -856,13 +856,13 @@ class DistributorsController extends AbstractController
             $pagination .= '
                     </ul>
                 </nav>';
-
-            $pagination .= $page_id;
-
-            $pagination .= '
-                </div>
-            </div>';
         }
+
+        $pagination .= $page_id;
+
+        $pagination .= '
+            </div>
+        </div>';
 
         return $pagination;
     }

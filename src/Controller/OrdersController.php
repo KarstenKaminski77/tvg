@@ -1550,7 +1550,7 @@ class OrdersController extends AbstractController
 
                         $html .= '
                         <!-- Orders -->
-                        <div class="row">
+                        <div class="row border-bottom">
                             <div class="col-4 col-sm-2 d-block d-xl-none t-cell fw-bold text-primary text-truncate border-list pt-3 pb-3">#Id: </div>
                             <div class="col-8 col-sm-10 col-xl-1 pt-3 pb-3 border-list text-truncate">
                                 ' . $order->getId() . '
