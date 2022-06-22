@@ -396,7 +396,7 @@ class ProductsController extends AbstractController
                        data-bs-toggle="modal"
                        data-bs-target="#modal_add_to_basket_' . $product_id . '_' . $distributor_id . '"
                     >
-                        <div class="row distributor-store-row">
+                        <div class="row distributor-store-row py-3">
                             <div class="col-4">
                                 <img src="/images/logos/' . $distributor->getDistributor()->getLogo() . '" class="img-fluid mh-30">
                             </div>
@@ -404,7 +404,7 @@ class ProductsController extends AbstractController
                                 <i class="fas fa-truck-fast mh-30 stock-icon '. $stock_icon .'"></i>
                             </div>
                             <div class="col-4 text-end">
-                                <p>$' . number_format($distributor->getUnitPrice(), 2) . '</p>
+                                <p class="m-0">$' . number_format($distributor->getUnitPrice(), 2) . '</p>
                             </div>
                         </div>
                     </a>

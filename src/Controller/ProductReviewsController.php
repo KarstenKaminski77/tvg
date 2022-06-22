@@ -382,7 +382,7 @@ class ProductReviewsController extends AbstractController
                                         <div class="col-12 col-sm-2">
                                             <button 
                                                 type="submit" 
-                                                class="btn btn-primary d-inline-block" 
+                                                class="btn btn-primary d-inline-block w-sm-100 mt-3 mt-sm-0" 
                                                 data-review-id="'. $review->getId() .'">
                                                 COMMENT
                                             </button>
