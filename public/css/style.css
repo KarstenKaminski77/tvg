@@ -1688,6 +1688,26 @@ a.distributor-logo-container {
         padding: 8px;
     }
 
+    .badge-pending-sm {
+        width: 100% !important;
+        background: #fff !important;
+        color: #6c757d !important;
+        border: solid 1px #6c757d !important;
+        font-size: 14px;
+        margin-bottom: 16px;
+        padding: 8px;
+    }
+
+    .badge-pending-filled-sm {
+        width: 100% !important;
+        background: #6c757d !important;
+        color: #fff !important;
+        border: solid 1px #6c757d !important;
+        font-size: 14px;
+        margin-bottom: 16px;
+        padding: 8px;
+    }
+
     .d-table-cell {
         display: block !important;
     }

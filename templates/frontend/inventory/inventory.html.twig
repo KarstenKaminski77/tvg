@@ -1327,11 +1327,11 @@
                         distributor_id: distributor_id
                     },
                     dataType: 'json',
-                    {#complete: function(e, xhr, settings){#}
-                    {#    if(e.status === 500){#}
-                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
-                    {#    }#}
-                    {#},#}
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         $('#basket_container').empty().append(response);
@@ -1396,9 +1396,9 @@
                         isLoading(true);
                     },
                     success: function (response) {
-                        $('#order_item_accept_'+ item_id).removeClass('badge-success-outline-only').addClass(response.class);
-                        $('#order_item_renegotiate_'+ item_id).removeClass('bg-warning').addClass('badge-warning-outline-only');
-                        $('#order_item_cancel_'+ item_id).removeClass('bg-danger').addClass('badge-danger-outline-only');
+                        $('#order_item_accept_'+ item_id).removeClass('badge-success-outline-only badge-success-sm').addClass(response.class);
+                        $('#order_item_renegotiate_'+ item_id).removeClass('bg-warning badge-warning-filled-sm').addClass('badge-warning-outline-only badge-warning-sm');
+                        $('#order_item_cancel_'+ item_id).removeClass('bg-danger badge-danger-filled-sm').addClass('badge-danger-outline-only badge-danger-sm');
                         isLoading(false);
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();
@@ -1427,9 +1427,9 @@
                     },
                     success: function (response) {
 
-                        $('#order_item_accept_'+ item_id).removeClass('bg-success').addClass('badge-success-outline-only');
-                        $('#order_item_renegotiate_'+ item_id).removeClass('badge-warning-outline-only').addClass(response.class);
-                        $('#order_item_cancel_'+ item_id).removeClass('bg-danger').addClass('badge-danger-outline-only');
+                        $('#order_item_accept_'+ item_id).removeClass('bg-success badge-success-filled-sm').addClass('badge-success-outline-only badge-success-sm');
+                        $('#order_item_renegotiate_'+ item_id).removeClass('badge-warning-outline-only badge-warning-sm').addClass(response.class);
+                        $('#order_item_cancel_'+ item_id).removeClass('bg-danger badge-danger-filled-sm').addClass('badge-danger-outline-only badge-danger-sm');
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();
                         isLoading(false);
@@ -1457,9 +1457,9 @@
                         isLoading(true);
                     },
                     success: function (response) {
-                        $('#order_item_accept_'+ item_id).removeClass('bg-success').addClass('badge-success-outline-only');
-                        $('#order_item_renegotiate_'+ item_id).removeClass('bg-warning').addClass('badge-warning-outline-only');
-                        $('#order_item_cancel_'+ item_id).removeClass('badge-danger-outline-only').addClass(response.class);
+                        $('#order_item_accept_'+ item_id).removeClass('bg-success badge-success-filled-sm').addClass('badge-success-outline-only badge-success-sm');
+                        $('#order_item_renegotiate_'+ item_id).removeClass('bg-warning badge-warning-filled-sm').addClass('badge-warning-outline-only badge-warning-sm');
+                        $('#order_item_cancel_'+ item_id).removeClass('badge-danger-outline-only badge-danger-sm').addClass(response.class);
                         isLoading(false);
                         $('#btn_confirm_order').remove();
                         $('#btn_cancel_order').remove();

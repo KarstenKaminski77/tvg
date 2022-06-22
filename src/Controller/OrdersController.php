@@ -1003,6 +1003,8 @@ class OrdersController extends AbstractController
                     <div class="col-12 col-md-9 border-right col-cell border-left border-right border-bottom">
                         <input type="hidden" name="distributor_id" value="'. $distributor->getId() .'">';
 
+                        $i = 0;
+
                         foreach($orders as $order) {
 
                             $status_id = $order_status_id->getStatus()->getId();
@@ -1038,7 +1040,7 @@ class OrdersController extends AbstractController
 
                                 $badge_cancelled = '
                                 <span
-                                    class="badge float-end ms-2 text-light border border-danger text-light order_item_accept bg-danger"
+                                    class="badge float-end ms-2 text-light border border-danger text-light order_item_accept bg-danger badge-danger-filled-sm"
                                 >Cancelled</span>';
 
                             } else {
@@ -1053,7 +1055,7 @@ class OrdersController extends AbstractController
 
                                             $badge_shipped = '
                                             <span 
-                                                class="badge float-end ms-2 text-light border border-success bg-success"
+                                                class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
                                             >Shipped</span>';
                                         }
 
@@ -1078,7 +1080,7 @@ class OrdersController extends AbstractController
 
                                                 $badge_delivered_correct = '
                                                 <span 
-                                                    class="badge float-end ms-2 text-light border border-success bg-success"
+                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
                                                 >Complete</span>';
                                             }
 
@@ -1087,7 +1089,7 @@ class OrdersController extends AbstractController
 
                                                 $badge_delivered_correct = '
                                                 <span 
-                                                    class="badge float-end ms-2 text-light border border-danger bg-danger"
+                                                    class="badge float-end ms-2 text-light border border-danger bg-danger badge-danger-filled-sm"
                                                 >Rejected</span>';
                                             }
 
@@ -1096,7 +1098,7 @@ class OrdersController extends AbstractController
 
                                                 $badge_delivered_incorrect = '
                                                 <span 
-                                                    class="badge float-end ms-2 text-light border border-warning bg-warning"
+                                                    class="badge float-end ms-2 text-light border border-warning bg-warning badge-warning-filled-sm"
                                                 >Adjusting Quantity</span>';
                                             }
                                         }
@@ -1109,7 +1111,7 @@ class OrdersController extends AbstractController
 
                                                 $badge_delivered_correct = '
                                                 <span 
-                                                    class="badge float-end ms-2 text-light border border-success bg-success"
+                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
                                                 >Accepted</span>';
                                             }
 
@@ -1131,28 +1133,28 @@ class OrdersController extends AbstractController
 
                                             $clinic_status = '
                                             <span 
-                                                class="badge float-end ms-2 text-light border border-success bg-success"
+                                                class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
                                             >Accepted</span>';
 
                                         } elseif ($order->getIsRenegotiate() == 1) {
 
                                             $clinic_status = '
                                             <span 
-                                                class="badge float-end ms-2 text-light border border-warning bg-warning"
+                                                class="badge float-end ms-2 text-light border border-warning bg-warning badge-warning-filled-sm"
                                             >Renegotiating</span>';
 
                                         } else {
 
                                             $badge_pending = '
                                             <a href="#" 
-                                                class="badge float-end ms-2 border-1 badge-pending-outline-only btn_pending"
+                                                class="badge float-end ms-2 border-1 badge-pending-outline-only btn_pending badge-pending-sm"
                                                 data-order-id="' . $order_id . '"
                                                 data-item-id="' . $order->getId() . '"
                                             >Pending</a>';
 
                                             $badge_confirm = '
                                             <span 
-                                                class="badge float-end ms-2 text-light border border-success bg-success"
+                                                class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
                                             >Confirmed</span>';
                                         }
                                     }
@@ -1161,12 +1163,12 @@ class OrdersController extends AbstractController
 
                                     $badge_pending = '
                                     <span 
-                                        class="badge float-end ms-2 text-light border-1 bg-dark-grey border-dark-grey"
+                                        class="badge float-end ms-2 text-light border-1 bg-dark-grey border-dark-grey badge-pending-filled-sm text-truncate"
                                     >Pending</span>';
 
                                     $badge_confirm = '
                                     <a href="#" 
-                                        class="badge float-end ms-2 text-success border-1 badge-success-outline-only btn_confirm"
+                                        class="badge float-end ms-2 text-success border-1 badge-success-outline-only badge-success-sm btn_confirm"
                                         data-order-id="' . $order_id . '"
                                         data-item-id="' . $order->getId() . '"
                                     >Confirm</a>';
@@ -1255,37 +1257,65 @@ class OrdersController extends AbstractController
                                 '. $prd_id .'
                                 <div class="row overflow-hidden">
                                     <!-- Product Name -->
-                                    <div class="col-12 col-sm-5 pt-3 pb-3">
+                                    <div class="col-12 col-sm-5 pt-3 pb-3 text-center text-sm-start">
                                         <span class="info '. $opacity .'">'. $order->getDistributor()->getDistributorName() .'</span>
-                                        <h6 class="fw-bold text-center text-sm-start text-primary lh-base mb-0 '. $opacity .'">
+                                        <h6 class="fw-bold text-primary lh-base mb-0 '. $opacity .'">
                                             '. $order->getName() .'
                                         </h6>
                                     </div>
                                     <!-- Expiry Date -->
                                     <div class="col-12 col-sm-7 pt-3 pb-3 d-table">
                                         <div class="row d-table-row">
-                                            <div class="col-5 text-center text-sm-end d-table-cell align-bottom">
-                                                '. $expiry_date .'
-                                                <div class="hidden_msg" id="error_expiry_date_'. $order->getProduct()->getId() .'">
-                                                    Required Field
+                                            <div class="col-12 col-sm-5 mb-3 mb-sm-0 text-start text-sm-center text-sm-end d-table-cell align-bottom">
+                                                <div class="row">
+                                                    <div class="col-5 d-sm-none fw-bold text-truncate">
+                                                        Expiry Date: 
+                                                    </div>
+                                                    <div class="col-7 col-sm-12">
+                                                        '. $expiry_date .'
+                                                        <div class="hidden_msg" id="error_expiry_date_'. $order->getProduct()->getId() .'">
+                                                            Required Field
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-2 text-center d-table-cell align-bottom">
-                                                '. $unit_price .'
-                                                <div class="hidden_msg" id="error_price_'. $order->getProduct()->getId() .'">
-                                                    Required Field
+                                            <div class="col-12 col-sm-2 mb-3 mb-sm-0 text-sm-start text-sm-center d-table-cell align-bottom">
+                                                <div class="row">
+                                                    <div class="col-5 d-sm-none fw-bold text-truncate">
+                                                        Unit Price: 
+                                                    </div>
+                                                    <div class="col-7 col-sm-12">
+                                                        '. $unit_price .'
+                                                        <div class="hidden_msg" id="error_price_'. $order->getProduct()->getId() .'">
+                                                            Required Field
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-2 d-table-cell align-bottom">
-                                                '. $qty .'
-                                                <div class="hidden_msg" id="error_qty_'. $order->getProduct()->getId() .'">
-                                                    Required Field
+                                            <div class="col-12 col-sm-2 mb-3 mb-sm-0 d-table-cell align-bottom">
+                                                <div class="row">
+                                                    <div class="col-5 d-sm-none fw-bold text-truncate">
+                                                        Qty: 
+                                                    </div>
+                                                    <div class="col-7 col-sm-12">
+                                                        '. $qty .'
+                                                        <div class="hidden_msg" id="error_qty_'. $order->getProduct()->getId() .'">
+                                                            Required Field
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-2 text-center text-sm-start fw-bold d-table-cell align-bottom '. $opacity .'">
-                                                $'. number_format($order->getUnitPrice() * $order->getQuantity(),2) .'
+                                            <div class="col-12 col-sm-2 mb-3 mb-sm-0 fw-bold d-sm-block d-block d-sm-table-cell align-bottom '. $opacity .'">
+                                                <div class="row">
+                                                    <div class="col-5 d-sm-none fw-bold text-truncate">
+                                                        Total: 
+                                                    </div>
+                                                    <div class="col-7 col-sm-12 text-end">
+                                                        $'. number_format($order->getUnitPrice() * $order->getQuantity(),2) .'
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-2 text-center text-sm-start fw-bold d-table-cell align-bottom '. $opacity .'">
+                                            <div class="col-12 col-sm-2 text-end text-sm-start fw-bold d-table-cell align-bottom '. $opacity .'">
                                                 <button
                                                     type="button"
                                                     class="bg-transparent border-0 text-secondary"
@@ -1294,7 +1324,7 @@ class OrdersController extends AbstractController
                                                     data-bs-container="body" 
                                                     data-bs-toggle="popover" 
                                                     data-bs-placement="top" 
-                                                    data-bs-content="'. $popover .'"
+                                                    data-bs-content="'. $popover .'"-center
                                                 >
                                                     <i class="fa-solid fa-circle-info"></i>
                                                 </button>
@@ -1953,14 +1983,21 @@ class OrdersController extends AbstractController
                                 if($order->getIsQuantityAdjust() == 1){
 
                                     $col_qty_delivered = '
-                                    <div class="col-2 d-table-cell align-bottom text-end alert-text-grey">
-                                        <input 
-                                            type="number" 
-                                            class="form-control form-control-sm order-qty-delivered" 
-                                            value="'. $order->getQuantityDelivered() .'"
-                                            data-qty-delivered-id="'. $order->getId() .'"
-                                            
-                                        >
+                                    <div class="col-12 col-sm-2 d-table-cell align-bottom text-start text-sm-end alert-text-grey">
+                                        <div class="row">
+                                            <div class="col-5 d-sm-none fw-bold text-truncate">
+                                                Qty Delivered:
+                                            </div>
+                                            <div class="col-7 col-sm-12 d-block d-sm-table-cell align-bottom text-end alert-text-grey">
+                                                <input 
+                                                    type="number" 
+                                                    class="form-control form-control-sm order-qty-delivered" 
+                                                    value="'. $order->getQuantityDelivered() .'"
+                                                    data-qty-delivered-id="'. $order->getId() .'"
+                                                    
+                                                >
+                                            </div>
+                                        </div>
                                     </div>';
                                 }
                             }
@@ -2139,7 +2176,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_status = '
                                                     <span 
-                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept w-sm-100 p-2 p-sm-1"
+                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept w-sm-100 p-2 p-sm-1 badge-success-filled-sm"
                                                     >Accepted</span>';
 
                                                 }
@@ -2169,7 +2206,7 @@ class OrdersController extends AbstractController
 
                                                     $response .= '
                                                     <span 
-                                                        class="badge float-end ms-2 text-success border border-danger text-light bg-danger"
+                                                        class="badge float-end ms-2 text-success border border-danger text-light bg-danger badge-danger-sm"
                                                     >Cancelled</span>';
                                                 }
                                             }
@@ -2641,7 +2678,7 @@ class OrdersController extends AbstractController
             $order_item->setIsRenegotiate(0);
             $order_item->setIsCancelled(0);
 
-            $class = 'bg-success';
+            $class = 'bg-success badge-success-filled-sm';
         }
 
         if($link == 'renegotiate'){
@@ -2650,7 +2687,7 @@ class OrdersController extends AbstractController
             $order_item->setIsRenegotiate(1);
             $order_item->setIsCancelled(0);
 
-            $class = 'bg-warning text-light';
+            $class = 'bg-warning text-light badge-warning-filled-sm';
 
             $this->distributorSendNotification($order_id,$distributor_id);
         }
@@ -2661,7 +2698,7 @@ class OrdersController extends AbstractController
             $order_item->setIsRenegotiate(0);
             $order_item->setIsCancelled(1);
 
-            $class = 'bg-danger text-light';
+            $class = 'bg-danger text-light badge-danger-filled-sm';
         }
 
         $order_item->setOrderPlacedBy($this->getUser()->getFirstName() .' '. $this->getUser()->getLastName());
