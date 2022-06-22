@@ -1045,9 +1045,9 @@ class BasketController extends AbstractController
                         <!-- Product Name and Qty -->
                         <div class="row">
                             <!-- Product Name -->
-                            <div class="col-12 col-sm-7 pt-3 pb-3">
+                            <div class="col-12 col-sm-7 pt-3 pb-3 text-center text-sm-start">
                                 <span class="info">'. $distributor_product->getDistributor()->getDistributorName() .'</span>
-                                <h6 class="fw-bold text-center text-sm-start text-primary lh-base">
+                                <h6 class="fw-bold text-primary lh-base">
                                     ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . '
                                 </h6>
                             </div>
@@ -1152,38 +1152,38 @@ class BasketController extends AbstractController
             }
 
             $response .= '
-                    <!-- Basket Summary -->
-                    <div class="col-12 col-md-3 pt-3 pb-3 pe-0 col-cell" id="basket_summary">
-                        <div class="row">
-                            <div class="col-12 text-truncate">
-                                <span class="info">Subtotal:</span>
-                                <h5 class="d-inline-block text-primary float-end">$' . number_format($basket->getTotal(),2) . '</h5>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 info">
-                                Shipping: <span class="float-end fw-bold">$6.99</span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 pt-4 text-center">
-                                <a 
-                                    href="" 
-                                    class="btn btn-primary w-100 '. $checkout_btn_disabled .'" 
-                                    id="btn_checkout"
-                                    data-basket-id="'. $basket_id .'"
-                                    '. $checkout_disabled .'
-                                >
-                                    PROCEED TO CHECKOUT <i class="fa-solid fa-circle-right ps-2"></i>
-                                </a>
-                                '. $checkout_error .'
-                            </div>
-                        </div>
-                    </div>';
+            <!-- Basket Summary -->
+            <div class="col-12 col-md-3 pt-3 pb-3 pe-0 col-cell" id="basket_summary">
+                <div class="row">
+                    <div class="col-12 text-truncate">
+                        <span class="info">Subtotal:</span>
+                        <h5 class="d-inline-block text-primary float-end">$' . number_format($basket->getTotal(),2) . '</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 info">
+                        Shipping: <span class="float-end fw-bold">$6.99</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 pt-4 text-center">
+                        <a 
+                            href="" 
+                            class="btn btn-primary w-100 '. $checkout_btn_disabled .'" 
+                            id="btn_checkout"
+                            data-basket-id="'. $basket_id .'"
+                            '. $checkout_disabled .'
+                        >
+                            PROCEED TO CHECKOUT <i class="fa-solid fa-circle-right ps-2"></i>
+                        </a>
+                        '. $checkout_error .'
+                    </div>
+                </div>
+            </div>';
         }
 
         $response .= '
-                </div>';
+        </div>';
 
         // Saved Items
         if(count($saved_items) > 0){
@@ -1196,20 +1196,20 @@ class BasketController extends AbstractController
             }
 
             $response .= '
-                    <div class="row" style="background: #f4f8fe" id="saved_items">
-                        <div class="col-12 border-bottom border-top pt-3 pb-3">
-                            <a href="" id="saved_items_link">Items Saved for Later ('. count($saved_items) .' Item'. $plural .')</a>
+            <div class="row" style="background: #f4f8fe" id="saved_items">
+                <div class="col-12 border-bottom border-top pt-3 pb-3 text-center text-sm-start">
+                    <a href="" id="saved_items_link">Items Saved for Later ('. count($saved_items) .' Item'. $plural .')</a>
+                </div>
+            </div>
+            <div class="row" id="saved_items_container">
+                <div class="col-12 border-bottom border-top pt-3 pb-3 position-relative">
+                    <div class="row">
+                        <div class="col-12">
+                            <a href="" class="btn btn-primary btn-sm w-sm-100 float-end restore-all" id="restore_all" data-basket-id="'. $basket_id .'">
+                                Move All To Basket
+                            </a>
                         </div>
-                    </div>
-                    <div class="row" id="saved_items_container">
-                        <div class="col-12 border-bottom border-top pt-3 pb-3 position-relative">
-                            <div class="row">
-                                <div class="col-12">
-                                    <a href="" class="btn btn-primary btn-sm w-sm-100 float-end restore-all" id="restore_all" data-basket-id="'. $basket_id .'">
-                                        Move All To Basket
-                                    </a>
-                                </div>
-                            </div>              
+                    </div>              
                 ';
 
             foreach($saved_items as $item){
@@ -1217,34 +1217,33 @@ class BasketController extends AbstractController
                 $product = $item->getProduct();
 
                 $response .= '
-                    <div class="row">
-                        <!-- Thumbnail -->
-                        <div class="col-12 col-sm-2 text-center pt-3 pb-3">
-                            <img class="img-fluid basket-img" src="/images/products/' . $product->getImage() . '">
-                        </div>
-                        <div class="col-12 col-sm-10 pt-3 pb-3">
-                            <div class="row">
-                                <!-- Product Name -->
-                                <div class="col-12 col-sm-7">
-                                    <h6 class="fw-bold text-center text-sm-start text-primary lh-base mb-0">
-                                        ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
-                                    </h6>
-                                    Saved on '. $item->getModified()->format('M jS Y') .' by '. $item->getSavedBy() .'<br>
-                                    <span class="badge badge-light me-2 mt-2">
-                                        <a href="#" class="link-secondary restore-item" data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" data-distributor-id="'. $item->getDistributor()->getId() .'" data-item-id="'. $item->getId() .'">
-                                            Move To Basket
-                                        </a>
-                                    </span>
-                                    <span class="badge bg-danger mt-2">
-                                        <a href="#" class="text-white remove-saved-item" data-basket-id="" data-item-id="'. $item->getId() .'">
-                                            Remove
-                                        </a>
-                                    </span>
-                                </div>
+                <div class="row">
+                    <!-- Thumbnail -->
+                    <div class="col-12 col-sm-2 text-center pt-3 pb-3">
+                        <img class="img-fluid basket-img" src="/images/products/' . $product->getImage() . '">
+                    </div>
+                    <div class="col-12 col-sm-10 pt-3 pb-3">
+                        <div class="row">
+                            <!-- Product Name -->
+                            <div class="col-12 col-sm-7">
+                                <h6 class="fw-bold text-center text-sm-start text-primary lh-base mb-0">
+                                    ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
+                                </h6>
+                                Saved on '. $item->getModified()->format('M jS Y') .' by '. $item->getSavedBy() .'<br>
+                                <span class="badge badge-light me-2 mt-2">
+                                    <a href="#" class="link-secondary restore-item" data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" data-distributor-id="'. $item->getDistributor()->getId() .'" data-item-id="'. $item->getId() .'">
+                                        Move To Basket
+                                    </a>
+                                </span>
+                                <span class="badge bg-danger mt-2">
+                                    <a href="#" class="text-white remove-saved-item" data-basket-id="" data-item-id="'. $item->getId() .'">
+                                        Remove
+                                    </a>
+                                </span>
                             </div>
-                       
                         </div>
-                    </div>';
+                    </div>
+                </div>';
             }
         }
 
