@@ -1004,7 +1004,7 @@ class BasketController extends AbstractController
         $response .= '
                 <!-- Basket Items -->
                 <div class="row col-container d-flex border-0 m-0">
-                    <div class="col-12 col-md-'. $col .' col-cell ps-0" id="basket_inner">';
+                    <div class="col-12 col-md-'. $col .' col-cell px-0 pe-sm-2 border-right-0" id="basket_inner">';
 
         $i = -1;
         $checkout_disabled = '';
@@ -1155,18 +1155,18 @@ class BasketController extends AbstractController
             <!-- Basket Summary -->
             <div class="col-12 col-md-3 pt-3 pb-3 pe-0 col-cell" id="basket_summary">
                 <div class="row">
-                    <div class="col-12 text-truncate">
+                    <div class="col-12 text-truncate ps-0 ps-sm-2">
                         <span class="info">Subtotal:</span>
                         <h5 class="d-inline-block text-primary float-end">$' . number_format($basket->getTotal(),2) . '</h5>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-12 info">
+                    <div class="col-12 info ps-0 ps-sm-2">
                         Shipping: <span class="float-end fw-bold">$6.99</span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-12 pt-4 text-center">
+                    <div class="col-12 pt-4 text-center ps-0 ps-sm-2">
                         <a 
                             href="" 
                             class="btn btn-primary w-100 '. $checkout_btn_disabled .'" 
@@ -1422,9 +1422,9 @@ class BasketController extends AbstractController
         }
 
         $response .= '
-                <!-- Basket Items -->
-                <div class="row col-container d-flex border-0 m-0">
-                    <div class="col-12 col-md-'. $col .' col-cell ps-0">';
+        <!-- Basket Items -->
+        <div class="row col-container d-flex border-0 m-0">
+            <div class="col-12 col-md-'. $col .' col-cell ps-0">';
 
         $i = -1;
 
@@ -1433,7 +1433,7 @@ class BasketController extends AbstractController
             foreach ($basket->getBasketItems() as $item) {
 
                 $i++;
-                //dd($basket->getBasketItems()[2]->getProduct()->getId());
+
                 $product = $basket->getBasketItems()[$i]->getProduct();
                 $shipping_policy = $item->getDistributor()->getShippingPolicy();
 
@@ -1548,18 +1548,18 @@ class BasketController extends AbstractController
             <!-- Basket Summary -->
             <div class="col-12 col-md-3 pt-3 pb-3 pe-0 col-cell">
                 <div class="row">
-                    <div class="col-12 text-truncate">
+                    <div class="col-12 text-truncate ps-0 ps-sm-2">
                         <span class="info">Subtotal:</span>
                         <h5 class="d-inline-block text-primary float-end">$' . number_format($basket->getTotal(),2) . '</h5>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-12 info">
+                    <div class="col-12 info ps-0 ps-sm-2">
                         Shipping: <span class="float-end fw-bold">$6.99</span>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-12 pt-4 text-center">
+                    <div class="col-12 pt-4 text-center ps-0 ps-sm-2">
                         <a href="" class="btn btn-primary w-100" id="btn_checkout">
                             PROCEED TO CHECKOUT <i class="fa-solid fa-circle-right ps-2"></i>
                         </a>

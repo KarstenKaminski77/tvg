@@ -1721,6 +1721,10 @@ a.distributor-logo-container {
     .d-table-cell {
         display: block !important;
     }
+
+    .border-right-0 {
+        border-right: none !important;
+    }
 }
 
 @media (min-width: 577px) {
