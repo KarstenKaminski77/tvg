@@ -1885,6 +1885,7 @@ class OrdersController extends AbstractController
 
                             $expiry = '';
                             $opacity = '';
+                            $expiry_display = '';
 
                             // Don't show cancelled on delivery
                             if($order->getIsCancelled() == 1 && $order_status_id == 7){
@@ -1900,7 +1901,7 @@ class OrdersController extends AbstractController
                             // Status badges
                             if($order->getIsAccepted() == 1){
 
-                                $badge_accept = 'bg-success';
+                                $badge_accept = 'bg-success badge-success-filled-sm';
 
                             } else {
 
@@ -1909,7 +1910,7 @@ class OrdersController extends AbstractController
 
                             if($order->getIsRenegotiate() == 1){
 
-                                $badge_renegotiate = 'bg-warning';
+                                $badge_renegotiate = 'bg-warning badge-warning-filled-sm';
 
                             } else {
 
@@ -1918,12 +1919,17 @@ class OrdersController extends AbstractController
 
                             if($order->getIsCancelled() == 1){
 
-                                $badge_cancelled = 'bg-danger';
+                                $badge_cancelled = 'bg-danger badge-danger-filled-sm';
                                 $opacity = 'opacity-50';
 
                             } else {
 
                                 $badge_cancelled = 'badge-danger-outline-only badge-danger-sm';
+                            }
+
+                            if($order->getExpiryDate() == null){
+
+                                $expiry_display = ' style="display:none !important"';
                             }
 
                             // Display the qty delivered field if delivered
@@ -1972,7 +1978,7 @@ class OrdersController extends AbstractController
                                 <!-- Expiry Date -->
                                 <div class="col-12 col-md-6 pt-md-3 pb-md-3 d-table '. $opacity .'">
                                     <div class="row d-table-row">
-                                        <div class="col-12 col-sm-3 col-md-'. $col_exp_date .' text-truncate text-start text-md-end d-table-cell align-bottom alert-text-grey">
+                                        <div class="col-12 col-sm-3 col-md-'. $col_exp_date .' text-truncate text-start text-md-end d-table-cell align-bottom alert-text-grey" '. $expiry_display .'>
                                             <div class="row pb-2">
                                                 <div class="col-5 d-block d-sm-none fw-bold text-truncate">
                                                     Expiry Date:
@@ -2063,7 +2069,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_accept = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept w-sm-100"
+                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept badge-success-filled-sm text-truncate"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                     >Accept</a>';
@@ -2072,7 +2078,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_accept = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-success border-success badge-success-outline-only btn-item-accept w-sm-100"
+                                                        class="badge float-end ms-2 text-success border-success badge-success-outline-only btn-item-accept badge-success-sm text-truncate"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                     >Accept</a>';
@@ -2083,7 +2089,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_reject = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-danger bg-danger btn-item-reject w-sm-100"
+                                                        class="badge float-end ms-2 text-light border-danger bg-danger btn-item-reject badge-danger-filled-sm text-truncate"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                         data-bs-toggle="modal" 
@@ -2094,7 +2100,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_reject = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-danger border-danger badge-danger-outline-only btn-item-reject w-sm-100"
+                                                        class="badge float-end ms-2 text-danger border-danger badge-danger-outline-only btn-item-reject badge-danger-sm text-truncate"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                         data-bs-toggle="modal" 
@@ -2107,7 +2113,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_qty = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-warning bg-warning btn-item-qty w-sm-100"
+                                                        class="badge float-end ms-2 text-light border-warning bg-warning btn-item-qty badge-warning-filled-sm text-truncate"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                     >Adjust Quantity</a>';
@@ -2116,7 +2122,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_qty = '
                                                     <a href="#" 
-                                                        class="badge float-end ms-2 text-warning border-warning badge-warning-outline-only btn-item-qty w-sm-100"
+                                                        class="badge float-end ms-2 text-warning border-warning badge-warning-outline-only btn-item-qty badge-warning-sm text-truncate"
                                                         data-order-id="' . $order_id . '"
                                                         data-item-id="' . $order->getId() . '"
                                                     >Adjust Quantity</a>';
@@ -2133,7 +2139,7 @@ class OrdersController extends AbstractController
 
                                                     $btn_status = '
                                                     <span 
-                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept"
+                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept w-sm-100 p-2 p-sm-1"
                                                     >Accepted</span>';
 
                                                 }
@@ -2155,7 +2161,7 @@ class OrdersController extends AbstractController
 
                                                     $response .= '
                                                     <span 
-                                                        class="badge float-end ms-2 text-success border border-success text-light bg-success"
+                                                        class="badge float-end ms-2 text-success border border-success text-light bg-success w-sm-100 p-2 p-sm-1"
                                                     >Accepted</span>';
                                                 }
 
@@ -2195,7 +2201,7 @@ class OrdersController extends AbstractController
                                     // Pending Distributor
                                     } else {
 
-                                        $response .= '<span class="badge bg-dark-grey float-end">Pending Distributor Confirmation</span>';
+                                        $response .= '<span class="badge bg-dark-grey float-end w-sm-100 p-2 p-sm-1 text-truncate">Pending Distributor Confirmation</span>';
                                     }
 
                                 $response .= '

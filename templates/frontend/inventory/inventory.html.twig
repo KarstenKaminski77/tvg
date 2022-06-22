@@ -1327,11 +1327,11 @@
                         distributor_id: distributor_id
                     },
                     dataType: 'json',
-                    complete: function(e, xhr, settings){
-                        if(e.status === 500){
-                            window.location.href = '{{ path('clinic_error_500') }}';
-                        }
-                    },
+                    {#complete: function(e, xhr, settings){#}
+                    {#    if(e.status === 500){#}
+                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
+                    {#    }#}
+                    {#},#}
                     success: function (response) {
 
                         $('#basket_container').empty().append(response);
