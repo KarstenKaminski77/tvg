@@ -482,7 +482,7 @@ class ProductsController extends AbstractController
                                                     <div class="col-6">
                                                         <button 
                                                             type="submit" 
-                                                            class="btn btn-primary w-100 '. $btn_disabled .'"
+                                                            class="btn btn-primary w-100 text-truncate '. $btn_disabled .'"
                                                             '. $disabled .'
                                                         >
                                                             ADD TO BASKET

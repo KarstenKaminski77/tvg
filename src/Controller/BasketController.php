@@ -1021,7 +1021,7 @@ class BasketController extends AbstractController
 
                 if($distributor_product->getStockCount() > 0){
 
-                    $stock_badge = '<span class="badge bg-success me-2">In Stock</span>';
+                    $stock_badge = '<span class="badge bg-success me-0 me-sm-2 badge-success-filled-sm">In Stock</span>';
                     $disabled = '';
 
                 } else {
@@ -1099,15 +1099,15 @@ class BasketController extends AbstractController
                                 <!-- In Stock -->
                                 '. $stock_badge .'
                                 <!-- Shipping Policy -->
-                                <span class="badge bg-dark-grey" class="btn btn-secondary" data-bs-trigger="hover"
+                                <span class="badge bg-dark-grey badge-pending-filled-sm" class="btn btn-secondary" data-bs-trigger="hover"
                                       data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-html="true"
                                       data-bs-content="'. $shipping_policy .'">Shipping Policy</span>
                                 <!-- Remove Item -->
-                                <span class="badge bg-danger float-end">
+                                <span class="badge bg-danger float-end badge-danger-filled-sm">
                                     <a href="#" class="remove-item text-white" data-item-id="' . $item->getId() . '">Remove</a>
                                 </span>
                                 <!-- Save Item -->
-                                <span class="badge badge-light float-end me-2">
+                                <span class="badge badge-light badge-light-sm float-end me-0 me-sm-2">
                                     <a href="#" class="link-secondary save-item" data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" data-distributor-id="'. $item->getDistributor()->getId() .'" data-item-id="' . $item->getId() . '">Save Item For later</a>
                                 </span>
                             </div>
@@ -1199,7 +1199,13 @@ class BasketController extends AbstractController
                     </div>
                     <div class="row" id="saved_items_container">
                         <div class="col-12 border-bottom border-top pt-3 pb-3 position-relative">
-                            <a href="" class="btn btn-primary btn-sm restore-all" id="restore_all" data-basket-id="'. $basket_id .'">Move All To Basket</a>
+                            <div class="row">
+                                <div class="col-12">
+                                    <a href="" class="btn btn-primary btn-sm w-sm-100 float-end restore-all" id="restore_all" data-basket-id="'. $basket_id .'">
+                                        Move All To Basket
+                                    </a>
+                                </div>
+                            </div>              
                 ';
 
             foreach($saved_items as $item){
@@ -1580,7 +1586,13 @@ class BasketController extends AbstractController
                     </div>
                     <div class="row" id="saved_items_container">
                         <div class="col-12 border-bottom border-top pt-3 pb-3 position-relative">
-                            <a href="" class="btn btn-primary btn-sm restore-all" id="restore_all" data-basket-id="'. $basket_id .'">Move All To Basket</a>
+                            <div class="row">
+                                <div class="col-12">
+                                    <a href="" class="btn btn-primary btn-sm w-sm-100 float-end restore-all" id="restore_all" data-basket-id="'. $basket_id .'">
+                                        Move All To Basket
+                                    </a>
+                                </div>
+                            </div>    
                 ';
 
             foreach($saved_items as $item){

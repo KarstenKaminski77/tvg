@@ -793,11 +793,11 @@ a.page-link {
     opacity: 1
 }
 
-.restore-all {
-    position: absolute;
-    right: 12px;
-    top: 12px;
-}
+/*.restore-all {*/
+/*    position: absolute;*/
+/*    right: 12px;*/
+/*    top: 12px;*/
+/*}*/
 
 .active-basket {
     background: #f4f8fe;
@@ -1702,6 +1702,16 @@ a.distributor-logo-container {
         width: 100% !important;
         background: #6c757d !important;
         color: #fff !important;
+        border: solid 1px #6c757d !important;
+        font-size: 14px;
+        margin-bottom: 16px;
+        padding: 8px;
+    }
+
+    .badge-light-sm {
+        width: 100% !important;
+        background: #fff !important;
+        color: #6c757d !important;
         border: solid 1px #6c757d !important;
         font-size: 14px;
         margin-bottom: 16px;
