@@ -713,22 +713,26 @@ class BasketController extends AbstractController
                     $response .= '
                     <!-- Saved Baskets -->
                     <div class="row border-bottom-dashed saved_basket_header" role="button" id="saved_basket_header_' . $basket->getId() . '">
-                        <div class="col-3 pt-3 pb-3 saved-basket-link" id="saved_basket_first_' . $basket->getId() . '" data-basket-id="' . $basket->getId() . '">
+                        <div class="col-3 pt-3 pb-3 saved-basket-link text-truncate" id="saved_basket_first_' . $basket->getId() . '" data-basket-id="' . $basket->getId() . '">
                             <span id="basket_name_string_' . $basket->getId() . '">' . $basket->getName() . '</span>
                             <span id="basket_name_input_' . $basket->getId() . '" style="display:none"><input type="text" class="form-control form-control-sm" id="basket_name_' . $basket->getId() . '" value="' . $basket->getName() . '"></span>
                         </div>
-                        <div class="col-3 pt-3 pb-3 saved-basket-link" data-basket-id="' . $basket->getId() . '">
+                        <div class="col-3 pt-3 pb-3 saved-basket-link text-truncate" data-basket-id="' . $basket->getId() . '">
                             ' . $basket->getSavedBy() . '
                         </div>
                         <div class="col-2 pt-3 pb-3 saved-basket-link" data-basket-id="' . $basket->getId() . '">
                            ' . number_format($basket->getTotal(), 2) . '
                         </div>
-                        <div class="col-2 pt-3 pb-3 saved-basket-link" data-basket-id="' . $basket->getId() . '">
+                        <div class="col-1 pt-3 pb-3 saved-basket-link" data-basket-id="' . $basket->getId() . '">
                             ' . $basket->getBasketItems()->count() . '
                         </div>
-                        <div class="col-2 pt-3 pb-3">
-                            <a href="" class="basket-edit" data-basket-id="' . $basket->getId() . '"><i class="fa-solid fa-pencil float-end me-3"></i></a>
-                            <a href="" class="basket-delete" data-basket-id="' . $basket->getId() . '"><i class="fa-solid fa-trash-can text-danger float-end me-4"></i></a>
+                        <div class="col-3 pt-3 pb-3">
+                            <a href="" class="basket-edit" data-basket-id="' . $basket->getId() . '">
+                                <i class="fa-solid fa-pencil float-end me-0 me-sm-3"></i>
+                            </a>
+                            <a href="" class="basket-delete" data-basket-id="' . $basket->getId() . '">
+                                <i class="fa-solid fa-trash-can text-danger float-end me-4 me-sm-4"></i>
+                            </a>
                         </div>
                     </div>
                     <!-- Baskets -->
