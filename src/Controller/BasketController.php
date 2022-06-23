@@ -816,7 +816,7 @@ class BasketController extends AbstractController
             <div class="col-4 col-sm-12 col-md-4 pt-3 pb-3 saved-baskets">
                 <i class="fa-solid fa-basket-shopping"></i>
             </div>
-            <div class="col-8 col-sm-12 col-md-8 pt-3 pb-3">
+            <div class="col-8 col-sm-12 col-md-8 pt-3 pb-3 text-truncate">
                 <h6 class="text-primary">Saved Baskets</h6>
                 <span class="info">View baskets</span>
             </div>
@@ -882,7 +882,7 @@ class BasketController extends AbstractController
                 <div class="row" style="background: #f4f8fe">
                     <div class="col-6 border-bottom pt-1 pb-1 text-center">
                         <span class="d-block text-primary">'. $count_clinic .'</span>
-                        <span class="d-block text-truncate">Items</span>
+                        <span class="d-block">Items</span>
                     </div>
                     <div class="col-6 border-bottom pt-1 pb-1 text-center">
                         <span class="d-block text-primary">$'. $total_clinic .'</span>
@@ -910,10 +910,16 @@ class BasketController extends AbstractController
             <div class="row">
                 <div class="col-12 border-bottom '. $active .'">
                     <a href="#" data-basket-id="'. $individual_basket->getId() .'" class=" pt-3 pb-3 d-block basket-link">
-                        <span class="d-inline-block align-baseline">'. $individual_basket->getName() .'</span>
-                        <span class="float-end basket-item-count-empty '. $bg_primary .'">
-                            '. $count .'
-                        </span>
+                        <div class="row">
+                            <div class="col-10 text-truncate pe-0">
+                                <span class="align-baseline">'. $individual_basket->getName() .'</span>
+                            </div>
+                            <div class="col-2 ps-0">
+                                <span class="float-end basket-item-count-empty '. $bg_primary .'">
+                                    '. $count .'
+                                </span>
+                            </div>
+                        </div>
                     </a>
                 </div>
             </div>';
@@ -924,11 +930,11 @@ class BasketController extends AbstractController
                 <div class="col-12 h-100">
                     <a href="#" class="saved_baskets_link" data-basket-id="'. $basket_id .'">
                         <div class="row align-items-center">
-                            <div class="col-4 col-sm-12 col-md-4 pt-3 pb-3 saved-baskets">
+                            <div class="d-block d-md-none d-lg-block col-4 col-sm-12 col-lg-4 pt-3 pb-3 saved-baskets text-truncate">
                                 <i class="fa-solid fa-basket-shopping"></i>
                             </div>
-                            <div class="col-8 col-sm-12 col-md-8 pt-3 pb-3">
-                                <h6 class="text-primary">Saved Baskets</h6>
+                            <div class="col-8 col-sm-12 col-md-12 col-lg-8 pt-3 pb-3 text-truncate">
+                                <h6 class="text-primary text-truncate">Saved Baskets</h6>
                                 <span class="info">View baskets</span>
                             </div>
                         </div>
@@ -1045,16 +1051,16 @@ class BasketController extends AbstractController
                         <!-- Product Name and Qty -->
                         <div class="row">
                             <!-- Product Name -->
-                            <div class="col-12 col-sm-7 pt-3 pb-3 text-center text-sm-start">
+                            <div class="col-12 col-sm-7 col-md-12 col-lg-7 pt-3 pb-3 text-center text-sm-start">
                                 <span class="info">'. $distributor_product->getDistributor()->getDistributorName() .'</span>
                                 <h6 class="fw-bold text-primary lh-base">
                                     ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . '
                                 </h6>
                             </div>
                             <!-- Product Quantity -->
-                            <div class="col-12 col-sm-5 pt-3 pb-3">
+                            <div class="col-12 col-sm-5 col-md-12 col-lg-5 pt-3 pb-3">
                                 <div class="row">
-                                    <div class="col-4 text-center text-sm-end">
+                                    <div class="col-4 text-center text-sm-end text-md-start text-lg-start">
                                         $' . number_format($item->getUnitPrice(),2) . '
                                     </div>
                                     <div class="col-4">
@@ -1063,7 +1069,7 @@ class BasketController extends AbstractController
                                             list="qty_list_' . $product->getId() . '" 
                                             data-basket-item-id="' . $item->getId() . '" 
                                             name="qty" 
-                                            class="form-control basket-qty" 
+                                            class="form-control form-control-sm basket-qty" 
                                             value="' . $item->getQty() . '" 
                                             ng-value="' . $item->getQty() . '"
                                             '. $disabled .'
@@ -1093,7 +1099,7 @@ class BasketController extends AbstractController
                                         </datalist>
                                         <div class="hidden_msg" id="stock_count_error_'. $item->getId() .'"></div>
                                     </div>
-                                    <div class="col-4 text-center text-sm-start fw-bold">$' . number_format($item->getTotal(),2) . '</div>
+                                    <div class="col-4 text-center text-sm-start text-md-end fw-bold">$' . number_format($item->getTotal(),2) . '</div>
                                 </div>
                             </div>
                         </div>
@@ -1341,7 +1347,7 @@ class BasketController extends AbstractController
             <div class="row">
                 <div class="col-12 border-bottom '. $active .'">
                     <a href="#" data-basket-id="'. $individual_basket->getId() .'" class=" pt-3 pb-3 d-block basket-link">
-                        <span class="d-inline-block align-baseline">'. $individual_basket->getName() .'</span>
+                        <span class="d-inline-block align-baseline text-truncate">'. $individual_basket->getName() .'</span>
                         <span class="float-end basket-item-count-empty '. $bg_primary .'">
                             '. $count .'
                         </span>

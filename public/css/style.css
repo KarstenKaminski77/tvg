@@ -1747,6 +1747,13 @@ a.distributor-logo-container {
     }
 }
 
+@media (max-width: 768px){
+
+    .border-right-0 {
+        border-right: none !important;
+    }
+}
+
 @media (max-width: 1200px) {
     .border-list {
         border-bottom: 1px dashed #e2e7eb !important;
