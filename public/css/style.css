@@ -1747,7 +1747,7 @@ a.distributor-logo-container {
     }
 }
 
-@media (max-width: 768px){
+@media (max-width: 991px){
 
     .border-right-0 {
         border-right: none !important;
