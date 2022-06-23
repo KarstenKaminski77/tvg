@@ -1236,13 +1236,23 @@ class BasketController extends AbstractController
                                     ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
                                 </h6>
                                 Saved on '. $item->getModified()->format('M jS Y') .' by '. $item->getSavedBy() .'<br>
-                                <span class="badge badge-light me-2 mt-2">
-                                    <a href="#" class="link-secondary restore-item" data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" data-distributor-id="'. $item->getDistributor()->getId() .'" data-item-id="'. $item->getId() .'">
+                                <span class="badge badge-light me-2 mt-2 badge-light-sm">
+                                    <a 
+                                        href="#" 
+                                        class="link-secondary restore-item" 
+                                        data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" 
+                                        data-distributor-id="'. $item->getDistributor()->getId() .'" 
+                                        data-item-id="'. $item->getId() .'"
+                                    >
                                         Move To Basket
                                     </a>
                                 </span>
-                                <span class="badge bg-danger mt-2">
-                                    <a href="#" class="text-white remove-saved-item" data-basket-id="" data-item-id="'. $item->getId() .'">
+                                <span class="badge bg-danger mt-2 badge-danger-filled-sm">
+                                    <a 
+                                        href="#" class="text-white remove-saved-item" 
+                                        data-basket-id="" 
+                                        data-item-id="'. $item->getId() .'"
+                                    >
                                         Remove
                                     </a>
                                 </span>
@@ -1622,13 +1632,23 @@ class BasketController extends AbstractController
                                         ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
                                     </h6>
                                     Saved on '. $item->getModified()->format('M jS Y') .' by '. $item->getSavedBy() .'<br>
-                                    <span class="badge badge-light me-2 mt-2">
-                                        <a href="#" class="link-secondary restore-item" data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" data-distributor-id="'. $item->getDistributor()->getId() .'" data-item-id="'. $item->getId() .'">
+                                    <span class="badge badge-light me-2 mt-2 badge-light-sm">
+                                        <a 
+                                            href="#" class="link-secondary restore-item" 
+                                            data-basket-id="'. $basket_id .'" 
+                                            data-product-id="'. $product->getId() .'" 
+                                            data-distributor-id="'. $item->getDistributor()->getId() .'" 
+                                            data-item-id="'. $item->getId() .'"
+                                        >
                                             Move To Basket
                                         </a>
                                     </span>
-                                    <span class="badge bg-danger mt-2">
-                                        <a href="#" class="text-white remove-saved-item" data-basket-id="" data-item-id="'. $item->getId() .'">
+                                    <span class="badge bg-danger mt-2 badge-danger-filled-sm">
+                                        <a 
+                                            href="#" class="text-white remove-saved-item" 
+                                            data-basket-id="" 
+                                            data-item-id="'. $item->getId() .'"
+                                        >
                                             Remove
                                         </a>
                                     </span>
