@@ -930,10 +930,10 @@ class BasketController extends AbstractController
                 <div class="col-12 h-100">
                     <a href="#" class="saved_baskets_link" data-basket-id="'. $basket_id .'">
                         <div class="row align-items-center">
-                            <div class="d-block d-md-none d-lg-block col-4 col-sm-12 col-lg-4 pt-3 pb-3 saved-baskets text-truncate">
+                            <div class="d-block d-md-none d-lg-block col-4 pt-3 pb-3 saved-baskets text-truncate">
                                 <i class="fa-solid fa-basket-shopping"></i>
                             </div>
-                            <div class="col-8 col-sm-12 col-md-12 col-lg-8 pt-3 pb-3 text-truncate">
+                            <div class="col-8 pt-3 pb-3 text-truncate">
                                 <h6 class="text-primary text-truncate">Saved Baskets</h6>
                                 <span class="info">View baskets</span>
                             </div>
@@ -1010,7 +1010,7 @@ class BasketController extends AbstractController
         $response .= '
                 <!-- Basket Items -->
                 <div class="row col-container d-flex border-0 m-0">
-                    <div class="col-12 col-md-'. $col .' col-cell px-0 pe-sm-2 border-right-0" id="basket_inner">';
+                    <div class="col-12 col-lg-'. $col .' col-cell px-0 pe-sm-2 border-right-0" id="basket_inner">';
 
         $i = -1;
         $checkout_disabled = '';
@@ -1159,7 +1159,7 @@ class BasketController extends AbstractController
 
             $response .= '
             <!-- Basket Summary -->
-            <div class="col-12 col-md-3 pt-3 pb-3 pe-0 col-cell" id="basket_summary">
+            <div class="col-12 col-lg-3 pt-3 pb-3 pe-0 col-cell" id="basket_summary">
                 <div class="row">
                     <div class="col-12 text-truncate ps-0 ps-sm-2">
                         <span class="info">Subtotal:</span>
