@@ -60,13 +60,15 @@ class OrdersController extends AbstractController
         $default_address = $this->em->getRepository(Addresses::class)->findOneBy([
             'clinic' => $clinic->getId(),
             'isDefault' => 1,
-            'type' => 2
+            'type' => 2,
+            'isActive' => 1,
         ]);
 
         $default_billing_address = $this->em->getRepository(Addresses::class)->findOneBy([
             'clinic' => $clinic->getId(),
             'isDefaultBilling' => 1,
-            'type' => 1
+            'type' => 1,
+            'isActive' => 1,
         ]);
 
         if($default_address != null) {
@@ -318,10 +320,7 @@ class OrdersController extends AbstractController
                         if($default_address != null) {
 
                             $response['body'] .=
-                            $default_address->getAddress() . '<br>' .
-                            $default_address->getCity() . '<br>' .
-                            $default_address->getPostalCode() . '<br>' .
-                            $default_address->getState();
+                            $default_address->getAddress();
                         }
 
                     $response['body'] .= '
@@ -356,10 +355,7 @@ class OrdersController extends AbstractController
                         if($default_billing_address != null) {
 
                             $response['body'] .=
-                                $default_billing_address->getAddress() . '<br>' .
-                                $default_billing_address->getCity() . '<br>' .
-                                $default_billing_address->getPostalCode() . '<br>' .
-                                $default_billing_address->getState();
+                                $default_billing_address->getAddress();
                         }
 
                     $response['body'] .= '
