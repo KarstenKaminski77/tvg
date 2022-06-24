@@ -252,8 +252,8 @@ class AddressesController extends AbstractController
                         autocomplete="off"
                     >
                     <label class="btn btn-outline-primary alert alert-secondary w-100" for="address_'. $i .'">'.
-                $address->getAddress() .' '. $address->getCity() .' '. $address->getPostalCode() .' '.
-                $address->getState() .'
+                        $address->getAddress() .' '. $address->getCity() .' '. $address->getPostalCode() .' '.
+                        $address->getState() .'
                     </label>
                 </div>
             </div>';
@@ -301,11 +301,29 @@ class AddressesController extends AbstractController
                 <!-- Telephone Number -->
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="info">Telephone</label>
+                    <input 
+                        type="text" 
+                        name="addresses_mobile" 
+                        id="address_mobile" 
+                        class="form-control" 
+                        value=""
+                    >
                     <input
-                        type="text"
+                        type="hidden"
                         name="addresses_form[telephone]"
                         id="address_telephone"
-                        class="form-control"
+                        value=""
+                    >
+                    <input
+                        type="hidden"
+                        name="addresses_form[iso_code]"
+                        id="address_iso_code"
+                        value=""
+                    >
+                    <input
+                        type="hidden"
+                        name="addresses_form[intl_code]"
+                        id="address_intl_code"
                         value=""
                     >
                     <div class="hidden_msg" id="error_address_telephone">
@@ -314,78 +332,28 @@ class AddressesController extends AbstractController
                 </div>
 
                 <!-- Address Line 1 -->
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="info">Address</label>
-                    <input
-                        type="text"
+                <div class="col-12 mb-3">
+                    <label class="info">
+                        Address
+                    </label>
+                    <span role="button" class="text-primary float-end d-sm-block" id="btn_map_checkout_'. strtolower($delivery_type) .'">
+                        <img src="/images/google-maps.png" class="google-map-icon">
+                        Find on Map
+                    </span>
+                    <textarea
                         name="addresses_form[address]"
                         id="address_line_1"
                         class="form-control"
-                        value=""
-                    >
+                        rows="5"
+                    ></textarea>
                     <div class="hidden_msg" id="error_address_line_1">
                         Required Field
                     </div>
                 </div>
-
-                <!-- Suite -->
-                <div class="col-6 mb-3">
-                    <label class="info">Suite / APT</label>
-                    <input
-                        type="text"
-                        name="addresses_form[suite]"
-                        id="address_suite"
-                        class="form-control"
-                        value=""
-                    >
-                    <div class="hidden_msg" id="error_address_suite">
-                        Required Field
-                    </div>
-                </div>
-
-                <!-- Postal Code -->
-                <div class="col-6 col-sm-4 mb-3">
-                    <label class="info">Postal Code</label>
-                    <input
-                        type="text"
-                        name="addresses_form[postalCode]"
-                        id="address_postal_code"
-                        class="form-control"
-                        value=""
-                    >
-                    <div class="hidden_msg" id="error_address_postal_code">
-                        Required Field
-                    </div>
-                </div>
-
-                <!-- City -->
-                <div class="col-6 col-sm-4 mb-3">
-                    <label class="info">City</label>
-                    <input
-                        type="text"
-                        name="addresses_form[city]"
-                        id="address_city"
-                        class="form-control"
-                        value=""
-                    >
-                    <div class="hidden_msg" id="error_address_city">
-                        Required Field
-                    </div>
-                </div>
-
-                <!-- State -->
-                <div class="col-6 col-sm-4 mb-3">
-                    <label class="info">State</label>
-                    <input
-                        type="text"
-                        name="addresses_form[state]"
-                        id="address_state"
-                        class="form-control"
-                        value=""
-                    >
-                    <div class="hidden_msg" id="error_address_state">
-                        Required Field
-                    </div>
+                
+                <!-- Google Map -->
+                <div class="col-12 hidden position-relative" id="address_map">
+                    '. $this->render('frontend/clinics/map.html.twig')->getContent() .'
                 </div>
             </div>
         </div>
@@ -531,22 +499,23 @@ class AddressesController extends AbstractController
     #[Route('/clinics/get-address', name: 'clinic_get_address')]
     public function clinicsGetAddressAction(Request $request): Response
     {
-        $address = $this->em->getRepository(Addresses::class)->find($request->request->get('id'));
+        $response = '';
 
-        $response = [
+        if((int) $request->request->get('id') > 0) {
 
-            'id' => $address->getId(),
-            'clinic_name' => $address->getClinicName(),
-            'telephone' => $address->getTelephone(),
-            'address_line_1' => $address->getAddress(),
-            'suite' => $address->getSuite(),
-            'city' => $address->getCity(),
-            'state' => $address->getState(),
-            'postal_code' => $address->getPostalCode(),
-            'type' => $address->getType(),
-            'iso_code' => $address->getIsoCode(),
-            'intl_code' => $address->getIntlCode(),
-        ];
+            $address = $this->em->getRepository(Addresses::class)->find($request->request->get('id'));
+
+            $response = [
+
+                'id' => $address->getId(),
+                'clinic_name' => $address->getClinicName(),
+                'telephone' => $address->getTelephone(),
+                'address' => $address->getAddress(),
+                'type' => $address->getType(),
+                'iso_code' => $address->getIsoCode(),
+                'intl_code' => $address->getIntlCode(),
+            ];
+        }
 
         return new JsonResponse($response);
     }
@@ -554,22 +523,38 @@ class AddressesController extends AbstractController
     #[Route('/clinics/update-address', name: 'update_address')]
     public function updateAddressAction(Request $request): Response
     {
+        // Billing Address = 1
+        // Shipping Address = 2
+
         $data = $request->request->get('addresses_form');
         $clinic_id = $this->getUser()->getClinic()->getId();
         $clinic = $this->em->getRepository(Clinics::class)->find($clinic_id);
 
-        $methods = $this->em->getRepository(Clinics::class)->getClinicAddresses($clinic_id);
+        $default_billing_address = $this->em->getRepository(Addresses::class)->findOneBy([
+            'isActive' => 1,
+            'type' => 1,
+            'isDefaultBilling' => 1,
+            'clinic' => $clinic_id,
+        ]);
+
+        $default_shipping_address = $this->em->getRepository(Addresses::class)->findOneBy([
+            'isActive' => 1,
+            'type' => 2,
+            'isDefault' => 1,
+            'clinic' => $clinic_id,
+        ]);
+        
         $address_id = $data['address_id'];
 
-        if($address_id > 0){
-
-            $clinic_address = $this->em->getRepository(Addresses::class)->find($address_id);
-            $flash = '<b><i class="fas fa-check-circle"></i> Address successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
-
-        } else {
+        if($data['address_id'] == null){
 
             $clinic_address = new Addresses();
             $flash = '<b><i class="fas fa-check-circle"></i> Address details successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        } else {
+
+            $clinic_address = $this->em->getRepository(Addresses::class)->find($address_id);
+            $flash = '<b><i class="fas fa-check-circle"></i> Address successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
         }
 
         $clinic_address->setClinic($clinic);
@@ -582,9 +567,14 @@ class AddressesController extends AbstractController
         $clinic_address->setIsoCode($data['iso_code']);
         $clinic_address->setIntlCode($data['intl_code']);
 
-        if(empty($methods)){
+        if($default_shipping_address == null){
 
             $clinic_address->setIsDefault(1);
+        }
+
+        if($default_billing_address == null){
+
+            $clinic_address->setIsDefaultBilling(1);
         }
 
         $this->em->persist($clinic_address);
@@ -603,7 +593,7 @@ class AddressesController extends AbstractController
             $this->em->persist($order);
             $this->em->flush();
 
-            $checkout_address = $clinic_address->getAddress() ."<br>". $clinic_address->getCity() ."<br>". $clinic_address->getPostalCode() ."<br>". $clinic_address->getState();
+            $checkout_address = $clinic_address->getAddress();
             $checkout_address_id = $clinic_address->getId();
         }
 

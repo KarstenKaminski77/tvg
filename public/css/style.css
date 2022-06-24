@@ -1597,6 +1597,10 @@ a.distributor-logo-container {
     table-layout: fixed;
 }
 
+.modal {
+    z-index: 9999;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {
