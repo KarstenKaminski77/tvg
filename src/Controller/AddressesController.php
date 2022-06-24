@@ -543,7 +543,7 @@ class AddressesController extends AbstractController
             'isDefault' => 1,
             'clinic' => $clinic_id,
         ]);
-        
+
         $address_id = $data['address_id'];
 
         if($data['address_id'] == null){
