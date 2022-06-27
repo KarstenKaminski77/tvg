@@ -35,7 +35,7 @@ class UserPermissions
     private $isClinic;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="boolean", nullable=true)
      */
     private $isDistributor;
 
@@ -56,6 +56,11 @@ class UserPermissions
 
     public function __construct()
     {
+        $this->setModified(new \DateTime());
+        if ($this->getCreated() == null) {
+            $this->setCreated(new \DateTime());
+        }
+
         $this->clinicUserPermissions = new ArrayCollection();
     }
 
@@ -100,12 +105,12 @@ class UserPermissions
         return $this;
     }
 
-    public function getIsDistributor(): ?int
+    public function getIsDistributor(): ?bool
     {
         return $this->isDistributor;
     }
 
-    public function setIsDistributor(?int $isDistributor): self
+    public function setIsDistributor(?bool $isDistributor): self
     {
         $this->isDistributor = $isDistributor;
 

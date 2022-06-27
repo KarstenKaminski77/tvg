@@ -10,6 +10,7 @@ use App\Entity\CommunicationMethods;
 use App\Entity\Products;
 use App\Entity\Species;
 use App\Entity\SubCategories;
+use App\Entity\UserPermissions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -56,6 +57,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Sub Categories', 'fas fa-list', SubCategories::class)
             ->setPermission('ROLE_SUB_CATEGORY');
         yield MenuItem::linkToCrud('Users', 'fas fa-user', User::class)
+            ->setPermission('ROLE_USER');
+        yield MenuItem::linkToCrud('User Permissions', 'fas fa-lock', UserPermissions::class)
             ->setPermission('ROLE_USER');
     }
 }
