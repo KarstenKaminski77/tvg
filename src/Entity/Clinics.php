@@ -134,6 +134,11 @@ class Clinics
      */
     private $intlCode;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ClinicUserPermissions::class, mappedBy="clinic")
+     */
+    private $clinicUserPermissions;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -157,6 +162,7 @@ class Clinics
         $this->notifications = new ArrayCollection();
         $this->productFavourites = new ArrayCollection();
         $this->chatParticipants = new ArrayCollection();
+        $this->clinicUserPermissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -694,6 +700,36 @@ class Clinics
     public function setIntlCode(?string $intlCode): self
     {
         $this->intlCode = $intlCode;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClinicUserPermissions>
+     */
+    public function getClinicUserPermissions(): Collection
+    {
+        return $this->clinicUserPermissions;
+    }
+
+    public function addClinicUserPermission(ClinicUserPermissions $clinicUserPermission): self
+    {
+        if (!$this->clinicUserPermissions->contains($clinicUserPermission)) {
+            $this->clinicUserPermissions[] = $clinicUserPermission;
+            $clinicUserPermission->setClinic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClinicUserPermission(ClinicUserPermissions $clinicUserPermission): self
+    {
+        if ($this->clinicUserPermissions->removeElement($clinicUserPermission)) {
+            // set the owning side to null (unless already changed)
+            if ($clinicUserPermission->getClinic() === $this) {
+                $clinicUserPermission->setClinic(null);
+            }
+        }
 
         return $this;
     }

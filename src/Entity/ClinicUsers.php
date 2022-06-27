@@ -117,6 +117,11 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $resetKey;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ClinicUserPermissions::class, mappedBy="user")
+     */
+    private $clinicUserPermissions;
+
     public function __construct()
     {
         $this->setModified(new \DateTime());
@@ -128,6 +133,7 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
         $this->productReviews = new ArrayCollection();
         $this->productReviewLikes = new ArrayCollection();
         $this->productReviewComments = new ArrayCollection();
+        $this->clinicUserPermissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -484,6 +490,36 @@ class ClinicUsers implements UserInterface, PasswordAuthenticatedUserInterface
     public function setResetKey(?string $resetKey): self
     {
         $this->resetKey = $resetKey;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClinicUserPermissions>
+     */
+    public function getClinicUserPermissions(): Collection
+    {
+        return $this->clinicUserPermissions;
+    }
+
+    public function addClinicUserPermission(ClinicUserPermissions $clinicUserPermission): self
+    {
+        if (!$this->clinicUserPermissions->contains($clinicUserPermission)) {
+            $this->clinicUserPermissions[] = $clinicUserPermission;
+            $clinicUserPermission->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClinicUserPermission(ClinicUserPermissions $clinicUserPermission): self
+    {
+        if ($this->clinicUserPermissions->removeElement($clinicUserPermission)) {
+            // set the owning side to null (unless already changed)
+            if ($clinicUserPermission->getUser() === $this) {
+                $clinicUserPermission->setUser(null);
+            }
+        }
 
         return $this;
     }
