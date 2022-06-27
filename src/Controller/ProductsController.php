@@ -47,6 +47,7 @@ class ProductsController extends AbstractController
     #[Route('/clinics/orders/{clinic_id}', name: 'clinic_orders_list')]
     public function index(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_CLINIC');
         $clinic = $this->getUser()->getClinic();
         $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
         $response = 'Please use the search bar above....';
