@@ -34,7 +34,7 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setFaviconPath('images/favicon.ico')
-            ->setTitle('<img src="/images/logo.png" style="width: 150px !important; margin: auto" align="center">');
+            ->setTitle('<img src="/images/logo.png" style="width: 150px !important; margin: auto; text-align: center !important; display: block" align="center">');
     }
 
     public function configureMenuItems(): iterable

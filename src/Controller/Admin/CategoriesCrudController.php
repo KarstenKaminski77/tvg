@@ -6,6 +6,8 @@ use App\Entity\Categories;
 use App\Entity\SubCategories;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -34,6 +36,7 @@ class CategoriesCrudController extends AbstractCrudController
         return [
             IntegerField::new('id', '#ID')->onlyOnIndex(),
             TextField::new('category', 'Category')->setColumns(12),
+            AssociationField::new('subCategories', 'Sub Categories')->setColumns(12),
             DateTimeField::new('modified', 'Modified')->onlyOnIndex(),
             DateTimeField::new('created', 'Created')->onlyOnIndex(),
         ];
