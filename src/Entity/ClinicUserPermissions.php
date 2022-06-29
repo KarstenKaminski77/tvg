@@ -42,6 +42,14 @@ class ClinicUserPermissions
      */
     private $created;
 
+    public function __construct()
+    {
+        $this->setModified(new \DateTime());
+        if ($this->getCreated() == null) {
+            $this->setCreated(new \DateTime());
+        }
+    }
+
     public function getId(): ?int
     {
         return $this->id;

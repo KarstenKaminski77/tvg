@@ -45,6 +45,14 @@ class OrdersController extends AbstractController
     #[Route('/clinics/checkout/options', name: 'checkout_options')]
     public function getCheckoutOptionsAction(Request $request): Response
     {
+        $permissions = json_decode($request->request->get('permissions'), true);
+        $resp = $this->accessDeniedAction($permissions, 3);
+
+        if($resp != false){
+
+            return new JsonResponse($resp);
+        };
+
         $basket_id = $request->request->get('basket_id') ?? 0;
         $order = $this->em->getRepository(Orders::class)->findOneBy([
             'basket' => $basket_id,
@@ -672,6 +680,21 @@ class OrdersController extends AbstractController
     #[Route('/clinics/checkout/place/order', name: 'checkout_place_order')]
     public function placeOrderAction(Request $request, MailerInterface $mailer): Response
     {
+        $permissions = json_decode($request->request->get('permissions'), true);
+        $resp = $this->accessDeniedAction($permissions, 3);
+
+        if($resp != false){
+
+            $response = [
+                'flash' => '',
+                'orders' => $resp,
+                'basket_id' => '',
+                'clinic_id' => $this->getUser()->getClinic()->getId(),
+            ];
+
+            return new JsonResponse($response);
+        };
+
         $order_id = $request->request->get('order_id');
         $order_distributors = $this->em->getRepository(OrderItems::class)->findOrderDistributors($order_id);
         $order = $this->em->getRepository(Orders::class)->find($order_id);
@@ -792,7 +815,7 @@ class OrdersController extends AbstractController
             }
         }
 
-        // Close the basket
+        // Close the basket if not a saved basket
         $basket = $this->em->getRepository(Baskets::class)->find($order_items[0]->getOrders()->getBasket()->getId());
 
         $basket->setStatus('closed');
@@ -813,7 +836,7 @@ class OrdersController extends AbstractController
 
         $flash = '<b><i class="fa-solid fa-circle-check"></i></i></b> Order successfully placed.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
         $orders = $this->forward('App\Controller\OrdersController::clinicGetOrdersAction')->getContent();
-        //dd($basket_new->getId());
+
         $response = [
             'flash' => $flash,
             'orders' => json_decode($orders),
@@ -1716,7 +1739,7 @@ class OrdersController extends AbstractController
     public function clinicOrderDetailAction(Request $request): Response
     {
         $data = $request->request;
-
+        $permissions = json_decode($data->get('permissions'), true);
         $order_id = $data->get('order_id');
         $distributor_id = $data->get('distributor_id');
 
@@ -1796,6 +1819,7 @@ class OrdersController extends AbstractController
 
                     } else {
 
+                        // Status Delivered & Shipped
                         if($order_status_id == 6 || $order_status_id == 7) {
 
                             $status_string = '
@@ -1839,16 +1863,28 @@ class OrdersController extends AbstractController
                                     }
                                 }
 
-                                if($is_rejected + $is_accepted == $item_count && $is_quantity_adjust = true){
+                                // If all items are either rejected or accepted
+                                if(
+                                    $is_rejected + $is_accepted == $item_count &&
+                                    $is_quantity_adjust = true && in_array(5, $permissions)
+                                ){
 
                                     $can_close = true;
                                 }
 
+                                // Check if user has permission to change status once shipped
+                                if($status->getId() == 7 && !in_array(5, $permissions)){
+
+                                    $disabled = 'disabled';
+                                }
+
+                                // Select option is closed & order is shipped
                                 if($status->getId() == 8 && $order_status_id == 6){
 
                                     $disabled = 'disabled';
                                 }
 
+                                // Select option is closed & order is delivered
                                 if($status->getId() == 8 && $order_status_id == 7){
 
                                     $option_id = 'id="close_order" ';
@@ -3800,5 +3836,33 @@ class OrdersController extends AbstractController
             ->html($html);
 
         $this->mailer->send($email);
+    }
+
+    private function accessDeniedAction($permissions, $permission_id){
+
+        if(!in_array($permission_id, $permissions)){
+
+            $response = '
+            <div class="row mt-3 mt-md-5">
+                <div class="col-12 text-center">
+                    <i class="fa-solid fa-ban pe-2" style="font-size: 30vh; margin-bottom: 30px; color: #CCC;text-align: center"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1>Access Denied</h1>
+
+                        <p class="mt-4">
+                            Your user account does not have permission to view the requested page.
+                        </p>
+                </div>
+            </div>';
+
+            return $response;
+
+        } else {
+
+            return false;
+        }
     }
 }

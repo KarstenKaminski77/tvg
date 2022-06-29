@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Addresses;
 use App\Entity\Clinics;
+use App\Entity\ClinicUsers;
 use App\Entity\Orders;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -482,6 +483,34 @@ class AddressesController extends AbstractController
     #[Route('/clinics/get-clinic-addresses', name: 'get_clinic_addresses')]
     public function getClinicAddressesAction(Request $request): Response
     {
+        $permissions = json_decode($request->request->get('permissions'), true);
+
+        if(!in_array(12, $permissions)){
+
+            $html = '
+            <div class="row mt-3 mt-md-5">
+                <div class="col-12 text-center">
+                    <i class="fa-solid fa-ban pe-2" style="font-size: 30vh; margin-bottom: 30px; color: #CCC;text-align: center"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1>Access Denied</h1>
+
+                        <p class="mt-4">
+                            Your user account does not have permission to view the requested page.
+                        </p>
+                </div>
+            </div>';
+
+            $response = [
+                'html' => $html,
+                'pagination' => ''
+            ];
+
+            return new JsonResponse($response);
+        }
+
         $clinic = $this->getUser()->getClinic();
         $addresses = $this->em->getRepository(Addresses::class)->getAddresses($clinic->getId());
         $results = $this->page_manager->paginate($addresses[0], $request, self::ITEMS_PER_PAGE);

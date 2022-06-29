@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Clinics;
+use App\Entity\ClinicUserPermissions;
 use App\Entity\ClinicUsers;
+use App\Entity\UserPermissions;
 use App\Form\ResetPasswordRequestFormType;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,10 +35,41 @@ class ClinicUsersController extends AbstractController
     #[Route('/clinics/get-clinic-users', name: 'get-clinic-users')]
     public function getClinicUsersAction(Request $request): Response
     {
+        $permissions = json_decode($request->request->get('permissions'), true);
+
+        if(!in_array(6, $permissions)){
+
+            $html = '
+            <div class="row mt-3 mt-md-5">
+                <div class="col-12 text-center">
+                    <i class="fa-solid fa-ban pe-2" style="font-size: 30vh; margin-bottom: 30px; color: #CCC;text-align: center"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1>Access Denied</h1>
+
+                        <p class="mt-4">
+                            Your user account does not have permission to view the requested page.
+                        </p>
+                </div>
+            </div>';
+
+            $response = [
+                'html' => $html,
+                'pagination' => ''
+            ];
+
+            return new JsonResponse($response);
+        }
+
         $clinic = $this->getUser()->getClinic();
         $clinic_users = $this->em->getRepository(ClinicUsers::class)->findClinicUsers($clinic->getId());
         $results = $this->page_manager->paginate($clinic_users[0], $request, self::ITEMS_PER_PAGE);
         $pagination = $this->getPagination($request->request->get('page_id'), $results);
+        $user_permissions = $this->em->getRepository(UserPermissions::class)->findBy([
+            'isClinic' => 1
+        ]);
         
         $html = '
         <!-- Users -->
@@ -127,7 +160,7 @@ class ClinicUsersController extends AbstractController
 
             <!-- Modal Manage Users -->
             <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-dialog modal-dialog-centered modal-xl">
                     <div class="modal-content">
                         <form name="form_users" id="form_users" method="post">
                             <div class="modal-header">
@@ -241,6 +274,47 @@ class ClinicUsersController extends AbstractController
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <div class="row mb-3">';
+
+                                    if(count($user_permissions) > 0){
+
+                                        foreach($user_permissions as $permission){
+
+                                            $html .= '
+                                            <!-- User Permissions -->
+                                            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                                                <div class="btn-sm btn-outline-light border-1 border p-2 my-2">
+                                                    <input 
+                                                        class="form-check-input me-2" 
+                                                        type="checkbox" 
+                                                        value="'. $permission->getId() .'" 
+                                                        id="permission_'. $permission->getId() .'"
+                                                        data-permission-id="'. $permission->getId() .'"
+                                                        name="clinic_users_form[permission][]"
+                                                    >
+                                                    <label class="form-check-label info" for="permission_'. $permission->getId() .'">
+                                                        '. $permission->getPermission() .'
+                                                    </label>
+                                                    <span 
+                                                        class="ms-1 float-end text-primary"
+                                                        data-bs-trigger="hover"
+                                                        data-bs-container="body" 
+                                                        data-bs-toggle="popover" 
+                                                        data-bs-placement="top" 
+                                                        data-bs-html="true"
+                                                        data-bs-content="'. $permission->getInfo() .'"
+                                                        role="button"
+                                                    >
+                                                        <i class="far fa-question-circle"></i>
+                                                    </span>
+                                                </div>
+                                            </div>';
+                                        }
+                                    }
+
+                                $html .= '
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
@@ -288,6 +362,12 @@ class ClinicUsersController extends AbstractController
     public function clinicsGetUserAction(Request $request): Response
     {
         $user = $this->em->getRepository(ClinicUsers::class)->find($request->request->get('id'));
+        $permissions = [];
+
+        foreach($user->getClinicUserPermissions() as $permission){
+
+            $permissions[] = $permission->getPermission()->getId();
+        }
 
         $response = [
 
@@ -298,7 +378,8 @@ class ClinicUsersController extends AbstractController
             'telephone' => $user->getTelephone(),
             'position' => $user->getPosition(),
             'iso_code' => $user->getIsoCode(),
-            'intl_code' => $user->getIntlCode()
+            'intl_code' => $user->getIntlCode(),
+            'permissions' => $permissions,
         ];
 
         return new JsonResponse($response);
@@ -405,9 +486,10 @@ class ClinicUsersController extends AbstractController
     {
         $data = $request->request->get('clinic_users_form');
         $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
-        $user = $this->em->getRepository(ClinicUsers::class)->findBy(['email' => $data['email']]);
+        $user = $this->em->getRepository(ClinicUsers::class)->findOneBy(['email' => $data['email']]);
         $user_id = $data['user_id'];
         $page_id = $request->request->get('pageId') ?? 1;
+        $send_email = false;
 
         if($user_id == 0){
 
@@ -451,13 +533,7 @@ class ClinicUsersController extends AbstractController
                 $body .= '</tr>';
                 $body .= '</table>';
 
-                $email = (new Email())
-                    ->from($this->getParameter('app.email_from'))
-                    ->addTo($data['email'])
-                    ->subject('Fluid Login Credentials')
-                    ->html($body);
-
-                $mailer->send($email);
+                $send_email = true;
             }
 
             $message = '<b><i class="fas fa-check-circle"></i> User details successfully created.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
@@ -483,6 +559,50 @@ class ClinicUsersController extends AbstractController
 
         $this->em->persist($clinic_user);
         $this->em->flush();
+
+        // Update user permissions
+        // Remove previous entries
+        $permissions = $this->em->getRepository(ClinicUserPermissions::class)->findBy(['user' => $clinic_user->getId()]);
+
+        if($permissions > 0){
+
+            foreach($permissions as $permission){
+
+                $permission_repo = $this->em->getRepository(ClinicUserPermissions::class)->find($permission->getId());
+
+                $this->em->remove($permission_repo);
+            }
+        }
+
+        // Save new permissions
+        if(count($data['permission']) > 0){
+
+            foreach($data['permission'] as $permission){
+
+                $clinic_user_permission = new ClinicUserPermissions();
+                $user = $this->em->getRepository(ClinicUsers::class)->find($user->getId());
+                $user_permission = $this->em->getRepository(UserPermissions::class)->find($permission);
+
+                $clinic_user_permission->setClinic($clinic);
+                $clinic_user_permission->setUser($user);
+                $clinic_user_permission->setPermission($user_permission);
+
+                $this->em->persist($clinic_user_permission);
+            }
+
+            $this->em->flush();
+        }
+
+        if($send_email){
+
+            $email = (new Email())
+                ->from($this->getParameter('app.email_from'))
+                ->addTo($data['email'])
+                ->subject('Fluid Login Credentials')
+                ->html($body);
+
+            //$mailer->send($email);
+        }
 
         $response = [
 

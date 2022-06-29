@@ -231,11 +231,11 @@
                                 <i class="fa-solid fa-user pe-2 fa-width"></i>
                                 {{ user.firstName ~' '~ user.lastName }}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" style="min-width: 250px">
                                 <li class="pt-0 pb-1 pb-md-0">
                                     <a href="#" class="dropdown-item dashboard_link" data-clinic-id="{{ clinic_id }}" id="dashboard_link">
                                         <i class="fa-solid fa-chart-pie pe-2 fa-width"></i>
-                                        Dasboard
+                                        Analytics
                                     </a>
                                 </li>
                                 <li class="pt-1 pb-1 pt-md-0 pb-md-0">
@@ -244,29 +244,73 @@
                                         Orders
                                     </a>
                                 </li>
+                                {% if 10 in permissions %}
+                                    {% set opening_tag = 'a href="#"' %}
+                                    {% set closing_tag = 'a' %}
+                                    {% set class = 'dropdown-item' %}
+                                    {% set id = 'account_settings_link' %}
+                                {% else %}
+                                    {% set opening_tag = 'span' %}
+                                    {% set closing_tag = 'span' %}
+                                    {% set class = 'text-disabled dropdown-item-disabled' %}
+                                    {% set id = '' %}
+                                {% endif %}
                                 <li class="pt-1 pb-1 pt-md-0 pb-md-0">
-                                    <a href="#" class="dropdown-item" id="account_settings_link">
+                                    <{{ opening_tag }} href="#" class="{{ class }}" id="{{ id }}">
                                         <i class="fa-solid fa-screwdriver-wrench pe-2 fa-width"></i>
                                         Account & Settings
-                                    </a>
+                                    </{{ closing_tag }}>
                                 </li>
+                                {% if 11 in permissions %}
+                                    {% set opening_tag = 'a href="#"' %}
+                                    {% set closing_tag = 'a' %}
+                                    {% set class = 'dropdown-item' %}
+                                    {% set id = 'users_link' %}
+                                {% else %}
+                                    {% set opening_tag = 'span' %}
+                                    {% set closing_tag = 'span' %}
+                                    {% set class = 'text-disabled dropdown-item-disabled' %}
+                                    {% set id = '' %}
+                                {% endif %}
                                 <li class="pt-1 pb-1 pt-md-0 pb-md-0">
-                                    <a href="#" class="dropdown-item" id="users_link">
+                                    <{{ opening_tag }} href="#" class="dropdown-item {{ class }}" id="{{ id }}">
                                         <i class="fa-solid fa-user-gear pe-2 fa-width"></i>
                                         Users
-                                    </a>
+                                    </{{ closing_tag }}>
                                 </li>
+                                {% if 12 in permissions %}
+                                    {% set opening_tag = 'a href="#"' %}
+                                    {% set closing_tag = 'a' %}
+                                    {% set class = 'dropdown-item' %}
+                                    {% set id = 'addresses_link' %}
+                                {% else %}
+                                    {% set opening_tag = 'span' %}
+                                    {% set closing_tag = 'span' %}
+                                    {% set class = 'text-disabled dropdown-item-disabled' %}
+                                    {% set id = '' %}
+                                {% endif %}
                                 <li class="pt-1 pb-1 pt-md-0 pb-md-0">
-                                    <a href="#" class="dropdown-item" id="addresses_link">
+                                    <{{ opening_tag }} href="#" class="{{ class }}" id="{{ id }}">
                                         <i class="fa-solid fa-address-book pe-2 fa-width"></i>
                                         Addresses
-                                    </a>
+                                    </{{ closing_tag }}>
                                 </li>
+                                {% if 13 in permissions %}
+                                    {% set opening_tag = 'a href="#"' %}
+                                    {% set closing_tag = 'a' %}
+                                    {% set class = 'dropdown-item' %}
+                                    {% set id = 'communication_methods_link' %}
+                                {% else %}
+                                    {% set opening_tag = 'span' %}
+                                    {% set closing_tag = 'span' %}
+                                    {% set class = 'text-disabled dropdown-item-disabled' %}
+                                    {% set id = '' %}
+                                {% endif %}
                                 <li class="pt-1 pb-1 pt-md-0 pb-md-0">
-                                    <a href="#" class="dropdown-item" id="communication_methods_link">
+                                    <{{ opening_tag }} href="#" class="{{ class }}" id="{{ id }}">
                                         <i class="fa-solid fa-microphone pe-2 fa-width"></i>
                                         Communication Methods
-                                    </a>
+                                    </{{ closing_tag }}>
                                 </li>
                                 <li class="pt-1 pb-1 pt-md-0 pb-md-0">
                                     <a href="{{ path('clinics_logout') }}" class="dropdown-item">

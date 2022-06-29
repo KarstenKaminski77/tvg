@@ -239,6 +239,34 @@ class CommunicationMethodsController extends AbstractController
     #[Route('/clinics/get-communication_methods', name: 'get_communication_methods')]
     public function getCommunicationMethodsAction(Request $request): Response
     {
+        $permissions = json_decode($request->request->get('permissions'), true);
+
+        if(!in_array(13, $permissions)){
+
+            $html = '
+            <div class="row mt-3 mt-md-5">
+                <div class="col-12 text-center">
+                    <i class="fa-solid fa-ban pe-2" style="font-size: 30vh; margin-bottom: 30px; color: #CCC;text-align: center"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1>Access Denied</h1>
+
+                        <p class="mt-4">
+                            Your user account does not have permission to view the requested page.
+                        </p>
+                </div>
+            </div>';
+
+            $response = [
+                'html' => $html,
+                'pagination' => ''
+            ];
+
+            return new JsonResponse($response);
+        }
+
         $page_id = $request->request->get('page_id') ?? 1;
         $methods = $this->em->getRepository(ClinicCommunicationMethods::class)->findByClinic($this->getUser()->getClinic()->getId());
         $results = $this->page_manager->paginate($methods[0], $request, self::ITEMS_PER_PAGE);

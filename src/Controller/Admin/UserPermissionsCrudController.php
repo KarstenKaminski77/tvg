@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\UserPermissions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -15,6 +17,11 @@ class UserPermissionsCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return UserPermissions::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)->remove(Crud::PAGE_INDEX, Action::DELETE);
     }
 
     public function configureCrud(Crud $crud): Crud

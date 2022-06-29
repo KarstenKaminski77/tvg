@@ -63,6 +63,13 @@ class ProductsController extends AbstractController
         $clinic_order_list = false;
         $charts = $this->forward('App\Controller\ChartsController::getChartsAction')->getContent();
 
+        $permissions = [];
+
+        foreach($user->getClinicUserPermissions() as $permission){
+
+            $permissions[] = $permission->getPermission()->getId();
+        }
+
         if(substr($request->getPathInfo(),0,16) == '/clinics/orders/'){
 
             $clinic_order_list = true;
@@ -90,7 +97,8 @@ class ProductsController extends AbstractController
             'clinic_order_details' => $clinic_order_details,
             'clinic_order_list' => $clinic_order_list,
             'clinic_id' => $clinic->getId(),
-            'charts' => $charts
+            'charts' => $charts,
+            'permissions' => $permissions,
         ]);
     }
 
@@ -167,6 +175,20 @@ class ProductsController extends AbstractController
             }
 
             $results = $this->page_manager->paginate($products[0], $request, self::ITEMS_PER_PAGE);
+
+            // Permissions
+            $permissions = [];
+            $basket_permission = true;
+
+            foreach($user->getClinicUserPermissions() as $permission){
+
+                $permissions[] = $permission->getPermission()->getId();
+            }
+
+            if(!in_array(1, $permissions)){
+
+                $basket_permission = false;
+            }
 
             foreach($results as $product){
 
@@ -389,6 +411,11 @@ class ProductsController extends AbstractController
                         $btn_disabled = 'btn-secondary disabled';
                     }
 
+                    if(!$basket_permission){
+
+                        $disabled = 'disabled';
+                    }
+
                     $html .= '
                     <a href=""
                        class="basket_link"
@@ -480,14 +507,38 @@ class ProductsController extends AbstractController
                                                         <div class="hidden_msg" id="error_stock_' . $product_id . '_' . $distributor_id . '">
                                                         </div>
                                                     </div>
-                                                    <div class="col-6">
-                                                        <button 
-                                                            type="submit" 
-                                                            class="btn btn-primary w-100 text-truncate '. $btn_disabled .'"
-                                                            '. $disabled .'
-                                                        >
-                                                            ADD TO BASKET
-                                                        </button>
+                                                    <div class="col-6">';
+
+                                                        $popover = '';
+
+                                                        if(!in_array(1, $permissions)){
+
+                                                            $html .= '
+                                                            <span 
+                                                                class="btn btn-disabled w-100 text-truncate"
+                                                                data-bs-trigger="hover" 
+                                                                data-bs-container="body" 
+                                                                data-bs-toggle="popover" 
+                                                                data-bs-placement="top" 
+                                                                data-bs-html="true" 
+                                                                data-bs-content="Authorization Denied."
+                                                            >
+                                                                ADD TO BASKET
+                                                            </span>';
+
+                                                        } else {
+
+                                                            $html .= '
+                                                            <button 
+                                                                type="submit" 
+                                                                class="btn btn-primary w-100 text-truncate '. $btn_disabled .'"
+                                                                '. $disabled .'
+                                                            >
+                                                                ADD TO BASKET
+                                                            </button>';
+                                                        }
+
+                                                    $html .= '
                                                     </div>
                                                 </div>
                                             </div>
@@ -1006,4 +1057,44 @@ class ProductsController extends AbstractController
 
         return new JsonResponse($response);
     }
+
+    #[Route('clinics/access-denied', name: 'clinics_access_denied')]
+    public function accessDeniedAction(): Response
+    {
+        $clinic = $this->getUser()->getClinic();
+        $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
+        $distributors = $this->em->getRepository(Distributors::class)->findAll();
+        $manufacturers = $this->em->getRepository(Manufacturers::class)->findBy([], ['name' => 'ASC']);
+        $categories = $this->em->getRepository(Categories::class)->findAll();
+        $basket = $this->em->getRepository(Baskets::class)->findOneBy([
+            'clinic' => $clinic->getId(),
+            'name' => 'Fluid Commerce',
+            'status' => 'active'
+        ]);
+
+        $count_1 = (int) ceil(count($manufacturers) / 2);
+        $count_2 = (int) floor(count($manufacturers) / 2);
+
+        $man_first = array_slice($manufacturers, 0, $count_1);
+        $man_second = array_slice($manufacturers, $count_1, $count_2);
+
+        $permissions = [];
+
+        foreach($user->getClinicUserPermissions() as $permission){
+
+            $permissions[] = $permission->getPermission()->getId();
+        }
+
+        return $this->render('bundles/TwigBundle/Exception/access_denied_clinics.html.twig',[
+            'user' => $user,
+            'categories' => $categories,
+            'distributors' => $distributors,
+            'man_1' => $man_first,
+            'man_2' => $man_second,
+            'basket_id' => $basket->getId(),
+            'clinic_id' => $clinic->getId(),
+            'permissions' => $permissions,
+        ]);
+    }
+
 }

@@ -265,6 +265,30 @@ class ClinicsController extends AbstractController
     #[Route('/clinics/get-company-information', name: 'get_company_information')]
     public function clinicsGetCompanyInformationAction(Request $request): Response
     {
+        // Permissions
+        $permissions = json_decode($request->get('permissions'), true);
+
+        if(!in_array(10, $permissions)){
+
+            $response = '
+            <div class="row mt-3 mt-md-5">
+                <div class="col-12 text-center">
+                    <i class="fa-solid fa-ban pe-2" style="font-size: 30vh; margin-bottom: 30px; color: #CCC;text-align: center"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1>Access Denied</h1>
+
+                        <p class="mt-4">
+                            Your user account does not have permission to view the requested page.
+                        </p>
+                </div>
+            </div>';
+
+            return new JsonResponse($response);
+        }
+
         $clinic = $this->getUser()->getClinic();
 
         $response = '

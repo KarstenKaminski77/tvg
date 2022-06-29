@@ -858,10 +858,8 @@ class BasketController extends AbstractController
     #[Route('/clinics/get/basket', name: 'get_basket')]
     public function getBasketAction(Request $request): Response
     {
-        $user = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
         $clinic_id = $this->getUser()->getClinic()->getId();
         $basket_id = $request->request->get('basket_id') ?? $request->get('basket_id');
-        //dd($request->request->get('basket_id'), $request->get('basket_id'));
         $basket = $this->em->getRepository(Baskets::class)->find($basket_id);
         $baskets = $this->em->getRepository(Baskets::class)->findActiveBaskets($clinic_id);
         $clinic_totals = $this->em->getRepository(Baskets::class)->getClinicTotalItems($clinic_id);
@@ -871,6 +869,18 @@ class BasketController extends AbstractController
 
         $total_clinic = number_format($clinic_totals[0]['total'] ?? 0,2);
         $count_clinic = $clinic_totals[0]['item_count'] ?? 0;
+
+        // Permissions
+        $permissions = json_decode($request->request->get('permissions'), true);
+
+        $basket_permission = true;
+        $disabled = '';
+
+        if(!in_array(1, $permissions)){
+
+            $disabled = 'disabled';
+            $basket_permission = false;
+        }
 
         $response = '
         <div class="row">
@@ -925,20 +935,33 @@ class BasketController extends AbstractController
             </div>';
         }
 
+        if($basket_permission){
+
+            $opening_tag = 'a href="#" class="saved_baskets_link"';
+            $closing_tag = 'a';
+            $text_disabled = '';
+
+        } else {
+
+            $opening_tag = 'span class="text-disabled"';
+            $closing_tag = 'span';
+            $text_disabled = 'text-disabled';
+        }
+
         $response .= '
             <div class="row border-bottom">
                 <div class="col-12 h-100">
-                    <a href="#" class="saved_baskets_link" data-basket-id="'. $basket_id .'">
+                    <'. $opening_tag .' href="#" class="saved_baskets_link" data-basket-id="'. $basket_id .'">
                         <div class="row align-items-center">
-                            <div class="d-block d-md-none d-lg-block col-4 pt-3 pb-3 saved-baskets text-truncate">
+                            <div class="d-block d-md-none d-lg-block col-4 pt-3 pb-3 saved-baskets text-truncate '. $text_disabled .'">
                                 <i class="fa-solid fa-basket-shopping"></i>
                             </div>
                             <div class="col-8 pt-3 pb-3 text-truncate">
-                                <h6 class="text-primary text-truncate">Saved Baskets</h6>
-                                <span class="info">View baskets</span>
+                                <h6 class="text-primary text-truncate '. $text_disabled .'">Saved Baskets</h6>
+                                <span class="info '. $text_disabled .'">View baskets</span>
                             </div>
                         </div>
-                    </a>
+                    </'. $closing_tag .'>
                 </div>
             </div>
         </div>
@@ -956,16 +979,56 @@ class BasketController extends AbstractController
             </div>
             <!-- Basket Actions Upper Row -->
             <div class="row" id="basket_action_row_1">
-                <div class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3">
-                    <a href="#" class="refresh-basket" data-basket-id="'. $basket_id .'">
-                        <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Refresh Basket</span>
-                    </a>
+                <div class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3">';
+
+                    if($basket_permission){
+
+                        $response .= '
+                        <a href="#" class="refresh-basket" data-basket-id="'. $basket_id .'">
+                            <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">
+                                Refresh Basket
+                            </span>
+                        </a>';
+
+                    } else {
+
+                        $response .= '
+                        <span class="text-disabled">
+                            <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">
+                                Refresh Basket
+                            </span>
+                        </span>';
+                    }
+
+                    $response .= '
                     <a href="#" id="print_basket">
                         <i class="fa-solid fa-print me-5 me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Print</span>
-                    </a>
-                    <a href="#" class="saved_baskets_link" data-basket-id="'. $basket_id .'">
-                        <i class="fa-solid fa-basket-shopping me-5  me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Saved Baskets</span>
-                    </a>
+                    </a>';
+
+                    if($basket_permission){
+
+                        $response .= '
+                        <a href="#" class="saved_baskets_link" data-basket-id="'. $basket_id .'">
+                            <i class="fa-solid fa-basket-shopping me-5  me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">
+                                Saved Baskets
+                            </span>
+                        </a>';
+
+                    } else {
+
+                        $response .= '
+                        <span class="saved_baskets_link text-disabled">
+                            <i class="fa-solid fa-basket-shopping me-5  me-md-2 text-disabled"></i>
+                            <span class=" d-none d-md-inline-block pe-4 text-disabled">
+                                Saved Baskets
+                            </span>
+                        </span>';
+                    }
+
+                    $response .= '
                     <a href="#" id="return_to_search">
                         <i class="fa-solid fa-magnifying-glass me-0 me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Back To Search</span>
                     </a>
@@ -977,23 +1040,66 @@ class BasketController extends AbstractController
             $response .= '
             <!-- Basket Actions Lower Row -->
             <div class="row" id="basket_action_row_2">
-                <div class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3">
-                    <a href="#" class="save-all-items" data-basket-id="' . $basket_id . '">
-                        <i class="fa-regular fa-bookmark me-5 me-md-2"></i>
-                        <span class=" d-none d-md-inline-block pe-4">Save All For Later</span>
-                    </a>
-                    <a href="#" class="clear-basket" data-basket-id="' . $basket_id . '">
-                        <i class="fa-solid fa-trash-can me-5 me-md-2"></i>
-                        <span class=" d-none d-md-inline-block pe-4">Clear Basket</span>
-                    </a>
+                <div class="col-12 d-flex justify-content-center border-bottom pt-3 pb-3">';
+
+                    if($basket_permission){
+
+                        $response .= '
+                        <a href="#" class="save-all-items" data-basket-id="' . $basket_id . '">
+                            <i class="fa-regular fa-bookmark me-5 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">Save All For Later</span>
+                        </a>';
+
+                    } else {
+
+                        $response .= '
+                        <span class="save-all-items text-disabled">
+                            <i class="fa-regular fa-bookmark me-5 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">Save All For Later</span>
+                        </span>';
+                    }
+
+                    if($basket_permission){
+
+                        $response .= '
+                        <a href="#" class="clear-basket" data-basket-id="' . $basket_id . '">
+                            <i class="fa-solid fa-trash-can me-5 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">Clear Basket</span>
+                        </a>';
+
+                    } else {
+
+                        $response .= '
+                        <span class="clear-basket text-disabled">
+                            <i class="fa-solid fa-trash-can me-5 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-4">Clear Basket</span>
+                        </span>';
+                    }
+
+                    $response .= '
                     <a href="#" class="refresh-basket" data-basket-id="'. $basket_id .'">
                         <i class="fa-solid fa-arrow-rotate-right me-5 me-md-2"></i>
                         <span class=" d-none d-md-inline-block pe-4">Refresh Basket</span>
-                    </a>
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#modal_save_basket">
-                        <i class="fa-solid fa-basket-shopping me-0 me-md-2"></i>
-                        <span class=" d-none d-md-inline-block pe-0">Save Basket</span>
-                    </a>
+                    </a>';
+
+                    if($basket_permission){
+
+                        $response .= '
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modal_save_basket">
+                            <i class="fa-solid fa-basket-shopping me-0 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-0">Save Basket</span>
+                        </a>';
+
+                    } else {
+
+                        $response .= '
+                        <span class="text-disabled">
+                            <i class="fa-solid fa-basket-shopping me-0 me-md-2"></i>
+                            <span class=" d-none d-md-inline-block pe-0">Save Basket</span>
+                        </span>';
+                    }
+
+                $response .= '
                 </div>
             </div>';
         }
@@ -1008,9 +1114,9 @@ class BasketController extends AbstractController
         }
 
         $response .= '
-                <!-- Basket Items -->
-                <div class="row col-container d-flex border-0 m-0">
-                    <div class="col-12 col-lg-'. $col .' col-cell px-0 pe-sm-2 border-right-0" id="basket_inner">';
+        <!-- Basket Items -->
+        <div class="row col-container d-flex border-0 m-0">
+            <div class="col-12 col-lg-'. $col .' col-cell px-0 pe-sm-2 border-right-0" id="basket_inner">';
 
         $i = -1;
         $checkout_disabled = '';
@@ -1029,10 +1135,10 @@ class BasketController extends AbstractController
                     'distributor' => $item->getDistributor()->getId(),
                 ]);
 
+                // If in stock
                 if($distributor_product->getStockCount() > 0){
 
                     $stock_badge = '<span class="badge bg-success me-0 me-sm-2 badge-success-filled-sm">In Stock</span>';
-                    $disabled = '';
 
                 } else {
 
@@ -1109,16 +1215,56 @@ class BasketController extends AbstractController
                                 <!-- In Stock -->
                                 '. $stock_badge .'
                                 <!-- Shipping Policy -->
-                                <span class="badge bg-dark-grey badge-pending-filled-sm" class="btn btn-secondary" data-bs-trigger="hover"
-                                      data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-html="true"
-                                      data-bs-content="'. $shipping_policy .'">Shipping Policy</span>
-                                <!-- Remove Item -->
-                                <span class="badge bg-danger float-end badge-danger-filled-sm">
-                                    <a href="#" class="remove-item text-white" data-item-id="' . $item->getId() . '">Remove</a>
+                                <span 
+                                    class="badge bg-dark-grey badge-pending-filled-sm" class="btn btn-secondary" data-bs-trigger="hover"
+                                    data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-html="true"
+                                    data-bs-content="'. $shipping_policy .'"
+                                >
+                                    Shipping Policy
                                 </span>
-                                <!-- Save Item -->
-                                <span class="badge badge-light badge-light-sm float-end me-0 me-sm-2">
-                                    <a href="#" class="link-secondary save-item" data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" data-distributor-id="'. $item->getDistributor()->getId() .'" data-item-id="' . $item->getId() . '">Save Item For later</a>
+                                ';
+
+                                    if($basket_permission) {
+
+                                        $response .= '
+                                        <!-- Remove Item -->
+                                        <span class="badge bg-danger float-end badge-danger-filled-sm">
+                                            <a href="#" class="remove-item text-white" data-item-id="' . $item->getId() . '">Remove</a>
+                                        </span>
+                                        
+                                        <!-- Save Item -->
+                                        <span class="badge badge-light badge-light-sm float-end me-0 me-sm-2">
+                                            <a 
+                                                href="#" 
+                                                class="link-secondary save-item" 
+                                                data-basket-id="' . $basket_id . '" 
+                                                data-product-id="' . $product->getId() . '" 
+                                                data-distributor-id="' . $item->getDistributor()->getId() . '" 
+                                                data-item-id="' . $item->getId() . '"
+                                            >
+                                                Save Item For later
+                                            </a>
+                                        </span>';
+
+                                    } else {
+
+                                        $response .= '
+                                        <!-- Remove Item -->
+                                        <span class="badge badge-light badge-light-sm float-end bg-disabled">
+                                            <span class="remove-item">Remove</span>
+                                        </span>
+                                        
+                                        <!-- Save Item -->
+                                        <span class="badge badge-light badge-light-sm float-end me-0 me-sm-2 bg-disabled">
+                                            <span 
+                                                class="link-secondary save-item"
+                                            >
+                                                Save Item For later
+                                            </span>
+                                        </span>';
+                                    }
+
+                                $response .= '
                                 </span>
                             </div>
                         </div>
@@ -1128,14 +1274,14 @@ class BasketController extends AbstractController
         } else {
 
             $response .= '
-                    <div class="row">
-                        <div class="col-12 text-center pt-4">
-                            <p>
-                            <h5>Your basket at Fluid Commerce is currently empty </h5><br>
-                            Were you expecting to see items here? View copies of the items most recently added<br> 
-                            to your basket and restore a basket if needed.
-                            </p>
-                        </div>
+            <div class="row">
+                <div class="col-12 text-center pt-4">
+                    <p>
+                    <h5>Your basket at Fluid Commerce is currently empty </h5><br>
+                    Were you expecting to see items here? View copies of the items most recently added<br> 
+                    to your basket and restore a basket if needed.
+                    </p>
+                </div>
                     </div>';
         }
 
@@ -1172,16 +1318,32 @@ class BasketController extends AbstractController
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-12 pt-4 text-center ps-0 ps-sm-2">
-                        <a 
-                            href="" 
-                            class="btn btn-primary w-100 '. $checkout_btn_disabled .'" 
-                            id="btn_checkout"
-                            data-basket-id="'. $basket_id .'"
-                            '. $checkout_disabled .'
-                        >
-                            PROCEED TO CHECKOUT <i class="fa-solid fa-circle-right ps-2"></i>
-                        </a>
+                    <div class="col-12 pt-4 text-center ps-0 ps-sm-2">';
+
+                        if(in_array(3, $permissions)){
+
+                            $response .= '
+                            <a 
+                                href="" 
+                                class="btn btn-primary w-100 '. $checkout_btn_disabled .'" 
+                                id="btn_checkout"
+                                data-basket-id="'. $basket_id .'"
+                                '. $checkout_disabled .'
+                            >
+                                PROCEED TO CHECKOUT <i class="fa-solid fa-circle-right ps-2"></i>
+                            </a>';
+
+                        } else {
+
+                            $response .= '
+                            <span 
+                                class="btn btn-primary w-100 btn-disabled cursor-disabled" 
+                            >
+                                PROCEED TO CHECKOUT <i class="fa-solid fa-circle-right ps-2"></i>
+                            </span>';
+                        }
+
+                        $response .= '
                         '. $checkout_error .'
                     </div>
                 </div>
@@ -1210,13 +1372,33 @@ class BasketController extends AbstractController
             <div class="row" id="saved_items_container">
                 <div class="col-12 border-bottom border-top pt-3 pb-3 position-relative">
                     <div class="row">
-                        <div class="col-12">
-                            <a href="" class="btn btn-primary btn-sm w-sm-100 float-end restore-all" id="restore_all" data-basket-id="'. $basket_id .'">
+                        <div class="col-12">';
+
+                        if($basket_permission){
+
+                            $response .= '
+                            <a 
+                                href="" 
+                                class="btn btn-primary btn-sm w-sm-100 float-end restore-all" 
+                                id="restore_all" 
+                                data-basket-id="'. $basket_id .'"
+                            >
                                 Move All To Basket
-                            </a>
+                            </a>';
+
+                        } else {
+
+                            $response .= '
+                            <button 
+                                class="btn btn-primary btn-sm w-sm-100 float-end btn-disabled bg-disabled"
+                            >
+                                Move All To Basket
+                            </button>';
+                        }
+
+                        $response .= '
                         </div>
-                    </div>              
-                ';
+                    </div>';
 
             foreach($saved_items as $item){
 
@@ -1235,31 +1417,55 @@ class BasketController extends AbstractController
                                 <h6 class="fw-bold text-center text-sm-start text-primary lh-base mb-0">
                                     ' . $product->getName() . ': ' . $product->getDosage() . ' ' . $product->getUnit() . ', Each
                                 </h6>
-                                Saved on '. $item->getModified()->format('M jS Y') .' by '. $item->getSavedBy() .'<br>
-                                <span class="badge badge-light me-2 mt-2 badge-light-sm">
-                                    <a 
-                                        href="#" 
-                                        class="link-secondary restore-item" 
-                                        data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" 
-                                        data-distributor-id="'. $item->getDistributor()->getId() .'" 
-                                        data-item-id="'. $item->getId() .'"
-                                    >
-                                        Move To Basket
-                                    </a>
-                                </span>
-                                <span class="badge bg-danger mt-2 badge-danger-filled-sm">
-                                    <a 
-                                        href="#" class="text-white remove-saved-item" 
-                                        data-basket-id="" 
-                                        data-item-id="'. $item->getId() .'"
-                                    >
+                                Saved on '. $item->getModified()->format('M jS Y') .' by '. $item->getSavedBy() .'<br>';
+
+                                if($basket_permission){
+
+                                    $response .= '
+                                    <span class="badge badge-light me-2 mt-2 badge-light-sm">
+                                        <a 
+                                            href="#" 
+                                            class="link-secondary restore-item" 
+                                            data-basket-id="'. $basket_id .'" data-product-id="'. $product->getId() .'" 
+                                            data-distributor-id="'. $item->getDistributor()->getId() .'" 
+                                            data-item-id="'. $item->getId() .'"
+                                        >
+                                            Move To Basket
+                                        </a>
+                                    </span>
+                                    
+                                    <span class="badge bg-danger mt-2 badge-danger-filled-sm">
+                                        <a 
+                                            href="#" class="text-white remove-saved-item" 
+                                            data-basket-id="" 
+                                            data-item-id="'. $item->getId() .'"
+                                        >
+                                            Remove
+                                        </a>
+                                    </span>';
+
+                                } else {
+
+                                    $response .= '
+                                    <span class="badge badge-light me-2 mt-2 badge-light-sm bg-disabled">
+                                        <span 
+                                            href="#" 
+                                            class="link-secondary"
+                                        >
+                                            Move To Basket
+                                        </span>
+                                    </span>
+                                    
+                                    <span class="badge badge-light me-2 mt-2 badge-light-sm bg-disabled">
                                         Remove
-                                    </a>
-                                </span>
+                                    </span>';
+                                }
+
+                                $response .= '
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>';
+                    </div>';
             }
         }
 

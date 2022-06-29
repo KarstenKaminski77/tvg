@@ -259,11 +259,11 @@
                     beforeSend: function (){
                         isLoading(true);
                     },
-                    complete: function(e, xhr, settings){
-                        if(e.status === 500){
-                            window.location.href = '{{ path('clinic_error_500') }}';
-                        }
-                    },
+                    {#complete: function(e, xhr, settings){#}
+                    {#    if(e.status === 500){#}
+                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
+                    {#    }#}
+                    {#},#}
                     success: function (response) {
                         $('#inventory').empty().append(response.html).show();
                         $('.container').removeClass('mt-5').addClass('mt-5');
@@ -286,7 +286,11 @@
                         }
                         isLoading(false);
                         $.session.set('search_key', keyword);
-                        popOver();
+
+                        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+                        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                            return new bootstrap.Popover(popoverTriggerEl);
+                        });
                     }
                 });
             }
@@ -341,17 +345,25 @@
                 $('#inventory').show();
                 $('#inventory_container').show();
             });
-            $(document).on('change',$('input:checkbox:checked'),function (){
+            $(document).on('change',$('#search_form input:checkbox:checked'),function (){
 
-                let checked = $('input:checkbox:checked').length;
+                let total_selected = 0;
 
-                if(checked == 0){
+                $('#search_form input[type=checkbox]').each(function () {
+
+                    if(this.checked == true){
+
+                        total_selected += 1;
+                    }
+                });
+
+                if(total_selected == 0){
 
                     $('#filter_count').empty().removeClass('ms-1');
 
                 } else {
 
-                    $('#filter_count').empty().append('('+ checked +')').addClass('ms-1');
+                    $('#filter_count').empty().append('('+ total_selected +')').addClass('ms-1');
                 }
             });
             function getBackButton(){
@@ -442,7 +454,8 @@
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        basket_id: basket_id
+                        basket_id: basket_id,
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     beforeSend: function (){
 
@@ -1045,6 +1058,7 @@
                     dataType: 'json',
                     data: {
                         basket_id: $(this).data('basket-id'),
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     beforeSend: function (){
                         isLoading(true);
@@ -1171,7 +1185,8 @@
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        order_id: order_id
+                        order_id: order_id,
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     beforeSend: function () {
 
@@ -1324,7 +1339,8 @@
                     type: 'POST',
                     data: {
                         order_id: order_id,
-                        distributor_id: distributor_id
+                        distributor_id: distributor_id,
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     dataType: 'json',
                     complete: function(e, xhr, settings){
@@ -3177,6 +3193,9 @@
                     cache: false,
                     timeout: 600000,
                     dataType: 'json',
+                    data: {
+                        permissions: '{{ permissions|json_encode }}'
+                    },
                     beforeSend: function (){
 
                         isLoading(true)
@@ -3317,7 +3336,8 @@
                     timeout: 600000,
                     dataType: 'json',
                     data:{
-                      page_id:page_id
+                        page_id:page_id,
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     beforeSend: function (){
 
@@ -3338,6 +3358,7 @@
                         clearInterval(get_messages);
                         isLoading(false);
                         window.history.pushState(null, "Fluid", '/clinics/users');
+                        popOver();
                     }
                 });
             }
@@ -3379,6 +3400,13 @@
                         $('#user_mobile').val(response.telephone);
                         $('#user_position').val(response.position);
                         $('#user_page_id').remove();
+                        $('#form_users input[type="checkbox"]').attr('checked', false);
+
+                        for(i = 0; i < response.permissions.length; i++){
+
+                            $('#permission_'+ response.permissions[i]).attr('checked', true);
+                        };
+
                         $("<input />")
                             .attr("type", "hidden")
                             .attr("name", "pageId")
@@ -3443,6 +3471,19 @@
                 $('#user_email').val('');
                 $('#user_telephone').val('');
                 $('#user_position').val('');
+                $('#form_users input[type="checkbox"]').attr('checked', false);
+
+                let input = document.querySelector("#user_mobile");
+
+                iti = window.intlTelInput(input, {
+                    preferredCountries: ['ae','qa', 'bh', 'om', 'sa'],
+                    initialCountry: 'za',
+                    autoPlaceholder: "polite",
+                    nationalMode: true,
+                    utilsScript: "{{ asset('js/utils.min.js') }}", // just for formatting/placeholders etc
+                    separateDialCode: true,
+                    utilsScript: "/js/utils.js",
+                });
             });
             $(document).on('submit','#form_users',function(e){
 
@@ -3613,7 +3654,8 @@
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        page_id: page_id
+                        page_id: page_id,
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     beforeSend: function (){
 
@@ -4306,7 +4348,8 @@
                     type: 'POST',
                     dataType: 'json',
                     data:{
-                        page_id: page_id
+                        page_id: page_id,
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     beforeSend: function (){
 

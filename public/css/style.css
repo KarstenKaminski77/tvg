@@ -994,11 +994,12 @@ a.page-link {
     animation-delay: .5s;
 }
 
-.status-dropdown {
+.status-dropdown, .status-dropdown:focus-visible {
     width: 85px;
-    border: none;
+    border: none !important;
     background: #fff;
     color: #54565a;
+    outline: none !important;
 }
 
 .start {
@@ -1599,6 +1600,34 @@ a.distributor-logo-container {
 
 .modal {
     z-index: 9999;
+}
+
+.popover {
+    z-index: 99999999 !important;
+    box-shadow: 1px 1px 5px 1px rgb(0 0 0 / 20%);
+}
+
+.btn-disabled, .btn-disabled:hover {
+    color: #fff;
+    background-color: #ccc !important;
+    border-color: #ccc !important;
+}
+
+.bg-disabled {
+    background: #e9ecef !important;
+    color: #565e64 !important;
+}
+
+.text-disabled {
+    color: #ccc !important;
+}
+
+.dropdown-item-disabled {
+    padding: 0.25rem 1rem;
+}
+
+.cursor-disabled {
+    cursor: text;
 }
 
 @media (min-width: 576px) {
