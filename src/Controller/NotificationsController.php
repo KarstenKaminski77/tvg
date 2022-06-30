@@ -129,7 +129,7 @@ class NotificationsController extends AbstractController
                 </span>
             </li>';
         }
-        dump($i);
+
         $response = [
             'alert' => $alerts,
             'count' => $i

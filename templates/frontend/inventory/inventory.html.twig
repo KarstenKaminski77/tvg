@@ -90,7 +90,7 @@
             let is_addresses = uri.match('/clinics/addresses');
             let is_communication_method = uri.match('/clinics/communication-methods');
             let is_list = uri.match('/clinics/inventory/list/[0-9]+');
-            let is_dashboard = uri.match('/clinics/dashboard');
+            let is_analytics = uri.match('/clinics/analytics');
             let orderid = '{{app.request.get('order_id')}}';
             let distributorid = '{{app.request.get('distributor_id')}}';
             let iti = '';
@@ -114,10 +114,10 @@
             }
 
             {# Get correct content on refresh #}
-            {# Dashboard #}
-            if(is_dashboard != null) {
+            {# Analytics #}
+            if(is_analytics != null) {
 
-                getDashboard();
+                getAnalytics();
             }
 
             {# Account & Settings #}
@@ -1343,11 +1343,11 @@
                         permissions: '{{ permissions|json_encode }}'
                     },
                     dataType: 'json',
-                    complete: function(e, xhr, settings){
-                        if(e.status === 500){
-                            window.location.href = '{{ path('clinic_error_500') }}';
-                        }
-                    },
+                    {#complete: function(e, xhr, settings){#}
+                    {#    if(e.status === 500){#}
+                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
+                    {#    }#}
+                    {#},#}
                     success: function (response) {
 
                         $('#basket_container').empty().append(response);
@@ -3161,8 +3161,8 @@
                 }
             });
 
-            {# Dashboard #}
-            function getDashboard(){
+            {# Analytics #}
+            function getAnalytics(){
 
                 $('#back_btn').remove();
                 $('#inventory_container').hide();
@@ -3170,16 +3170,16 @@
                 isLoading(true);
                 $("#basket_container").load('{{ path('get_clinic_charts') }}');
                 isLoading(false);
-                window.history.pushState(null, "Fluid", '/clinics/dashboard');
+                window.history.pushState(null, "Fluid", '/clinics/analytics');
             }
-            $('#dashboard_link').click(function (e) {
+            $('#analytics_link').click(function (e) {
 
                 e.preventDefault();
-                getDashboard();
+                getAnalytics();
                 hidePaginator();
 
             });
-            {# Ebd Dashboard #}
+            {# Ebd Analytics #}
 
             {# Account & Settings #}
             function getAccountSettings(){

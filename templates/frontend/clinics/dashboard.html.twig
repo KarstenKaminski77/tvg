@@ -7,6 +7,7 @@
         margin:0 !important;
     }
 </style>
+{% if access_granted == true %}
 <div class="row">
     <div class="col-12 col-sm-6 col-md-4">
         <div id="pie_chart" class="chart border-left border-right border-top border-bottom"></div>
@@ -36,10 +37,26 @@
         <div id="candle_chart" class="chart border-left border-right border-top border-bottom mt-4"></div>
     </div>
 </div>
+{% else %}
+    <div class="row mt-3 mt-md-5">
+        <div class="col-12 text-center mt-5">
+            <i class="fa-solid fa-ban pe-2" style="font-size: 30vh; margin-bottom: 30px; color: #CCC;text-align: center"></i>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center">
+            <h1>Access Denied</h1>
+
+            <p class="mt-4">
+                Your user account does not have permission to view the requested page.
+            </p>
+        </div>
+    </div>
+{% endif %}
 
 <script>
 
-{#    {{ gc_draw(pieChart, 'charts_container') }}#}
+    {% if access_granted == true %}
     {{ gc_draw([
         pieChart,
         histogram,
@@ -62,5 +79,7 @@
         'candle_chart',
 
     ]) }}
+
+    {% endif %}
 
 </script>

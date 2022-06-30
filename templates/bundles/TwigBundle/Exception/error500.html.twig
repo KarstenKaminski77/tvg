@@ -33,7 +33,7 @@
                                         <p>
                                             {% set url = '' %}
                                             {% if type == 'clinics' %}
-                                                {% set url = path('clinic_dashboard') %}
+                                                {% set url = path('clinic_analytics') %}
                                             {% elseif type == 'distributors' %}
                                                 {% set url = path('distributor_order_list',{'distributor_id': id}) %}
                                             {% elseif type == '' %}

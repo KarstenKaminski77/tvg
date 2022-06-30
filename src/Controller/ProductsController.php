@@ -36,7 +36,7 @@ class ProductsController extends AbstractController
     #[Route('/clinics/inventory', name: 'search_results')]
     #[Route('/clinics/inventory/lists', name: 'clinics_search_lists')]
     #[Route('/clinics/inventory/list/{list_id}', name: 'search_lists')]
-    #[Route('/clinics/dashboard', name: 'clinic_dashboard')]
+    #[Route('/clinics/analytics', name: 'clinic_analytics')]
     #[Route('/clinics/basket/{basket_id}', name: 'clinic_basket')]
     #[Route('/clinics/saved/baskets', name: 'clinic_saved_basket')]
     #[Route('/clinics/account', name: 'clinic_account_settings')]

@@ -232,11 +232,22 @@
                                 {{ user.firstName ~' '~ user.lastName }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" style="min-width: 250px">
+                                {% if 7 in permissions %}
+                                    {% set opening_tag = 'a href="#"' %}
+                                    {% set closing_tag = 'a' %}
+                                    {% set class = 'dropdown-item' %}
+                                    {% set id = 'analytics_link' %}
+                                {% else %}
+                                    {% set opening_tag = 'span' %}
+                                    {% set closing_tag = 'span' %}
+                                    {% set class = 'text-disabled dropdown-item-disabled' %}
+                                    {% set id = '' %}
+                                {% endif %}
                                 <li class="pt-0 pb-1 pb-md-0">
-                                    <a href="#" class="dropdown-item dashboard_link" data-clinic-id="{{ clinic_id }}" id="dashboard_link">
+                                    <{{ opening_tag}} href="#" class="dropdown-item analytics_link {{ class }}" data-clinic-id="{{ clinic_id }}" id="{{ id }}">
                                         <i class="fa-solid fa-chart-pie pe-2 fa-width"></i>
                                         Analytics
-                                    </a>
+                                    </{{ closing_tag }}>
                                 </li>
                                 <li class="pt-1 pb-1 pt-md-0 pb-md-0">
                                     <a href="#" class="dropdown-item orders_link" data-clinic-id="{{ clinic_id }}" id="orders_link">
@@ -261,7 +272,7 @@
                                         Account & Settings
                                     </{{ closing_tag }}>
                                 </li>
-                                {% if 11 in permissions %}
+                                {% if 6 in permissions %}
                                     {% set opening_tag = 'a href="#"' %}
                                     {% set closing_tag = 'a' %}
                                     {% set class = 'dropdown-item' %}

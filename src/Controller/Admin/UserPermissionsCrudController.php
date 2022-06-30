@@ -33,7 +33,10 @@ class UserPermissionsCrudController extends AbstractCrudController
             ->setPageTitle('detail', fn (UserPermissions $userPermissions) => (string) $userPermissions)
             ->setPageTitle('edit', fn (UserPermissions $userPermissionss) => sprintf('Editing <b>%s</b>', $userPermissionss->getPermission()))
             ->setEntityLabelInSingular('User Permission')
-            ->setEntityLabelInPlural('User Permissions');
+            ->setEntityLabelInPlural('User Permissions')
+            ->setSearchFields(['permission'])
+            ->setPaginatorPageSize(10)
+            ->setPaginatorPageSize(10);
     }
 
     public function configureFields(string $pageName): iterable

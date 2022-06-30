@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\ClinicUsers;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\AreaChart;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\BarChart;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\CandlestickChart;
@@ -12,15 +13,52 @@ use CMEN\GoogleChartsBundle\GoogleCharts\Charts\Histogram;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\LineChart;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\PieChart;
 use CMEN\GoogleChartsBundle\GoogleCharts\Options\ComboChart\Series;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ChartsController extends AbstractController
 {
-    #[Route('/clinics/test', name: 'get_clinic_charts')]
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
+    #[Route('/clinics/analytics', name: 'get_clinic_charts')]
     public function getChartsAction(): Response
     {
+        // Permissions
+        $users = $this->em->getRepository(ClinicUsers::class)->find($this->getUser()->getId());
+
+        $permissions = [];
+
+        foreach($users->getClinicUserPermissions() as $user){
+
+            $permissions[] = $user->getPermission()->getId();
+        }
+
+        if(!in_array(7, $permissions)){
+
+            return $this->render('frontend/clinics/dashboard.html.twig', [
+                'access_granted' => false,
+                'pieChart' => '',
+                'histogram' => '',
+                'areaChart' => '',
+                'barChart' => '',
+                'columnChart' => '',
+                'lineChart' => '',
+                'geoChart' => '',
+                'comboChart' => '',
+                'candleChart' => '',
+            ]);
+
+            return new JsonResponse($response);
+        }
+
         $pieChart = new PieChart();
         $pieChart->getData()->setArrayToDataTable(
             [['Task', 'Hours per Day'],
@@ -245,6 +283,7 @@ class ChartsController extends AbstractController
         $candle->getOptions()->setTheme('Gray');
 
         return $this->render('frontend/clinics/dashboard.html.twig', [
+            'access_granted' => true,
             'pieChart' => $pieChart,
             'histogram' => $histogram,
             'areaChart' => $area,
