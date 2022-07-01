@@ -1343,11 +1343,11 @@
                         permissions: '{{ permissions|json_encode }}'
                     },
                     dataType: 'json',
-                    {#complete: function(e, xhr, settings){#}
-                    {#    if(e.status === 500){#}
-                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
-                    {#    }#}
-                    {#},#}
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         $('#basket_container').empty().append(response);
@@ -1512,7 +1512,7 @@
                     }
                 });
             });
-            $(document).on('change', '#order_status', function (){
+            $(document).on('change', '#order_status', function (e){
 
                 let order_status = $('#order_status').val();
                 let order_id = $(this).data('order-id');
@@ -1525,7 +1525,8 @@
                     data: {
                         order_status: order_status,
                         distributor_id: distributor_id,
-                        order_id: order_id
+                        order_id: order_id,
+                        permissions: '{{ permissions|json_encode }}',
                     },
                     beforeSend: function () {
                         isLoading(true);
@@ -1533,7 +1534,12 @@
                     success: function (response) {
                         $('#basket_container').empty().append(response);
                         isLoading(false);
-                    }
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                 });
             });
             $(document).on('change', '.order-qty-delivered', function (){
@@ -1644,7 +1650,8 @@
                     data: {
                         item_id: item_id,
                         order_id: order_id,
-                        distributor_id: distributor_id
+                        distributor_id: distributor_id,
+                        permissions: '{{ permissions|json_encode }}',
                     },
                     beforeSend: function (){
                         isLoading(true);
@@ -1655,7 +1662,12 @@
                         $('#basket_container').empty().append(response.orders);
                         popOver();
                         isLoading(false);
-                    }
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                 });
             });
             $(document).on('click', '.btn-item-qty', function (e){
@@ -1674,7 +1686,8 @@
                     data: {
                         item_id: item_id,
                         order_id: order_id,
-                        distributor_id: distributor_id
+                        distributor_id: distributor_id,
+                        permissions: '{{ permissions|json_encode }}',
                     },
                     beforeSend: function (){
                         isLoading(true);
@@ -1685,7 +1698,12 @@
                         $('#basket_container').empty().append(response.orders);
                         popOver();
                         isLoading(false);
-                    }
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                 });
             });
             $(document).on('click', '.btn-item-reject', function (e){
@@ -1708,7 +1726,7 @@
                     success: function (response) {
 
                         $('#reject_reason').val(response);
-                    }
+                    },
                 });
 
             });
@@ -1731,6 +1749,11 @@
                 if(is_valid) {
 
                     let data = new FormData(this);
+                    let permissions = '{{ permissions|json_encode }}'; console.log(permissions);
+
+                    for (let i = 0; i < permissions.length; i++) {
+                        data.append('permissions[]', permissions[i]);
+                    }
 
                     $.ajax({
                         url: "{{ path('clinics_reject_item') }}",
@@ -1741,13 +1764,22 @@
                         timeout: 600000,
                         dataType: 'json',
                         data: data,
+                        beforeSend: function (){
+                            isLoading(true);
+                        },
                         success: function (response) {
                             getFlash(response.flash);
                             $('#basket_container').empty().append(response.orders);
                             $('#form_reject_item').modal('toggle').modal('hide');
                             $('.modal-backdrop').removeClass('modal-backdrop');
                             $('.fade').removeClass('fade');
+                            isLoading(false);
                             popOver();
+                        },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
                         }
                     });
                 }

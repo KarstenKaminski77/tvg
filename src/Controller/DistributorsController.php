@@ -9,11 +9,13 @@ use App\Entity\Clinics;
 use App\Entity\Countries;
 use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
+use App\Entity\DistributorUserPermissions;
 use App\Entity\DistributorUsers;
 use App\Entity\Notifications;
 use App\Entity\OrderItems;
 use App\Entity\Orders;
 use App\Entity\Products;
+use App\Entity\UserPermissions;
 use App\Form\AddressesFormType;
 use App\Form\DistributorFormType;
 use App\Form\DistributorProductsFormType;
@@ -189,6 +191,7 @@ class DistributorsController extends AbstractController
         $user = $this->getUser();
         $username = $user->getFirstName() .' '. $user->getLastName();
         $users = $this->em->getRepository(DistributorUsers::class)->findDistributorUsers($user->getDistributor()->getId());
+        $user_permissions = $this->em->getRepository(UserPermissions::class)->findBy(['isDistributor' => 1]);
         $user_results = $this->page_manager->paginate($users[0], $request, self::ITEMS_PER_PAGE);
         $users_pagination = $this->getPagination(1, $user_results, $user->getDistributor()->getId());
         $form = $this->createRegisterForm();
@@ -203,6 +206,13 @@ class DistributorsController extends AbstractController
         }
         $order_list = false;
         $order_detail = false;
+
+        $permissions = [];
+
+        foreach($user->getDistributorUserPermissions() as $permission){
+
+            $permissions[] = $permission->getPermission()->getId();
+        }
 
         if(substr($request->getPathInfo(),0,20) == '/distributors/orders'){
 
@@ -226,6 +236,8 @@ class DistributorsController extends AbstractController
             'clinic_id' => $clinic_id,
             'users_pagination' => $users_pagination,
             'username' => $username,
+            'permissions' => $permissions,
+            'user_permissions' => $user_permissions,
         ]);
     }
 

@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\ClinicUsers;
+use App\Entity\DistributorUserPermissions;
 use App\Entity\DistributorUsers;
+use App\Entity\UserPermissions;
 use App\Form\ResetPasswordRequestFormType;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +24,7 @@ class DistributorUsersController extends AbstractController
     private $page_manager;
     private $mailer;
 
-    const ITEMS_PER_PAGE = 1;
+    const ITEMS_PER_PAGE = 10;
 
     public function __construct(EntityManagerInterface $em, PaginationManager $pagination, MailerInterface $mailer)
     {
@@ -36,6 +38,13 @@ class DistributorUsersController extends AbstractController
     {
         $user = $this->em->getRepository(DistributorUsers::class)->find($request->request->get('id'));
 
+        $user_permissions = [];
+
+        foreach($user->getDistributorUserPermissions() as $permission){
+
+            $user_permissions[] = $permission->getPermission()->getId();
+        }
+
         $response = [
 
             'id' => $user->getId(),
@@ -46,6 +55,8 @@ class DistributorUsersController extends AbstractController
             'position' => $user->getPosition(),
             'iso_code' => $user->getIsoCode(),
             'intl_code' => $user->getIntlCode(),
+            'permissions' => $user->getDistributorUserPermissions(),
+            'user_permissions' => $user_permissions,
         ];
 
         return new JsonResponse($response);
@@ -133,6 +144,41 @@ class DistributorUsersController extends AbstractController
 
         $this->em->persist($distributor_user);
         $this->em->flush();
+
+        // Update user permissions
+        // Remove previous entries
+        $permissions = $this->em->getRepository(DistributorUserPermissions::class)->findBy(['user' => $distributor_user->getId()]);
+
+        if(count($permissions) > 0){
+
+            foreach($permissions as $permission){
+
+                $permission_repo = $this->em->getRepository(DistributorUserPermissions::class)->find($permission->getId());
+
+                $this->em->remove($permission_repo);
+            }
+
+            $this->em->flush();
+        }
+
+        // Save new permissions
+        if(array_key_exists('permission', $data)){
+
+            foreach($data['permission'] as $permission){
+
+                $distributor_user_permission = new DistributorUserPermissions();
+                $user = $this->em->getRepository(DistributorUsers::class)->find($distributor_user->getId());
+                $user_permission = $this->em->getRepository(UserPermissions::class)->find($permission);
+
+                $distributor_user_permission->setDistributor($distributor);
+                $distributor_user_permission->setUser($user);
+                $distributor_user_permission->setPermission($user_permission);
+
+                $this->em->persist($distributor_user_permission);
+            }
+
+            $this->em->flush();
+        }
 
         $response = [
 

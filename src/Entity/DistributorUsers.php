@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\DistributorUsersRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -90,12 +92,18 @@ class DistributorUsers implements UserInterface, PasswordAuthenticatedUserInterf
      */
     private $resetKey;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DistributorUserPermissions::class, mappedBy="user")
+     */
+    private $distributorUserPermissions;
+
     public function __construct()
     {
         $this->setModified(new \DateTime());
         if ($this->getCreated() == null) {
             $this->setCreated(new \DateTime());
         }
+        $this->distributorUserPermissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -315,6 +323,36 @@ class DistributorUsers implements UserInterface, PasswordAuthenticatedUserInterf
     public function setResetKey(?string $resetKey): self
     {
         $this->resetKey = $resetKey;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DistributorUserPermissions>
+     */
+    public function getDistributorUserPermissions(): Collection
+    {
+        return $this->distributorUserPermissions;
+    }
+
+    public function addDistributorUserPermission(DistributorUserPermissions $distributorUserPermission): self
+    {
+        if (!$this->distributorUserPermissions->contains($distributorUserPermission)) {
+            $this->distributorUserPermissions[] = $distributorUserPermission;
+            $distributorUserPermission->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDistributorUserPermission(DistributorUserPermissions $distributorUserPermission): self
+    {
+        if ($this->distributorUserPermissions->removeElement($distributorUserPermission)) {
+            // set the owning side to null (unless already changed)
+            if ($distributorUserPermission->getUser() === $this) {
+                $distributorUserPermission->setUser(null);
+            }
+        }
 
         return $this;
     }

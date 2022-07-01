@@ -54,6 +54,11 @@ class UserPermissions
      */
     private $clinicUserPermissions;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DistributorUserPermissions::class, mappedBy="permission")
+     */
+    private $distributorUserPermissions;
+
     public function __construct()
     {
         $this->setModified(new \DateTime());
@@ -62,6 +67,7 @@ class UserPermissions
         }
 
         $this->clinicUserPermissions = new ArrayCollection();
+        $this->distributorUserPermissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -165,6 +171,36 @@ class UserPermissions
             // set the owning side to null (unless already changed)
             if ($clinicUserPermission->getPermission() === $this) {
                 $clinicUserPermission->setPermission(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DistributorUserPermissions>
+     */
+    public function getDistributorUserPermissions(): Collection
+    {
+        return $this->distributorUserPermissions;
+    }
+
+    public function addDistributorUserPermission(DistributorUserPermissions $distributorUserPermission): self
+    {
+        if (!$this->distributorUserPermissions->contains($distributorUserPermission)) {
+            $this->distributorUserPermissions[] = $distributorUserPermission;
+            $distributorUserPermission->setPermission($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDistributorUserPermission(DistributorUserPermissions $distributorUserPermission): self
+    {
+        if ($this->distributorUserPermissions->removeElement($distributorUserPermission)) {
+            // set the owning side to null (unless already changed)
+            if ($distributorUserPermission->getPermission() === $this) {
+                $distributorUserPermission->setPermission(null);
             }
         }
 

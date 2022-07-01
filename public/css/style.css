@@ -1616,6 +1616,7 @@ a.distributor-logo-container {
 .bg-disabled {
     background: #e9ecef !important;
     color: #565e64 !important;
+    border: solid 1px #ced4da !important;
 }
 
 .text-disabled {

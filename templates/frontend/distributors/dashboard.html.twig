@@ -30,66 +30,132 @@
                             </a>
                             <ul class="nav flex-column collapse" id="submenu1" data-bs-parent="#menu" style="">
                                 <li class="w-100 mb-3">
-                                    <a href="#" class="align-middle text-primary nav-icon text-truncate" id="account_settings_link">
-                                        <i class="fa-solid fa-screwdriver-wrench fa-fw"></i>
-                                        <span class="ms-1 d-none d-sm-inline">Company Information</span>
-                                    </a>
+                                    {% if 10 in permissions %}
+                                        <a href="#" class="align-middle text-primary nav-icon text-truncate" id="account_settings_link">
+                                            <i class="fa-solid fa-screwdriver-wrench fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Company Information</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="align-middle text-primary nav-icon text-truncate text-disabled">
+                                            <i class="fa-solid fa-screwdriver-wrench fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Company Information</span>
+                                        </span>
+                                    {% endif %}
                                 </li>
                                 <li class="w-100 mb-3">
-                                    <a href="#" class="align-middle text-primary nav-icon text-truncate" id="about_link">
-                                        <i class="fa-solid fa-circle-question fa-fw"></i>
-                                        <span class="ms-1 d-none d-sm-inline">About</span>
-                                    </a>
+                                    {% if 15 in permissions %}
+                                        <a href="#" class="align-middle text-primary nav-icon text-truncate" id="about_link">
+                                            <i class="fa-solid fa-circle-question fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">About</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="align-middle text-primary nav-icon text-truncate text-disabled">
+                                            <i class="fa-solid fa-circle-question fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">About</span>
+                                        </span>
+                                    {% endif %}
+
                                 </li>
                                 <li class="w-100 mb-3">
-                                    <a href="#" class="align-middle text-primary nav-icon text-truncate" id="operating_hours_link">
-                                        <i class="fa-solid fa-clock fa-fw"></i>
-                                        <span class="ms-1 d-none d-sm-inline">Operating Hours</span>
-                                    </a>
+                                    {% if 16 in permissions %}
+                                        <a href="#" class="align-middle text-primary nav-icon text-truncate" id="operating_hours_link">
+                                            <i class="fa-solid fa-clock fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Operating Hours</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="align-middle text-primary nav-icon text-truncate text-disabled">
+                                            <i class="fa-solid fa-clock fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Operating Hours</span>
+                                        </span>
+                                    {% endif %}
                                 </li>
                                 <li class="w-100 mb-3">
-                                    <a href="#" class="align-middle text-primary nav-icon text-truncate" id="refund_policy_link">
-                                        <i class="fa-solid fa-rotate-left fa-fw"></i>
-                                        <span class="ms-1 d-none d-sm-inline">Refund Policy</span>
-                                    </a>
+                                    {% if 17 in permissions %}
+                                        <a href="#" class="align-middle text-primary nav-icon text-truncate" id="refund_policy_link">
+                                            <i class="fa-solid fa-rotate-left fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Refund Policy</span>
+                                        </a>
+                                    {% else %}
+                                        <span href="#" class="align-middle text-primary nav-icon text-truncate text-disabled">
+                                            <i class="fa-solid fa-rotate-left fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Refund Policy</span>
+                                        </span>
+                                    {% endif %}
                                 </li>
                                 <li class="w-100 mb-3">
-                                    <a href="#" class="align-middle text-primary nav-icon text-truncate" id="sales_tax_policy_link">
-                                        <i class="fa-solid fa-scale-unbalanced fa-fw"></i>
-                                        <span class="ms-1 d-none d-sm-inline">Sale Tax Policy</span>
-                                    </a>
+                                    {% if 18 in permissions %}
+                                        <a href="#" class="align-middle text-primary nav-icon text-truncate" id="sales_tax_policy_link">
+                                            <i class="fa-solid fa-scale-unbalanced fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Sale Tax Policy</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="align-middle text-primary nav-icon text-truncate text-disabled">
+                                            <i class="fa-solid fa-scale-unbalanced fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Sale Tax Policy</span>
+                                        </span>
+                                    {% endif %}
                                 </li>
                                 <li class="w-100 mb-3">
-                                    <a href="#" class="align-middle text-primary nav-icon text-truncate" id="shipping_policy_link">
-                                        <i class="fa-solid fa-truck fa-fw"></i>
-                                        <span class="ms-1 d-none d-sm-inline">Shipping Policy</span>
-                                    </a>
+                                    {% if 19 in permissions %}
+                                        <a href="#" class="align-middle text-primary nav-icon text-truncate" id="shipping_policy_link">
+                                            <i class="fa-solid fa-truck fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Shipping Policy</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="align-middle text-primary nav-icon text-truncate text-disabled">
+                                            <i class="fa-solid fa-truck fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Shipping Policy</span>
+                                        </span>
+                                    {% endif %}
                                 </li>
                                 <li class="w-100 mb-3">
-                                    <a class="align-middle text-primary nav-icon text-truncate" href="#" id="users_link">
-                                        <i class="fa-solid fa-address-book fa-fw"></i>
-                                        <span class="ms-1 d-none d-sm-inline">Users</span>
-                                    </a>
+                                    {% if 6 in permissions %}
+                                        <a class="align-middle text-primary nav-icon text-truncate" href="#" id="users_link">
+                                            <i class="fa-solid fa-address-book fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Users</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="align-middle text-primary nav-icon text-truncate text-disabled">
+                                            <i class="fa-solid fa-address-book fa-fw"></i>
+                                            <span class="ms-1 d-none d-sm-inline">Users</span>
+                                        </span>
+                                    {% endif %}
                                 </li>
                             </ul>
                         </li>
                         <li class="w-100">
-                            <a
-                                href="#"
-                                data-bs-toggle="collapse"
-                                class="px-0 align-middle text-primary nav-icon mb-3 text-truncate"
-                                data-distributor-id="{{ distributor.id }}"
-                                id="orders_link"
-                            >
-                                <i class="fa-solid fa-file-invoice fa-fw"></i>
-                                <span class="ms-1 d-none d-sm-inline">Orders</span>
-                            </a>
+                            {% if 5 in permissions %}
+                                <a
+                                    href="#"
+                                    class="px-0 align-middle text-primary nav-icon mb-3 text-truncate"
+                                    data-distributor-id="{{ distributor.id }}"
+                                    id="orders_link"
+                                >
+                                    <i class="fa-solid fa-file-invoice fa-fw"></i>
+                                    <span class="ms-1 d-none d-sm-inline">Orders</span>
+                                </a>
+                            {% else %}
+                                <span
+                                    class="px-0 align-middle text-primary nav-icon mb-3 text-truncate text-disabled"
+                                    data-distributor-id="{{ distributor.id }}"
+                                >
+                                    <i class="fa-solid fa-file-invoice fa-fw"></i>
+                                    <span class="ms-1 d-none d-sm-inline">Orders</span>
+                                </span>
+                            {% endif %}
                         </li>
                         <li class="w-100">
-                            <a class="px-0 align-middle text-primary nav-icon mb-3 text-truncate" href="#" id="inventory_link">
-                                <i class="fa-solid fa-cart-flatbed fa-fw"></i>
-                                <span class="ms-1 d-none d-sm-inline">Invetory</span>
-                            </a>
+                            {% if 20 in permissions %}
+                                <a class="px-0 align-middle text-primary nav-icon mb-3 text-truncate" href="#" id="inventory_link">
+                                    <i class="fa-solid fa-cart-flatbed fa-fw"></i>
+                                    <span class="ms-1 d-none d-sm-inline">Invetory</span>
+                                </a>
+                            {% else %}
+                                <span class="px-0 align-middle text-primary nav-icon mb-3 text-truncate text-disabled">
+                                    <i class="fa-solid fa-cart-flatbed fa-fw"></i>
+                                    <span class="ms-1 d-none d-sm-inline">Invetory</span>
+                                </span>
+                            {% endif %}
                         </li>
                     </ul>
                 </div>
@@ -119,7 +185,7 @@
                             }}) }}
                             <div class="hidden_msg" id="error_distributor_name">
                                 Required Field
-                            </div>
+                            </div>getA
                         </div>
 
                         {# Website #}
@@ -725,7 +791,7 @@
 
                     {# Modal Manage Users #}
                     <div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="modal_user" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-dialog modal-dialog-centered modal-xl">
                             <div class="modal-content">
                                 {{form_start(form, {'name': 'form_users', 'attr': {'id': 'form_users'}})}}
                                 <div class="modal-header">
@@ -811,6 +877,43 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    {# User Permissions #}
+                                    <div class="row mb-3">
+                                        {% if user_permissions|length > 0 %}
+                                            {% for user in user_permissions %}
+                                                <!-- User Permissions -->
+                                                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                                                    <div class="btn-sm btn-outline-light border-1 border p-2 my-2">
+                                                        <input
+                                                                class="form-check-input me-2"
+                                                                type="checkbox"
+                                                                value="{{ user.id }}"
+                                                                id="permission_{{ user.id }}"
+                                                                data-permission-id="{{ user.id }}"
+                                                                name="distributor_users_form[permission][]"
+                                                        >
+                                                        <label class="form-check-label info" for="permission_{{ user.id }}">
+                                                            {{ user.permission }}
+                                                        </label>
+                                                        <span
+                                                                class="ms-1 float-end text-primary"
+                                                                data-bs-trigger="hover"
+                                                                data-bs-container="body"
+                                                                data-bs-toggle="popover"
+                                                                data-bs-placement="top"
+                                                                data-bs-html="true"
+                                                                data-bs-content="{{ user.info }}"
+                                                                role="button"
+                                                        >
+                                                        <i class="far fa-question-circle"></i>
+                                                    </span>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
@@ -850,6 +953,33 @@
                 {# Orders #}
                 <div id="order_container"></div>
                 {# End Orders #}
+
+                {# Access Denied #}
+                <div class="row hidden h-100 height-distributors" style="height: calc(100% - 56px)!important" id="access_denied">
+                    <div class="col-12">
+                        <table class="w-100 h-100">
+                            <tr>
+                                <td class="align-middle text-center">
+                                    <div class="row">
+                                        <div class="col-12 text-center">
+                                            <i class="fa-solid fa-ban pe-2" style="font-size: 30vh; margin-bottom: 30px; color: #CCC;text-align: center"></i>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 text-center">
+                                            <h1>Access Denied</h1>
+
+                                            <p class="mt-4 mb-0">
+                                                Your user account does not have permission to view the requested page.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                {# End Access Denied #}
             </div>
         </div>
     </div>
@@ -894,6 +1024,7 @@
             let users = $('#users');
             let inventory_clear = $('#inventory_clear');
             let order_container = $('#order_container');
+            let access_denied = $('#access_denied');
             let get_messages = '';
             let date = new Date();
             let date_time = date.getFullYear() +'-'+ (date.getMonth() + 1) +'-'+ date.getDate() +' '+ String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") +':'+ String(date.getSeconds()).padStart(2, '0');
@@ -986,17 +1117,17 @@
                         distributor_id: distributor_id,
                         clinic_id: clinic_id,
                         status_id: status_id,
-                        date: date
+                        date: date,
                     },
                     beforeSend: function () {
                         $("div.spanner").addClass("show");
                         $("div.overlay").addClass("show");
                     },
-                    {#complete: function(e, xhr, settings){#}
-                    {#    if(e.status === 500){#}
-                    {#        window.location.href = '{{ path('distributor_error_500') }}';#}
-                    {#    }#}
-                    {#},#}
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('distributor_error_500') }}';
+                        }
+                    },
                     success: function (response) {
                         $('#order_container').empty().append(response.html).append(response.pagination);
                         account_settings.hide();
@@ -1186,7 +1317,8 @@
                     url: "{{ path('distributor_get_order_details') }}",
                     type: 'POST',
                     data: {
-                        order_id: order_id
+                        order_id: order_id,
+                        permissions: '{{ permissions|json_encode }}',
                     },
                     dataType: 'json',
                     beforeSend: function (){
@@ -1704,7 +1836,13 @@
                 input.addEventListener('change', handleChange);
                 input.addEventListener('keyup', handleChange);
 
-                account_settings.show();
+                {% if 10 in permissions %}
+                    access_denied.hide();
+                    account_settings.show();
+                {% else %}
+                    account_settings.hide();
+                    access_denied.show();
+                {% endif %}
                 about.hide();
                 operating_hours.hide();
                 refund_policy.hide();
@@ -1731,7 +1869,13 @@
             function getAbout(){
 
                 account_settings.hide();
+                {% if 15 in permissions %}
+                access_denied.hide();
                 about.show();
+                {% else %}
+                about.hide();
+                access_denied.show();
+                {% endif %}
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
@@ -1758,7 +1902,13 @@
 
                 account_settings.hide();
                 about.hide();
+                {% if 16 in permissions %}
+                access_denied.hide();
                 operating_hours.show();
+                {% else %}
+                operating_hours.hide();
+                access_denied.show();
+                {% endif %}
                 refund_policy.hide();
                 sales_tax_policy.hide();
                 shipping_policy.hide();
@@ -1784,7 +1934,13 @@
                 account_settings.hide();
                 about.hide();
                 operating_hours.hide();
+                {% if 17 in permissions %}
+                access_denied.hide();
                 refund_policy.show();
+                {% else %}
+                refund_policy.hide();
+                access_denied.show();
+                {% endif %}
                 sales_tax_policy.hide();
                 shipping_policy.hide();
                 inventory.hide();
@@ -1810,7 +1966,13 @@
                 about.hide();
                 operating_hours.hide();
                 refund_policy.hide();
+                {% if 18 in permissions %}
+                access_denied.hide();
                 sales_tax_policy.show();
+                {% else %}
+                sales_tax_policy.hide();
+                access_denied.show();
+                {% endif %}
                 shipping_policy.hide();
                 inventory.hide();
                 inventory_search.hide();
@@ -1836,7 +1998,13 @@
                 operating_hours.hide();
                 refund_policy.hide();
                 sales_tax_policy.hide();
+                {% if 19 in permissions %}
+                access_denied.hide();
                 shipping_policy.show();
+                {% else %}
+                shipping_policy.hide();
+                access_denied.show();
+                {% endif %}
                 inventory.hide();
                 inventory_search.hide();
                 inventory_item.hide();
@@ -1862,8 +2030,15 @@
                 refund_policy.hide();
                 sales_tax_policy.hide();
                 shipping_policy.hide();
+                {% if 20 in permissions %}
+                access_denied.hide();
                 inventory.show();
                 inventory_search.show();
+                {% else %}
+                inventory.hide();
+                inventory_search.hide();
+                access_denied.show();
+                {% endif %}
                 inventory_item.hide();
                 users.hide();
                 order_container.hide();
@@ -2508,6 +2683,13 @@
                             separateDialCode: true,
                             utilsScript: "/js/utils.js",
                         });
+
+                        $('#form_users input[type="checkbox"]').attr('checked', false);
+
+                        for(i = 0; i < response.user_permissions.length; i++){
+
+                            $('#permission_'+ response.user_permissions[i]).attr('checked', true);
+                        };
                     }
                 });
 
@@ -2771,5 +2953,10 @@
                 $("#suggestion_field").hide();
             }
         }
+
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        })
     </script>
 {% endblock %}

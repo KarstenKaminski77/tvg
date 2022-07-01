@@ -199,6 +199,11 @@ class Distributors
      */
     private $intlCode;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DistributorUserPermissions::class, mappedBy="distributor")
+     */
+    private $distributorUserPermissions;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -221,6 +226,7 @@ class Distributors
         $this->chatMessages = new ArrayCollection();
         $this->notifications = new ArrayCollection();
         $this->orderStatuses = new ArrayCollection();
+        $this->distributorUserPermissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -908,6 +914,36 @@ class Distributors
     public function setIntlCode(?string $intlCode): self
     {
         $this->intlCode = $intlCode;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DistributorUserPermissions>
+     */
+    public function getDistributorUserPermissions(): Collection
+    {
+        return $this->distributorUserPermissions;
+    }
+
+    public function addDistributorUserPermission(DistributorUserPermissions $distributorUserPermission): self
+    {
+        if (!$this->distributorUserPermissions->contains($distributorUserPermission)) {
+            $this->distributorUserPermissions[] = $distributorUserPermission;
+            $distributorUserPermission->setDistributor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDistributorUserPermission(DistributorUserPermissions $distributorUserPermission): self
+    {
+        if ($this->distributorUserPermissions->removeElement($distributorUserPermission)) {
+            // set the owning side to null (unless already changed)
+            if ($distributorUserPermission->getDistributor() === $this) {
+                $distributorUserPermission->setDistributor(null);
+            }
+        }
 
         return $this;
     }

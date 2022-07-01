@@ -33,7 +33,7 @@ class OrdersController extends AbstractController
     private $em;
     private $mailer;
     private $page_manager;
-    const ITEMS_PER_PAGE = 10;
+    const ITEMS_PER_PAGE = 6;
 
     public function __construct(EntityManagerInterface $em, MailerInterface $mailer, PaginationManager $pagination)
     {
@@ -952,6 +952,14 @@ class OrdersController extends AbstractController
             'orders' => $order_id,
             'distributor' => $distributor->getId()
         ]);
+        $is_authorised = true;
+        $disabled = '';
+
+        if(!in_array(5, json_decode($request->request->get('permissions')))){
+
+            $is_authorised = false;
+            $disabled = 'disabled';
+        }
 
         $response = '
         <form name="form_distributor_orders" id="form_distributor_orders" class="row" method="post">
@@ -987,6 +995,7 @@ class OrdersController extends AbstractController
                             <span class=" d-none d-md-inline-block pe-4">Refresh Order</span>
                         </a>';
 
+                        // Before the oder is shipped
                         if($order_status_id->getStatus()->getId() > 4){
 
                             $response .= '
@@ -997,24 +1006,43 @@ class OrdersController extends AbstractController
 
                         } else {
 
-                            $response .= '
-                            <button type="submit" class="saved_baskets_link btn btn-sm btn-light p-0 text-primary">
-                                <i class="fa-solid fa-floppy-disk me-5  me-md-2"></i>
-                                <span class=" d-none d-md-inline-block pe-4">Save Order</span>
-                            </button>';
+                            if($is_authorised){
+
+                                $response .= '
+                                <button type="submit" class="saved_baskets_link btn btn-sm btn-light p-0 text-primary">
+                                    <i class="fa-solid fa-floppy-disk me-5  me-md-2"></i>
+                                    <span class=" d-none d-md-inline-block pe-4">Save Order</span>
+                                </button>
+                                
+                                <a 
+                                    href="#" 
+                                    id="order_send_notification"
+                                    data-order-id="'. $order_id .'"
+                                    data-distributor-id="'. $orders[0]->getDistributor()->getId() .'"
+                                    data-clinic-id="'. $orders[0]->getOrders()->getClinic()->getId() .'"
+                                >
+                                    <i class="fa-solid fa-paper-plane me-0 me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Send Notification</span>
+                                </a>';
+
+                            } else {
+
+                                $response .= '
+                                <span class="btn btn-sm btn-light p-0 text-primary text-disabled cursor-disabled">
+                                    <i class="fa-solid fa-floppy-disk me-5  me-md-2"></i>
+                                    <span class=" d-none d-md-inline-block pe-4">Save Order</span>
+                                </span>
+                                
+                                <span class="text-disabled cursor-disabled">
+                                    <i class="fa-solid fa-paper-plane me-0 me-md-2"></i>
+                                    <span class="d-none d-md-inline-block pe-4">
+                                        Send Notification
+                                    </span>
+                                </span>';
+                            }
 
                         }
 
                         $response .= '
-                        <a 
-                            href="#" 
-                            id="order_send_notification"
-                            data-order-id="'. $order_id .'"
-                            data-distributor-id="'. $orders[0]->getDistributor()->getId() .'"
-                            data-clinic-id="'. $orders[0]->getOrders()->getClinic()->getId() .'"
-                        >
-                            <i class="fa-solid fa-paper-plane me-0 me-md-2"></i><span class=" d-none d-md-inline-block pe-4">Send Notification</span>
-                        </a>
                     </div>
                 </div>
                 <!-- Products -->
@@ -1041,7 +1069,6 @@ class OrdersController extends AbstractController
                             }
 
                             // Item status
-                            $disabled = '';
                             $opacity = '';
                             $badge_cancelled = '';
                             $badge_confirm = '';
@@ -1057,10 +1084,20 @@ class OrdersController extends AbstractController
                                 $disabled = 'disabled';
                                 $opacity = 'opacity-50';
 
-                                $badge_cancelled = '
-                                <span
-                                    class="badge float-end ms-2 text-light border border-danger text-light order_item_accept bg-danger badge-danger-filled-sm"
-                                >Cancelled</span>';
+                                if($is_authorised){
+
+                                    $badge_cancelled = '
+                                    <span
+                                        class="badge float-end ms-2 text-light border border-danger text-light order_item_accept bg-danger badge-danger-filled-sm"
+                                    >Cancelled</span>';
+
+                                } else {
+
+                                    $badge_cancelled = '
+                                    <span
+                                        class="badge float-end ms-2 text-light border border-danger text-light order_item_accept bg-danger badge-danger-filled-sm bg-disabled"
+                                    >Cancelled</span>';
+                                }
 
                             } else {
 
@@ -1072,10 +1109,20 @@ class OrdersController extends AbstractController
                                         // Shipped
                                         if($status_id == 6){
 
-                                            $badge_shipped = '
-                                            <span 
-                                                class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
-                                            >Shipped</span>';
+                                            if($is_authorised){
+
+                                                $badge_shipped = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
+                                                >Shipped</span>';
+
+                                            } else {
+
+                                                $badge_shipped = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm bg-disabled"
+                                                >Shipped</span>';
+                                            }
                                         }
 
                                         // Delivered
@@ -1097,28 +1144,61 @@ class OrdersController extends AbstractController
                                             // Quantity confirmed by clinic
                                             if($order->getIsAcceptedOnDelivery() == 1){
 
-                                                $badge_delivered_correct = '
-                                                <span 
-                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
-                                                >Complete</span>';
+                                                if($is_authorised){
+
+                                                    $badge_delivered_correct = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-light border border-success 
+                                                        bg-success badge-success-filled-sm text-truncate"
+                                                    >Complete</span>';
+
+                                                } else {
+
+                                                    $badge_delivered_correct = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-truncate bg-disabled"
+                                                    >Complete</span>';
+                                                }
                                             }
 
                                             // Quantity rejected by clinic
                                             if($order->getIsRejectedOnDelivery() == 1){
 
-                                                $badge_delivered_correct = '
-                                                <span 
-                                                    class="badge float-end ms-2 text-light border border-danger bg-danger badge-danger-filled-sm"
-                                                >Rejected</span>';
+                                                if($is_authorised){
+
+                                                    $badge_delivered_correct = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-light border border-danger 
+                                                        bg-danger badge-danger-filled-sm"
+                                                    >Rejected</span>';
+
+                                                } else {
+
+                                                    $badge_delivered_correct = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-truncate bg-disabled"
+                                                    >Rejected</span>';
+                                                }
                                             }
 
                                             // Quantity adjust
                                             if($order->getIsQuantityAdjust() == 1){
 
-                                                $badge_delivered_incorrect = '
-                                                <span 
-                                                    class="badge float-end ms-2 text-light border border-warning bg-warning badge-warning-filled-sm"
-                                                >Adjusting Quantity</span>';
+                                                if($is_authorised){
+
+                                                    $badge_delivered_incorrect = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-light border border-warning 
+                                                        bg-warning badge-warning-filled-sm text-truncate"
+                                                    >Adjusting Quantity</span>';
+
+                                                } else {
+
+                                                    $badge_delivered_incorrect = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-truncate bg-disabled"
+                                                    >Adjusting Quantity</span>';
+                                                }
                                             }
                                         }
 
@@ -1128,69 +1208,144 @@ class OrdersController extends AbstractController
                                             // Quantity confirmed by clinic
                                             if($order->getIsAcceptedOnDelivery() == 1){
 
-                                                $badge_delivered_correct = '
-                                                <span 
-                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
-                                                >Accepted</span>';
+                                                if($is_authorised){
+
+                                                    $badge_delivered_correct = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-light border border-success 
+                                                        bg-success badge-success-filled-sm text-truncate"
+                                                    >Accepted</span>';
+
+                                                } else {
+
+                                                    $badge_delivered_correct = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-truncate bg-disabled"
+                                                    >Accepted</span>';
+                                                }
                                             }
 
                                             // Quantity rejected by clinic
                                             if($order->getIsRejectedOnDelivery() == 1){
 
-                                                $badge_delivered_correct = '
-                                                <span 
-                                                    class="badge float-end ms-2 text-light border border-danger bg-danger"
-                                                >Rejected</span>';
+                                                if($is_authorised){
+
+                                                    $badge_delivered_correct = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-light border 
+                                                        border-danger bg-danger text-truncate"
+                                                    >Rejected</span>';
+
+                                                } else {
+
+                                                    $badge_delivered_correct = '
+                                                    <span 
+                                                        class="badge float-end ms-2 text-truncate bg-disabled"
+                                                    >Rejected</span>';
+                                                }
                                             }
                                         }
 
+                                    // Pre shipping  statuses
                                     } else {
 
                                         if ($order->getIsAccepted() == 1) {
 
                                             $disabled = 'disabled';
 
-                                            $clinic_status = '
-                                            <span 
-                                                class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
-                                            >Accepted</span>';
+                                            if($is_authorised){
+
+                                                $clinic_status = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
+                                                >Accepted</span>';
+
+                                            } else {
+
+                                                $clinic_status = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm bg-disabled"
+                                                >Accepted</span>';
+                                            }
 
                                         } elseif ($order->getIsRenegotiate() == 1) {
 
-                                            $clinic_status = '
-                                            <span 
-                                                class="badge float-end ms-2 text-light border border-warning bg-warning badge-warning-filled-sm"
-                                            >Renegotiating</span>';
+                                            if($is_authorised){
 
+                                                $clinic_status = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-warning bg-warning badge-warning-filled-sm"
+                                                >Renegotiating</span>';
+
+                                            } else {
+
+                                                $clinic_status = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-warning bg-warning badge-warning-filled-sm bg-disabled"
+                                                >Renegotiating</span>';
+                                            }
+
+                                        // Distributor expiry date, qty & price confirmed
                                         } else {
 
-                                            $badge_pending = '
-                                            <a href="#" 
-                                                class="badge float-end ms-2 border-1 badge-pending-outline-only btn_pending badge-pending-sm"
-                                                data-order-id="' . $order_id . '"
-                                                data-item-id="' . $order->getId() . '"
-                                            >Pending</a>';
+                                            if($is_authorised){
 
-                                            $badge_confirm = '
-                                            <span 
-                                                class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
-                                            >Confirmed</span>';
+                                                $badge_pending = '
+                                                <a href="#" 
+                                                    class="badge float-end ms-2 border-1 badge-pending-outline-only btn_pending badge-pending-sm"
+                                                    data-order-id="' . $order_id . '"
+                                                    data-item-id="' . $order->getId() . '"
+                                                >Pending</a>';
+
+                                                $badge_confirm = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm"
+                                                >Confirmed</span>';
+
+                                            } else {
+
+                                                $badge_pending = '
+                                                <span
+                                                    class="badge float-end ms-2 border-1 badge-pending-outline-only badge-pending-sm bg-disabled"
+                                                >Pending</a>';
+
+                                                $badge_confirm = '
+                                                <span 
+                                                    class="badge float-end ms-2 text-light border border-success bg-success badge-success-filled-sm bg-disabled"
+                                                >Confirmed</span>';
+                                            }
                                         }
                                     }
 
+                                // Pending distributor confirmation of expiry date and stock
                                 } else {
 
-                                    $badge_pending = '
-                                    <span 
-                                        class="badge float-end ms-2 text-light border-1 bg-dark-grey border-dark-grey badge-pending-filled-sm text-truncate"
-                                    >Pending</span>';
+                                    if($is_authorised){
 
-                                    $badge_confirm = '
-                                    <a href="#" 
-                                        class="badge float-end ms-2 text-success border-1 badge-success-outline-only badge-success-sm btn_confirm"
-                                        data-order-id="' . $order_id . '"
-                                        data-item-id="' . $order->getId() . '"
-                                    >Confirm</a>';
+                                        $badge_pending = '
+                                        <span 
+                                            class="badge float-end ms-2 text-light border-1 bg-dark-grey border-dark-grey badge-pending-filled-sm text-truncate"
+                                        >Pending</span>';
+
+                                        $badge_confirm = '
+                                        <a href="#" 
+                                            class="badge float-end ms-2 text-success border-1 badge-success-outline-only badge-success-sm btn_confirm"
+                                            data-order-id="' . $order_id . '"
+                                            data-item-id="' . $order->getId() . '"
+                                        >Confirm</a>';
+
+                                    } else {
+
+                                        $badge_pending = '
+                                        <span 
+                                            class="badge float-end ms-2 text-light border-1 bg-dark-grey border-dark-grey badge-pending-filled-sm text-truncate bg-disabled"
+                                        >Pending</span>';
+
+                                        $badge_confirm = '
+                                        <span
+                                            class="badge float-end ms-2 text-success border-1 bg-disabled"
+                                        >Confirm</span>';
+                                    }
                                 }
                             }
 
@@ -1739,7 +1894,16 @@ class OrdersController extends AbstractController
     public function clinicOrderDetailAction(Request $request): Response
     {
         $data = $request->request;
-        $permissions = json_decode($data->get('permissions'), true);
+
+        if(is_array($data->get('permissions'))){
+
+            $permissions = $data->get('permissions');
+
+        } else {
+
+            $permissions = json_decode($data->get('permissions'), true);
+        }
+
         $order_id = $data->get('order_id');
         $distributor_id = $data->get('distributor_id');
 
@@ -1770,6 +1934,13 @@ class OrdersController extends AbstractController
             'distributor' => false,
             'clinic' => true,
         ])->getContent();
+
+        $is_authorised = true;
+
+        if(!in_array(5, $permissions)){
+
+            $is_authorised = false;
+        }
 
         $response = '
         <form name="form_distributor_orders" class="row" id="form_distributor_orders" method="post">
@@ -1866,14 +2037,14 @@ class OrdersController extends AbstractController
                                 // If all items are either rejected or accepted
                                 if(
                                     $is_rejected + $is_accepted == $item_count &&
-                                    $is_quantity_adjust = true && in_array(5, $permissions)
+                                    $is_quantity_adjust = true && $is_authorised
                                 ){
 
                                     $can_close = true;
                                 }
 
                                 // Check if user has permission to change status once shipped
-                                if($status->getId() == 7 && !in_array(5, $permissions)){
+                                if($status->getId() == 7 && !$is_authorised){
 
                                     $disabled = 'disabled';
                                 }
@@ -2008,6 +2179,7 @@ class OrdersController extends AbstractController
                                 </div>
                             </div>';
 
+                            // Delivered
                             if($order_status_id == 7){
 
                                 $col_exp_date = 4;
@@ -2136,69 +2308,138 @@ class OrdersController extends AbstractController
                                                 // Accept CTA
                                                 if ($order->getIsAcceptedOnDelivery() == 1) {
 
-                                                    $btn_accept = '
-                                                    <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept badge-success-filled-sm text-truncate"
-                                                        data-order-id="' . $order_id . '"
-                                                        data-item-id="' . $order->getId() . '"
-                                                    >Accept</a>';
+                                                    if($is_authorised){
+
+                                                        $btn_accept = '
+                                                        <a href="#" 
+                                                            class="badge float-end ms-2 text-light border-success 
+                                                            bg-success btn-item-accept badge-success-filled-sm text-truncate"
+                                                            data-order-id="' . $order_id . '"
+                                                            data-item-id="' . $order->getId() . '"
+                                                        >Accept</a>';
+
+                                                    } else {
+
+                                                        $btn_accept = '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-truncate bg-disabled"
+                                                        >Accept</span>';
+                                                    }
 
                                                 } else {
 
-                                                    $btn_accept = '
-                                                    <a href="#" 
-                                                        class="badge float-end ms-2 text-success border-success badge-success-outline-only btn-item-accept badge-success-sm text-truncate"
-                                                        data-order-id="' . $order_id . '"
-                                                        data-item-id="' . $order->getId() . '"
-                                                    >Accept</a>';
+                                                    if($is_authorised){
+
+                                                        $btn_accept = '
+                                                        <a href="#" 
+                                                            class="badge float-end ms-2 text-success border-success 
+                                                            badge-success-outline-only btn-item-accept badge-success-sm text-truncate"
+                                                            data-order-id="' . $order_id . '"
+                                                            data-item-id="' . $order->getId() . '"
+                                                        >Accept</a>';
+
+                                                    } else {
+
+                                                        $btn_accept = '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-truncate bg-disabled"
+                                                        >Accept</span>';
+                                                    }
                                                 }
 
                                                 // Reject CTA
                                                 if ($order->getIsRejectedOnDelivery() == 1) {
 
-                                                    $btn_reject = '
-                                                    <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-danger bg-danger btn-item-reject badge-danger-filled-sm text-truncate"
-                                                        data-order-id="' . $order_id . '"
-                                                        data-item-id="' . $order->getId() . '"
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#modal_reject_item"
-                                                    >Reject</a>';
+                                                    if($is_authorised){
+
+                                                        $btn_reject = '
+                                                        <a href="#" 
+                                                            class="badge float-end ms-2 text-light border-danger bg-danger 
+                                                            btn-item-reject badge-danger-filled-sm text-truncate"
+                                                            data-order-id="' . $order_id . '"
+                                                            data-item-id="' . $order->getId() . '"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#modal_reject_item"
+                                                        >Reject</a>';
+
+                                                    } else {
+
+                                                        $btn_reject = '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-truncate bg-disabled"
+                                                        >Reject</span>';
+                                                    }
 
                                                 } else {
 
-                                                    $btn_reject = '
-                                                    <a href="#" 
-                                                        class="badge float-end ms-2 text-danger border-danger badge-danger-outline-only btn-item-reject badge-danger-sm text-truncate"
-                                                        data-order-id="' . $order_id . '"
-                                                        data-item-id="' . $order->getId() . '"
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#modal_reject_item"
-                                                    >Reject</a>';
+                                                    if($is_authorised){
+
+                                                        $btn_reject = '
+                                                        <a href="#" 
+                                                            class="badge float-end ms-2 text-danger border-danger 
+                                                            badge-danger-outline-only btn-item-reject badge-danger-sm text-truncate"
+                                                            data-order-id="' . $order_id . '"
+                                                            data-item-id="' . $order->getId() . '"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#modal_reject_item"
+                                                        >Reject</a>';
+
+                                                    } else {
+
+                                                        $btn_reject = '
+                                                        <span href="#" 
+                                                            class="badge float-end ms-2 text-truncate bg-disabled"
+                                                        >Reject</span>';
+                                                    }
                                                 }
 
                                                 // Qty CTA
                                                 if ($order->getIsQuantityAdjust() == 1) {
 
-                                                    $btn_qty = '
-                                                    <a href="#" 
-                                                        class="badge float-end ms-2 text-light border-warning bg-warning btn-item-qty badge-warning-filled-sm text-truncate"
-                                                        data-order-id="' . $order_id . '"
-                                                        data-item-id="' . $order->getId() . '"
-                                                    >Adjust Quantity</a>';
+                                                    if($is_authorised){
+
+                                                        $btn_qty = '
+                                                        <a href="#" 
+                                                            class="badge float-end ms-2 text-light border-warning 
+                                                            bg-warning btn-item-qty badge-warning-filled-sm text-truncate"
+                                                            data-order-id="' . $order_id . '"
+                                                            data-item-id="' . $order->getId() . '"
+                                                        >Adjust Quantity</a>';
+
+                                                    } else {
+
+                                                        $btn_qty = '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-truncate bg-disabled"
+                                                        >Adjust Quantity</span>';
+                                                    }
 
                                                 } else {
 
-                                                    $btn_qty = '
-                                                    <a href="#" 
-                                                        class="badge float-end ms-2 text-warning border-warning badge-warning-outline-only btn-item-qty badge-warning-sm text-truncate"
-                                                        data-order-id="' . $order_id . '"
-                                                        data-item-id="' . $order->getId() . '"
-                                                    >Adjust Quantity</a>';
+                                                    if($is_authorised){
+
+                                                        $btn_qty = '
+                                                        <a href="#" 
+                                                            class="badge float-end ms-2 text-warning border-warning 
+                                                            badge-warning-outline-only btn-item-qty badge-warning-sm text-truncate"
+                                                            data-order-id="' . $order_id . '"
+                                                            data-item-id="' . $order->getId() . '"
+                                                        >Adjust Quantity</a>';
+
+                                                    } else {
+
+                                                        $btn_qty = '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-truncate bg-disabled"
+                                                            data-order-id="' . $order_id . '"
+                                                            data-item-id="' . $order->getId() . '"
+                                                        >Adjust Quantity</span>';
+                                                    }
                                                 }
 
                                                 $response .= $btn_accept . $btn_qty . $btn_reject;
 
+                                            // Closed orders
                                             } elseif($order_status_id == 8){
 
                                                 $btn_status = '';
@@ -2206,10 +2447,21 @@ class OrdersController extends AbstractController
                                                 // Accept
                                                 if ($order->getIsAcceptedOnDelivery() == 1) {
 
-                                                    $btn_status = '
-                                                    <span 
-                                                        class="badge float-end ms-2 text-light border-success bg-success btn-item-accept w-sm-100 p-2 p-sm-1 badge-success-filled-sm"
-                                                    >Accepted</span>';
+                                                    if($is_authorised){
+
+                                                        $btn_status = '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-light border-success 
+                                                            bg-success btn-item-accept w-sm-100 p-2 p-sm-1 badge-success-filled-sm text-truncate"
+                                                        >Accepted</span>';
+
+                                                    } else {
+
+                                                        $btn_status = '
+                                                        <span 
+                                                            class="badge float-end ms-2 w-sm-100 p-2 p-sm-1 text-truncate bg-disabled"
+                                                        >Accepted</span>';
+                                                    }
 
                                                 }
 
@@ -2224,22 +2476,43 @@ class OrdersController extends AbstractController
 
                                                 $response .= $btn_status;
 
+                                            // Shipped
                                             } else {
 
                                                 if ($order->getIsAccepted() == 1) {
 
-                                                    $response .= '
-                                                    <span 
-                                                        class="badge float-end ms-2 text-success border border-success text-light bg-success w-sm-100 p-2 p-sm-1"
-                                                    >Accepted</span>';
+                                                    if($is_authorised){
+
+                                                        $response .= '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-success border border-success text-light bg-success w-sm-100 p-2 p-sm-1"
+                                                        >Accepted</span>';
+
+                                                    } else {
+
+                                                        $response .= '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-success border border-success text-light bg-success w-sm-100 p-2 p-sm-1 bg-disabled"
+                                                        >Accepted</span>';
+                                                    }
                                                 }
 
                                                 if ($order->getIsCancelled() == 1) {
 
-                                                    $response .= '
-                                                    <span 
-                                                        class="badge float-end ms-2 text-success border border-danger text-light bg-danger badge-danger-sm"
-                                                    >Cancelled</span>';
+                                                    if($is_authorised){
+
+                                                        $response .= '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-success border border-danger text-light bg-danger badge-danger-sm"
+                                                        >Cancelled</span>';
+
+                                                    } else {
+
+                                                        $response .= '
+                                                        <span 
+                                                            class="badge float-end ms-2 text-success border border-danger text-light bg-danger badge-danger-sm bg-disabled"
+                                                        >Cancelled</span>';
+                                                    }
                                                 }
                                             }
 
