@@ -90,7 +90,9 @@
             let is_addresses = uri.match('/clinics/addresses');
             let is_communication_method = uri.match('/clinics/communication-methods');
             let is_list = uri.match('/clinics/inventory/list/[0-9]+');
+            let is_edit_list = uri.match('/clinics/inventory/manage/list/[0-9]+');
             let is_analytics = uri.match('/clinics/analytics');
+            let is_manage_lists = uri.match('/clinics/inventory/lists');
             let orderid = '{{app.request.get('order_id')}}';
             let distributorid = '{{app.request.get('distributor_id')}}';
             let iti = '';
@@ -178,6 +180,19 @@
                 getSearchResults(1, '', true, '{{ app.request.get('list_id') }}');
             }
 
+            if(is_edit_list != null) {
+
+                getSingleShoppingList('{{ app.request.get('list_id') }}');
+            }
+
+            {# Manage Shopping lists #}
+            if(is_manage_lists != null) {
+
+                let keyword = '';
+
+                getShoppingLists(keyword);
+            }
+
             {# Inventory Search #}
             let page_no = 0;
             let form_data = '';
@@ -259,11 +274,11 @@
                     beforeSend: function (){
                         isLoading(true);
                     },
-                    {#complete: function(e, xhr, settings){#}
-                    {#    if(e.status === 500){#}
-                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
-                    {#    }#}
-                    {#},#}
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
                         $('#inventory').empty().append(response.html).show();
                         $('.container').removeClass('mt-5').addClass('mt-5');
@@ -2032,6 +2047,7 @@
             {# End Details #}
 
             {# Shopping Lists #}
+            let item_qty = '';
             function getShoppingLists(keyword){
 
                 $.ajax({
@@ -2051,6 +2067,35 @@
                         $('#basket_container').empty().addClass('col-container').append(response.response).show();
                         getBackButton();
                         window.history.pushState(null, "Fluid", '/clinics/inventory/lists');
+                    }
+                });
+            }
+            function getSingleShoppingList(list_id){
+
+                $.ajax({
+                    url: "{{ path('inventory_edit_list') }}",
+                    type: 'POST',
+                    cache: false,
+                    timeout: 600000,
+                    dataType: 'json',
+                    data: {
+                        list_id: list_id,
+                    },
+                    success: function (response) {
+
+                        $('#inventory').hide();
+                        $('#inventory_container').hide();
+                        $('#basket_container').empty().append(response.html).show();
+                        getBackButton();
+                        popOver();
+
+                        var maxWidth = Math.max.apply( null, $( '.stock-status' ).map( function () {
+                            return $( this ).outerWidth( true );
+                        }).get() );
+
+                        $('.stock-status').css({'width':maxWidth+'px'});
+
+                        window.history.pushState(null, "Fluid", '/clinics/inventory/manage/list/'+ list_id);
                     }
                 });
             }
@@ -2111,11 +2156,55 @@
 
                 e.preventDefault();
 
+                let product_id = $(this).data("id");
+                let list_id = $(this).data("value");
+
+                $.ajax({
+                    url: "{{ path('inventory_get_list_modal') }}",
+                    type: 'POST',
+                    cache: false,
+                    timeout: 600000,
+                    dataType: 'json',
+                    data: {
+                        product_id: product_id,
+                        list_id: list_id
+
+                    },
+                    success: function (response) {
+
+                        $('#modal_list_distributors').remove();
+                        $('#inventory_container').append(response);
+                        $('#modal_list_distributors').modal('toggle');
+
+                        var s = document.getElementById('list_distributor_id').options,
+                            l = 0,
+                            d = '';
+                        for(i = 0; i < s.length; i++){
+                            if(s[i].text.length > l) l = s[i].text.length;
+                        }
+                        for(i = 0; i < s.length; i++){
+                            d = '';
+                            line = s[i].text.split(';');
+                            l1 = (l - line[0].length);
+                            for(j = 0; j < l1; j++){
+                                d += '\u00a0';
+                            }
+                            s[i].text = line[0] + d + line[1];
+                        }
+                    }
+                });
+            });
+            $(document).on('click', "#save_list_distributor", function (e){
+
+                e.preventDefault();
+
                 let list_id = $(this).data("value");
                 let product_id = $(this).data("id");
+                let distributor_id = $('#list_distributor_id').val();
                 let is_valid = true;
 
-                if(list_id == '' || list_id == 'undefined' || product_id == '' || product_id == 'undefined'){
+                if(list_id == '' || list_id == 'undefined' || product_id == '' || product_id == 'undefined' ||
+                    distributor_id == '' || distributor_id == 'undefined'){
 
                     is_valid = false;
                 }
@@ -2131,11 +2220,11 @@
                         data: {
                             product_id: product_id,
                             list_id: list_id,
-
+                            distributor_id: distributor_id
                         },
                         success: function (response) {
                             $('#lists_'+ product_id).empty().append(response);
-
+                            $('#modal_list_distributors').modal('toggle');
                         }
                     });
                 }
@@ -2254,6 +2343,163 @@
                         getBackButton();
                     }
                 });
+            });
+            $(document).on('click', '.edit-list', function (e){
+
+                e.preventDefault();
+
+                let list_id = $(this).data('list-id');
+
+                getSingleShoppingList(list_id);
+            });
+            $(document).on('change', '.shopping-list-qty', function (){
+
+                let list_item_id = $(this).data('list-item-id');
+                let qty = $(this).val();
+                let is_valid = true;
+                $('#error_qty_'+ $(this).data('list-item-id')).hide();
+
+                if(qty == 0 || qty == '' || qty == 'undefined'){
+
+                    is_valid = false;
+                    $('#error_qty_'+ $(this).data('list-item-id')).empty().append('Please select a valid quantity.').show();
+
+                }
+
+                if(is_valid) {
+
+                    $.ajax({
+                        url: "{{ path('inventory_list_update_qty') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            list_item_id: list_item_id,
+                            qty: qty
+                        },
+                        beforeSend: function (){
+                            isLoading(true);
+                        },
+                        success: function (response) {
+
+                            if(response.list_id > 0){
+
+                                getSingleShoppingList(response.list_id);
+                            }
+
+                            getFlash(response.flash);
+                        },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
+
+                            isLoading(false);
+                        },
+                    });
+                }
+            });
+            $(document).on('click', '.remove-list-item', function (e){
+
+                e.preventDefault();
+
+                let item_id = $(this).data('item-id');
+
+                if(item_id > 0){
+
+                    $.ajax({
+                        url: "{{ path('list_remove_item') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            list_item_id: item_id
+                        },
+                        beforeSend: function (){
+                            isLoading(true);
+                        },
+                        success: function (response) {
+
+                            $('#inventory').hide();
+                            $('#inventory_container').hide();
+                            $('#basket_container').empty().append(response.html).show();
+                            getFlash(response.flash);
+                            getBackButton();
+                            popOver();
+
+                            var maxWidth = Math.max.apply( null, $( '.stock-status' ).map( function () {
+                                return $( this ).outerWidth( true );
+                            }).get() );
+
+                            $('.stock-status').css({'width':maxWidth+'px'});
+                        },
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
+
+                            isLoading(false);
+                        },
+                    });
+                }
+            });
+            $(document).on('click', '.shopping-list-qty', function (){
+
+                item_qty = $(this).val();
+                $(this).val('');
+            });
+            $(document).on('blur', '.shopping-list-qty', function (){
+
+                if($(this).val() == '' || $(this).val() == 'undefined'){
+
+                    $(this).val(item_qty);
+                };
+
+            });
+            $(document).on('click', '.list-add-basket', function (e){
+
+                e.preventDefault();
+
+                let list_id = $(this).data('list-id');
+                let clinic_id = $(this).data('clinic-id');
+                let clear_basket = $(this).data('basket-clear');
+                let is_valid = true;
+
+                if(
+                    list_id == '' || list_id == 'undefined' || clinic_id == '' || clinic_id == 'undefined' ||
+                    clear_basket === '' || clear_basket === 'undefined'
+                ){
+
+                    is_valid = false;
+                }
+
+                if(is_valid){
+
+                    $.ajax({
+                        url: "{{ path('list_add_to_basket') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            list_id: list_id,
+                            clinic_id: clinic_id,
+                            clear_basket: clear_basket
+                        },
+                        beforeSend: function (){
+                            isLoading(true);
+                        },
+                        success: function (response) {
+
+                            $('#modal_list_add_to_basket').modal('toggle');
+                            getBasket(response,true,'');
+
+                        },
+                        {#complete: function(e, xhr, settings){#}
+                        {#    if(e.status === 500){#}
+                        {#        window.location.href = '{{ path('clinic_error_500') }}';#}
+                        {#    }#}
+
+                        {#    isLoading(false);#}
+                        {#},#}
+                    });
+                }
             });
             {# End Shopping Lists #}
 

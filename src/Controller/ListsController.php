@@ -2,6 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\BasketItems;
+use App\Entity\Baskets;
+use App\Entity\DistributorProducts;
+use App\Entity\Distributors;
 use App\Entity\ListItems;
 use App\Entity\Lists;
 use App\Entity\Products;
@@ -170,7 +174,7 @@ class ListsController extends AbstractController
                 $delete_icon = '
                 <a 
                     href="#" 
-                    class="delete-list float-end me-3 text-danger delete-list"
+                    class="delete-list float-end me-3 delete-list"
                     data-list-id="'. $list->getId() .'"
                     data-bs-toggle="modal" 
                     data-bs-target="#modal_list_delete"
@@ -190,12 +194,19 @@ class ListsController extends AbstractController
                 <div class="col-2">
                     <a 
                         href="#" 
-                        class="view-list float-end text text-success view-list"
+                        class="view-list float-end text view-list"
                         data-list-id="'. $list->getId() .'"
                         data-keyword-string="'. $request->request->get('keyword') .'"
                         data-page-id="0"
                     >
                         <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <a 
+                        href=""
+                        class="float-end me-3 edit-list"
+                        data-list-id="'. $list->getId() .'"
+                    >
+                        <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                     '. $delete_icon .'
                 </div>
@@ -242,6 +253,11 @@ class ListsController extends AbstractController
         $data = $request->request;
         $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
         $products = $this->em->getRepository(Products::class)->find($data->get('product_id'));
+        $distributor = $this->em->getRepository(Distributors::class)->find($data->get('distributor_id'));
+        $distributor_product = $this->em->getRepository(DistributorProducts::class)->findOneBy([
+            'distributor' => $request->request->get('distributor_id'),
+            'product' => $request->request->get('product_id')
+        ]);
 
         $product_id = (int) $data->get('product_id');
         $list_id = (int) $data->get('list_id');
@@ -272,7 +288,10 @@ class ListsController extends AbstractController
 
         $list_item->setList($list);
         $list_item->setProduct($products);
+        $list_item->setDistributor($distributor);
+        $list_item->setDistributorProduct($distributor_product);
         $list_item->setName($products->getName());
+        $list_item->setQty(1);
 
         $this->em->persist($list_item);
         $this->em->flush();
@@ -291,7 +310,7 @@ class ListsController extends AbstractController
                 $is_selected = false;
 
                 for($c = 0; $c < count($lists[$i]->getListItems()); $c++){
-                    dump($lists[$i]->getListItems()[$c]->getProduct()->getId(),$product_id);
+
                     if($lists[$i]->getListItems()[$c]->getProduct()->getId() == $product_id){
 
                         $is_selected = true;
@@ -355,7 +374,7 @@ class ListsController extends AbstractController
                 $is_selected = false;
 
                 for($c = 0; $c < count($lists[$i]->getListItems()); $c++){
-                    dump($lists[$i]->getListItems()[$c]->getProduct()->getId(),$product_id);
+
                     if($lists[$i]->getListItems()[$c]->getProduct()->getId() == $product_id){
 
                         $is_selected = true;
@@ -391,6 +410,170 @@ class ListsController extends AbstractController
         $response .= $this->listCreateNew($product_id);
 
         return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/edit/list', name: 'inventory_edit_list')]
+    public function clinicsEditListAction(Request $request): Response
+    {
+        $data = $request->request;
+        $list = $this->em->getRepository(Lists::class)->getIndividualList($data->get('list_id'));
+        $col = '12';
+        $list_has_items = false;
+        $move_to_basket = true;
+
+        $response = $this->getEditList($list,$col,$list_has_items,$move_to_basket);
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/get-list-modal', name: 'inventory_get_list_modal')]
+    public function clinicsListModalAction(Request $request): Response
+    {
+        $distributor_products = $this->em->getRepository(DistributorProducts::class)->findBy([
+            'product' => $request->request->get('product_id')
+        ]);
+
+        $response = '
+        <!-- Modal Delete List -->
+        <div class="modal fade" id="modal_list_distributors" tabindex="-1" aria-labelledby="list_distributors_label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="list_distributors_label">
+                            Available Distributors
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12 mb-0">
+                                <select class="form-control" id="list_distributor_id">
+                                    <option value="">Select a distributor... ;</option>';
+
+                                foreach($distributor_products as $distributor_product){
+
+                                    $response .= '
+                                    <option value="'. $distributor_product->getDistributor()->getId() .'">
+                                        '. $distributor_product->getDistributor()->getDistributorName() .' 
+                                        ;$'. number_format($distributor_product->getUnitPrice(),2) .'
+                                    </option>';
+                                }
+
+                                $response .= '                            
+                                </select>   
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                        <button 
+                            type="button" 
+                            class="btn btn-primary btn-sm" 
+                            id="save_list_distributor"
+                            data-id="'. $request->request->get('product_id') .'"
+                            data-value="'. $request->request->get('list_id') .'"
+                        >SAVE</button>
+                    </div>
+                </div>
+            </div>
+        </div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/list/update-qty', name: 'inventory_list_update_qty')]
+    public function clinicsListUpdateQtyAction(Request $request): Response
+    {
+        $list_item = $this->em->getRepository(ListItems::class)->find($request->request->get('list_item_id'));
+        $response['list_id'] = 0;
+
+        if($list_item != null){
+
+            $list_item->setQty($request->request->get('qty'));
+
+            $this->em->persist($list_item);
+            $this->em->flush();
+
+            $response['list_id'] = $list_item->getList()->getId();
+        }
+
+        $response['flash'] = '
+        <b><i class="fas fa-check-circle"></i> 
+        Shopping list successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/list/remove-item', name: 'list_remove_item')]
+    public function clinicsListRemoveItemAction(Request $request): Response
+    {
+        $item_id = $request->request->get('list_item_id');
+        $item = $this->em->getRepository(ListItems::class)->find($item_id);
+        $list_id = $item->getList()->getId();
+        $col = '12';
+        $list_has_items = false;
+        $move_to_basket = true;
+
+        if($item != null){
+
+            $this->em->remove($item);
+            $this->em->flush();
+        }
+
+        $list = $this->em->getRepository(Lists::class)->getIndividualList($list_id);
+        $response = $this->getEditList($list,$col,$list_has_items,$move_to_basket);
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/clinics/inventory/list/basket/add', name: 'list_add_to_basket')]
+    public function clinicsListAddToBasketAction(Request $request): Response
+    {
+        $data = $request->request;
+        $list_id = $data->get('list_id');
+        $clinic_id = $data->get('clinic_id');
+        $clear_basket = $data->get('clear_basket');
+
+        $list = $this->em->getRepository(Lists::class)->getIndividualList($list_id);
+        $basket = $this->em->getRepository(Baskets::class)->findOneBy([
+            'clinic' => $clinic_id,
+            'isDefault' => 1,
+            'status' => 'active'
+
+        ]);
+
+        // Clear Basket
+        if($clear_basket == 1){
+
+            foreach($basket->getBasketItems() as $item){
+
+                $basket_item = $this->em->getRepository(BasketItems::class)->find($item->getId());
+                $this->em->remove($basket_item);
+            }
+
+            $this->em->flush();
+        }
+
+        foreach($list[0]->getListItems() as $item){
+
+            $basket_item = new BasketItems();
+            $product = $this->em->getRepository(Products::class)->find($item->getProduct());
+            $distributor = $this->em->getRepository(Distributors::class)->find($item->getDistributor());
+
+            $basket_item->setBasket($basket);
+            $basket_item->setProduct($product);
+            $basket_item->setDistributor($distributor);
+            $basket_item->setName($item->getName());
+            $basket_item->setQty($item->getQty());
+            $basket_item->setUnitPrice($product->getUnitPrice());
+            $basket_item->setTotal($item->getQty() * $product->getUnitPrice());
+
+            $this->em->persist($basket_item);
+        }
+
+        $this->em->flush();
+
+        return new JsonResponse($basket->getId());
     }
 
     private function getListRow($icon, $list_name, $list_id, $item_count, $keyword = ''){
@@ -456,5 +639,270 @@ class ListsController extends AbstractController
                     </a>
                 </div>
             </div>';
+    }
+
+    private function getEditList($list,$col,$list_has_items,$move_to_basket)
+    {
+        if(count($list[0]->getListItems()) > 0) {
+
+            $col = '9';
+            $list_has_items = true;
+        }
+
+        $html = '
+        <div class="row">
+            <div class="col-12 col-100 border-left border-right border-bottom bg-light">
+                <!-- Basket Name -->
+                <div class="row">
+                    <div class="col-12 bg-primary bg-gradient text-center pt-3 pb-3" id="basket_header">
+                        <h4 class="text-white">'. $list[0]->getName() .'</h4>
+                        <span class="text-white">
+                            Manage All Your Shopping Carts In One Place
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-12 col-lg-'. $col .'">';
+
+            $total = 0;
+
+            if(count($list[0]->getListItems()) > 0) {
+
+                foreach ($list[0]->getListItems() as $item){
+
+                    $sub_total = $item->getDistributorProduct()->getUnitPrice() * $item->getQty();
+                    $total += $sub_total;
+
+                    $html .= '
+                    <div class="row">
+                        <div class="col-12 pt-3 pb-3 bg-light border-right">
+                            <!-- Product Name and Qty -->
+                            <div class="row">
+                                <!-- Thumbnail -->
+                                <div class="col-12 col-sm-1 col-md-12 col-lg-1 text-center pt-3 pb-3 mt-3 mt-sm-0">
+                                    <img class="img-fluid basket-img" src="/images/products/'. $item->getProduct()->getImage() .'">
+                                </div>
+                                <!-- Product Name -->
+                                <div class="col-12 col-sm-7 col-md-12 col-lg-7 pt-3 pb-3 text-center text-sm-start d-table">
+                                    <div class="d-table-cell align-bottom">
+                                        <span class="info">'. $item->getDistributor()->getDistributorName() .'</span>
+                                        <h6 class="fw-bold text-primary lh-base mb-0">
+                                            Enroquin Flavored Tablets: 22.7 mg
+                                        </h6>
+                                    </div>
+                                </div>
+                                <!-- Product Quantity -->
+                                <div class="col-12 col-sm-4 col-md-12 col-lg-4 pt-3 pb-3 d-table">
+                                    <div class="row d-table-cell align-bottom">
+                                        <div class="col-4 text-center text-sm-end text-md-start text-lg-start d-table-cell align-bottom">
+                                            $'. number_format($item->getDistributorProduct()->getUnitPrice(),2) .'
+                                        </div>
+                                        <div class="col-4 d-table-cell">
+                                            <input 
+                                                type="text" 
+                                                list="qty_list_'. $item->getId() .'" 
+                                                data-list-item-id="'. $item->getId() .'" 
+                                                name="qty" 
+                                                class="form-control form-control-sm shopping-list-qty" 
+                                                value="'. $item->getQty() .'" 
+                                                ng-value="1"
+                                            >
+                                            <datalist class="datalist" id="qty_list_'. $item->getId() .'">
+                                                <option>1</option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                                <option>6</option>
+                                                <option>7</option>
+                                                <option>8</option>
+                                                <option>9</option>
+                                                <option>10</option>
+                                                <option>11</option>
+                                                <option>12</option>
+                                                <option>13</option>
+                                                <option>14</option>
+                                                <option>15</option>
+                                                <option>16</option>
+                                                <option>17</option>
+                                                <option>18</option>
+                                                <option>19</option>
+                                                <option>20</option>
+                                                <option id="qty_custom">Enter Quantity</option>
+                                            </datalist>
+                                            <div class="hidden_msg" id="error_qty_'. $item->getId() .'"></div>
+                                        </div>
+                                        <div class="col-4 text-center text-sm-start text-md-end fw-bold d-table-cell align-bottom">
+                                            $'. number_format($sub_total,2) .'
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Item Actions -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <!-- In Stock -->';
+                                    if($item->getDistributorProduct()->getStockCount() == 0){
+
+                                        $string = 'Out of Stock';
+                                        $colour = 'danger';
+                                        $move_to_basket = false;
+
+                                    } elseif($item->getDistributorProduct()->getStockCount() < $item->getQty()) {
+
+                                        $string = 'Only '. $item->getDistributorProduct()->getStockCount() .' In Stock';
+                                        $colour = 'warning';
+                                        $move_to_basket = false;
+
+                                    } else {
+
+                                        $string = 'In Stock';
+                                        $colour = 'success';
+                                    }
+
+                                    $html .= '
+                                    <span class="badge bg-'. $colour .' me-0 me-sm-2 badge-'. $colour .'-filled-sm stock-status">'. $string .'</span>
+                                    <!-- Shipping Policy -->
+                                    <span 
+                                        class="badge bg-dark-grey badge-pending-filled-sm" 
+                                        data-bs-trigger="hover" 
+                                        data-bs-container="body" 
+                                        data-bs-toggle="popover" 
+                                        data-bs-placement="top" 
+                                        data-bs-html="true" 
+                                        data-bs-content="'. $item->getDistributor()->getShippingPolicy() .'" 
+                                    >
+                                        Shipping Policy
+                                    </span>
+                                    
+                                    <!-- Remove Item -->
+                                    <span class="badge bg-danger float-end badge-danger-filled-sm remove-list-item">
+                                        <a 
+                                            href="#" 
+                                            class="remove-list-item text-white" 
+                                            data-item-id="'. $item->getId() .'"
+                                        >Remove</a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>';
+                }
+
+            } else {
+
+                $html .= '
+                <div class="row">
+                    <div class="col-md-12 text-center pt-5 pb-5 col-100 border-left border-right border-top border-bottom bg-light">
+                        There are currently no items in this shopping list. 
+                        Please use the search above to add items to this list
+                    </div>
+                </div>';
+            }
+
+            $html .= '
+            </div>';
+
+            if($list_has_items) {
+
+                $html .= '
+                    <!-- Right Column -->
+                    <div class="col-12 col-lg-3 pt-3 pb-3 bg-light border-right col-cell">
+                        <div class="row">
+                            <div class="col-12 text-truncate ps-0 ps-sm-2">
+                                <span class="info">Subtotal:</span>
+                                <h5 class="d-inline-block text-primary float-end">$' . number_format($total, 2) . '</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 info ps-0 ps-sm-2">
+                                Shipping: <span class="float-end fw-bold">$6.99</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 pt-4 text-center ps-0 ps-sm-2">';
+
+                if($move_to_basket){
+
+                    $html .= '
+                    <a 
+                        href="" 
+                        class="btn btn-primary w-100" 
+                        id="btn_list_add_to_basket" 
+                        data-list-id="'. $item->getList()->getId() .'"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal_list_add_to_basket"
+                    >
+                        ADD TO BASKET <i class="fa-solid fa-circle-plus ps-2"></i>
+                    </a>';
+
+                } else {
+
+                    $html .= '
+                    <span 
+                        class="btn btn-primary 
+                        w-100 btn-disabled" 
+                        style="cursor: text"
+                    >
+                        ADD TO BASKET <i class="fa-solid fa-circle-plus ps-2"></i>
+                    </span>';
+                }
+
+                $html .= '
+                        </div>
+                    </div>
+                </div>';
+
+            }
+
+            $html .= '
+            </div>
+            
+            <!-- Modal Add To Basket -->
+            <div class="modal fade" id="modal_list_add_to_basket" tabindex="-1" aria-labelledby="save_basket_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header basket-modal-header">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pb-0">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <h6>Clear current basket?</h6>
+                                    Would you like to clear your Fluid Commerc basket before adding the shopping list items to it?
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button 
+                                class="btn btn-primary btn-sm list-add-basket" 
+                                name="list_basket_save_clear" 
+                                data-basket-clear="1"
+                                data-list-id="'. $list[0]->getId() .'"
+                                data-clinic-id="'. $this->getUser()->getClinic()->getId() .'"
+                            >SAVE AND ADD</button>
+                            <button 
+                                class="btn btn-danger btn-sm list-add-basket" 
+                                name="list_basket_save" 
+                                data-basket-clear="0"
+                                data-list-id="'. $list[0]->getId() .'"
+                                data-clinic-id="'. $this->getUser()->getClinic()->getId() .'"
+                            >ADD</button>
+                        </div>
+                    </div>
+                </div>
+            </div>';
+
+        $response = [
+
+            'flash' => '<b><i class="fas fa-check-circle"></i> 
+                        Shopping list successfully updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>',
+            'html' => $html
+        ];
+
+        return $response;
     }
 }

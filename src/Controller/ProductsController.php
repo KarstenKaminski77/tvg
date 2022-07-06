@@ -45,6 +45,7 @@ class ProductsController extends AbstractController
     #[Route('/clinics/communication-methods', name: 'clinic_communication_methods')]
     #[Route('/clinics/order/{order_id}/{distributor_id}', name: 'clinic_order_details')]
     #[Route('/clinics/orders/{clinic_id}', name: 'clinic_orders_list')]
+    #[Route('/clinics/inventory/manage/list/{list_id}', name: 'clinic_edit_shopping_list')]
     public function index(Request $request): Response
     {
         $this->denyAccessUnlessGranted('ROLE_CLINIC');

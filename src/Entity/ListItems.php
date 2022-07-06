@@ -47,6 +47,16 @@ class ListItems
      */
     private $list;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=DistributorProducts::class, inversedBy="listItems")
+     */
+    private $distributorProduct;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $qty;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -128,6 +138,30 @@ class ListItems
     public function setList(?Lists $list): self
     {
         $this->list = $list;
+
+        return $this;
+    }
+
+    public function getDistributorProduct(): ?DistributorProducts
+    {
+        return $this->distributorProduct;
+    }
+
+    public function setDistributorProduct(?DistributorProducts $distributorProduct): self
+    {
+        $this->distributorProduct = $distributorProduct;
+
+        return $this;
+    }
+
+    public function getQty(): ?int
+    {
+        return $this->qty;
+    }
+
+    public function setQty(int $qty): self
+    {
+        $this->qty = $qty;
 
         return $this;
     }

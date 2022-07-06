@@ -31,6 +31,20 @@ class ListsRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
+    public function getIndividualList($list_id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('l')
+            ->select('l','li','d','dp','p')
+            ->leftJoin('l.listItems', 'li')
+            ->leftJoin('li.distributorProduct', 'dp')
+            ->leftJoin('dp.product', 'p')
+            ->leftJoin('dp.distributor', 'd')
+            ->andWhere('l.id = :list_id')
+            ->setParameter('list_id', $list_id)
+            ->orderBy('p.name', 'ASC');
+        return $queryBuilder->getQuery()->getResult();
+    }
+
     public function getLastList($clinic_id): object
     {
         $queryBuilder = $this->createQueryBuilder('l')

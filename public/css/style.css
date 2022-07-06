@@ -1631,6 +1631,10 @@ a.distributor-logo-container {
     cursor: text;
 }
 
+#list_distributor_id{
+    font-family:Lucida Console, Monaco5, monospace
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {
