@@ -187,11 +187,11 @@ class ListsController extends AbstractController
 
             $html .= '
             <div class="row pt-3 pb-3 border-bottom-dashed">
-                <div class="col-10">
+                <div class="col-7 col-sm-9 col-md-10">
                     <b>'. $list->getName() .' ('. $list->getListItems()->count() .')</b><br>
                     Fluid '. $list_type .' List
                 </div>
-                <div class="col-2">
+                <div class="col-5 col-sm-3 col-md-2">
                     <a 
                         href="#" 
                         class="view-list float-end text view-list"
@@ -434,7 +434,7 @@ class ListsController extends AbstractController
         ]);
 
         $response = '
-        <!-- Modal Delete List -->
+        <!-- Modal Distributor List -->
         <div class="modal fade" id="modal_list_distributors" tabindex="-1" aria-labelledby="list_distributors_label" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -664,6 +664,19 @@ class ListsController extends AbstractController
             </div>
         </div>
         <div class="row">
+            <div class="col-12 bg-light border-left border-right border-bottom">
+                <div class="col-12 pt-2 pb-2">
+                    <input 
+                        type="text" 
+                        id="inventory_search" 
+                        class="form-control" 
+                        placeholder="Inventory Item" 
+                        autocomplete="off" 
+                        data-list-id="'. $list[0]->getId() .'"
+                    />
+                    <div id="suggestion_field" style="display: none"></div>
+                </div>
+            </div>
             <!-- Left Column -->
             <div class="col-12 col-lg-'. $col .'">';
 
@@ -690,7 +703,7 @@ class ListsController extends AbstractController
                                     <div class="d-table-cell align-bottom">
                                         <span class="info">'. $item->getDistributor()->getDistributorName() .'</span>
                                         <h6 class="fw-bold text-primary lh-base mb-0">
-                                            Enroquin Flavored Tablets: 22.7 mg
+                                            '. $item->getProduct()->getName() . ': ' . $item->getProduct()->getDosage() . ' ' . $item->getProduct()->getUnit() .'
                                         </h6>
                                     </div>
                                 </div>
@@ -883,7 +896,7 @@ class ListsController extends AbstractController
                                 data-basket-clear="1"
                                 data-list-id="'. $list[0]->getId() .'"
                                 data-clinic-id="'. $this->getUser()->getClinic()->getId() .'"
-                            >SAVE AND ADD</button>
+                            >CLEAR AND ADD</button>
                             <button 
                                 class="btn btn-danger btn-sm list-add-basket" 
                                 name="list_basket_save" 

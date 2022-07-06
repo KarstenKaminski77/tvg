@@ -490,6 +490,7 @@
                         $('#saved_items_container').hide();
                         isLoading(false);
                         clearInterval(get_messages);
+                        $('.back-to-search').remove();
 
                         if(redirect) {
 
@@ -2175,6 +2176,7 @@
                         $('#modal_list_distributors').remove();
                         $('#inventory_container').append(response);
                         $('#modal_list_distributors').modal('toggle');
+                        $('body').css('overflow', '');
 
                         var s = document.getElementById('list_distributor_id').options,
                             l = 0,
@@ -2202,6 +2204,7 @@
                 let product_id = $(this).data("id");
                 let distributor_id = $('#list_distributor_id').val();
                 let is_valid = true;
+                let is_manage_list = uri.match('/clinics/inventory/manage/list/[0-9]+');
 
                 if(list_id == '' || list_id == 'undefined' || product_id == '' || product_id == 'undefined' ||
                     distributor_id == '' || distributor_id == 'undefined'){
@@ -2223,7 +2226,16 @@
                             distributor_id: distributor_id
                         },
                         success: function (response) {
-                            $('#lists_'+ product_id).empty().append(response);
+
+                            if(is_manage_list != null){
+
+                                getSingleShoppingList(list_id);
+
+                            } else {
+
+                                $('#lists_'+ product_id).empty().append(response);
+                            }
+
                             $('#modal_list_distributors').modal('toggle');
                         }
                     });
@@ -2491,15 +2503,30 @@
                             getBasket(response,true,'');
 
                         },
-                        {#complete: function(e, xhr, settings){#}
-                        {#    if(e.status === 500){#}
-                        {#        window.location.href = '{{ path('clinic_error_500') }}';#}
-                        {#    }#}
+                        complete: function(e, xhr, settings){
+                            if(e.status === 500){
+                                window.location.href = '{{ path('clinic_error_500') }}';
+                            }
 
-                        {#    isLoading(false);#}
-                        {#},#}
+                            isLoading(false);
+                        },
                     });
                 }
+            });
+            $(document).on('keyup', '#inventory_search', function(){
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('clinics_list_inventory_search') }}",
+                    data: {
+                        keyword: $(this).val(),
+                        list_id: $(this).data('list-id'),
+                    },
+                    success: function(data){
+                        $("#suggestion_field").show();
+                        $("#suggestion_field").html(data);
+                    }
+                });
             });
             {# End Shopping Lists #}
 
@@ -5010,6 +5037,52 @@
             {# End Mebu Drop Downs #}
 
         });
+
+        function selectProduct(id, name, list_id) {
+
+            if (id > 0) {
+
+
+                $.ajax({
+                    url: "{{ path('inventory_get_list_modal') }}",
+                    type: 'POST',
+                    cache: false,
+                    timeout: 600000,
+                    dataType: 'json',
+                    data: {
+                        product_id: id,
+                        list_id: list_id
+
+                    },
+                    success: function (response) {
+
+                        $('#modal_list_distributors').remove();
+                        $('#basket_container').append(response);
+                        $('#modal_list_distributors').modal('toggle');
+                        $('body').css('overflow', '');
+
+                        var s = document.getElementById('list_distributor_id').options,
+                            l = 0,
+                            d = '';
+                        for(i = 0; i < s.length; i++){
+                            if(s[i].text.length > l) l = s[i].text.length;
+                        }
+                        for(i = 0; i < s.length; i++){
+                            d = '';
+                            line = s[i].text.split(';');
+                            l1 = (l - line[0].length);
+                            for(j = 0; j < l1; j++){
+                                d += '\u00a0';
+                            }
+                            s[i].text = line[0] + d + line[1];
+                        }
+                    }
+                });
+
+                $("#search_field").val(name);
+                $("#suggestion_field").hide();
+            }
+        }
 
         {# Popovers #}
         function popOver() {

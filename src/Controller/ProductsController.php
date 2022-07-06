@@ -1098,4 +1098,46 @@ class ProductsController extends AbstractController
         ]);
     }
 
+    #[Route('/clinics/list/inventory-search', name: 'clinics_list_inventory_search')]
+    public function clinicListsInventorySearchAction(Request $request): Response
+    {
+        $products = $this->em->getRepository(Products::class)->findBySearch($request->get('keyword'));
+        $select = '<ul id="product_list">';
+
+        foreach($products as $product){
+
+            $id = $product->getId();
+            $name = $product->getName();
+            $list_id = $request->request->get('list_id');
+            $dosage = '';
+            $size = '';
+
+            if(!empty($product->getDosage())) {
+
+                $unit = '';
+
+                if(!empty($product->getUnit())) {
+
+                    $unit = $product->getUnit();
+                }
+
+                $dosage = ' | '. $product->getDosage() . $unit;
+            }
+
+            if(!empty($product->getSize())) {
+
+                $size = ' | '. $product->getSize();
+            }
+
+            $select .= "
+            <li onClick=\"selectProduct('$id', '$name','$list_id');\">
+                $name$dosage$size
+            </li>";
+        }
+
+        $select .= '</ul>';
+
+        return new Response($select);
+    }
+
 }

@@ -212,9 +212,16 @@ label {
     position: absolute;
     left: 0;
     right: 0;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
 
-#product_list li{padding: 10px; background: #f0f0f0; border-bottom: #bbb9b9 1px solid;}
+#product_list li{
+    padding: 10px;
+    background: #f0f0f0;
+    border-left: #bbb9b9 1px solid;
+    border-right: #bbb9b9 1px solid;
+    border-bottom: #bbb9b9 1px solid;
+}
 
 #product_list li:hover{background:#f1faff;cursor: pointer;}
 
