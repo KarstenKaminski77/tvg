@@ -323,6 +323,78 @@
 
                 e.preventDefault();
 
+                let product_id = $(this).data("product-id");
+                let list_id = $(this).data("list-id");
+                let favourite = $(this).attr('data-favourite');
+
+                if(favourite == 'false') {
+
+                    $.ajax({
+                        url: "{{ path('inventory_get_list_modal') }}",
+                        type: 'POST',
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: {
+                            product_id: product_id,
+                            list_id: list_id
+
+                        },
+                        success: function (response) {
+
+                            $('#modal_list_distributors').remove();
+                            $('#inventory_container').append(response);
+                            $('#modal_list_distributors').modal('toggle');
+                            $('#save_list_distributor').attr('data-favourite','true');
+                            $('body').css('overflow', '');
+
+                            var s = document.getElementById('list_distributor_id').options,
+                                l = 0,
+                                d = '';
+                            for (i = 0; i < s.length; i++) {
+                                if (s[i].text.length > l) l = s[i].text.length;
+                            }
+                            for (i = 0; i < s.length; i++) {
+                                d = '';
+                                line = s[i].text.split(';');
+                                l1 = (l - line[0].length);
+                                for (j = 0; j < l1; j++) {
+                                    d += '\u00a0';
+                                }
+                                s[i].text = line[0] + d + line[1];
+                            }
+                        }
+                    });
+
+                } else {
+
+                    let distributor_id = $(this).data('distributor-id');
+
+                    $.ajax({
+                        url: "{{ path('inventory_manage_list') }}",
+                        type: 'POST',
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: {
+                            product_id: product_id,
+                            list_id: list_id,
+                            distributor_id: distributor_id,
+                            favourite: favourite,
+                            delete: true,
+                        },
+                        success: function (response) {
+
+                            $('#favourite_'+ product_id).removeClass('text-secondary').addClass('icon-unchecked')
+                                .attr('data-favourite', false).removeAttr('data-distributor-id');
+                        }
+                    });
+                }
+            });
+            $(document).on('click', '.favouritexxx', function (e){
+
+                e.preventDefault();
+
                 let product_id = $(this).data('product-id');
 
                 $.ajax({
@@ -331,11 +403,11 @@
                     data: {
                         product_id: product_id
                     },
-                    complete: function(e, xhr, settings){
-                        if(e.status === 500){
-                            window.location.href = '{{ path('clinic_error_500') }}';
-                        }
-                    },
+                    {#complete: function(e, xhr, settings){#}
+                    {#    if(e.status === 500){#}
+                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
+                    {#    }#}
+                    {#},#}
                     success: function (response) {
 
                         if(response == true){
@@ -2160,6 +2232,8 @@
                 let product_id = $(this).data("id");
                 let list_id = $(this).data("value");
 
+                $('#save_list_distributor').removeAttr('data-favourite');
+
                 $.ajax({
                     url: "{{ path('inventory_get_list_modal') }}",
                     type: 'POST',
@@ -2205,11 +2279,18 @@
                 let distributor_id = $('#list_distributor_id').val();
                 let is_valid = true;
                 let is_manage_list = uri.match('/clinics/inventory/manage/list/[0-9]+');
+                let is_favourite = uri.match('/clinics/inventory');
+                let favourite = false;
 
                 if(list_id == '' || list_id == 'undefined' || product_id == '' || product_id == 'undefined' ||
                     distributor_id == '' || distributor_id == 'undefined'){
 
                     is_valid = false;
+                }
+
+                if(is_favourite != null && typeof $(this).attr('data-favourite') !== 'undefined'){
+
+                    favourite = true;
                 }
 
                 if(is_valid){
@@ -2223,17 +2304,37 @@
                         data: {
                             product_id: product_id,
                             list_id: list_id,
-                            distributor_id: distributor_id
+                            distributor_id: distributor_id,
+                            favourite: favourite
                         },
                         success: function (response) {
 
-                            if(is_manage_list != null){
+                            if(response.is_favourite != undefined){
 
-                                getSingleShoppingList(list_id);
+                                $('#favourite_'+ product_id).removeClass('icon-unchecked').addClass('text-secondary')
+                                    .attr('data-favourite', true).attr('data-distributor-id', distributor_id);
 
                             } else {
 
-                                $('#lists_'+ product_id).empty().append(response);
+                                if (is_manage_list != null) {
+
+                                    getSingleShoppingList(list_id);
+
+                                } else if ($(this).data('favourite') != undefined) {
+
+                                    if (response == true) {
+
+                                        $('#favourite_' + product_id).removeClass('icon-unchecked').addClass('text-secondary');
+
+                                    } else {
+
+                                        $('#favourite_' + product_id).removeClass('text-secondary').addClass('icon-unchecked');
+                                    }
+
+                                } else {
+
+                                    $('#lists_' + product_id).empty().append(response);
+                                }
                             }
 
                             $('#modal_list_distributors').modal('toggle');

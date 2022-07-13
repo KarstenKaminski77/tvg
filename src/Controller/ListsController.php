@@ -8,8 +8,10 @@ use App\Entity\DistributorProducts;
 use App\Entity\Distributors;
 use App\Entity\ListItems;
 use App\Entity\Lists;
+use App\Entity\ProductFavourites;
 use App\Entity\Products;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -284,19 +286,62 @@ class ListsController extends AbstractController
         }
 
         // List item
-        $list_item = new ListItems();
+        if(!$data->get('delete')) {
 
-        $list_item->setList($list);
-        $list_item->setProduct($products);
-        $list_item->setDistributor($distributor);
-        $list_item->setDistributorProduct($distributor_product);
-        $list_item->setName($products->getName());
-        $list_item->setQty(1);
+            $list_item = new ListItems();
 
-        $this->em->persist($list_item);
-        $this->em->flush();
+            $list_item->setList($list);
+            $list_item->setProduct($products);
+            $list_item->setDistributor($distributor);
+            $list_item->setDistributorProduct($distributor_product);
+            $list_item->setName($products->getName());
+            $list_item->setQty(1);
 
-        $lists = $this->em->getRepository(Lists::class)->getClinicLists($clinic->getId($data->get('product_id')));
+            $this->em->persist($list_item);
+            $this->em->flush();
+        }
+
+        // Favourites
+        if($data->get('favourite') == 'true'){
+
+            if($data->get('delete')) {
+
+                $product_favourite = $this->em->getRepository(ProductFavourites::class)->findOneBy([
+                    'product' => $product_id,
+                    'clinic' => $clinic->getId()
+                ]);
+
+                $list_item = $this->em->getRepository(ListItems::class)->findOneBy([
+                    'product' => $product_id,
+                    'list' => $list_id
+                ]);
+
+                $this->em->remove($product_favourite);
+                $this->em->remove($list_item);
+
+            } else {
+
+                $clinic = $this->getUser()->getClinic();
+                $list = $this->em->getRepository(Lists::class)->findOneBy([
+                    'clinic' => $clinic,
+                    'listType' => 'favourite',
+                ]);
+
+                $product_favourite = new ProductFavourites();
+
+                $product_favourite->setClinic($clinic);
+                $product_favourite->setProduct($products);
+
+                $this->em->persist($product_favourite);
+
+            }
+
+            $this->em->flush();
+
+            return new JsonResponse(['is_favourite' => true]);
+        }
+
+        $lists = $this->em->getRepository(Lists::class)->getClinicLists($clinic->getId());
 
         $response = '<h3 class="pb-3 pt-3">Shopping Lists</h3>';
 
@@ -305,7 +350,6 @@ class ListsController extends AbstractController
             if(count($lists[$i]->getListItems()) > 0) {
 
                 $item_count = true;
-
                 $item_id = $lists[$i]->getListItems()[0]->getList()->getListItems()[0]->getId();
                 $is_selected = false;
 
@@ -514,11 +558,26 @@ class ListsController extends AbstractController
         $list_has_items = false;
         $move_to_basket = true;
 
+        // If favourite
+        if($item->getList()->getListType() == 'favourite'){
+
+            $product_favourite = $this->em->getRepository(ProductFavourites::class)->findOneBy([
+                'product' => $item->getProduct()->getId(),
+                'clinic' => $this->getUser()->getClinic()->getId()
+            ]);
+
+            if($product_favourite != null){
+
+                $this->em->remove($product_favourite);
+            }
+        }
+
         if($item != null){
 
             $this->em->remove($item);
-            $this->em->flush();
         }
+
+        $this->em->flush();
 
         $list = $this->em->getRepository(Lists::class)->getIndividualList($list_id);
         $response = $this->getEditList($list,$col,$list_has_items,$move_to_basket);
@@ -578,7 +637,7 @@ class ListsController extends AbstractController
 
     private function getListRow($icon, $list_name, $list_id, $item_count, $keyword = ''){
 
-        if($item_count){
+        if($item_count == true){
 
             $link = '<a href="" data-keyword-string="'. $keyword .'" class="float-end view-list" data-list-id="'. $list_id .'">View List</a>';
 

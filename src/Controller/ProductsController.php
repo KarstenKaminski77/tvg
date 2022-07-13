@@ -193,6 +193,10 @@ class ProductsController extends AbstractController
 
             foreach($results as $product){
 
+                $favourite = $this->em->getRepository(Lists::class)->findOneBy([
+                    'listType' => 'favourite',
+                    'clinic' => $user->getClinic()->getId()
+                ]);
                 $product_notes = $this->em->getRepository(ProductNotes::class)->findNotes($product->getId(), $user->getClinic()->getId());
                 $count_reviews = $product->getProductReviews()->count();
                 $count_notes = $product->getProductNotes()->count();
@@ -244,10 +248,19 @@ class ProductsController extends AbstractController
                 if($product_favourite == null){
 
                     $favourite_icon = 'icon-unchecked';
+                    $data_favourite = 'false';
+                    $data_distributor = '';
 
                 } else {
 
+                    $list_item = $this->em->getRepository(ListItems::class)->findOneBy([
+                        'product' => $product->getId(),
+                        'list' => $favourite->getId()
+                    ]);
+
                     $favourite_icon = 'text-secondary';
+                    $data_favourite = 'true';
+                    $data_distributor = 'data-distributor-id="'. $list_item->getDistributor()->getId() .'"';
                 }
 
                 if($product_notes == null){
@@ -309,7 +322,10 @@ class ProductsController extends AbstractController
                                 href="" 
                                 class="favourite '. $favourite_icon .'"
                                 data-product-id="'. $product->getId() .'"
+                                data-list-id="'. $favourite->getId() .'"
+                                data-favourite="'. $data_favourite .'"
                                 id="favourite_'. $product->getId() .'"
+                                '. $data_distributor .'
                             >
                                 <i class="fa-solid fa-heart"></i>
                             </a>
@@ -1021,6 +1037,7 @@ class ProductsController extends AbstractController
             $list_item->setProduct($product);
             $list_item->setList($list);
             $list_item->setName($product->getName());
+            $list_item->setQty(1);
 
             $this->em->persist($list_item);
 
