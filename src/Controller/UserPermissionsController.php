@@ -17,10 +17,4 @@ class UserPermissionsController extends AbstractController
     public function __construct(EntityManagerInterface $em) {
         $this->em = $em;
     }
-
-    #[Route('/user/permissions', name: 'inventory_get_notes')]
-    private function noteCreateNew($product_id)
-    {
-
-    }
 }

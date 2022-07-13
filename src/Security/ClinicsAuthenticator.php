@@ -51,7 +51,9 @@ class ClinicsAuthenticator extends AbstractLoginFormAuthenticator
 
         // For example:
         //return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        return new RedirectResponse($this->urlGenerator->generate('clinic_dashboard'));
+        return new RedirectResponse($this->urlGenerator->generate('clinic_orders_list', [
+            'clinic_id' => $token->getUser()->getClinic()->getId()
+        ]));
     }
 
     protected function getLoginUrl(Request $request): string
