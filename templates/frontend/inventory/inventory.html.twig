@@ -403,11 +403,11 @@
                     data: {
                         product_id: product_id
                     },
-                    {#complete: function(e, xhr, settings){#}
-                    {#    if(e.status === 500){#}
-                    {#        window.location.href = '{{ path('clinic_error_500') }}';#}
-                    {#    }#}
-                    {#},#}
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+                    },
                     success: function (response) {
 
                         if(response == true){
@@ -2131,7 +2131,8 @@
                     dataType: 'json',
                     data: {
                         list_id: 0,
-                        keyword: keyword
+                        keyword: keyword,
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     beforeSend: function () {
 
@@ -2164,6 +2165,7 @@
                     dataType: 'json',
                     data: {
                         list_id: list_id,
+                        permissions: '{{ permissions|json_encode }}'
                     },
                     beforeSend: function () {
 
@@ -2224,13 +2226,13 @@
                         dataType: 'json',
                         data: {
                             id: product_id,
-                            keyword: keyword
+                            keyword: keyword,
+                            permissions: '{{ permissions|json_encode }}',
                         },
                         success: function (response) {
                             $('#lists_'+ product_id).empty();
                             $('#lists_'+ product_id).append(response);
-                            $('#inventory_container').css({overflow:"auto"})
-
+                            $('#inventory_container').css({overflow:"auto"});
                         }
                     });
 
@@ -2327,7 +2329,8 @@
                             product_id: product_id,
                             list_id: list_id,
                             distributor_id: distributor_id,
-                            favourite: favourite
+                            favourite: favourite,
+                            permissions: '{{ permissions|json_encode }}'
                         },
                         success: function (response) {
 

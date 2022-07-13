@@ -31,8 +31,17 @@ class ListsController extends AbstractController
     {
         $clinic = $this->get('security.token_storage')->getToken()->getUser()->getClinic();
         $lists = $this->em->getRepository(Lists::class)->getClinicLists($clinic->getId());
-
         $product_id = (int) $request->request->get('id');
+
+        // user permissions
+        if(is_array($request->request->get('permissions'))){
+
+            $permissions = json_decode($request->request->get('permissions'), true);
+
+        } else {
+
+            $permissions = json_decode($request->request->get('permissions'), true);
+        }
 
         $response = '<h3 class="pb-3 pt-3">Shopping Lists</h3>';
 
@@ -46,6 +55,19 @@ class ListsController extends AbstractController
         } else {
 
             for($i = 0; $i < count($lists); $i++){
+
+                $is_authorised = true;
+                $tag = 'a';
+                $class_add = 'list_add_item';
+                $class_remove = 'list_remove_item';
+
+                if(!in_array(2, $permissions)){
+
+                    $is_authorised = false;
+                    $tag = 'span';
+                    $class_add = 'text-disabled';
+                    $class_remove = 'text-disabled';
+                }
 
                 if(count($lists[$i]->getListItems()) > 0) {
 
@@ -65,24 +87,27 @@ class ListsController extends AbstractController
 
                     if($is_selected) {
 
-                        $icon = '<a href="" class="list_remove_item" data-id="' . $product_id . '" data-value="' . $item_id . '">
+                        $icon = '
+                        <'. $tag .' href="" class="'. $class_remove .'" data-id="' . $product_id . '" data-value="' . $item_id . '">
                             <i class="fa-solid fa-circle-check pe-2 list-icon list-icon-checked"></i>
-                        </a>';
+                        </'. $tag .'>';
 
                     } else {
 
-                        $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
+                        $icon = '
+                        <'. $tag .' href="" class="'. $class_add .'" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
                             <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
-                        </a>';
+                        </'. $tag .'>';
                     }
 
                 } else {
 
                     $item_count = false;
 
-                    $icon = '<a href="" class="list_add_item" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
-                            <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
-                        </a>';
+                    $icon = '
+                    <'. $tag .' href="" class="'. $class_add .'" data-id="'. $product_id .'" data-value="'. $lists[$i]->getId() .'">
+                        <i class="fa-solid fa-circle-plus pe-2 list-icon list-icon-unchecked"></i>
+                    </'. $tag .'>';
                 }
 
                 $response .= $this->getListRow($icon, $lists[$i]->getName(), $lists[$i]->getId(), $item_count, $request->request->get('keyword'));
@@ -127,6 +152,17 @@ class ListsController extends AbstractController
     {
         $clinic = $this->getUser()->getClinic();
         $list_id = $request->request->get('list_id');
+        $permissions = [];
+
+        // user permissions
+        if(is_array($request->request->get('permissions'))){
+
+            $permissions = json_decode($request->request->get('permissions'), true);
+
+        } else {
+
+            $permissions = json_decode($request->request->get('permissions'), true);
+        }
 
         if($list_id > 0){
 
@@ -168,21 +204,34 @@ class ListsController extends AbstractController
 
         foreach($lists as $list){
 
+            $is_authorised = true;
+            $tag = 'a';
+            $class_delete = 'delete-list';
+            $class_edit = 'edit-list';
+
+            if(!in_array(2, $permissions)){
+
+                $is_authorised = false;
+                $tag = 'span';
+                $class_delete = 'text-disabled';
+                $class_edit = 'text-disabled';
+            }
+
             $delete_icon = '';
             $list_type = 'Default';
 
             if($list->getIsProtected() == 0){
 
                 $delete_icon = '
-                <a 
+                <'. $tag .' 
                     href="#" 
-                    class="delete-list float-end me-3 delete-list"
+                    class="delete-list float-end me-3 '. $class_delete .'"
                     data-list-id="'. $list->getId() .'"
                     data-bs-toggle="modal" 
                     data-bs-target="#modal_list_delete"
                 >
                     <i class="fa-solid fa-trash-can"></i>
-                </a>';
+                </'. $tag .'>';
 
                 $list_type = 'Custom';
             }
@@ -203,13 +252,13 @@ class ListsController extends AbstractController
                     >
                         <i class="fa-solid fa-eye"></i>
                     </a>
-                    <a 
+                    <'. $tag .' 
                         href=""
-                        class="float-end me-3 edit-list"
+                        class="float-end me-3 '. $class_edit .'"
                         data-list-id="'. $list->getId() .'"
                     >
                         <i class="fa-solid fa-pen-to-square"></i>
-                    </a>
+                    </'. $tag .'>
                     '. $delete_icon .'
                 </div>
             </div>';
@@ -465,7 +514,17 @@ class ListsController extends AbstractController
         $list_has_items = false;
         $move_to_basket = true;
 
-        $response = $this->getEditList($list,$col,$list_has_items,$move_to_basket);
+        // user permissions
+        if(is_array($request->request->get('permissions'))){
+
+            $permissions = json_decode($request->request->get('permissions'), true);
+
+        } else {
+
+            $permissions = json_decode($request->request->get('permissions'), true);
+        }
+
+        $response = $this->getEditList($list,$col,$list_has_items,$move_to_basket, $permissions);
 
         return new JsonResponse($response);
     }
@@ -579,8 +638,18 @@ class ListsController extends AbstractController
 
         $this->em->flush();
 
+        // user permissions
+        if(is_array($request->request->get('permissions'))){
+
+            $permissions = json_decode($request->request->get('permissions'), true);
+
+        } else {
+
+            $permissions = json_decode($request->request->get('permissions'), true);
+        }
+
         $list = $this->em->getRepository(Lists::class)->getIndividualList($list_id);
-        $response = $this->getEditList($list,$col,$list_has_items,$move_to_basket);
+        $response = $this->getEditList($list,$col,$list_has_items,$move_to_basket, $permissions);
 
         return new JsonResponse($response);
     }
@@ -700,12 +769,29 @@ class ListsController extends AbstractController
             </div>';
     }
 
-    private function getEditList($list,$col,$list_has_items,$move_to_basket)
+    private function getEditList($list,$col,$list_has_items,$move_to_basket, $permissions)
     {
         if(count($list[0]->getListItems()) > 0) {
 
             $col = '9';
             $list_has_items = true;
+        }
+
+        $is_authorised = true;
+        $is_place_order_authorised = true;
+        $disabled = '';
+
+        // Manage Shopping Lists
+        if(!in_array(2, $permissions)){
+
+            $is_authorised = false;
+            $disabled = 'disabled';
+        }
+
+        // Place Orders
+        if(!in_array(3, $permissions)){
+
+            $is_place_order_authorised = false;
         }
 
         $html = '
@@ -732,6 +818,7 @@ class ListsController extends AbstractController
                         placeholder="Inventory Item" 
                         autocomplete="off" 
                         data-list-id="'. $list[0]->getId() .'"
+                        '. $disabled .'
                     />
                     <div id="suggestion_field" style="display: none"></div>
                 </div>
@@ -781,6 +868,7 @@ class ListsController extends AbstractController
                                                 class="form-control form-control-sm shopping-list-qty" 
                                                 value="'. $item->getQty() .'" 
                                                 ng-value="1"
+                                                '. $disabled .'
                                             >
                                             <datalist class="datalist" id="qty_list_'. $item->getId() .'">
                                                 <option>1</option>
@@ -850,14 +938,31 @@ class ListsController extends AbstractController
                                         Shipping Policy
                                     </span>
                                     
-                                    <!-- Remove Item -->
-                                    <span class="badge bg-danger float-end badge-danger-filled-sm remove-list-item">
-                                        <a 
-                                            href="#" 
-                                            class="remove-list-item text-white" 
-                                            data-item-id="'. $item->getId() .'"
-                                        >Remove</a>
-                                    </span>
+                                    <!-- Remove Item -->';
+
+                                    if($is_authorised){
+
+                                        $html .= '
+                                        <span class="badge bg-danger float-end badge-danger-filled-sm remove-list-item">
+                                            <a 
+                                                href="#" 
+                                                class="remove-list-item text-white" 
+                                                data-item-id="'. $item->getId() .'"
+                                            >Remove</a>
+                                        </span>';
+
+                                    } else {
+
+                                        $html .= '
+                                        <span class="badge float-end bg-disabled">
+                                            <span 
+                                                href="#" 
+                                                data-item-id="'. $item->getId() .'"
+                                            >Remove</span>
+                                        </span>';
+                                    }
+
+                                $html .= '
                                 </div>
                             </div>
                         </div>
@@ -899,17 +1004,30 @@ class ListsController extends AbstractController
 
                 if($move_to_basket){
 
-                    $html .= '
-                    <a 
-                        href="" 
-                        class="btn btn-primary w-100" 
-                        id="btn_list_add_to_basket" 
-                        data-list-id="'. $item->getList()->getId() .'"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modal_list_add_to_basket"
-                    >
-                        ADD TO BASKET <i class="fa-solid fa-circle-plus ps-2"></i>
-                    </a>';
+                    if($is_place_order_authorised){
+
+                        $html .= '
+                        <a 
+                            href="" 
+                            class="btn btn-primary w-100" 
+                            id="btn_list_add_to_basket" 
+                            data-list-id="'. $item->getList()->getId() .'"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modal_list_add_to_basket"
+                        >
+                            ADD TO BASKET <i class="fa-solid fa-circle-plus ps-2"></i>
+                        </a>';
+
+                    } else {
+
+                        $html .= '
+                        <span 
+                            class="btn btn-primary w-100 btn-disabled" 
+                            style="cursor: text"
+                        >
+                            ADD TO BASKET <i class="fa-solid fa-circle-plus ps-2"></i>
+                        </span>';
+                    }
 
                 } else {
 
