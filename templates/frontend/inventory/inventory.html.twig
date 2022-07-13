@@ -2133,6 +2133,10 @@
                         list_id: 0,
                         keyword: keyword
                     },
+                    beforeSend: function () {
+
+                        isLoading(true);
+                    },
                     success: function (response) {
 
                         $('#inventory').hide();
@@ -2140,6 +2144,13 @@
                         $('#basket_container').empty().addClass('col-container').append(response.response).show();
                         getBackButton();
                         window.history.pushState(null, "Fluid", '/clinics/inventory/lists');
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+
+                        isLoading(false);
                     }
                 });
             }
@@ -2153,6 +2164,10 @@
                     dataType: 'json',
                     data: {
                         list_id: list_id,
+                    },
+                    beforeSend: function () {
+
+                      isLoading(true);
                     },
                     success: function (response) {
 
@@ -2169,7 +2184,14 @@
                         $('.stock-status').css({'width':maxWidth+'px'});
 
                         window.history.pushState(null, "Fluid", '/clinics/inventory/manage/list/'+ list_id);
-                    }
+                    },
+                    complete: function(e, xhr, settings){
+                        if(e.status === 500){
+                            window.location.href = '{{ path('clinic_error_500') }}';
+                        }
+
+                        isLoading(false);
+                    },
                 });
             }
             $(document).on('click', '.view-list', function (){
