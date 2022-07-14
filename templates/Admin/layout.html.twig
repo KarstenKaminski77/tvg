@@ -1,0 +1,97 @@
+{% extends '/Admin/base.html.twig' %}
+
+{% block widgets %}{% endblock %}
+
+{% block body %}
+    {# Header #}
+    {% block header %}
+        {% include 'Admin/_header.html.twig' %}
+    {% endblock header %}
+    {% block flash_messages %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success text-center">
+                {{ message|raw }}
+            </div>
+        {% endfor %}
+    {% endblock %}
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <div class="col-2 col-sm-2 col-md-3 col-xl-2 px-sm-2 px-md-0 bg-light border-right distributor-left-col">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 text-truncate overflow-hidden">
+                    <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none distributor-logo-container">
+                        <img src="{{ asset('images/logo-150.png') }}" class="img-fluid distributor-logo">
+                    </a>
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start w-100" id="menu">
+                        <li class="nav-item py-2 w-100 admin-nav">
+                            <a href="{{ path('products_list',{ 'page_id':1 }) }}" class="align-middle px-0 text-primary nav-icon text-truncate">
+                                <i class="menu-icon fa-solid fa-house fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Home</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a
+                                href="#"
+                                class="px-0 align-middle text-primary nav-icon my-2 text-truncate"
+                                id="orders_link"
+                            >
+                                <i class="menu-icon fa-fw fas fa-bars fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Categories</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a class="px-0 align-middle text-primary nav-icon my-2 text-truncate" href="#" id="inventory_link">
+                                <i class="menu-icon fa-fw fas fa-clinic-medical fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Clinics</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a class="px-0 align-middle text-primary nav-icon my-2 text-truncate" href="#" id="inventory_link">
+                                <i class="menu-icon fa-fw fas fa-broadcast-tower fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Communication Methods</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a class="px-0 align-middle text-primary nav-icon my-2 text-truncate" href="#" id="inventory_link">
+                                <i class="menu-icon fa-fw fa fa-industry fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Manufacturers</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a href="{{ path('products_list',{ 'page_id':1 }) }}" class="px-0 align-middle text-primary nav-icon my-2 text-truncate">
+                                <i class="menu-icon fa-fw fab fa-product-hunt fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Products</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a class="px-0 align-middle text-primary nav-icon my-2 text-truncate" href="#" id="inventory_link">
+                                <i class="menu-icon fa-fw fas fa-paw fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Species</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a class="px-0 align-middle text-primary nav-icon my-2 text-truncate" href="#" id="inventory_link">
+                                <i class="menu-icon fa-fw fas fa-list fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Sub Categories</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a class="px-0 align-middle text-primary nav-icon my-2 text-truncate" href="#" id="inventory_link">
+                                <i class="menu-icon fa-fw fas fa-user fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">Users</span>
+                            </a>
+                        </li>
+                        <li class="w-100 admin-nav">
+                            <a class="px-0 align-middle text-primary nav-icon my-2 text-truncate" href="#" id="inventory_link">
+                                <i class="menu-icon fa-fw fas fa-lock fa-fw"></i>
+                                <span class="ms-1 d-none d-sm-inline">User Permissions</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-10 col-sm-10 pb-3 ps-0 admin-right-col">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

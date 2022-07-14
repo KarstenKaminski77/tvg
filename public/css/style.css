@@ -1579,6 +1579,16 @@ a.distributor-logo-container {
     width: calc(84% - 2em);
 }
 
+.admin-right-col {
+    position: absolute;
+    left: 16%;
+    right: 1em;
+    top: 65px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: calc(84% - 1em);
+}
+
 /* width */
 ::-webkit-scrollbar {
     width: 5px;
@@ -1640,6 +1650,92 @@ a.distributor-logo-container {
 
 #list_distributor_id{
     font-family:Lucida Console, Monaco5, monospace
+}
+
+.admin-nav:hover, .nav-selected {
+    background: #d0d0d0;
+    border-radius: 5px;
+    padding-left: 8px;
+}
+
+.content-header{
+    padding:26px 0 16px
+}
+@media (min-width:992px){
+    .content-header{
+        align-items:flex-start;
+        background:var(--body-bg);
+        display:flex;
+        flex-direction:row;
+        justify-content:space-between;
+        padding:36px 0 16px
+    }
+    body.ea-edit .content-header,body.ea-new .content-header{
+        position:sticky;
+        top:-20px;
+        z-index:999
+    }
+}
+.content-header-title{
+    flex:1
+}
+.content-header-title .title{
+    font-size:var(--font-size-xxl);
+    font-weight:700;
+    line-height:1.2;
+    margin:0;
+    padding-right:15px
+}
+@media (min-width:992px){
+    .content-header-title .title{
+        font-size:var(--font-size-xxxl)
+    }
+}
+.content-header-title .title .small,.content-header-title .title small{
+    color:var(--gray-600);
+    font-size:var(--font-size-lg);
+    font-weight:500;
+    line-height:var(--font-size-lg)
+}
+.content-header-help{
+    color:var(--gray-600)
+}
+.content-header .datagrid-filters{
+    margin-right:10px
+}
+.content-header .page-actions{
+    align-items:center;
+    display:flex;
+    flex-direction:row;
+    margin:10px 0 15px
+}
+.content-header .page-actions:empty{
+    display:none
+}
+@media (min-width:992px){
+    .content-header .page-actions{
+        justify-content:space-between;
+        margin:2px 1px 0 10px
+    }
+}
+.content-header .page-actions .btn+.btn{
+    margin-left:10px
+}
+.content-header .page-actions .btn-group .btn+.btn{
+    margin-left:0
+}
+
+.admin-header {
+    position: fixed;
+    top: 54px;
+    left: 16%;
+    right: 0;
+    background: #fff;
+    z-index: 99999;
+}
+
+.select2-selection__choice {
+    margin-top: 0 !important;
 }
 
 @media (min-width: 576px) {

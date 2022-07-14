@@ -106,4 +106,12 @@ class ProductsRepository extends ServiceEntityRepository
             ->andWhere('p.isPublished = 1');
         return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
     }
+
+    public function adminFindAll()
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->select('p')
+            ->orderBy('p.name', 'ASC');
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
+    }
 }

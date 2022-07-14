@@ -17,6 +17,7 @@
         "easycorp/easyadmin-bundle": "^3",
         "friendsofsymfony/ckeditor-bundle": "^2.4",
         "h4cc/wkhtmltopdf-amd64": "0.12.x",
+        "kartik-v/yii2-widget-fileinput": "@dev",
         "knplabs/knp-snappy-bundle": "^1.9",
         "liip/imagine-bundle": "^2.7",
         "phpdocumentor/reflection-docblock": "^5.3",
@@ -52,6 +53,7 @@
         "symfony/yaml": "5.4.*",
         "symfonycasts/reset-password-bundle": "^1.11",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/intl-extra": "^3.4",
         "twig/twig": "^2.12|^3.0",
         "vich/uploader-bundle": "^1.19"
     },

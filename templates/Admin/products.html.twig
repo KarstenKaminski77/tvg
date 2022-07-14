@@ -1,0 +1,477 @@
+{% extends 'Admin/layout.html.twig' %}
+{% block meta_decription %}
+    {{ parent() }}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <form>
+        <section class="content-header border-bottom ps-4 py-4 admin-header">
+            <div class="content-header-title">
+                <h4>
+                    Editing <b>{{ product.name }}</b>
+                </h4>
+            </div>
+
+            <div class="page-actions pe-4">
+                <button
+                        class="action-saveAndContinue btn btn-secondary action-save"
+                        type="submit" name="ea[newForm][btn]"
+                        value="saveAndContinue"
+                        data-action-name="saveAndContinue"
+                        form="edit-Products-form"
+                >
+                <span class="btn-label">
+                    <i class="action-icon far fa-edit"></i>
+                    Save and continue editing
+                </span>
+                </button>
+
+                <button
+                        class="action-saveAndReturn btn btn-primary action-save"
+                        type="submit" name="ea[newForm][btn]"
+                        value="saveAndReturn"
+                        data-action-name="saveAndReturn"
+                        form="edit-Products-form"
+                >
+                    <span class="btn-label">Save changes</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="ps-4" style="margin-top: 105px">
+            <div class="row mt-4">
+
+                {# Is Published #}
+                <div class="col-12 col-md-6">
+                    <div class="form-check form-switch">
+                        {% set is_published = '' %}
+                        {% if product.isPublished == 1 %}
+                            {% set is_published = 'checked' %}
+                        {% endif %}
+                        <input
+                                name="is_published"
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                value="1"
+                                {{ is_published }}
+                        >
+                        <label class="ms-2 text-primary" for="is_published">
+                            Published
+                        </label>
+                    </div>
+                </div>
+
+                {# Expiry Date #}
+                <div class="col-12 col-md-6">
+                    <div class="form-check form-switch">
+                        {% set expiry_date = '' %}
+                        {% if product.expiryDateRequired == 1 %}
+                            {% set expiry_date = 'checked' %}
+                        {% endif %}
+                        <input
+                                name="expiry_date"
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                value="1"
+                                {{ expiry_date }}
+                        >
+                        <label class="ms-2 text-primary" for="is_published">
+                            Expiry Date
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Manufacturers #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Manufacturer <span class="text-danger">*</span> </label>
+                    <select
+                            class="js-basic-multiple form-control"
+                            name="manufacturer[]"
+                            id="manufacturer"
+                            multiple="multiple"
+                    >
+                        {% for manufacturer in manufacturers %}
+                            <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hidden_msg"id="error_manufacturer">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Name #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Name <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="name"
+                            id="name"
+                            value="{{ product.name }}"
+                            placeholder="Name"
+                    >
+                    <div class="hidden_msg" id="error_name">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Species #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Species <span class="text-danger">*</span> </label>
+                    <select
+                            class="js-basic-multiple form-control"
+                            name="species[]"
+                            id="species"
+                            multiple="multiple"
+                    >
+                        {% for specie in species %}
+                            <option value="{{ specie.id }}">{{ specie.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hidden_msg"id="error_species">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Category #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Category <span class="text-danger">*</span> </label>
+                    <select
+                            class="form-control"
+                            name="category"
+                            id="category"
+                            value="{{ product.category }}"
+                    >
+                        <option value="">Select a Category...</option>
+                        {% for category in categories %}
+                            {% set selected = '' %}
+                            {% if product.category.id == category.id %}
+                                {% set selected = 'selected' %}
+                            {% endif %}
+                            <option value="{{ category.id }}" {{ selected }}>{{ category.category }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hidden_msg" id="error_category">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Sub Category #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Sub Category <span class="text-danger">*</span> </label>
+                    <select
+                            class="form-control"
+                            name="sub_category"
+                            id="sub_category"
+                    >
+                        <option value="">Select a Sub Category</option>
+                        {% for sub_category in sub_categories %}
+                            {% set selected = '' %}
+                            {% if product.subCategory.id == sub_category.id %}
+                                {% set selected = 'selected' %}
+                            {% endif %}
+                            <option value="{{ sub_category.id }}" {{ selected }}>{{ sub_category.subCategory }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hidden_msg"id="error_sub_categories">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Serial No #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Serial No <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="serial_no"
+                            id="serial_no"
+                            value="{{ product.sku }}"
+                            placeholder="Serial Number"
+                    >
+                    <div class="hidden_msg" id="error_serial_no">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Active Ingredient #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Active Ingredient <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="active_ingredient"
+                            id="active_ingredient"
+                            value="{{ product.activeIngredient }}"
+                            placeholder="Active Ingredient"
+                    >
+                    <div class="hidden_msg"id="error_active_ingredient">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Dosage #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Dosage <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="dosage"
+                            id="dosage"
+                            value="{{ product.dosage }}"
+                            placeholder="Serial Number"
+                    >
+                    <div class="hidden_msg" id="error_dosage">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Size #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Size <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="size"
+                            id="size"
+                            value="{{ product.size }}"
+                            placeholder="Active Ingredient"
+                    >
+                    <div class="hidden_msg"id="error_size">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Unit #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Unit <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="unit"
+                            id="unit"
+                            value="{{ product.unit }}"
+                            placeholder="Serial Number"
+                    >
+                    <div class="hidden_msg" id="error_unit">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Price #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Price <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="price"
+                            id="price"
+                            value="{{ product.unitPrice|format_number({fraction_digit: 2}) }}"
+                            placeholder="Active Ingredient"
+                    >
+                    <div class="hidden_msg"id="error_price">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Stock #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Stock <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="stock"
+                            id="stock"
+                            value="{{ product.stockCount }}"
+                            placeholder="Serial Number"
+                    >
+                    <div class="hidden_msg" id="error_stock">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Package Type #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Package Type <span class="text-danger">*</span> </label>
+                    <select
+                            class="form-control"
+                            name="package_type"
+                            id="package_type"
+                    >
+                        <option value="">Select a Package Type</option>
+                        {% set selected = '' %}
+                        {% if product.packType == 'Bottle' %}
+                            {% set selected = 'selected' %}
+                        {% endif %}
+                        <option value="Bottle" {{ selected }}>Bottle</option>
+                        {% set selected = '' %}
+                        {% if product.packType == 'Gel' %}
+                            {% set selected = 'selected' %}
+                        {% endif %}
+                        <option value="Gel" {{ selected }}>Gel</option>
+                    </select>
+                    <div class="hidden_msg"id="error_package_type">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Form #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Form <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="form"
+                            id="form"
+                            value="{{ product.form }}"
+                            placeholder="Serial Number"
+                    >
+                    <div class="hidden_msg" id="error_form">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Image #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Image</label>
+                    <input
+                            type="file"
+                            class="form-control"
+                            name="image"
+                            id="image"
+                    >
+                </div>
+
+                <div class="col-12 col-md-6">
+
+                </div>
+            </div>
+
+            {# Details #}
+            <div class="row mt-4">
+
+                {# Image #}
+                <div class="col-12">
+                    <label class="text-primary mb-2">Description</label>
+                    <textarea
+                            class="form-control"
+                            name="details"
+                            id="details"
+                    ></textarea>
+                    <div class="hidden_msg" id="error_details">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </form>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).on('submit', '#form_list', function (e){
+
+            e.preventDefault();
+
+            let list_name = $('#list_name').val();
+            let list_name_error = $('#error_list_name');
+            let data = new FormData(this);
+            let is_valid = true;
+
+            list_name_error.hide()
+
+            if(list_name == '' || list_name == 'undefined'){
+
+                list_name_error.show();
+                is_valid = false;
+            }
+
+            if(is_valid) {
+
+                $.ajax({
+                    url: "{{ path('inventory_manage_list') }}",
+                    type: 'POST',
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    timeout: 600000,
+                    dataType: 'json',
+                    data: data,
+                    success: function (response) {
+                        $('#lists_'+ product_id).empty().append(response);
+                    }
+                });
+            }
+        });
+
+        tinymce.init({
+            selector: '#details',
+            plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
+            editimage_cors_hosts: ['picsum.photos'],
+            menubar: 'file edit view insert format tools table help',
+            toolbar: 'undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview | insertfile image link anchor codesample',
+            toolbar_sticky: true,
+            statusbar: true,
+            image_advtab: true,
+            link_list: [
+                { title: 'My page 1', value: 'https://www.tiny.cloud' },
+                { title: 'My page 2', value: 'http://www.moxiecode.com' }
+            ],
+            image_list: [
+                { title: 'My page 1', value: 'https://www.tiny.cloud' },
+                { title: 'My page 2', value: 'http://www.moxiecode.com' }
+            ],
+            image_class_list: [
+                { title: 'None', value: '' },
+                { title: 'Some class', value: 'class-name' }
+            ],
+            importcss_append: true,
+            templates: [
+                { title: 'New Table', description: 'creates a new table', content: '<div class="mceTmpl"><table width="98%%"  border="0" cellspacing="0" cellpadding="0"><tr><th scope="col"> </th><th scope="col"> </th></tr><tr><td> </td><td> </td></tr></table></div>' },
+                { title: 'Starting my story', description: 'A cure for writers block', content: 'Once upon a time...' },
+                { title: 'New list with dates', description: 'New List with dates', content: '<div class="mceTmpl"><span class="cdate">cdate</span><br><span class="mdate">mdate</span><h2>My List</h2><ul><li></li><li></li></ul></div>' }
+            ],
+            template_cdate_format: '[Date Created (CDATE): %m/%d/%Y : %H:%M:%S]',
+            template_mdate_format: '[Date Modified (MDATE): %m/%d/%Y : %H:%M:%S]',
+            height: 600,
+            image_caption: true,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+            noneditable_class: 'mceNonEditable',
+            toolbar_mode: 'sliding',
+            contextmenu: 'link image table',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+        });
+    </script>
+{% endblock %}

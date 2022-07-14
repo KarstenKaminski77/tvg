@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#545659"/>
+
+    <title>
+        {%- block meta_title -%}
+            Fluid
+        {%- endblock %}
+    </title>
+
+    {% block meta_decription %}
+        <meta name="description" content="Fluid Commerce">
+    {% endblock %}
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/fontawesome/css/all.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    {% endblock %}
+</head>
+<body class="bg-light">
+{% block body %}
+{% endblock %}
+{% block javascripts %}
+
+    <!-- jQuery -->
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.session.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/6htx2vgbw5hvtlc2k9wry1twsj0dro8a2u8fnvlupq7fovrz/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script>
+
+        $(document).ready(function() {
+            $('.js-basic-multiple').select2();
+            $('.select2-selection').addClass('form-control').css('border', '1px solid #ced4da');
+        });
+
+    </script>
+{% endblock %}
+</body>
+</html>
