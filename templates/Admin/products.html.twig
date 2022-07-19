@@ -189,20 +189,6 @@
                             Required Field
                         </div>
                     </div>
-
-{#                    <select#}
-{#                        class="js-basic-multiple form-control"#}
-{#                        name="species[]"#}
-{#                        id="species"#}
-{#                        multiple="multiple"#}
-{#                    >#}
-{#                        {% for specie in species %}#}
-{#                            <option value="{{ specie.id }}">{{ specie.name }}</option>#}
-{#                        {% endfor %}#}
-{#                    </select>#}
-{#                    <div class="hidden_msg"id="error_species">#}
-{#                        Required Field#}
-{#                    </div>#}
                 </div>
 
                 {# Category #}
@@ -489,6 +475,7 @@
                 let form = $('#form').val();
                 let details = $('#details').val();
                 let is_valid = true;
+                let btn = document.activeElement.getAttribute('name');
 
                 let error_manufacturer = $('#error_manufacturer');
                 let error_name = $('#error_name');
@@ -626,7 +613,13 @@
                         dataType: 'json',
                         data: data,
                         success: function (response) {
-                            alert('xxxx');
+
+                            getFlash(response);
+
+                            if(btn == 'save_return'){
+
+                                window.location.assign('{{ path('products_list',{ 'page_id':1 }) }}');
+                            }
                         }
                     });
                 }

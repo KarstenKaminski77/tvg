@@ -46,6 +46,16 @@
             $('.select2-selection').addClass('form-control').css('border', '1px solid #ced4da');
         });
 
+        function getFlash(flash){
+            $('#flash').addClass('alert-success').removeClass('alert-danger').addClass('alert').addClass('text-center');
+            $('#flash').removeClass('users-flash').addClass('users-flash').empty().append(flash).removeClass('hidden');
+
+            setTimeout(function() {
+                $('#flash').removeClass('alert-success').removeClass('alert').removeClass('text-center');
+                $('#flash').removeClass('users-flash').empty().addClass('hidden');
+            }, 5000);
+        }
+
     </script>
 {% endblock %}
 </body>

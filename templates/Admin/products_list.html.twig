@@ -12,15 +12,12 @@
             <h4 class="text-truncate">Products</h4>
         </div>
         <div class="col-12 col-sm-6 text-truncate mt-1 pt-3 pb-3">
-            <button
-                type="button"
+            <a
+                href="{{ path('products') }}"
                 class="btn btn-primary btn-sm float-end w-sm-100 text-truncate"
-                data-bs-toggle="modal"
-                data-bs-target="#modal_user"
-                id="user_new"
             >
                 <i class="fa-solid fa-circle-plus me-2"></i> ADD PRODUCT
-            </button>
+            </a>
         </div>
     </div>
     <div class="row pb-3 pt-2 pt-sm-3 bg-light border-left border-right">
@@ -48,7 +45,7 @@
             </div>
         </div>
         {% for product in products %}
-        <div class="row py-3 border-bottom-dashed">
+        <div class="row py-3 border-bottom-dashed" id="row_{{ product.id }}">
             <div class="col-4 fw-bold ps-4 d-block d-md-none text-truncate">
                 #ID
             </div>
@@ -183,6 +180,29 @@
                 },
                 success: function (response) {
 
+                }
+            });
+        });
+        $(document).on('click', '.delete-icon', function (e){
+
+            $('#delete_user').attr('data-product-id', $(this).data('product-id'));
+        });
+        $(document).on('click', '#delete_user', function (e){
+
+            let product_id = $(this).attr('data-product-id');
+
+            $.ajax({
+                url: "{{ path('product_crud') }}",
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    delete:product_id,
+                },
+                success: function (response) {
+
+                    getFlash(response);
+                    $('#modal_delete_product').modal('toggle');
+                    $('#row_'+ product_id).remove();
                 }
             });
         });

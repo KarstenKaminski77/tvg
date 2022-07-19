@@ -51,12 +51,44 @@ class AdminDashboardController extends AbstractController
     #[Route('/admin/product/crud', name: 'product_crud')]
     public function productCrudAction(Request $request): Response
     {
-        $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
+        $productId = $request->get('product_id') ?? $request->request->get('delete');
+        $product = $this->em->getRepository(Products::class)->find($productId);
+
+        if($request->request->get('delete') != null){
+
+            $productManufacturers = $this->em->getRepository(ProductManufacturers::class)->findBy([
+                'products' => $productId,
+            ]);
+            $productSpecies = $this->em->getRepository(ProductsSpecies::class)->findBy([
+                'products' => $productId,
+            ]);
+
+            foreach($productManufacturers as $productManufacturer){
+
+                $this->em->remove($productManufacturer);
+            }
+
+            foreach($productSpecies as $productSpecie) {
+
+                $this->em->remove($productSpecie);
+            }
+
+            $this->em->flush();
+
+            $this->em->remove($product);
+            $this->em->flush();
+
+            $flash = '<b><i class="fas fa-check-circle"></i> Product Successfully Deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+            return new JsonResponse($flash);
+        }
 
         if($product == null){
 
             $product = new Products();
         }
+
+        $flash = '';
 
         if(!empty($request->request)) {
 
@@ -141,86 +173,11 @@ class AdminDashboardController extends AbstractController
 
             $this->em->persist($product);
             $this->em->flush();
+
+            $flash = '<b><i class="fas fa-check-circle"></i> Product updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
         }
 
-        return new JsonResponse('');
-    }
-
-    #[Route('/admin/product/{product_id}', name: 'products')]
-    public function productsCrud(Request $request, $product_id = 0): Response
-    {
-        $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
-        $manufacturers = $this->em->getRepository(Manufacturers::class)->findAll();
-        $species = $this->em->getRepository(Species::class)->findAll();
-        $categories = $this->em->getRepository(Categories::class)->findAll();
-        $subCategories = $this->em->getRepository(SubCategories::class)->findAll();
-        $productManufacturers = $this->em->getRepository(ProductManufacturers::class)->findBy([
-            'products' => $request->get('product_id'),
-        ]);
-        $productSpecies = $this->em->getRepository(ProductsSpecies::class)->findBy([
-            'products' => $request->get('product_id'),
-        ]);
-
-        if($product == null){
-
-            $product = new Products();
-        }
-
-        // Manufacturers dropdown
-        $manufacturersList = '';
-
-        if($manufacturers != null){
-
-            $manufacturersList = $this->getDropdownList(
-                $manufacturers, 'manufacturer', ProductManufacturers::class,
-                $request->get('product_id'), 'getProducts'
-            );
-            $array = '';
-            $arr = '[';
-
-            foreach($productManufacturers as $productManufacturer){
-
-                $array .= $productManufacturer->getManufacturers()->getId().',';
-            }
-
-            $arr .= trim($array,',') . ']';
-        }
-
-        // Species dropdown
-        $speciesList = '';
-
-        if($species != null){
-
-            $speciesList = $this->getDropdownList(
-                $species, 'species', ProductManufacturers::class,
-                $request->get('product_id'), 'getProducts'
-            );
-            $array = '';
-            $arr_species = '[';
-
-            foreach($productSpecies as $productSpecie){
-
-                $array .= $productSpecie->getSpecies()->getId().',';
-            }
-
-            $arr_species .= trim($array,',') . ']';
-        }
-
-
-        return $this->render('Admin/products.html.twig',[
-            'product' => $product,
-            'manufacturers' => $manufacturers,
-            'species' => $species,
-            'categories' => $categories,
-            'subCategories' => $subCategories,
-            'product_id' => $request->get('product_id'),
-            'manufacturersList' => $manufacturersList,
-            'productManufacturers' => $productManufacturers,
-            'speciesList' => $speciesList,
-            'productSpecies' => $productSpecies,
-            'arr' => $arr,
-            'arr_species' => $arr_species,
-        ]);
+        return new JsonResponse($flash);
     }
 
     #[Route('/admin/product/manufacturer/save', name: 'products_manufacturer_save')]
@@ -318,6 +275,83 @@ class AdminDashboardController extends AbstractController
         return new JsonResponse($isPublished);
     }
 
+    #[Route('/admin/product/{product_id}', name: 'products', requirements: ['product_id' => '\d+'])]
+    public function productsCrud(Request $request, $product_id = 0): Response
+    {
+        $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
+        $manufacturers = $this->em->getRepository(Manufacturers::class)->findAll();
+        $species = $this->em->getRepository(Species::class)->findAll();
+        $categories = $this->em->getRepository(Categories::class)->findAll();
+        $subCategories = $this->em->getRepository(SubCategories::class)->findAll();
+        $productManufacturers = $this->em->getRepository(ProductManufacturers::class)->findBy([
+            'products' => $request->get('product_id'),
+        ]);
+        $productSpecies = $this->em->getRepository(ProductsSpecies::class)->findBy([
+            'products' => $request->get('product_id'),
+        ]);
+
+        if($product == null){
+
+            $product = new Products();
+        }
+
+        // Manufacturers dropdown
+        $manufacturersList = '';
+
+        if($manufacturers != null){
+
+            $manufacturersList = $this->getDropdownList(
+                $manufacturers, 'manufacturer', ProductManufacturers::class,
+                $request->get('product_id'), 'getProducts'
+            );
+            $array = '';
+            $arr = '[';
+
+            foreach($productManufacturers as $productManufacturer){
+
+                $array .= $productManufacturer->getManufacturers()->getId().',';
+            }
+
+            $arr .= trim($array,',') . ']';
+        }
+
+        // Species dropdown
+        $speciesList = '';
+
+        if($species != null){
+
+            $speciesList = $this->getDropdownList(
+                $species, 'species', ProductManufacturers::class,
+                $request->get('product_id'), 'getProducts'
+            );
+            $array = '';
+            $arr_species = '[';
+
+            foreach($productSpecies as $productSpecie){
+
+                $array .= $productSpecie->getSpecies()->getId().',';
+            }
+
+            $arr_species .= trim($array,',') . ']';
+        }
+
+
+        return $this->render('Admin/products.html.twig',[
+            'product' => $product,
+            'manufacturers' => $manufacturers,
+            'species' => $species,
+            'categories' => $categories,
+            'subCategories' => $subCategories,
+            'product_id' => $request->get('product_id'),
+            'manufacturersList' => $manufacturersList,
+            'productManufacturers' => $productManufacturers,
+            'speciesList' => $speciesList,
+            'productSpecies' => $productSpecies,
+            'arr' => $arr,
+            'arr_species' => $arr_species,
+        ]);
+    }
+
     private function getDropdownList($repository, $label, $entity, $product_id, $method){
 
         $list = '
@@ -332,14 +366,22 @@ class AdminDashboardController extends AbstractController
 
             $select = '';
 
-            foreach($query as $qry){
+            if($product_id > 0) {
 
-                if($qry->$method()->getId() == $repo->getId()){
+                foreach ($query as $qry) {
 
-                    $select = $label .'-select';
+                    if ($qry->$method()->getId() == $repo->getId()) {
 
-                    break;
+                        $select = $label . '-select';
+
+                        break;
+                    }
                 }
+
+            // New product
+            } else {
+
+                $select = $label . '-select';
             }
 
 
