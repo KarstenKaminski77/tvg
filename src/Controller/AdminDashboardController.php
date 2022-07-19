@@ -4,12 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Categories;
 use App\Entity\Manufacturers;
+use App\Entity\ProductManufacturers;
 use App\Entity\Products;
+use App\Entity\ProductsSpecies;
 use App\Entity\Species;
 use App\Entity\SubCategories;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,7 +40,6 @@ class AdminDashboardController extends AbstractController
     {
         $products = $this->em->getRepository(Products::class)->adminFindAll();
         $results = $this->page_manager->paginate($products[0], $request, self::ITEMS_PER_PAGE);
-
         $pagination = $this->getPagination($request->get('page_id'), $results, '/admin/products/');
 
         return $this->render('Admin/products_list.html.twig',[
@@ -46,22 +48,417 @@ class AdminDashboardController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/product/crud', name: 'product_crud')]
+    public function productCrudAction(Request $request): Response
+    {
+        $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
+
+        if($product == null){
+
+            $product = new Products();
+        }
+
+        if(!empty($request->request)) {
+
+            $data = $request->request;
+            $productId = $request->get('product_id');
+            $manufacturers = $this->em->getRepository(ProductManufacturers::class)->findBy([
+                'products' => $productId,
+            ]);
+            $productSpecies = $this->em->getRepository(ProductsSpecies::class)->findBy([
+                'products' => $productId,
+            ]);
+            $category = $this->em->getRepository(Categories::class)->find($data->get('category'));
+            $subCategory = $this->em->getRepository(SubCategories::class)->find($data->get('subCategory'));
+
+            // Clear many to many tables
+            foreach($manufacturers as $manufacturer){
+                dump($manufacturer->getId());
+                $this->em->remove($manufacturer);
+            }
+
+            foreach($productSpecies as $species){
+
+                $this->em->remove($species);
+            }
+
+            $this->em->flush();
+
+            $product->setIsPublished($data->get('is_published'));
+            $product->setExpiryDateRequired($expDate = $data->get('expiry_date') ?? 0);
+
+            foreach($data->get('manufacturers') as $manufacturer){
+
+                $productManufacturer = new ProductManufacturers();
+                $manu = $this->em->getRepository(Manufacturers::class)->find($manufacturer);
+
+                $productManufacturer->setProducts($product);
+                $productManufacturer->setManufacturers($manu);
+
+                $this->em->persist($productManufacturer);
+            }
+
+            $product->setName($data->get('name'));
+
+            foreach($data->get('species') as $species){
+
+                $productSpecies = new ProductsSpecies();
+                $specie = $this->em->getRepository(Species::class)->find($species);
+
+                $productSpecies->setProducts($product);
+                $productSpecies->setSpecies($specie);
+
+                $this->em->persist($productSpecies);
+            }
+
+            $product->setCategory($category);
+            $product->setSubCategory($subCategory);
+            $product->setSku($data->get('serial_no'));
+            $product->setActiveIngredient($data->get('active_ingredient'));
+            $product->setDosage($data->get('dosage'));
+            $product->setSize($data->get('size'));
+            $product->setUnit($data->get('unit'));
+            $product->setUnitPrice($data->get('price'));
+            $product->setStockCount($data->get('stock'));
+            $product->setPackType($data->get('package_type'));
+            $product->setForm($data->get('form'));
+
+            // Image
+            if(!empty($_FILES['image']['name'])) {
+
+                $fileName = $_FILES['image'];
+                $extension = pathinfo($fileName['name'], PATHINFO_EXTENSION);
+                $newFileName = uniqid('fluis_'. $product->getId() .'_', true) . '.' . $extension;
+                $filePath = __DIR__ . '/../../public/images/products/';
+
+                if($x = move_uploaded_file($fileName['tmp_name'], $filePath . $newFileName)){
+
+                    $product->setImage($newFileName);
+                }
+            }
+
+            $product->setDescription($data->get('details'));
+
+            $this->em->persist($product);
+            $this->em->flush();
+        }
+
+        return new JsonResponse('');
+    }
+
     #[Route('/admin/product/{product_id}', name: 'products')]
-    public function productsCrud(Request $request): Response
+    public function productsCrud(Request $request, $product_id = 0): Response
     {
         $product = $this->em->getRepository(Products::class)->find($request->get('product_id'));
         $manufacturers = $this->em->getRepository(Manufacturers::class)->findAll();
         $species = $this->em->getRepository(Species::class)->findAll();
         $categories = $this->em->getRepository(Categories::class)->findAll();
-        $sub_categories = $this->em->getRepository(SubCategories::class)->findAll();
+        $subCategories = $this->em->getRepository(SubCategories::class)->findAll();
+        $productManufacturers = $this->em->getRepository(ProductManufacturers::class)->findBy([
+            'products' => $request->get('product_id'),
+        ]);
+        $productSpecies = $this->em->getRepository(ProductsSpecies::class)->findBy([
+            'products' => $request->get('product_id'),
+        ]);
+
+        if($product == null){
+
+            $product = new Products();
+        }
+
+        // Manufacturers dropdown
+        $manufacturersList = '';
+
+        if($manufacturers != null){
+
+            $manufacturersList = $this->getDropdownList(
+                $manufacturers, 'manufacturer', ProductManufacturers::class,
+                $request->get('product_id'), 'getProducts'
+            );
+            $array = '';
+            $arr = '[';
+
+            foreach($productManufacturers as $productManufacturer){
+
+                $array .= $productManufacturer->getManufacturers()->getId().',';
+            }
+
+            $arr .= trim($array,',') . ']';
+        }
+
+        // Species dropdown
+        $speciesList = '';
+
+        if($species != null){
+
+            $speciesList = $this->getDropdownList(
+                $species, 'species', ProductManufacturers::class,
+                $request->get('product_id'), 'getProducts'
+            );
+            $array = '';
+            $arr_species = '[';
+
+            foreach($productSpecies as $productSpecie){
+
+                $array .= $productSpecie->getSpecies()->getId().',';
+            }
+
+            $arr_species .= trim($array,',') . ']';
+        }
+
 
         return $this->render('Admin/products.html.twig',[
             'product' => $product,
             'manufacturers' => $manufacturers,
             'species' => $species,
             'categories' => $categories,
-            'sub_categories' => $sub_categories,
+            'subCategories' => $subCategories,
+            'product_id' => $request->get('product_id'),
+            'manufacturersList' => $manufacturersList,
+            'productManufacturers' => $productManufacturers,
+            'speciesList' => $speciesList,
+            'productSpecies' => $productSpecies,
+            'arr' => $arr,
+            'arr_species' => $arr_species,
         ]);
+    }
+
+    #[Route('/admin/product/manufacturer/save', name: 'products_manufacturer_save')]
+    public function productsSaveManufacturer(Request $request): Response
+    {
+        $data = $request->request;
+        $manufacturer_id = $data->get('manufacturer_id');
+        $manufacturer_name = $data->get('manufacturer');
+        $manufacturer = $this->em->getRepository(Manufacturers::class)->find($manufacturer_id);
+        $response = false;
+
+        if($manufacturer != null && $manufacturer_id > 0){
+
+            $manufacturer->setName($manufacturer_name);
+
+            $this->em->persist($manufacturer);
+            $this->em->flush();
+
+            $response = true;
+
+        } elseif($manufacturer_id == 0){
+
+            $manufacturer = new Manufacturers();
+
+            $manufacturer->setName($manufacturer_name);
+
+            $this->em->persist($manufacturer);
+            $this->em->flush();
+
+            $manufacturers = $this->em->getRepository(Manufacturers::class)->findAll();
+
+            $response = $this->getDropdownList(
+                $manufacturers, 'manufacturer', ProductsSpecies::class,
+                $request->get('product_id'), 'getSpecies'
+            );
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/admin/product/species/save', name: 'products_species_save')]
+    public function productsSaveSpecies(Request $request): Response
+    {
+        $data = $request->request;
+        $species_id = $data->get('species_id');
+        $species_name = $data->get('species');
+        $species = $this->em->getRepository(Species::class)->find($species_id);
+        $response = false;
+
+        if($species != null && $species_id > 0){
+
+            $species->setName($species_name);
+
+            $this->em->persist($species);
+            $this->em->flush();
+
+            $response = true;
+
+        } elseif($species_id == 0){
+
+            $species = new Species();
+
+            $species->setName($species_name);
+
+            $this->em->persist($species);
+            $this->em->flush();
+
+            $species = $this->em->getRepository(Species::class)->findAll();
+
+            $response = $this->getDropdownList(
+                $species, 'species', ProductsSpecies::class,
+                $request->get('product_id'), 'getSpecies'
+            );
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/admin/product/is-published', name: 'product_is_published')]
+    public function productIsPublished(Request $request): Response
+    {
+        $isPublished = $request->request->get('is_published') ?? 0;
+        $productId = $request->request->get('product_id');
+
+        $product = $this->em->getRepository(Products::class)->find($productId);
+
+        if($product != null){
+
+            $product->setIsPublished($isPublished);
+
+            $this->em->persist($product);
+            $this->em->flush();
+        }
+
+        return new JsonResponse($isPublished);
+    }
+
+    private function getDropdownList($repository, $label, $entity, $product_id, $method){
+
+        $list = '
+        <div class="px-3 row">
+            <div class="bg-dropdown px-0 col-12">';
+
+        foreach($repository as $repo){
+
+            $query = $this->em->getRepository($entity)->findBy([
+                'products' => $product_id,
+            ]);
+
+            $select = '';
+
+            foreach($query as $qry){
+
+                if($qry->$method()->getId() == $repo->getId()){
+
+                    $select = $label .'-select';
+
+                    break;
+                }
+            }
+
+
+            $list .= '
+            <div class="row">
+            <div 
+                class="col-12 edit-'. $label .' d-table"
+                data-'. $label .'-id="'. $repo->getId() .'"
+                
+            >
+                <div 
+                    class="row '. $label .'-row d-table-row" data-'. $label .'-id="'. $repo->getId() .'">
+                    <div 
+                        class="col-10 py-2 d-table-cell align-middle '. $select .'"
+                        data-'. $label .'-id="'. $repo->getId() .'"
+                        data-'. $label .'="'. $repo->getName() .'"
+                        id="'. $label .'_row_id_'. $repo->getId() .'"
+                    >
+                            <span id="'. $label .'_string_'. $repo->getId() .'">
+                                '. $repo->getName() .'
+                            </span>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-sm '. $label .'-form-ctrl"
+                                value="'. $repo->getName() .'"
+                                data-'. $label .'-field-'. $repo->getId() .'
+                                id="'. $label .'_edit_field_'. $repo->getId() .'"
+                                style="display: none"
+                            >
+                            <div class="hidden_msg" id="error_'. $label .'_'. $repo->getId() .'">
+                                Required Field
+                            </div>
+                        </div>
+                        <div class="col-2 py-2 d-table-cell align-middle">
+                            <a 
+                                href="" 
+                                class="float-end '. $label .'-edit-icon me-3" 
+                                id="'. $label .'_edit_'. $repo->getId() .'"
+                                data-'. $label .'-edit-id="'. $repo->getId() .'"
+                                style="display: none"
+                            >
+                               <i class="fa-solid fa-pen-to-square"></i>
+                           </a>
+                           <a 
+                                href="" 
+                                class="float-end '. $label .'-remove-icon me-3" 
+                                id="'. $label .'_remove_'. $repo->getId() .'"
+                                data-'. $label .'-id="'. $repo->getId() .'"
+                                style="display: none"
+                            >
+                               <i class="fa-solid fa-circle-minus"></i>
+                           </a>
+                           <a 
+                                href="" 
+                                class="float-end '. $label .'-cancel-icon me-3" 
+                                id="'. $label .'_cancel_'. $repo->getId() .'"
+                                data-'. $label .'-cancel-id="'. $repo->getId() .'"
+                                style="display: none"
+                            >
+                               <i class="fa-solid fa-xmark"></i>
+                           </a>
+                           <a 
+                                href="" 
+                                class="float-end '. $label .'-save-icon me-3" 
+                                id="'. $label .'_save_'. $repo->getId() .'"
+                                data-'. $label .'-id="'. $repo->getId() .'"
+                                style="display: none"
+                            >
+                               <i class="fa-solid fa-floppy-disk"></i>
+                           </a>
+                        </div>
+                    </div>
+            </div>
+            </div>';
+        }
+
+        $list .= '
+                <div class="col-12 d-table">
+                    <div class="row d-table-row" id="'. $label .'_add">
+                        <div class="col-10 py-2 d-table-cell align-middle text-info">
+                            <span id="'. $label .'_create_string" role="button">
+                                <i class="fa-regular fa-square-plus me-2"></i>
+                                Add '. ucfirst($label) .'
+                            </span>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-sm"
+                                id="'. $label .'_create_field"
+                                style="display: none"
+                            >
+                            <div class="hidden_msg" id="error_'. $label .'_create">
+                                Required Field
+                            </div>
+                        </div>
+                        <div 
+                            class="col-2 py-2 d-table-cell align-middle text-info"
+                            role="button"
+                        >
+                            <a 
+                                href="" 
+                                class="float-end '. $label .'-create-cancel-icon me-3" 
+                                style="display: none"
+                            >
+                               <i class="fa-solid fa-xmark"></i>
+                           </a>
+                           <a 
+                                href="" 
+                                class="float-end '. $label .'-create-save-icon me-3" 
+                                style="display: none"
+                            >
+                               <i class="fa-solid fa-floppy-disk"></i>
+                           </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>';
+
+        return $list;
     }
 
     public function getPagination($page_id, $results, $url)

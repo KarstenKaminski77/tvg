@@ -1644,7 +1644,7 @@ a.distributor-logo-container {
     padding: 0.25rem 1rem;
 }
 
-.cursor-disabled {
+.cursor-disabled, .cursor-text {
     cursor: text;
 }
 
@@ -1661,6 +1661,31 @@ a.distributor-logo-container {
 .content-header{
     padding:26px 0 16px
 }
+
+.bg-dropdown {
+    background: #fff !important;
+    color: #565e64 !important;
+    border: solid 1px #ced4da !important;
+    box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.2);
+    z-index: 9999;
+}
+
+.manufacturer-row:hover, .species-row:hover {
+    background: #efefef;
+}
+
+#manufacturers_list {
+    position: absolute;
+}
+
+input[type="text"]::-webkit-input-placeholder {
+    color: #a8a8a8;
+}
+
+.text-placeholder {
+    color: #a8a8a8 !important;
+}
+
 @media (min-width:992px){
     .content-header{
         align-items:flex-start;

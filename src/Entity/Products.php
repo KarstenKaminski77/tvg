@@ -184,6 +184,11 @@ class Products
      */
     private $expiryDateRequired;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductsSpecies::class, mappedBy="products")
+     */
+    private $productSpecies;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
@@ -204,6 +209,7 @@ class Products
         $this->productManufacturer = new ArrayCollection();
         $this->productManufacturers = new ArrayCollection();
         $this->productImages = new ArrayCollection();
+        $this->productSpecies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -785,6 +791,36 @@ class Products
     public function setExpiryDateRequired(bool $expiryDateRequired): self
     {
         $this->expiryDateRequired = $expiryDateRequired;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductsSpecies>
+     */
+    public function getProductSpecies(): Collection
+    {
+        return $this->productSpecies;
+    }
+
+    public function addProductSpecies(ProductsSpecies $productSpecies): self
+    {
+        if (!$this->productSpecies->contains($productSpecies)) {
+            $this->productSpecies[] = $productSpecies;
+            $productSpecies->setProducts($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductSpecies(ProductsSpecies $productSpecies): self
+    {
+        if ($this->productSpecies->removeElement($productSpecies)) {
+            // set the owning side to null (unless already changed)
+            if ($productSpecies->getProducts() === $this) {
+                $productSpecies->setProducts(null);
+            }
+        }
 
         return $this;
     }

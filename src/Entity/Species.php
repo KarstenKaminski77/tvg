@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\SpeciesRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -40,12 +41,18 @@ class Species
      */
     private $created;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductsSpecies::class, mappedBy="species")
+     */
+    private $productsSpecies;
+
     public function __construct()
     {
         $this->setCreated(new \DateTime());
         if ($this->getModified() == null) {
             $this->setModified(new \DateTime());
         }
+        $this->productsSpecies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -119,5 +126,35 @@ class Species
     public function __toString(){
 
         return $this->getName();
+    }
+
+    /**
+     * @return Collection<int, ProductsSpecies>
+     */
+    public function getProductsSpecies(): Collection
+    {
+        return $this->productsSpecies;
+    }
+
+    public function addProductsSpecies(ProductsSpecies $productsSpecies): self
+    {
+        if (!$this->productsSpecies->contains($productsSpecies)) {
+            $this->productsSpecies[] = $productsSpecies;
+            $productsSpecies->setSpecies($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductsSpecies(ProductsSpecies $productsSpecies): self
+    {
+        if ($this->productsSpecies->removeElement($productsSpecies)) {
+            // set the owning side to null (unless already changed)
+            if ($productsSpecies->getSpecies() === $this) {
+                $productsSpecies->setSpecies(null);
+            }
+        }
+
+        return $this;
     }
 }

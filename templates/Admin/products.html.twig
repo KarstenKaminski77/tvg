@@ -7,21 +7,24 @@
 {% endblock %}
 
 {% block content %}
-    <form>
+    <form name="products_form" id="products_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="product_id" id="product_id" value="{{ product_id ? product.id : 0 }}">
         <section class="content-header border-bottom ps-4 py-4 admin-header">
             <div class="content-header-title">
                 <h4>
-                    Editing <b>{{ product.name }}</b>
+                    {% if product_id > 0 %}
+                        Editing <b>{{ product.name }}</b>
+                    {% else %}
+                        New Product
+                    {% endif %}
                 </h4>
             </div>
 
             <div class="page-actions pe-4">
                 <button
-                        class="action-saveAndContinue btn btn-secondary action-save"
-                        type="submit" name="ea[newForm][btn]"
-                        value="saveAndContinue"
-                        data-action-name="saveAndContinue"
-                        form="edit-Products-form"
+                    class="action-saveAndContinue btn btn-secondary action-save"
+                    type="submit"
+                    name="save_continue"
                 >
                 <span class="btn-label">
                     <i class="action-icon far fa-edit"></i>
@@ -30,11 +33,9 @@
                 </button>
 
                 <button
-                        class="action-saveAndReturn btn btn-primary action-save"
-                        type="submit" name="ea[newForm][btn]"
-                        value="saveAndReturn"
-                        data-action-name="saveAndReturn"
-                        form="edit-Products-form"
+                    class="action-saveAndReturn btn btn-primary action-save"
+                    type="submit"
+                    name="save_return"
                 >
                     <span class="btn-label">Save changes</span>
                 </button>
@@ -52,12 +53,13 @@
                             {% set is_published = 'checked' %}
                         {% endif %}
                         <input
-                                name="is_published"
-                                class="form-check-input"
-                                type="checkbox"
-                                role="switch"
-                                value="1"
-                                {{ is_published }}
+                            name="is_published"
+                            id="is_published"
+                            class="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            value="1"
+                            {{ is_published }}
                         >
                         <label class="ms-2 text-primary" for="is_published">
                             Published
@@ -73,14 +75,15 @@
                             {% set expiry_date = 'checked' %}
                         {% endif %}
                         <input
-                                name="expiry_date"
-                                class="form-check-input"
-                                type="checkbox"
-                                role="switch"
-                                value="1"
-                                {{ expiry_date }}
+                            name="expiry_date"
+                            id="expiry_date"
+                            class="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            value="1"
+                            {{ expiry_date }}
                         >
-                        <label class="ms-2 text-primary" for="is_published">
+                        <label class="ms-2 text-primary" for="expiry_date">
                             Expiry Date
                         </label>
                     </div>
@@ -92,18 +95,40 @@
                 {# Manufacturers #}
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Manufacturer <span class="text-danger">*</span> </label>
-                    <select
-                            class="js-basic-multiple form-control"
-                            name="manufacturer[]"
-                            id="manufacturer"
-                            multiple="multiple"
-                    >
-                        {% for manufacturer in manufacturers %}
-                            <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="hidden_msg"id="error_manufacturer">
-                        Required Field
+                    <div class="position-relative">
+                        <div class="form-control cursor-text text-placeholder" id="manufacturer">
+                            {% if productManufacturers|length > 0 %}
+                                {% for manufacturer in productManufacturers %}
+                                    <span class="badge bg-disabled me-3 my-1" id="manufacturer_badge_{{ manufacturer.manufacturers.id }}">
+                                        <span id="manufacturer_badge_string_{{ manufacturer.manufacturers.id }}">
+                                            {{ manufacturer.manufacturers.name }}
+                                        </span>
+                                    </span>
+                                {% endfor %}
+                            {% else %}
+                                Select a Manufacturer
+                            {% endif %}
+                        </div>
+                        <div id="manufacturers_list" class="row" style="display: none">
+                            {% if productManufacturers|length > 0 %}
+                                {% for manufacturer in productManufacturers %}
+                                    <input
+                                        type="hidden"
+                                        name="manufacturers[]"
+                                        class="manufacturer_hidden"
+                                        data-name="{{ manufacturer.manufacturers.name }}"
+                                        id="manufacturer_hidden_field_{{ manufacturer.manufacturers.id }}"
+                                        value="{{ manufacturer.manufacturers.id }}"
+                                    >
+                                {% endfor %}
+                            {% endif %}
+                            <div id="manufacturer_list_container">
+                                {{ manufacturersList|raw }}
+                            </div>
+                        </div>
+                        <div class="hidden_msg"id="error_manufacturer">
+                            Required Field
+                        </div>
                     </div>
                 </div>
 
@@ -111,12 +136,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Name <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="name"
-                            id="name"
-                            value="{{ product.name }}"
-                            placeholder="Name"
+                        type="text"
+                        class="form-control"
+                        name="name"
+                        id="name"
+                        value="{{ product.name }}"
+                        placeholder="Name"
                     >
                     <div class="hidden_msg" id="error_name">
                         Required Field
@@ -129,35 +154,73 @@
                 {# Species #}
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Species <span class="text-danger">*</span> </label>
-                    <select
-                            class="js-basic-multiple form-control"
-                            name="species[]"
-                            id="species"
-                            multiple="multiple"
-                    >
-                        {% for specie in species %}
-                            <option value="{{ specie.id }}">{{ specie.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="hidden_msg"id="error_species">
-                        Required Field
+                    <div class="position-relative">
+                        <div class="form-control cursor-text text-placeholder" id="species">
+                            {% if productSpecies|length > 0 %}
+                                {% for species in productSpecies %}
+                                    <span class="badge bg-disabled me-3 my-1" id="species_badge_{{ species.species.id }}">
+                                        <span id="manufacturer_badge_string_{{ species.species.id }}">
+                                            {{ species.species.name }}
+                                        </span>
+                                    </span>
+                                {% endfor %}
+                            {% else %}
+                                Select a Species
+                            {% endif %}
+                        </div>
+                        <div id="species_list" class="row" style="display: none">
+                            {% if productSpecies|length > 0 %}
+                                {% for species in productSpecies %}
+                                    <input
+                                        type="hidden"
+                                        name="species[]"
+                                        class="species_hidden"
+                                        data-name="{{ species.species.name }}"
+                                        id="species_hidden_field_{{ species.species.id }}"
+                                        value="{{ species.species.id }}"
+                                    >
+                                {% endfor %}
+                            {% endif %}
+                            <div id="species_list_container">
+                                {{ speciesList|raw }}
+                            </div>
+                        </div>
+                        <div class="hidden_msg"id="error_species">
+                            Required Field
+                        </div>
                     </div>
+
+{#                    <select#}
+{#                        class="js-basic-multiple form-control"#}
+{#                        name="species[]"#}
+{#                        id="species"#}
+{#                        multiple="multiple"#}
+{#                    >#}
+{#                        {% for specie in species %}#}
+{#                            <option value="{{ specie.id }}">{{ specie.name }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                    <div class="hidden_msg"id="error_species">#}
+{#                        Required Field#}
+{#                    </div>#}
                 </div>
 
                 {# Category #}
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Category <span class="text-danger">*</span> </label>
                     <select
-                            class="form-control"
-                            name="category"
-                            id="category"
-                            value="{{ product.category }}"
+                        class="form-control"
+                        name="category"
+                        id="category"
+                        value="{{ product.category }}"
                     >
                         <option value="">Select a Category...</option>
                         {% for category in categories %}
                             {% set selected = '' %}
-                            {% if product.category.id == category.id %}
-                                {% set selected = 'selected' %}
+                            {% if product.category != null %}
+                                {% if product.category.id == category.id %}
+                                    {% set selected = 'selected' %}
+                                {% endif %}
                             {% endif %}
                             <option value="{{ category.id }}" {{ selected }}>{{ category.category }}</option>
                         {% endfor %}
@@ -174,20 +237,22 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Sub Category <span class="text-danger">*</span> </label>
                     <select
-                            class="form-control"
-                            name="sub_category"
-                            id="sub_category"
+                        class="form-control"
+                        name="subCategory"
+                        id="subCategory"
                     >
-                        <option value="">Select a Sub Category</option>
-                        {% for sub_category in sub_categories %}
+                        <option value="">Select a Sub Category...</option>
+                        {% for subCategory in subCategories %}
                             {% set selected = '' %}
-                            {% if product.subCategory.id == sub_category.id %}
-                                {% set selected = 'selected' %}
+                            {% if product.subCategory != null %}
+                                {% if product.subCategory.id == subCategory.id %}
+                                    {% set selected = 'selected' %}
+                                {% endif %}
                             {% endif %}
-                            <option value="{{ sub_category.id }}" {{ selected }}>{{ sub_category.subCategory }}</option>
+                            <option value="{{ subCategory.id }}" {{ selected }}>{{ subCategory.subCategory }}</option>
                         {% endfor %}
                     </select>
-                    <div class="hidden_msg"id="error_sub_categories">
+                    <div class="hidden_msg"id="error_subCategory">
                         Required Field
                     </div>
                 </div>
@@ -196,12 +261,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Serial No <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="serial_no"
-                            id="serial_no"
-                            value="{{ product.sku }}"
-                            placeholder="Serial Number"
+                        type="text"
+                        class="form-control"
+                        name="serial_no"
+                        id="serial_no"
+                        value="{{ product.sku }}"
+                        placeholder="Serial Number"
                     >
                     <div class="hidden_msg" id="error_serial_no">
                         Required Field
@@ -215,12 +280,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Active Ingredient <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="active_ingredient"
-                            id="active_ingredient"
-                            value="{{ product.activeIngredient }}"
-                            placeholder="Active Ingredient"
+                        type="text"
+                        class="form-control"
+                        name="active_ingredient"
+                        id="active_ingredient"
+                        value="{{ product.activeIngredient }}"
+                        placeholder="Active Ingredient"
                     >
                     <div class="hidden_msg"id="error_active_ingredient">
                         Required Field
@@ -231,12 +296,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Dosage <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="dosage"
-                            id="dosage"
-                            value="{{ product.dosage }}"
-                            placeholder="Serial Number"
+                        type="text"
+                        class="form-control"
+                        name="dosage"
+                        id="dosage"
+                        value="{{ product.dosage }}"
+                        placeholder="Dosage"
                     >
                     <div class="hidden_msg" id="error_dosage">
                         Required Field
@@ -250,12 +315,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Size <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="size"
-                            id="size"
-                            value="{{ product.size }}"
-                            placeholder="Active Ingredient"
+                        type="text"
+                        class="form-control"
+                        name="size"
+                        id="size"
+                        value="{{ product.size }}"
+                        placeholder="Active Ingredient"
                     >
                     <div class="hidden_msg"id="error_size">
                         Required Field
@@ -266,12 +331,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Unit <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="unit"
-                            id="unit"
-                            value="{{ product.unit }}"
-                            placeholder="Serial Number"
+                        type="text"
+                        class="form-control"
+                        name="unit"
+                        id="unit"
+                        value="{{ product.unit }}"
+                        placeholder="Serial Number"
                     >
                     <div class="hidden_msg" id="error_unit">
                         Required Field
@@ -285,12 +350,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Price <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="price"
-                            id="price"
-                            value="{{ product.unitPrice|format_number({fraction_digit: 2}) }}"
-                            placeholder="Active Ingredient"
+                        type="text"
+                        class="form-control"
+                        name="price"
+                        id="price"
+                        value="{{ product.unitPrice|format_number({fraction_digit: 2}) }}"
+                        placeholder="Active Ingredient"
                     >
                     <div class="hidden_msg"id="error_price">
                         Required Field
@@ -301,12 +366,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Stock <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="stock"
-                            id="stock"
-                            value="{{ product.stockCount }}"
-                            placeholder="Serial Number"
+                        type="text"
+                        class="form-control"
+                        name="stock"
+                        id="stock"
+                        value="{{ product.stockCount }}"
+                        placeholder="Serial Number"
                     >
                     <div class="hidden_msg" id="error_stock">
                         Required Field
@@ -320,9 +385,9 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Package Type <span class="text-danger">*</span> </label>
                     <select
-                            class="form-control"
-                            name="package_type"
-                            id="package_type"
+                        class="form-control"
+                        name="package_type"
+                        id="package_type"
                     >
                         <option value="">Select a Package Type</option>
                         {% set selected = '' %}
@@ -345,12 +410,12 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Form <span class="text-danger">*</span> </label>
                     <input
-                            type="text"
-                            class="form-control"
-                            name="form"
-                            id="form"
-                            value="{{ product.form }}"
-                            placeholder="Serial Number"
+                        type="text"
+                        class="form-control"
+                        name="form"
+                        id="form"
+                        value="{{ product.form }}"
+                        placeholder="Serial Number"
                     >
                     <div class="hidden_msg" id="error_form">
                         Required Field
@@ -364,10 +429,10 @@
                 <div class="col-12 col-md-6">
                     <label class="text-primary mb-2">Image</label>
                     <input
-                            type="file"
-                            class="form-control"
-                            name="image"
-                            id="image"
+                        type="file"
+                        class="form-control"
+                        name="image"
+                        id="image"
                     >
                 </div>
 
@@ -386,7 +451,7 @@
                             class="form-control"
                             name="details"
                             id="details"
-                    ></textarea>
+                    >{{ product.description }}</textarea>
                     <div class="hidden_msg" id="error_details">
                         Required Field
                     </div>
@@ -401,40 +466,663 @@
 
     <script>
 
-        $(document).on('submit', '#form_list', function (e){
+        $(document).ready(function (){
+
+            {# Save Products #}
+            $(document).on('submit', '#products_form', function (e){
+
+                e.preventDefault();
+
+                let manufacturer = $('.manufacturer_hidden').length;
+                let name = $('#name').val();
+                let species = $('.species_hidden').length;
+                let category = $('#category').val();
+                let subCategory = $('#subCategory').val();
+                let serial_no = $('#serial_no').val();
+                let active_ingredient = $('#active_ingredient').val();
+                let dosage = $('#dosage').val();
+                let size = $('#size').val();
+                let unit = $('#unit').val();
+                let price = $('#price').val();
+                let stock = $('#stock').val();
+                let package_type = $('#package_type').val();
+                let form = $('#form').val();
+                let details = $('#details').val();
+                let is_valid = true;
+
+                let error_manufacturer = $('#error_manufacturer');
+                let error_name = $('#error_name');
+                let error_species = $('#error_species');
+                let error_category = $('#error_category');
+                let error_subCategory = $('#error_subCategory');
+                let error_serial_no = $('#error_serial_no');
+                let error_active_ingredient = $('#error_active_ingredient');
+                let error_dosage = $('#error_dosage');
+                let error_size = $('#error_size');
+                let error_unit = $('#error_unit');
+                let error_price = $('#error_price');
+                let error_stock = $('#error_stock');
+                let error_package_type = $('#error_package_type');
+                let error_form = $('#error_form');
+                let error_details = $('#error_details');
+
+                error_manufacturer.hide();
+                error_name.hide();
+                error_species.hide();
+                error_category.hide();
+                error_subCategory.hide();
+                error_serial_no.hide();
+                error_active_ingredient.hide();
+                error_dosage.hide();
+                error_size.hide();
+                error_unit.hide();
+                error_price.hide();
+                error_stock.hide();
+                error_package_type.hide();
+                error_form.hide();
+                error_details.hide();
+
+                if(manufacturer == 0){
+
+                    error_manufacturer.show();
+                    is_valid = false;
+                }
+
+                if(name == '' || name == 'undefined'){
+
+                    error_name.show();
+                    is_valid = false;
+                }
+
+                if(species == 0){
+
+                    error_species.show();
+                    is_valid = false;
+                }
+
+                if(category == '' || category == 'undefined'){
+
+                    error_category.show();
+                    is_valid = false;
+                }
+
+                if(subCategory == '' || subCategory == 'undefined'){
+
+                    error_subCategory.show();
+                    is_valid = false;
+                }
+
+                if(serial_no == '' || serial_no == 'undefined'){
+
+                    error_serial_no.show();
+                    is_valid = false;
+                }
+
+                if(active_ingredient == '' || active_ingredient == 'undefined'){
+
+                    error_active_ingredient.show();
+                    is_valid = false;
+                }
+
+                if(dosage == '' || dosage == 'undefined'){
+
+                    error_dosage.show();
+                    is_valid = false;
+                }
+
+                if(size == '' || size == 'undefined'){
+
+                    error_size.show();
+                    is_valid = false;
+                }
+
+                if(unit == '' || unit == 'undefined'){
+
+                    error_unit.show();
+                    is_valid = false;
+                }
+
+                if(price == '' || price == 'undefined'){
+
+                    error_price.show();
+                    is_valid = false;
+                }
+
+                if(stock == '' || stock == 'undefined'){
+
+                    error_stock.show();
+                    is_valid = false;
+                }
+
+                if(package_type == '' || package_type == 'undefined'){
+
+                    error_package_type.show();
+                    is_valid = false;
+                }
+
+                if(form == '' || form == 'undefined'){
+
+                    error_form.show();
+                    is_valid = false;
+                }
+
+                if(details == '' || details == 'undefined'){
+
+                    error_details.show();
+                    is_valid = false;
+                }
+
+                if(is_valid) {
+
+                    let data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('product_crud') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+                            alert('xxxx');
+                        }
+                    });
+                }
+            });
+            {# End Save Products #}
+
+            {# Manufacturers Dropdown #}
+            let selected = [];
+            let array = [{{ arr }}];
+            for(let i = 0; i < array[0].length; i++){
+
+                selected.push(parseInt(array[0][i]));
+            };
+
+            $(document).on('click', '#manufacturer', function (){
+
+                $('#manufacturers_list').show(700);
+            });
+            $(document).mouseup(function(e){
+
+                let container = $('#manufacturers_list');
+
+                // if the target of the click isn't the container nor a descendant of the container
+                if (!container.is(e.target) && container.has(e.target).length === 0)
+                {
+                    container.hide(700);
+                }
+            });
+            $(document).on('click', '.manufacturer-edit-icon', function (e){
+
+                e.preventDefault();
+
+                let manufacturer_id = $(this).data('manufacturer-edit-id');
+                $.session.set('manufacturer', $('#manufacturer_edit_field_'+ manufacturer_id).val());
+
+                $('#manufacturer_edit_field_'+ manufacturer_id).show();
+                $('#manufacturer_string_'+ manufacturer_id).hide();
+                $('#manufacturer_edit_'+ manufacturer_id).hide();
+                $('#manufacturer_save_'+ manufacturer_id).show();
+                $('#manufacturer_cancel_'+ manufacturer_id).show();
+                $('#manufacturer_remove_' + manufacturer_id).hide();
+            });
+            $(document).on('click', '.manufacturer-cancel-icon', function (e){
+
+                e.preventDefault();
+
+                let cancel_id = $(this).data('manufacturer-cancel-id');
+
+                $('#manufacturer_edit_field_'+ cancel_id).hide();
+                $('#manufacturer_string_'+ cancel_id).show();
+                $('#manufacturer_edit_field_'+ cancel_id).val($.session.get('manufacturer'));
+                $('#manufacturer_edit_'+ cancel_id).show();
+                $('#manufacturer_save_'+ cancel_id).hide();
+                $('#manufacturer_cancel_'+ cancel_id).hide();
+                $('#error_manufacturer_'+ cancel_id).hide();
+            });
+            $(document).on('click',' .manufacturer-save-icon', function (e){
+
+                e.preventDefault();
+
+                let manufacturer_id = $(this).data('manufacturer-id');
+                let manufacturer = $('#manufacturer_edit_field_'+ manufacturer_id).val();
+                let manufacturer_error = $('#error_manufacturer_'+ manufacturer_id);
+                let is_valid = true;
+
+                manufacturer_error.hide();
+
+                if(manufacturer == '' || manufacturer == 'undefined'){
+
+                    manufacturer_error.show();
+                    is_valid = false;
+                }
+
+                if(is_valid){
+
+                    $.ajax({
+                        url: "{{ path('products_manufacturer_save') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            manufacturer_id:manufacturer_id,
+                            manufacturer:manufacturer
+                        },
+                        success: function (response) {
+
+                            $('#manufacturer_edit_field_'+ manufacturer_id).hide();
+                            $('#manufacturer_string_'+ manufacturer_id).empty().append(manufacturer).show();
+                            $('#manufacturer_edit_field_'+ manufacturer_id).val(manufacturer);
+                            $('#manufacturer_edit_'+ manufacturer_id).show();
+                            $('#manufacturer_save_'+ manufacturer_id).hide();
+                            $('#manufacturer_cancel_'+ manufacturer_id).hide();
+                            $('#error_manufacturer_'+ manufacturer_id).hide();
+                            $('#manufacturer_row_id_'+ manufacturer_id).attr('data-manufacturer', manufacturer);
+                            $('#manufacturer_badge_string_'+ manufacturer_id).empty().append(manufacturer);
+                        }
+                    });
+                }
+            });
+            $(document).on('mouseover', '.edit-manufacturer', function (){
+
+                let manufacturer_id = $(this).data('manufacturer-id');
+
+                if($('#manufacturer_save_'+ manufacturer_id).is(':hidden')) {
+
+                    $('#manufacturer_edit_' + manufacturer_id).show();
+
+                    if(selected.includes(manufacturer_id)) {
+
+                        $('#manufacturer_remove_' + manufacturer_id).show();
+
+                    } else {
+
+                        $('#manufacturer_remove_' + manufacturer_id).hide();
+                    }
+                }
+            });
+            $(document).on('mouseout', '.edit-manufacturer', function (){
+
+                let manufacturer_id = $(this).data('manufacturer-id');
+
+                if($('#manufacturer_save_'+ manufacturer_id).is(':hidden')) {
+
+                    $('#manufacturer_edit_' + manufacturer_id).hide();
+                    $('#manufacturer_remove_' + manufacturer_id).hide();
+                };
+            });
+            $(document).on('click', '.manufacturer-select', function (){
+
+                let manufacturer_id = $(this).data('manufacturer-id');
+                let manufacturer = $(this).attr('data-manufacturer');
+
+                if($('#manufacturer_edit_field_'+ manufacturer_id).is(':hidden')) {
+
+                    let hidden_field = '<input type="hidden" name="manufacturers[]" class="manufacturer_hidden" data-name="'+ manufacturer +'"';
+                    hidden_field += 'id="manufacturer_hidden_field_' + manufacturer_id + '" value="' + manufacturer_id + '" >';
+
+                    $('#manufacturers_list').prepend(hidden_field);
+                    $(this).removeClass('manufacturer-select');
+                    $('#manufacturer_remove_' + manufacturer_id).show();
+
+                    let badge = getBadges('input[name="manufacturers[]"]', 'manufacturer');
+
+                    $('#manufacturer').empty().append(badge);
+
+                    // Create array of selected ids
+                    selected = [];
+
+                    if($('.manufacturer_hidden').length > 0){
+
+                        $('.manufacturer_hidden').each(function (){
+
+                            selected.push(parseInt($(this).val()));
+                        });
+                    }
+                }
+            });
+            $(document).on('click', '.manufacturer-remove-icon', function (e){
+
+                e.preventDefault();
+
+                let manufacturer_id = $(this).data('manufacturer-id');
+
+                $('#manufacturer_badge_'+ manufacturer_id).remove();
+                $('#manufacturer_row_id_'+ manufacturer_id).addClass('manufacturer-select');
+                $('#manufacturer_hidden_field_'+ manufacturer_id).remove();
+                $('#manufacturer_remove_' + manufacturer_id).hide();
+
+                // Remove from selected array
+                let index = selected.indexOf(manufacturer_id);
+                if (index >= 0) {
+                    selected.splice( index, 1 );
+                }
+
+                if($('.manufacturer_hidden').length == 0){
+
+                    $('#manufacturer').append('Select a Manufacturer');
+                };
+            });
+            $(document).on('mouseover', '#manufacturer_add', function (){
+
+
+            });
+            $(document).on('click', '#manufacturer_create_string', function (e){
+
+                e.preventDefault();
+
+                $('#manufacturer_create_string').hide();
+                $('#manufacturer_create_field').show();
+                $('.manufacturer-create-cancel-icon').show();
+                $('.manufacturer-create-save-icon').show();
+            });
+            $(document).on('click', '.manufacturer-create-cancel-icon', function (e){
+
+                e.preventDefault();
+
+                $('#manufacturer_create_string').show();
+                $('#manufacturer_create_field').hide();
+                $('.manufacturer-create-cancel-icon').hide();
+                $('.manufacturer-create-save-icon').hide();
+            });
+            $(document).on('click', '.manufacturer-create-save-icon', function (e){
+
+                e.preventDefault();
+
+                let manufacturer = $('#manufacturer_create_field').val();
+                let error_manufacturer = $('#error_manufacturer_create');
+                let is_valid = true;
+
+                error_manufacturer.hide();
+
+                if(manufacturer == '' || manufacturer == 'udefined'){
+
+                    error_manufacturer.show()
+                    is_valid = false;
+                }
+
+                if(is_valid){
+
+                    $.ajax({
+                        url: "{{ path('products_manufacturer_save') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            manufacturer_id:0,
+                            manufacturer:manufacturer
+                        },
+                        success: function (response) {
+
+                            $('#manufacturer_list_container').empty().append(response);
+                            $('#manufacturer_create_string').show();
+                            $('#manufacturer_create_field').hide();
+                            $('.manufacturer-create-cancel-icon').hide();
+                            $('.manufacturer-create-save-icon').hide();
+                        }
+                    });
+                }
+            });
+            {# End Manufacturers Dropdown #}
+        });
+
+        {# Species Dropdown #}
+        let selected = [];
+        let array = [{{ arr_species }}];
+        for(let i = 0; i < array[0].length; i++){
+
+            selected.push(parseInt(array[0][i]));
+        };
+        $(document).on('click', '#species', function (){
+
+            $('#species_list').show(700);
+        });
+        $(document).mouseup(function(e){
+
+            let container = $('#species_list');
+
+            // if the target of the click isn't the container nor a descendant of the container
+            if (!container.is(e.target) && container.has(e.target).length === 0)
+            {
+                container.hide(700);
+            }
+        });
+        $(document).on('click', '.species-edit-icon', function (e){
 
             e.preventDefault();
 
-            let list_name = $('#list_name').val();
-            let list_name_error = $('#error_list_name');
-            let data = new FormData(this);
+            let species_id = $(this).data('species-edit-id');
+            $.session.set('species', $('#species_edit_field_'+ species_id).val());
+
+            $('#species_edit_field_'+ species_id).show();
+            $('#species_string_'+ species_id).hide();
+            $('#species_edit_'+ species_id).hide();
+            $('#species_save_'+ species_id).show();
+            $('#species_cancel_'+ species_id).show();
+            $('#species_remove_' + species_id).hide();
+        });
+        $(document).on('click', '.species-cancel-icon', function (e){
+
+            e.preventDefault();
+
+            let cancel_id = $(this).data('species-cancel-id');
+
+            $('#species_edit_field_'+ cancel_id).hide();
+            $('#species_string_'+ cancel_id).show();
+            $('#species_edit_field_'+ cancel_id).val($.session.get('species'));
+            $('#species_edit_'+ cancel_id).show();
+            $('#species_save_'+ cancel_id).hide();
+            $('#species_cancel_'+ cancel_id).hide();
+            $('#error_species_'+ cancel_id).hide();
+        });
+        $(document).on('click',' .species-save-icon', function (e){
+
+            e.preventDefault();
+
+            let species_id = $(this).data('species-id');
+            let species = $('#species_edit_field_'+ species_id).val();
+            let species_error = $('#error_species_'+ species_id);
             let is_valid = true;
 
-            list_name_error.hide()
+            species_error.hide();
 
-            if(list_name == '' || list_name == 'undefined'){
+            if(species == '' || species == 'undefined'){
 
-                list_name_error.show();
+                species_error.show();
                 is_valid = false;
             }
 
-            if(is_valid) {
+            if(is_valid){
 
                 $.ajax({
-                    url: "{{ path('inventory_manage_list') }}",
+                    url: "{{ path('products_species_save') }}",
                     type: 'POST',
-                    contentType: false,
-                    processData: false,
-                    cache: false,
-                    timeout: 600000,
                     dataType: 'json',
-                    data: data,
+                    data: {
+                        species_id:species_id,
+                        species:species
+                    },
                     success: function (response) {
-                        $('#lists_'+ product_id).empty().append(response);
+
+                        $('#species_edit_field_'+ species_id).hide();
+                        $('#species_string_'+ species_id).empty().append(species).show();
+                        $('#species_edit_field_'+ species_id).val(species);
+                        $('#species_edit_'+ species_id).show();
+                        $('#species_save_'+ species_id).hide();
+                        $('#species_cancel_'+ species_id).hide();
+                        $('#error_species_'+ species_id).hide();
+                        $('#species_row_id_'+ species_id).attr('data-species', species);
+                        $('#species_badge_string_'+ species_id).empty().append(species);
                     }
                 });
             }
         });
+        $(document).on('mouseover', '.edit-species', function (){
+
+            let species_id = $(this).data('species-id');
+
+            if($('#species_save_'+ species_id).is(':hidden')) {
+
+                $('#species_edit_' + species_id).show();
+
+                if(selected.includes(species_id)) {
+
+                    $('#species_remove_' + species_id).show();
+
+                } else {
+
+                    $('#species_remove_' + species_id).hide();
+                }
+            }
+        });
+        $(document).on('mouseout', '.edit-species', function (){
+
+            let species_id = $(this).data('species-id');
+
+            if($('#species_save_'+ species_id).is(':hidden')) {
+
+                $('#species_edit_' + species_id).hide();
+                $('#species_remove_' + species_id).hide();
+            };
+        });
+        $(document).on('click', '.species-select', function (){
+
+            let species_id = $(this).data('species-id');
+            let species = $(this).attr('data-species');
+
+            if($('#species_edit_field_'+ species_id).is(':hidden')) {
+
+                let hidden_field = '<input type="hidden" name="species[]" class="species_hidden" data-name="'+ species +'"';
+                hidden_field += 'id="species_hidden_field_' + species_id + '" value="' + species_id + '" >';
+
+                $('#species_list').prepend(hidden_field);
+                $(this).removeClass('species-select');
+                $('#species_remove_' + species_id).show();
+
+                let badge = getBadges('input[name="species[]"]', 'species');
+
+                $('#species').empty().append(badge);
+
+                // Create array of selected ids
+                selected = [];
+
+                if($('.species_hidden').length > 0){
+
+                    $('.species_hidden').each(function (){
+
+                        selected.push(parseInt($(this).val()));
+                    });
+                }
+            }
+        });
+        $(document).on('click', '.species-remove-icon', function (e){
+
+            e.preventDefault();
+
+            let species_id = $(this).data('species-id');
+
+            $('#species_badge_'+ species_id).remove();
+            $('#species_row_id_'+ species_id).addClass('species-select');
+            $('#species_hidden_field_'+ species_id).remove();
+            $('#species_remove_' + species_id).hide();
+
+            // Remove from selected array
+            let index = selected.indexOf(species_id);
+            if (index >= 0) {
+                selected.splice( index, 1 );
+            }
+
+            if($('.species_hidden').length == 0){
+
+                $('#species').append('Select a species');
+            };
+        });
+        $(document).on('mouseover', '#species_add', function (){
+
+
+        });
+        $(document).on('click', '#species_create_string', function (e){
+
+            e.preventDefault();
+
+            $('#species_create_string').hide();
+            $('#species_create_field').show();
+            $('.species-create-cancel-icon').show();
+            $('.species-create-save-icon').show();
+        });
+        $(document).on('click', '.species-create-cancel-icon', function (e){
+
+            e.preventDefault();
+
+            $('#species_create_string').show();
+            $('#species_create_field').hide();
+            $('.species-create-cancel-icon').hide();
+            $('.species-create-save-icon').hide();
+            $('#error_species_create').hide();
+        });
+        $(document).on('click', '.species-create-save-icon', function (e){
+
+            e.preventDefault();
+
+            let species = $('#species_create_field').val();
+            let error_species = $('#error_species_create');
+            let is_valid = true;
+
+            error_species.hide();
+
+            if(species == '' || species == 'udefined'){
+
+                error_species.show()
+                is_valid = false;
+            }
+
+            if(is_valid){
+
+                $.ajax({
+                    url: "{{ path('products_species_save') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        species_id:0,
+                        species:species
+                    },
+                    success: function (response) {
+
+                        $('#species_list_container').empty().append(response);
+                        $('#species_create_string').show();
+                        $('#species_create_field').hide();
+                        $('.species-create-cancel-icon').hide();
+                        $('.species-create-save-icon').hide();
+                    }
+                });
+            }
+        });
+        {# End Species Dropdown #}
+
+        function getBadges(element, label){
+
+            let arr = [];
+
+            $(element).each(function() {
+
+                let val = $(this).val();
+                let name = $(this).data('name');
+
+                arr.push({'id':val, 'name': name});
+            });
+
+            let badge = '';
+
+            for(let i = 0; i < arr.length; i++){
+
+                badge += '<span class="badge bg-disabled me-3 my-1" id="'+ label +'_badge_'+ arr[i].id +'">';
+                badge += '<span  id="'+ label +'_badge_string_'+ arr[i].id +'">' + arr[i].name + '</span>';
+                badge += '</span>';
+            }
+
+            return badge;
+        }
 
         tinymce.init({
             selector: '#details',

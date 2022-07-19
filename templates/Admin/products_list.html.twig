@@ -64,7 +64,15 @@
                     {% if product.isPublished == 1 %}
                         {% set is_published = 'checked' %}
                     {% endif %}
-                    <input name="is_published" class="form-check-input" type="checkbox" role="switch" {{ is_published }}>
+                    <input
+                        name="is_published"
+                        class="form-check-input is-published"
+                        type="checkbox"
+                        role="switch"
+                        data-product-id="{{ product.id }}"
+                        value="{{ product.isPublished }}"
+                        {{ is_published }}
+                    >
                 </div>
             </div>
             <div class="col-4 col-md-2 d-block d-md-none fw-bold text-truncate">
@@ -142,4 +150,42 @@
         </div>
     </div>
     <!-- End Delete Product Modal -->
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+<script>
+
+    $(document).ready(function (){
+
+        $(document).on('change', '.is-published', function (e){
+
+            let product_id = $(this).data('product-id');
+            let is_published = '';
+
+            if ($(this).is(':checked')) {
+
+                is_published = 1;
+
+            } else {
+
+                is_published = 0;
+            }
+
+            $.ajax({
+                url: "{{ path('product_is_published') }}",
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    is_published:is_published,
+                    product_id:product_id
+                },
+                success: function (response) {
+
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
