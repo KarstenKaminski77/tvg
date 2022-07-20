@@ -180,6 +180,81 @@ class AdminDashboardController extends AbstractController
         return new JsonResponse($flash);
     }
 
+    #[Route('/admin/category/crud', name: 'category_crud')]
+    public function categoryCrudAction(Request $request): Response
+    {
+        $categoryId = $request->get('category_id') ?? $request->request->get('delete');
+        $category = $this->em->getRepository(Categories::class)->find($categoryId);
+
+        if($request->request->get('delete') != null){
+
+            $subCategories = $this->em->getRepository(SubCategories::class)->findBy([
+                'category' => $categoryId,
+            ]);
+
+            foreach($subCategories as $subCategory){
+
+                $subCategory->setCategory(0);
+                $this->em->persist($subCategory);
+            }
+
+            $this->em->flush();
+
+            $this->em->remove($category);
+
+            $this->em->flush();
+
+            $flash = '<b><i class="fas fa-check-circle"></i> Category Successfully Deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+            return new JsonResponse($flash);
+        }
+
+        if($category == null){
+
+            $category = new Categories();
+        }
+
+        $response['flash'] = '';
+
+        if(!empty($request->request)) {
+
+            $subCategories = $this->em->getRepository(SubCategories::class)->findBy([
+                'category'=>  $categoryId,
+            ]);
+
+            if(count($subCategories) > 0){
+
+                foreach ($subCategories as $subCategory) {
+
+                    $subCategory->setCategory(null);
+
+                    $this->em->persist($subCategory);
+                }
+
+                $this->em->flush();
+
+                foreach ($request->request->get('sub_categories') as $subCategoryId) {
+
+                    $subCategory = $this->em->getRepository(SubCategories::class)->find($subCategoryId);
+
+                    $subCategory->setCategory($category);
+
+                    $this->em->persist($subCategory);
+                }
+            }
+
+            $category->setCategory($request->request->get('category'));
+
+            $this->em->persist($category);
+            $this->em->flush();
+
+            $response['category'] = $category;
+            $response['flash'] = '<b><i class="fas fa-check-circle"></i> Category updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        }
+
+        return new JsonResponse($response);
+    }
+
     #[Route('/admin/product/manufacturer/save', name: 'products_manufacturer_save')]
     public function productsSaveManufacturer(Request $request): Response
     {
@@ -210,8 +285,8 @@ class AdminDashboardController extends AbstractController
             $manufacturers = $this->em->getRepository(Manufacturers::class)->findAll();
 
             $response = $this->getDropdownList(
-                $manufacturers, 'manufacturer', ProductsSpecies::class,
-                $request->get('product_id'), 'getSpecies'
+                $manufacturers, 'manufacturer', ProductsSpecies::class, 'getName',
+                'products', $request->get('product_id'), 'getSpecies'
             );
         }
 
@@ -248,8 +323,46 @@ class AdminDashboardController extends AbstractController
             $species = $this->em->getRepository(Species::class)->findAll();
 
             $response = $this->getDropdownList(
-                $species, 'species', ProductsSpecies::class,
-                $request->get('product_id'), 'getSpecies'
+                $species, 'species', ProductsSpecies::class, 'getName',
+                'products', $request->get('product_id'), 'getSpecies'
+            );
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/admin/categories/sub-categories/save', name: 'categories_sub_categories_save')]
+    public function categorySaveSubCategory(Request $request): Response
+    {
+        $data = $request->request;
+        $sub_category_id = $data->get('sub_category_id');
+        $sub_category = $data->get('sub_category');
+        $subCategory = $this->em->getRepository(SubCategories::class)->find($sub_category_id);
+        $response = false;
+
+        if($subCategory != null && $sub_category_id > 0){
+
+            $subCategory->setSubCategory($sub_category);
+
+            $this->em->persist($subCategory);
+            $this->em->flush();
+
+            $response = true;
+
+        } elseif($sub_category_id == 0){
+
+            $subCategory = new SubCategories();
+
+            $subCategory->setSubCategory($sub_category);
+
+            $this->em->persist($subCategory);
+            $this->em->flush();
+
+            $subCategory = $this->em->getRepository(SubCategories::class)->findAll();
+
+            $response = $this->getDropdownList(
+                $subCategory, 'sub_category', SubCategories::class, 'getSubCategory',
+                'category', $request->get('category_id'), 'getCategory'
             );
         }
 
@@ -301,8 +414,8 @@ class AdminDashboardController extends AbstractController
         if($manufacturers != null){
 
             $manufacturersList = $this->getDropdownList(
-                $manufacturers, 'manufacturer', ProductManufacturers::class,
-                $request->get('product_id'), 'getProducts'
+                $manufacturers, 'manufacturer', ProductManufacturers::class, 'getName',
+                'products', $request->get('product_id'), 'getProducts'
             );
             $array = '';
             $arr = '[';
@@ -321,8 +434,8 @@ class AdminDashboardController extends AbstractController
         if($species != null){
 
             $speciesList = $this->getDropdownList(
-                $species, 'species', ProductManufacturers::class,
-                $request->get('product_id'), 'getProducts'
+                $species, 'species', ProductManufacturers::class, 'getName',
+                'products', $request->get('product_id'), 'getProducts'
             );
             $array = '';
             $arr_species = '[';
@@ -352,27 +465,90 @@ class AdminDashboardController extends AbstractController
         ]);
     }
 
-    private function getDropdownList($repository, $label, $entity, $product_id, $method){
+    #[Route('/admin/categories/{page_id}', name: 'categories_list')]
+    public function categoriesList(Request $request): Response
+    {
+        $categories = $this->em->getRepository(Categories::class)->adminFindAll();
+        $results = $this->page_manager->paginate($categories[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->get('page_id'), $results, '/admin/categories/');
+
+        return $this->render('Admin/categories_list.html.twig',[
+            'categories' => $results,
+            'pagination' => $pagination
+        ]);
+    }
+
+    #[Route('/admin/category/{category_id}', name: 'categories', requirements: ['category_id' => '\d+'])]
+    public function categoriesCrud(Request $request, $category_id = 0): Response
+    {
+        $category = $this->em->getRepository(Categories::class)->find($request->get('category_id'));
+        $subCategory = $this->em->getRepository(SubCategories::class)->findAll();
+        $category_id = $request->get('category_id') ?? 0;
+        $selectedSubCategories = $this->em->getRepository(SubCategories::class)->findBy([
+            'category' => $category_id
+        ]);
+
+        if($category == null){
+
+            $category = new Categories();
+        }
+
+        // Sub Category dropdown
+        $subCategoriesList = '';
+        $arr = [];
+
+        $subCategoriesList = $this->getDropdownList(
+            $subCategory, 'sub_category', SubCategories::class, 'getSubCategory',
+            'category', $request->get('category_id'), 'getCategory'
+        );
+
+        if(!empty($selectedSubCategories)){
+
+            $array = '';
+            $arr = '[';
+
+            foreach($selectedSubCategories as $selectedSubCategory){
+
+                $array .= $selectedSubCategory->getId().',';
+            }
+
+            $arr .= trim($array,',') . ']';
+        }
+
+        return $this->render('Admin/categories.html.twig',[
+            'category' => $category,
+            'subCategories' => $subCategory,
+            'category_id' => $category_id,
+            'selectedSubCategories' => $selectedSubCategories,
+            'subCategoriesList' => $subCategoriesList,
+            'arr' => $arr,
+        ]);
+    }
+
+    private function getDropdownList($repository, $label, $entity, $name, $foreign_key, $entity_id, $method){
 
         $list = '
         <div class="px-3 row">
             <div class="bg-dropdown px-0 col-12">';
 
+        // Loop through all dropdown options
         foreach($repository as $repo){
 
+            // Get related records
             $query = $this->em->getRepository($entity)->findBy([
-                'products' => $product_id,
+                $foreign_key => $entity_id,
             ]);
 
-            $select = '';
+            $select = $label . '-select';
 
-            if($product_id > 0) {
+            if($entity_id > 0) {
 
                 foreach ($query as $qry) {
 
+                    // Remove class identifier for adding
                     if ($qry->$method()->getId() == $repo->getId()) {
 
-                        $select = $label . '-select';
+                        $select = '';
 
                         break;
                     }
@@ -397,16 +573,16 @@ class AdminDashboardController extends AbstractController
                     <div 
                         class="col-10 py-2 d-table-cell align-middle '. $select .'"
                         data-'. $label .'-id="'. $repo->getId() .'"
-                        data-'. $label .'="'. $repo->getName() .'"
+                        data-'. $label .'="'. $repo->$name() .'"
                         id="'. $label .'_row_id_'. $repo->getId() .'"
                     >
                             <span id="'. $label .'_string_'. $repo->getId() .'">
-                                '. $repo->getName() .'
+                                '. $repo->$name() .'
                             </span>
                             <input 
                                 type="text" 
                                 class="form-control form-control-sm '. $label .'-form-ctrl"
-                                value="'. $repo->getName() .'"
+                                value="'. $repo->$name() .'"
                                 data-'. $label .'-field-'. $repo->getId() .'
                                 id="'. $label .'_edit_field_'. $repo->getId() .'"
                                 style="display: none"

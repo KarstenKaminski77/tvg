@@ -1,0 +1,421 @@
+{% extends 'Admin/layout.html.twig' %}
+{% block meta_decription %}
+    {{ parent() }}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <form name="category_form" id="category_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="category_id" id="category_id" value="{{ category_id ? category_id : 0 }}">
+        <section class="content-header border-bottom ps-4 py-4 admin-header">
+            <div class="content-header-title">
+                <h4>
+                    {% if category_id > 0 %}
+                        Editing <b>{{ category.category }}</b>
+                    {% else %}
+                        New Category
+                    {% endif %}
+                </h4>
+            </div>
+
+            <div class="page-actions pe-4">
+                <button
+                    class="action-saveAndContinue btn btn-secondary action-save"
+                    type="submit"
+                    name="save_continue"
+                >
+                <span class="btn-label">
+                    <i class="action-icon far fa-edit"></i>
+                    Save and continue editing
+                </span>
+                </button>
+
+                <button
+                    class="action-saveAndReturn btn btn-primary action-save"
+                    type="submit"
+                    name="save_return"
+                >
+                    <span class="btn-label">Save changes</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="ps-4" style="margin-top: 105px">
+
+            <div class="row mt-4 h-100">
+
+                {# Category #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Category <span class="text-danger">*</span> </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="category"
+                        id="category"
+                        value="{{ category.category }}"
+                    >
+                    <div class="hidden_msg" id="error_category">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Sub Category #}
+                <div class="col-12 col-md-6" style="min-height: 600px">
+                    <label class="text-primary mb-2">Sub Category <span class="text-danger">*</span> </label>
+                    <div class="position-relative">
+                        <div class="form-control cursor-text text-placeholder" id="sub_category">
+                            {% if selectedSubCategories|length > 0 %}
+                                {% for selectedSubCategory in selectedSubCategories %}
+                                    <span class="badge bg-disabled me-3 my-1" id="sub_category_badge_{{ selectedSubCategory.id }}">
+                                        <span id="sub_category_badge_string_{{ selectedSubCategory.id }}">
+                                            {{ selectedSubCategory.subCategory }}
+                                        </span>
+                                    </span>
+                                {% endfor %}
+                            {% else %}
+                                Select a Sub Category
+                            {% endif %}
+                        </div>
+                        <div id="sub_categories_list" class="row" style="display: none">
+                            {% if selectedSubCategories|length > 0 %}
+                                {% for selectedSubCategory in selectedSubCategories %}
+                                    <input
+                                        type="hidden"
+                                        name="sub_categories[]"
+                                        class="sub_category_hidden"
+                                        data-name="{{ selectedSubCategory.subCategory }}"
+                                        id="sub_category_hidden_field_{{ selectedSubCategory.id }}"
+                                        value="{{ selectedSubCategory.id }}"
+                                    >
+                                {% endfor %}
+                            {% endif %}
+                            <div id="sub_category_list_container">
+                                {{ subCategoriesList|raw }}
+                            </div>
+                        </div>
+                        <div class="hidden_msg"id="error_subCategory">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </form>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).ready(function (){
+
+            {# Save Categories #}
+            $(document).on('submit', '#category_form', function (e){
+
+                e.preventDefault();
+
+                let category = $('#category').val();
+                let btn = document.activeElement.getAttribute('name');
+                let error_category = $('#error_category');
+                let is_valid = true;
+
+                error_category.hide();
+
+                if(category == '' || category == 'undefined'){
+
+                    error_category.show();
+                    is_valid = false;
+                }
+
+                if(is_valid) {
+
+                    let data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('category_crud') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+
+                            getFlash(response.flash);
+
+                            if(btn == 'save_return' || {{ app.request.get('category_id') }} == 0){
+
+                                window.location.assign('{{ path('categories_list',{ 'page_id':1 }) }}');
+                            }
+                        }
+                    });
+                }
+            });
+            {# End Save Categories #}
+
+            {# Sub Categories Dropdown #}
+            let selected = [];
+
+            {% if  arr|length > 0 %}
+
+                let array = [{{ arr }}];
+                for (let i = 0; i < array[0].length; i++) {
+
+                    selected.push(parseInt(array[0][i]));
+                }
+            {% endif %}
+
+            $(document).on('click', '#sub_category', function (){
+
+                $('#sub_categories_list').show(700);
+            });
+            $(document).mouseup(function(e){
+
+                let container = $('#sub_categories_list');
+
+                // if the target of the click isn't the container nor a descendant of the container
+                if (!container.is(e.target) && container.has(e.target).length === 0)
+                {
+                    container.hide(700);
+                }
+            });
+            $(document).on('click', '.sub_category-edit-icon', function (e){
+
+                e.preventDefault();
+
+                let sub_category_id = $(this).data('sub_category-edit-id');
+                $.session.set('sub_category', $('#sub_category_edit_field_'+ sub_category_id).val());
+
+                $('#sub_category_edit_field_'+ sub_category_id).show();
+                $('#sub_category_string_'+ sub_category_id).hide();
+                $('#sub_category_edit_'+ sub_category_id).hide();
+                $('#sub_category_save_'+ sub_category_id).show();
+                $('#sub_category_cancel_'+ sub_category_id).show();
+                $('#sub_category_remove_' + sub_category_id).hide();
+            });
+            $(document).on('click', '.sub_category-cancel-icon', function (e){
+
+                e.preventDefault();
+
+                let cancel_id = $(this).data('sub_category-cancel-id');
+
+                $('#sub_category_edit_field_'+ cancel_id).hide();
+                $('#sub_category_string_'+ cancel_id).show();
+                $('#sub_category_edit_field_'+ cancel_id).val($.session.get('sub_category'));
+                $('#sub_category_edit_'+ cancel_id).show();
+                $('#sub_category_save_'+ cancel_id).hide();
+                $('#sub_category_cancel_'+ cancel_id).hide();
+                $('#error_sub_category_'+ cancel_id).hide();
+            });
+            $(document).on('click',' .sub_category-save-icon', function (e){
+
+                e.preventDefault();
+
+                let sub_category_id = $(this).data('sub_category-id');
+                let sub_category = $('#sub_category_edit_field_'+ sub_category_id).val();
+                let sub_category_error = $('#error_sub_category_'+ sub_category_id);
+                let is_valid = true;
+
+                sub_category_error.hide();
+
+                if(sub_category == '' || sub_category == 'undefined'){
+
+                    sub_category_error.show();
+                    is_valid = false;
+                }
+
+                if(is_valid){
+
+                    $.ajax({
+                        url: "{{ path('categories_sub_categories_save') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            sub_category_id:sub_category_id,
+                            sub_category:sub_category
+                        },
+                        success: function (response) {
+
+                            $('#sub_category_edit_field_'+ sub_category_id).hide();
+                            $('#sub_category_string_'+ sub_category_id).empty().append(sub_category).show();
+                            $('#sub_category_edit_field_'+ sub_category_id).val(sub_category);
+                            $('#sub_category_edit_'+ sub_category_id).show();
+                            $('#sub_category_save_'+ sub_category_id).hide();
+                            $('#sub_category_cancel_'+ sub_category_id).hide();
+                            $('#error_sub_category_'+ sub_category_id).hide();
+                            $('#sub_category_row_id_'+ sub_category_id).attr('data-sub_category', sub_category);
+                            $('#sub_category_badge_string_'+ sub_category_id).empty().append(sub_category);
+                        }
+                    });
+                }
+            });
+            $(document).on('mouseover', '.edit-sub_category', function (){
+
+                let sub_category_id = $(this).data('sub_category-id');
+
+                if($('#sub_category_save_'+ sub_category_id).is(':hidden')) {
+
+                    $('#sub_category_edit_' + sub_category_id).show();
+
+                    if(selected.includes(sub_category_id)) {
+
+                        $('#sub_category_remove_' + sub_category_id).show();
+
+                    } else {
+
+                        $('#sub_category_remove_' + sub_category_id).hide();
+                    }
+                }
+            });
+            $(document).on('mouseout', '.edit-sub_category', function (){
+
+                let sub_category_id = $(this).data('sub_category-id');
+
+                if($('#sub_category_save_'+ sub_category_id).is(':hidden')) {
+
+                    $('#sub_category_edit_' + sub_category_id).hide();
+                    $('#sub_category_remove_' + sub_category_id).hide();
+                };
+            });
+            $(document).on('click', '.sub_category-select', function (){
+
+                let sub_category_id = $(this).data('sub_category-id');
+                let sub_category = $(this).attr('data-sub_category');
+
+                if($('#sub_category_edit_field_'+ sub_category_id).is(':hidden')) {
+
+                    let hidden_field = '<input type="hidden" name="sub_categories[]" class="sub_category_hidden" data-name="'+ sub_category +'"';
+                    hidden_field += 'id="sub_category_hidden_field_' + sub_category_id + '" value="' + sub_category_id + '" >';
+
+                    $('#sub_categories_list').prepend(hidden_field);
+                    $(this).removeClass('sub_category-select');
+                    $('#sub_category_remove_' + sub_category_id).show();
+
+                    let badge = getBadges('input[name="sub_categories[]"]', 'sub_category');
+
+                    $('#sub_category').empty().append(badge);
+
+                    // Create array of selected ids
+                    selected = [];
+
+                    if($('.sub_category_hidden').length > 0){
+
+                        $('.sub_category_hidden').each(function (){
+
+                            selected.push(parseInt($(this).val()));
+                        });
+                    }
+                }
+            });
+            $(document).on('click', '.sub_category-remove-icon', function (e){
+
+                e.preventDefault();
+
+                let sub_category_id = $(this).data('sub_category-id');
+
+                $('#sub_category_badge_'+ sub_category_id).remove();
+                $('#sub_category_row_id_'+ sub_category_id).addClass('sub_category-select');
+                $('#sub_category_hidden_field_'+ sub_category_id).remove();
+                $('#sub_category_remove_' + sub_category_id).hide();
+
+                // Remove from selected array
+                let index = selected.indexOf(sub_category_id);
+                if (index >= 0) {
+                    selected.splice( index, 1 );
+                }
+
+                if($('.sub_category_hidden').length == 0){
+
+                    $('#sub_category').append('Select a sub_category');
+                };
+            });
+            $(document).on('mouseover', '#sub_category_add', function (){
+
+
+            });
+            $(document).on('click', '#sub_category_create_string', function (e){
+
+                e.preventDefault();
+
+                $('#sub_category_create_string').hide();
+                $('#sub_category_create_field').show();
+                $('.sub_category-create-cancel-icon').show();
+                $('.sub_category-create-save-icon').show();
+            });
+            $(document).on('click', '.sub_category-create-cancel-icon', function (e){
+
+                e.preventDefault();
+
+                $('#sub_category_create_string').show();
+                $('#sub_category_create_field').hide();
+                $('.sub_category-create-cancel-icon').hide();
+                $('.sub_category-create-save-icon').hide();
+            });
+            $(document).on('click', '.sub_category-create-save-icon', function (e){
+
+                e.preventDefault();
+
+                let sub_category = $('#sub_category_create_field').val();
+                let error_sub_category = $('#error_sub_category_create');
+                let is_valid = true;
+
+                error_sub_category.hide();
+
+                if(sub_category == '' || sub_category == 'udefined'){
+
+                    error_sub_category.show()
+                    is_valid = false;
+                }
+
+                if(is_valid){
+
+                    $.ajax({
+                        url: "{{ path('categories_sub_categories_save') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            sub_category_id:0,
+                            sub_category:sub_category
+                        },
+                        success: function (response) {
+
+                            $('#sub_category_list_container').empty().append(response);
+                            $('#sub_category_create_string').show();
+                            $('#sub_category_create_field').hide();
+                            $('.sub_category-create-cancel-icon').hide();
+                            $('.sub_category-create-save-icon').hide();
+                        }
+                    });
+                }
+            });
+            {# End Sub Categories Dropdown #}
+        });
+
+        function getBadges(element, label){
+
+            let arr = [];
+
+            $(element).each(function() {
+
+                let val = $(this).val();
+                let name = $(this).data('name');
+
+                arr.push({'id':val, 'name': name});
+            });
+
+            let badge = '';
+
+            for(let i = 0; i < arr.length; i++){
+
+                badge += '<span class="badge bg-disabled me-3 my-1" id="'+ label +'_badge_'+ arr[i].id +'">';
+                badge += '<span  id="'+ label +'_badge_string_'+ arr[i].id +'">' + arr[i].name + '</span>';
+                badge += '</span>';
+            }
+
+            return badge;
+        }
+    </script>
+{% endblock %}
