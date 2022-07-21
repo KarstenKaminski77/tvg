@@ -2,13 +2,18 @@
 
 namespace App\Controller;
 
+use App\Entity\Addresses;
 use App\Entity\Categories;
+use App\Entity\Clinics;
+use App\Entity\ClinicUserPermissions;
+use App\Entity\ClinicUsers;
 use App\Entity\Manufacturers;
 use App\Entity\ProductManufacturers;
 use App\Entity\Products;
 use App\Entity\ProductsSpecies;
 use App\Entity\Species;
 use App\Entity\SubCategories;
+use App\Entity\UserPermissions;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -250,6 +255,97 @@ class AdminDashboardController extends AbstractController
 
             $response['category'] = $category;
             $response['flash'] = '<b><i class="fas fa-check-circle"></i> Category updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        }
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/admin/clinic/crud', name: 'clinic_crud')]
+    public function clinicCrudAction(Request $request): Response
+    {
+        $data = $request->request;
+        $clinicId = $request->get('clinic_id') ?? $data->get('delete');
+        $clinic = $this->em->getRepository(Clinics::class)->find($clinicId);
+        $response['clinicUsers'] = $this->em->getRepository(ClinicUsers::class)->findBy([
+            'clinic' => $clinicId,
+        ]);
+
+        if($data->get('delete') != null){
+
+            $addresses = $this->em->getRepository(Addresses::class)->findBy([
+                'clinic' => $clinicId
+            ]);
+
+            $flash = '<b><i class="fas fa-check-circle"></i> Category Successfully Deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+            return new JsonResponse($flash);
+        }
+
+        $response['flash'] = '';
+
+        if(!empty($data)) {
+
+            // Clinic Details
+            $clinic->setClinicName($data->get('clinic_name'));
+            $clinic->setEmail($data->get('email'));
+            $clinic->setTelephone($data->get('telephone'));
+
+            $this->em->persist($clinic);
+
+            // Clinic Users
+            if(count($data->get('user_id')) > 0){
+
+                for($i = 0; $i < count($data->get('user_id')); $i++){
+
+                    $userId = $data->get('user_id')[$i];
+                    $firstName = $data->get('user_first_name')[$i];
+                    $lastName = $data->get('user_last_name')[$i];
+                    $userEmail = $data->get('user_email')[$i];
+                    $userTelephone = $data->get('user_telephone')[$i];
+
+                    $clinicUsers = $this->em->getRepository(ClinicUsers::class)->find($userId);
+
+                    $clinicUsers->setFirstName($firstName);
+                    $clinicUsers->setLastName($lastName);
+                    $clinicUsers->setEmail($userEmail);
+                    $clinicUsers->setTelephone($userTelephone);
+
+                    $this->em->persist($clinicUsers);
+
+                    // User Permissions
+                    $userPermissions = $this->em->getRepository(ClinicUserPermissions::class)->findBy([
+                        'user' => $userId
+                    ]);
+
+                    // Remove currently saved
+                    foreach($userPermissions as $userPermission){
+
+                        $this->em->remove($userPermission);
+                    }
+
+                    // Save new permissions
+                    foreach($data->get('user_permissions') as $permissionId){
+
+                        $pieces = explode('_', $permissionId);
+
+                        if($pieces[1] == $clinicUsers->getId()) {
+
+                            $userPermission = new ClinicUserPermissions();
+                            $permission = $this->em->getRepository(UserPermissions::class)->find($permissionId);
+
+                            $userPermission->setPermission($permission);
+                            $userPermission->setClinic($clinic);
+                            $userPermission->setUser($clinicUsers);
+
+                            $this->em->persist($userPermission);
+                        }
+                    }
+                }
+            }
+
+            $this->em->flush();
+
+            $response['flash'] = '<b><i class="fas fa-check-circle"></i> Cliinic Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
         }
 
         return new JsonResponse($response);
@@ -522,6 +618,43 @@ class AdminDashboardController extends AbstractController
             'selectedSubCategories' => $selectedSubCategories,
             'subCategoriesList' => $subCategoriesList,
             'arr' => $arr,
+        ]);
+    }
+
+    #[Route('/admin/clinics/{page_id}', name: 'clinics_list')]
+    public function clinicsList(Request $request): Response
+    {
+        $clinics = $this->em->getRepository(Clinics::class)->adminFindAll();
+        $results = $this->page_manager->paginate($clinics[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->get('page_id'), $results, '/admin/clinics/');
+
+        return $this->render('Admin/clinics_list.html.twig',[
+            'clinics' => $results,
+            'pagination' => $pagination
+        ]);
+    }
+
+    #[Route('/admin/clinic/{clinic_id}', name: 'clinics', requirements: ['clinic_id' => '\d+'])]
+    public function clinicsCrud(Request $request, $clinic_id = 0): Response
+    {
+        $clinicId = $request->get('clinic_id') ?? 0;
+        $clinic = $this->em->getRepository(Clinics::class)->find($clinicId);
+        $clinicUsers = $this->em->getRepository(ClinicUsers::class)->findBy([
+            'clinic' => $clinicId
+        ]);
+        $userPermissions = $this->em->getRepository(UserPermissions::class)->findBy([
+            'isClinic' => 1
+        ]);
+
+        if($clinic == null){
+
+            $clinic = new Clinics();
+        }
+
+        return $this->render('Admin/clinics.html.twig',[
+            'clinic' => $clinic,
+            'clinicUsers' => $clinicUsers,
+            'userPermissions' => $userPermissions
         ]);
     }
 

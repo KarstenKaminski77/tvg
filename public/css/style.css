@@ -1763,6 +1763,10 @@ input[type="text"]::-webkit-input-placeholder {
     margin-top: 0 !important;
 }
 
+.text-md {
+    font-size: 16px !important;
+}
+
 @media (min-width: 576px) {
 
     .w-sm-100 {

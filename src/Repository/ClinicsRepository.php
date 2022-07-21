@@ -79,6 +79,14 @@ class ClinicsRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
+    public function adminFindAll()
+    {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->select('c')
+            ->orderBy('c.clinicName', 'ASC');
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
+    }
+
     // /**
     //  * @return Clinics[] Returns an array of Clinics objects
     //  */
