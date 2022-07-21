@@ -375,6 +375,55 @@ class AdminDashboardController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/admin/manufacturer/crud', name: 'manufacturer_crud')]
+    public function manufacturerCrudAction(Request $request): Response
+    {
+        $data = $request->request;
+        $manufacturerId = $data->get('manufacturerId') ?? $request->request->get('delete');
+        $manufacturer = $this->em->getRepository(Manufacturers::class)->find($manufacturerId);
+
+        $response = '';
+
+        if($request->request->get('delete') != null){
+
+            $productManufacturers = $this->em->getRepository(ProductManufacturers::class)->findBy([
+                'manufacturers' => $manufacturerId,
+            ]);
+
+            foreach ($productManufacturers as $productManufacturer) {
+
+                $this->em->remove($productManufacturer);
+            }
+
+            $this->em->flush();
+
+            $this->em->remove($manufacturer);
+            $this->em->flush();
+
+            $flash = '<b><i class="fas fa-check-circle"></i> Manufacturer Successfully Deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+            return new JsonResponse($flash);
+        }
+
+        if(!empty($data)) {
+
+            if($manufacturer == null){
+
+                $manufacturer = new Manufacturers();
+            }
+
+            // Clinic Details
+            $manufacturer->setName($data->get('manufacturer_name'));
+
+            $this->em->persist($manufacturer);
+            $this->em->flush();
+
+            $response = '<b><i class="fas fa-check-circle"></i> Manufacturer Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        }
+
+        return new JsonResponse($response);
+    }
+
     #[Route('/admin/product/manufacturer/save', name: 'products_manufacturer_save')]
     public function productsSaveManufacturer(Request $request): Response
     {
@@ -671,6 +720,19 @@ class AdminDashboardController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/manufacturers/{page_id}', name: 'manufacturers_list')]
+    public function manufacturersList(Request $request): Response
+    {
+        $manufacturers = $this->em->getRepository(Manufacturers::class)->adminFindAll();
+        $results = $this->page_manager->paginate($manufacturers[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->get('page_id'), $results, '/admin/manufacturers/');
+
+        return $this->render('Admin/manufacturers_list.html.twig',[
+            'manufacturers' => $results,
+            'pagination' => $pagination
+        ]);
+    }
+
     #[Route('/admin/clinic/{clinic_id}', name: 'clinics', requirements: ['clinic_id' => '\d+'])]
     public function clinicsCrud(Request $request, $clinic_id = 0): Response
     {
@@ -708,6 +770,22 @@ class AdminDashboardController extends AbstractController
 
         return $this->render('Admin/communication_methods.html.twig',[
             'communicationMethod' => $communicationMethod,
+        ]);
+    }
+
+    #[Route('/admin/manufacturer/{manufacturerId}', name: 'manufacturers', requirements: ['manufacturerId' => '\d+'])]
+    public function manufacturersCrud(Request $request, $manufacturerId = 0): Response
+    {
+        $manufacturerId = $request->get('manufacturerId') ?? 0;
+        $manufacturer = $this->em->getRepository(Manufacturers::class)->find($manufacturerId);
+
+        if($manufacturer == null){
+
+            $manufacturer = new Manufacturers();
+        }
+
+        return $this->render('Admin/manufacturers.html.twig',[
+            'manufacturer' => $manufacturer,
         ]);
     }
 

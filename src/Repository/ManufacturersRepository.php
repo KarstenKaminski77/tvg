@@ -45,6 +45,14 @@ class ManufacturersRepository extends ServiceEntityRepository
         }
     }
 
+    public function adminFindAll()
+    {
+        $queryBuilder = $this->createQueryBuilder('m')
+            ->select('m')
+            ->orderBy('m.name', 'ASC');
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
+    }
+
     // /**
     //  * @return Manufacturers[] Returns an array of Manufacturers objects
     //  */

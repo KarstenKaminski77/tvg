@@ -7,15 +7,15 @@
 {% endblock %}
 
 {% block content %}
-    <form name="communication_methods_form" id="communication_methods_form" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="communicationMethodId" id="communication_method_id" value="{{ communicationMethod.id ? communicationMethod.id : 0 }}">
+    <form name="manufacturers_form" id="manufacturers_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="manufacturerId" id="manufacturer_id" value="{{ manufacturer.id ? manufacturer.id : 0 }}">
         <section class="content-header border-bottom ps-4 py-4 admin-header">
             <div class="content-header-title">
                 <h4>
-                    {% if communicationMethod.id > 0 %}
-                        Editing <b>{{ communicationMethod.method }}</b>
+                    {% if manufacturer.id > 0 %}
+                        Editing <b>{{ manufacturer.name }}</b>
                     {% else %}
-                        New Clinic
+                        New Manufacturer
                     {% endif %}
                 </h4>
             </div>
@@ -44,19 +44,22 @@
 
         <section class="ps-4" style="margin-top: 105px">
             <div class="row mt-4">
-                {# Clinic Name #}
+                {# Manufacturer Name #}
                 <div class="col-12">
-                    <label class="ms-2 text-primary" for="is_published">
-                        Communication Method <span class="text-danger">*</span>
+                    <label class="ms-2 text-primary">
+                        Manufacturer <span class="text-danger">*</span>
                     </label>
                     <input
-                        name="communication_method"
-                        id="communication_method"
+                        name="manufacturer_name"
+                        id="manufacturer_name"
                         class="form-control"
                         type="text"
-                        value="{{ communicationMethod.method }}"
-                        placeholder="Clinic Name"
+                        value="{{ manufacturer.name }}"
+                        placeholder="Manufacturer Name"
                     >
+                    <div class="hidden_msg" id="error_manufacturer_name">
+                        Required Field
+                    </div>
                 </div>
             </div>
         </section>
@@ -70,20 +73,20 @@
         $(document).ready(function (){
 
             {# Save Products #}
-            $(document).on('submit', '#communication_methods_form', function (e){
+            $(document).on('submit', '#manufacturers_form', function (e){
 
                 e.preventDefault();
 
-                let communication_method = $('#communication_method').val();
+                let manufacturer = $('#manufacturer_name').val();
                 let is_valid = true;
                 let btn = document.activeElement.getAttribute('name');
-                let error_communication_method = $('#error_communication_method');
+                let error_manufacturer = $('#error_manufacturer_name');
 
-                error_communication_method.hide();
+                error_manufacturer.hide();
 
-                if(communication_method == '' || communication_method == 'undefined'){
+                if(manufacturer == '' || manufacturer == 'undefined'){
 
-                    error_communication_method.show();
+                    error_manufacturer.show();
                     is_valid = false;
                 }
 
@@ -92,7 +95,7 @@
                     let data = new FormData(this);
 
                     $.ajax({
-                        url: "{{ path('communication_method_crud') }}",
+                        url: "{{ path('manufacturer_crud') }}",
                         type: 'POST',
                         contentType: false,
                         processData: false,
@@ -106,7 +109,7 @@
 
                             if(btn == 'save_return'){
 
-                                window.location.assign('{{ path('communication_methods_list',{ 'page_id':1 }) }}');
+                                window.location.assign('{{ path('manufacturers_list',{ 'page_id':1 }) }}');
                             }
                         }
                     });

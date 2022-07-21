@@ -20,13 +20,6 @@ class Manufacturers
     private $id;
 
     /**
-     * Relation with Client Role Entity
-     * @var int|null
-     * @ORM\ManyToMany(targetEntity="App\Entity\Products", mappedBy="productManufacturers")
-     */
-    private $products;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $name;

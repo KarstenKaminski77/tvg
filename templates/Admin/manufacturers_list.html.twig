@@ -8,8 +8,16 @@
 
 {% block content %}
     <div class="row border-bottom">
-        <div class="col-12 text-truncate mt-1 pt-3 pb-3 ps-4">
-            <h4 class="text-truncate">Clinics</h4>
+        <div class="col-12 col-md-6 text-truncate mt-1 pt-3 pb-3 ps-4">
+            <h4 class="text-truncate">Manufacturers</h4>
+        </div>
+        <div class="col-12 col-sm-6 text-truncate mt-1 pt-3 pb-3">
+            <a
+                    href="{{ path('manufacturers') }}"
+                    class="btn btn-primary btn-sm float-end w-sm-100 text-truncate"
+            >
+                <i class="fa-solid fa-circle-plus me-2"></i> ADD MANUFACTURER
+            </a>
         </div>
     </div>
     <div class="row pb-3 pt-2 pt-sm-3 bg-light border-left border-right">
@@ -17,14 +25,8 @@
             <div class="col-1 fw-bold ps-4 text-truncate">
                 #ID
             </div>
-            <div class="col-2 fw-bold text-truncate">
-                Clinic Name
-            </div>
-            <div class="col-2 fw-bold text-truncate">
-                Email
-            </div>
-            <div class="col-2 fw-bold text-truncate">
-                Telephone
+            <div class="col-6 fw-bold text-truncate">
+                Manufacturer
             </div>
             <div class="col-2 fw-bold text-truncate">
                 Modified
@@ -33,57 +35,45 @@
                 Created
             </div>
         </div>
-        {% for clinic in clinics %}
-        <div class="row py-3 border-bottom-dashed" id="row_{{ clinic.id }}">
+        {% for manufacturer in manufacturers %}
+        <div class="row py-3 border-bottom-dashed" id="row_{{ manufacturer.id }}">
             <div class="col-4 fw-bold ps-4 d-block d-md-none text-truncate">
                 #ID
             </div>
             <div class="col-8 col-md-1 ps-4 text-truncate">
-                #{{ clinic.id }}
+                #{{ manufacturer.id }}
             </div>
             <div class="col-4 d-block d-md-none fw-bold text-truncate">
                 Clinic Name
             </div>
-            <div class="col-8 col-md-2 text-truncate">
-                {{ clinic.clinicName }}
-            </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
-                Email
-            </div>
-            <div class="col-8 col-md-2 text-truncate">
-                {{ clinic.email }}
-            </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
-                Telephone
-            </div>
-            <div class="col-8 col-md-2 text-truncate">
-                {{ clinic.telephone }}
+            <div class="col-8 col-md-6 text-truncate">
+                {{ manufacturer.name }}
             </div>
             <div class="col-4 d-block d-md-none fw-bold text-truncate">
                 Modified
             </div>
             <div class="col-8 col-md-2 text-truncate">
-                {{ clinic.modified|date('Y-m-d H:i:s') }}
+                {{ manufacturer.modified|date('Y-m-d H:i:s') }}
             </div>
             <div class="col-4 d-block d-md-none fw-bold text-truncate">
                 Created
             </div>
             <div class="col-8 col-md-2 text-truncate">
-                {{ clinic.created|date('Y-m-d') }}
+                {{ manufacturer.created|date('Y-m-d') }}
             </div>
             <div class="col-12 col-md-1 text-truncate">
                 <a
-                    href="{{ path('clinics', {'clinic_id':clinic.id} ) }}"
+                    href="{{ path('manufacturers', {'manufacturerId':manufacturer.id} ) }}"
                     class="float-end open-user-modal"
                 >
                     <i class="fa-solid fa-pen-to-square edit-icon"></i>
                 </a>
                 <a
                     href=""
-                    class="delete-icon float-start float-sm-end"
+                    class="delete-icon float-start float-sm-end open-delete-manufacturer-modal"
                     data-bs-toggle="modal"
-                    data-clinic-id="{{ clinic.id }}"
-                    data-bs-target="#modal_delete_clinic"
+                    data-manufacturer-id="{{ manufacturer.id }}"
+                    data-bs-target="#modal_delete_manufacturer"
                 >
                     <i class="fa-solid fa-trash-can"></i>
                 </a>
@@ -97,61 +87,61 @@
         </div>
     </div>
 
-    <!-- Delete Clinic Modal -->
-    <div class="modal fade" id="modal_delete_clinic" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">
+    <!-- Delete Manufacturer Modal -->
+    <div class="modal fade" id="modal_delete_manufacturer" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="user_delete_label">Delete Clinic</h5>
+                    <h5 class="modal-title" id="user_delete_label">Delete Manufacturer</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12 mb-0">
-                            Are you sure you would like to delete this clinic? This action cannot be undone.
+                            Are you sure you would like to delete this manufacturer? This action cannot be undone.
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
-                    <button type="submit" class="btn btn-danger btn-sm" id="delete_clinic">DELETE</button>
+                    <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- End Delete Clinic Modal -->
+    <!-- End Delete Manufacturer Modal -->
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
-<script>
+    <script>
 
-    $(document).ready(function (){
+        $(document).ready(function (){
 
-        $(document).on('click', '.delete-icon', function (e){
+            $(document).on('click', '.delete-icon', function (e){
 
-            $('#delete_clinic').attr('data-clinic-id', $(this).data('clinic-id'));
+                $('#delete_user').attr('data-manufacturer-id', $(this).data('manufacturer-id'));
+            });
+            $(document).on('click', '#delete_user', function (e){
+
+                let manufacturer_id = $(this).attr('data-manufacturer-id');
+
+                $.ajax({
+                    url: "{{ path('manufacturer_crud') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        delete:manufacturer_id,
+                    },
+                    success: function (response) {
+
+                        getFlash(response);
+                        $('#modal_delete_manufacturer').modal('toggle');
+                        $('#row_'+ manufacturer_id).remove();
+                    }
+                });
+            });
         });
-        $(document).on('click', '#delete_clinic', function (e){
-
-            let clinic_id = $(this).attr('data-clinic-id');
-
-            {#$.ajax({#}
-            {#    url: "{{ path('clinic_crud') }}",#}
-            {#    type: 'POST',#}
-            {#    dataType: 'json',#}
-            {#    data: {#}
-            {#        delete:clinic_id,#}
-            {#    },#}
-            {#    success: function (response) {#}
-
-            {#        getFlash(response);#}
-            {#        $('#modal_delete_clinic').modal('toggle');#}
-            {#        $('#row_'+ clinic_id).remove();#}
-            {#    }#}
-            {#});#}
-        });
-    });
-</script>
+    </script>
 {% endblock %}
