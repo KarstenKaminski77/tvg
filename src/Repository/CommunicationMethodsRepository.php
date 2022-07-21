@@ -31,6 +31,14 @@ class CommunicationMethodsRepository extends ServiceEntityRepository
         ;
     }
 
+    public function adminFindAll()
+    {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->select('c')
+            ->orderBy('c.method', 'ASC');
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
+    }
+
     /*
     public function findOneBySomeField($value): ?CommunicationMethods
     {

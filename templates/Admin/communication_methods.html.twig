@@ -1,0 +1,139 @@
+{% extends 'Admin/layout.html.twig' %}
+{% block meta_decription %}
+    {{ parent() }}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <form name="communication_methods_form" id="communication_methods_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="communicationMethodId" id="communication_method_id" value="{{ communicationMethod.id ? communicationMethod.id : 0 }}">
+        <section class="content-header border-bottom ps-4 py-4 admin-header">
+            <div class="content-header-title">
+                <h4>
+                    {% if communicationMethod.id > 0 %}
+                        Editing <b>{{ communicationMethod.method }}</b>
+                    {% else %}
+                        New Clinic
+                    {% endif %}
+                </h4>
+            </div>
+
+            <div class="page-actions pe-4">
+                <button
+                    class="action-saveAndContinue btn btn-secondary action-save"
+                    type="submit"
+                    name="save_continue"
+                >
+                <span class="btn-label">
+                    <i class="action-icon far fa-edit"></i>
+                    Save and continue editing
+                </span>
+                </button>
+
+                <button
+                    class="action-saveAndReturn btn btn-primary action-save"
+                    type="submit"
+                    name="save_return"
+                >
+                    <span class="btn-label">Save changes</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="ps-4" style="margin-top: 105px">
+            <div class="row mt-4">
+                {# Clinic Name #}
+                <div class="col-12">
+                    <label class="ms-2 text-primary" for="is_published">
+                        Clinic Name
+                    </label>
+                    <input
+                        name="communication_method"
+                        id="communication_method"
+                        class="form-control"
+                        type="text"
+                        value="{{ communicationMethod.method }}"
+                        placeholder="Clinic Name"
+                    >
+                </div>
+            </div>
+        </section>
+    </form>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).ready(function (){
+
+            {# Save Products #}
+            $(document).on('submit', '#communication_methods_form', function (e){
+
+                e.preventDefault();
+
+                let communication_method = $('#communication_method').val();
+                let is_valid = true;
+                let btn = document.activeElement.getAttribute('name');
+                let error_communication_method = $('#error_communication_method');
+
+                error_communication_method.hide();
+
+                if(communication_method == '' || communication_method == 'undefined'){
+
+                    error_communication_method.show();
+                    is_valid = false;
+                }
+
+                if(is_valid) {
+
+                    let data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('communication_method_crud') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+
+                            getFlash(response);
+
+                            if(btn == 'save_return'){
+
+                                window.location.assign('{{ path('communication_methods_list',{ 'page_id':1 }) }}');
+                            }
+                        }
+                    });
+                }
+            });
+            {# End Save Products #}
+
+            {# User Accounts #}
+            $(document).on('click', '.user-edit-icon', function (e){
+
+                e.preventDefault();
+
+                let user_id = $(this).data('user-id');
+
+                $('#user_row_'+ user_id).toggle(700);
+
+                $('.clinic-users').each(function (){
+
+                    if($(this).data('user-id') != user_id){
+
+                        $(this).hide(700);
+                    }
+                });
+
+            });
+            {# End User Accounts #}
+        });
+
+    </script>
+{% endblock %}

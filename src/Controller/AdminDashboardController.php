@@ -14,6 +14,7 @@ use App\Entity\ProductsSpecies;
 use App\Entity\Species;
 use App\Entity\SubCategories;
 use App\Entity\UserPermissions;
+use App\Entity\CommunicationMethods;
 use App\Services\PaginationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -351,6 +352,29 @@ class AdminDashboardController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/admin/communication-method/crud', name: 'communication_method_crud')]
+    public function communicationMethodCrudAction(Request $request): Response
+    {
+        $data = $request->request;
+        $communicationMethodId = $data->get('communicationMethodId');
+        $communicationMethod = $this->em->getRepository(CommunicationMethods::class)->find($communicationMethodId);
+
+        $response = '';
+
+        if(!empty($data)) {
+
+            // Clinic Details
+            $communicationMethod->setMethod($data->get('communication_method'));
+
+            $this->em->persist($communicationMethod);
+            $this->em->flush();
+
+            $response = '<b><i class="fas fa-check-circle"></i> Communication Method Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        }
+
+        return new JsonResponse($response);
+    }
+
     #[Route('/admin/product/manufacturer/save', name: 'products_manufacturer_save')]
     public function productsSaveManufacturer(Request $request): Response
     {
@@ -634,6 +658,19 @@ class AdminDashboardController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/communication-methods/{page_id}', name: 'communication_methods_list')]
+    public function communicationMethodsList(Request $request): Response
+    {
+        $communicationMethods = $this->em->getRepository(CommunicationMethods::class)->adminFindAll();
+        $results = $this->page_manager->paginate($communicationMethods[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->get('page_id'), $results, '/admin/communication-methods/');
+
+        return $this->render('Admin/communication_methods_list.html.twig',[
+            'communicationMethods' => $results,
+            'pagination' => $pagination
+        ]);
+    }
+
     #[Route('/admin/clinic/{clinic_id}', name: 'clinics', requirements: ['clinic_id' => '\d+'])]
     public function clinicsCrud(Request $request, $clinic_id = 0): Response
     {
@@ -655,6 +692,22 @@ class AdminDashboardController extends AbstractController
             'clinic' => $clinic,
             'clinicUsers' => $clinicUsers,
             'userPermissions' => $userPermissions
+        ]);
+    }
+
+    #[Route('/admin/communication-method/{communicationMethodId}', name: 'communication_methods', requirements: ['communicationMethodId' => '\d+'])]
+    public function communicationMethodsCrud(Request $request, $communicationMethodId = 0): Response
+    {
+        $communicationMethodId = $request->get('communicationMethodId') ?? 0;
+        $communicationMethod = $this->em->getRepository(CommunicationMethods::class)->find($communicationMethodId);
+
+        if($communicationMethod == null){
+
+            $clinic = new CommunicationMethods();
+        }
+
+        return $this->render('Admin/communication_methods.html.twig',[
+            'communicationMethod' => $communicationMethod,
         ]);
     }
 
