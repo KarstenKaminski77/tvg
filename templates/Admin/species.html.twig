@@ -7,15 +7,15 @@
 {% endblock %}
 
 {% block content %}
-    <form name="communication_methods_form" id="communication_methods_form" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="communicationMethodId" id="communication_method_id" value="{{ communicationMethod.id ? communicationMethod.id : 0 }}">
+    <form name="species_form" id="species_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="speciesId" id="species_id" value="{{ species.id ? species.id : 0 }}">
         <section class="content-header border-bottom ps-4 py-4 admin-header">
             <div class="content-header-title">
                 <h4>
-                    {% if communicationMethod.id > 0 %}
-                        Editing <b>{{ communicationMethod.method }}</b>
+                    {% if species.id > 0 %}
+                        Editing <b>{{ species.name }}</b>
                     {% else %}
-                        New Clinic
+                        New Species
                     {% endif %}
                 </h4>
             </div>
@@ -44,19 +44,22 @@
 
         <section class="ps-4" style="margin-top: 105px">
             <div class="row mt-4">
-                {# Clinic Name #}
+                {# Species #}
                 <div class="col-12">
-                    <label class="ms-2 text-primary" for="is_published">
-                        Communication Method <span class="text-danger">*</span>
+                    <label class="ms-2 text-primary">
+                        Species <span class="text-danger">*</span>
                     </label>
                     <input
-                        name="communication_method"
-                        id="communication_method"
+                        name="species_name"
+                        id="species_name"
                         class="form-control"
                         type="text"
-                        value="{{ communicationMethod.method }}"
-                        placeholder="Clinic Name"
+                        value="{{ species.name }}"
+                        placeholder="Species"
                     >
+                    <div class="hidden_msg" id="error_species_name">
+                        Required Field
+                    </div>
                 </div>
             </div>
         </section>
@@ -69,21 +72,21 @@
 
         $(document).ready(function (){
 
-            {# Save Products #}
-            $(document).on('submit', '#communication_methods_form', function (e){
+            {# Save Species #}
+            $(document).on('submit', '#species_form', function (e){
 
                 e.preventDefault();
 
-                let communication_method = $('#communication_method').val();
+                let species = $('#species_name').val();
                 let is_valid = true;
                 let btn = document.activeElement.getAttribute('name');
-                let error_communication_method = $('#error_communication_method');
+                let error_species = $('#error_species_name');
 
-                error_communication_method.hide();
+                error_species.hide();
 
-                if(communication_method == '' || communication_method == 'undefined'){
+                if(species == '' || species == 'undefined'){
 
-                    error_communication_method.show();
+                    error_species.show();
                     is_valid = false;
                 }
 
@@ -92,7 +95,7 @@
                     let data = new FormData(this);
 
                     $.ajax({
-                        url: "{{ path('communication_method_crud') }}",
+                        url: "{{ path('species_crud') }}",
                         type: 'POST',
                         contentType: false,
                         processData: false,
@@ -106,13 +109,13 @@
 
                             if(btn == 'save_return'){
 
-                                window.location.assign('{{ path('communication_methods_list',{ 'page_id':1 }) }}');
+                                window.location.assign('{{ path('species_list',{ 'page_id':1 }) }}');
                             }
                         }
                     });
                 }
             });
-            {# End Save Products #}
+            {# End Save Species #}
         });
 
     </script>

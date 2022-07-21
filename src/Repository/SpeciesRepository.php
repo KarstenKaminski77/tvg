@@ -19,6 +19,14 @@ class SpeciesRepository extends ServiceEntityRepository
         parent::__construct($registry, Species::class);
     }
 
+    public function adminFindAll()
+    {
+        $queryBuilder = $this->createQueryBuilder('s')
+            ->select('s')
+            ->orderBy('s.name', 'ASC');
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
+    }
+
     // /**
     //  * @return Species[] Returns an array of Species objects
     //  */

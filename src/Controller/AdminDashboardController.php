@@ -424,6 +424,54 @@ class AdminDashboardController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/admin/species/crud', name: 'species_crud')]
+    public function speciesCrudAction(Request $request): Response
+    {
+        $data = $request->request;
+        $speciesId = $data->get('speciesId') ?? $request->request->get('delete');
+        $species = $this->em->getRepository(Species::class)->find($speciesId);
+
+        $response = '';
+
+        if($request->request->get('delete') != null){
+
+            $productSpecies = $this->em->getRepository(ProductsSpecies::class)->findBy([
+                'species' => $speciesId,
+            ]);
+
+            foreach ($productSpecies as $productSpecie) {
+
+                $this->em->remove($productSpecie);
+            }
+
+            $this->em->flush();
+
+            $this->em->remove($species);
+            $this->em->flush();
+
+            $flash = '<b><i class="fas fa-check-circle"></i> Species Successfully Deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+            return new JsonResponse($flash);
+        }
+
+        if(!empty($data)) {
+
+            if($species == null){
+
+                $species = new Species();
+            }
+
+            $species->setName($data->get('species_name'));
+
+            $this->em->persist($species);
+            $this->em->flush();
+
+            $response = '<b><i class="fas fa-check-circle"></i> Species Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        }
+
+        return new JsonResponse($response);
+    }
+
     #[Route('/admin/product/manufacturer/save', name: 'products_manufacturer_save')]
     public function productsSaveManufacturer(Request $request): Response
     {
@@ -733,6 +781,19 @@ class AdminDashboardController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/species/{page_id}', name: 'species_list')]
+    public function speciesList(Request $request): Response
+    {
+        $species = $this->em->getRepository(Species::class)->adminFindAll();
+        $results = $this->page_manager->paginate($species[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->get('page_id'), $results, '/admin/species/');
+
+        return $this->render('Admin/species_list.html.twig',[
+            'species' => $results,
+            'pagination' => $pagination
+        ]);
+    }
+
     #[Route('/admin/clinic/{clinic_id}', name: 'clinics', requirements: ['clinic_id' => '\d+'])]
     public function clinicsCrud(Request $request, $clinic_id = 0): Response
     {
@@ -786,6 +847,22 @@ class AdminDashboardController extends AbstractController
 
         return $this->render('Admin/manufacturers.html.twig',[
             'manufacturer' => $manufacturer,
+        ]);
+    }
+
+    #[Route('/admin/specie/{speciesId}', name: 'species', requirements: ['speciesId' => '\d+'])]
+    public function speciesCrud(Request $request, $speciesId = 0): Response
+    {
+        $speciesId = $request->get('speciesId') ?? 0;
+        $species = $this->em->getRepository(Species::class)->find($speciesId);
+
+        if($species == null){
+
+            $species = new Species();
+        }
+
+        return $this->render('Admin/species.html.twig',[
+            'species' => $species,
         ]);
     }
 

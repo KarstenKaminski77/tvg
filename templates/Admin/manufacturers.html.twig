@@ -116,26 +116,6 @@
                 }
             });
             {# End Save Products #}
-
-            {# User Accounts #}
-            $(document).on('click', '.user-edit-icon', function (e){
-
-                e.preventDefault();
-
-                let user_id = $(this).data('user-id');
-
-                $('#user_row_'+ user_id).toggle(700);
-
-                $('.clinic-users').each(function (){
-
-                    if($(this).data('user-id') != user_id){
-
-                        $(this).hide(700);
-                    }
-                });
-
-            });
-            {# End User Accounts #}
         });
 
     </script>
