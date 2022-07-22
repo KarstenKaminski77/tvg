@@ -21,7 +21,7 @@
         </div>
     </div>
     <div class="row pb-3 pt-2 pt-sm-3 bg-light border-left border-right">
-        <div class="row pb-3 border-bottom">
+        <div class="row pb-3 border-bottom d-none d-md-flex">
             <div class="col-1 fw-bold ps-4 text-truncate">
                 #ID
             </div>
@@ -52,7 +52,7 @@
             <div class="col-8 col-md-1 ps-4 text-truncate">
                 #{{ product.id }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Published
             </div>
             <div class="col-8 col-md-1 text-truncate">
@@ -72,46 +72,46 @@
                     >
                 </div>
             </div>
-            <div class="col-4 col-md-2 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Name
             </div>
             <div class="col-8 col-md-3 text-truncate">
                 {{ product.name }}
             </div>
-            <div class="col-4 col-md-2 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Category
             </div>
             <div class="col-8 col-md-2 text-truncate">
                 {{ product.category.category }}
             </div>
-            <div class="col-4 col-md-2 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Sub Category
             </div>
             <div class="col-8 col-md-2 text-truncate">
                 {{ product.subCategory.subCategory }}
             </div>
-            <div class="col-4 col-md-1 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Stock
             </div>
             <div class="col-8 col-md-1 text-truncate">
                 {{ product.stockCount }}
             </div>
-            <div class="col-4 col-md-1 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Price
             </div>
             <div class="col-8 col-md-1 text-truncate">
                 ${{ product.unitPrice|format_number({fraction_digit: 2}) }}
             </div>
-            <div class="col-12 col-md-1 text-truncate">
+            <div class="col-12 mt-3 mt-md-0 text-truncate">
                 <a
                     href="{{ path('products', { 'product_id':product.id }) }}"
-                    class="float-end open-user-modal"
+                    class="float-start float-md-end ms-5 ms-md-0 open-user-modal"
                 >
                     <i class="fa-solid fa-pen-to-square edit-icon"></i>
                 </a>
                 <a
                     href=""
-                    class="delete-icon float-start float-sm-end open-delete-user-modal"
+                    class="delete-icon float-end open-delete-user-modal"
                     data-bs-toggle="modal"
                     data-product-id="{{ product.id }}"
                     data-bs-target="#modal_delete_product"

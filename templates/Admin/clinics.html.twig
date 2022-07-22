@@ -321,6 +321,7 @@
                         success: function (response) {
 
                             getFlash(response.flash);
+                            $('.content-header-title').empty().append('<h4>Editing '+ response.clinicName +'</h4>');
 
                             if(btn == 'save_return'){
 

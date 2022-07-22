@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="row pb-3 pt-2 pt-sm-3 bg-light border-left border-right">
-        <div class="row pb-3 border-bottom">
+        <div class="row pb-3 border-bottom d-none d-md-flex">
             <div class="col-1 fw-bold ps-4 text-truncate">
                 #ID
             </div>
@@ -41,7 +41,7 @@
             <div class="col-8 col-md-1 ps-4 text-truncate">
                 #{{ permission.id }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Clinic
             </div>
             <div class="col-8 col-md-1 text-truncate">
@@ -61,7 +61,7 @@
                     >
                 </div>
             </div>
-            <div class="col-4 col-md-2 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Distributor
             </div>
             <div class="col-8 col-md-1 text-truncate">
@@ -81,19 +81,19 @@
                     >
                 </div>
             </div>
-            <div class="col-4 col-md-2 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Permission
             </div>
             <div class="col-8 col-md-4 text-truncate">
                 {{ permission.permission }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Modified
             </div>
             <div class="col-8 col-md-2 text-truncate">
                 {{ permission.modified|date('Y-m-d H:i:s') }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Created
             </div>
             <div class="col-8 col-md-2 text-truncate">

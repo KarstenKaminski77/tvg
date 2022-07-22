@@ -105,7 +105,7 @@ class AdminDashboardController extends AbstractController
             $product = new Products();
         }
 
-        $flash = '';
+        $response = [];
 
         if(!empty($request->request)) {
 
@@ -191,10 +191,11 @@ class AdminDashboardController extends AbstractController
             $this->em->persist($product);
             $this->em->flush();
 
-            $flash = '<b><i class="fas fa-check-circle"></i> Product updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['flash'] = '<b><i class="fas fa-check-circle"></i> Product updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['product'] = $product->getName();
         }
 
-        return new JsonResponse($flash);
+        return new JsonResponse($response);
     }
 
     #[Route('/admin/category/crud', name: 'category_crud')]
@@ -265,7 +266,7 @@ class AdminDashboardController extends AbstractController
             $this->em->persist($category);
             $this->em->flush();
 
-            $response['category'] = $category;
+            $response['category'] = $request->request->get('category');
             $response['flash'] = '<b><i class="fas fa-check-circle"></i> Category updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
         }
 
@@ -358,6 +359,7 @@ class AdminDashboardController extends AbstractController
             $this->em->flush();
 
             $response['flash'] = '<b><i class="fas fa-check-circle"></i> Cliinic Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['clinicName'] = $data->get('clinic_name');
         }
 
         return new JsonResponse($response);
@@ -370,7 +372,7 @@ class AdminDashboardController extends AbstractController
         $communicationMethodId = $data->get('communicationMethodId');
         $communicationMethod = $this->em->getRepository(CommunicationMethods::class)->find($communicationMethodId);
 
-        $response = '';
+        $response = [];
 
         if(!empty($data)) {
 
@@ -380,7 +382,8 @@ class AdminDashboardController extends AbstractController
             $this->em->persist($communicationMethod);
             $this->em->flush();
 
-            $response = '<b><i class="fas fa-check-circle"></i> Communication Method Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['flash'] = '<b><i class="fas fa-check-circle"></i> Communication Method Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['method'] = $data->get('communication_method');
         }
 
         return new JsonResponse($response);
@@ -393,7 +396,7 @@ class AdminDashboardController extends AbstractController
         $manufacturerId = $data->get('manufacturerId') ?? $request->request->get('delete');
         $manufacturer = $this->em->getRepository(Manufacturers::class)->find($manufacturerId);
 
-        $response = '';
+        $response = [];
 
         if($request->request->get('delete') != null){
 
@@ -429,7 +432,8 @@ class AdminDashboardController extends AbstractController
             $this->em->persist($manufacturer);
             $this->em->flush();
 
-            $response = '<b><i class="fas fa-check-circle"></i> Manufacturer Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['flash'] = '<b><i class="fas fa-check-circle"></i> Manufacturer Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['manufacturer'] = $data->get('manufacturer_name');
         }
 
         return new JsonResponse($response);
@@ -442,7 +446,7 @@ class AdminDashboardController extends AbstractController
         $speciesId = $data->get('speciesId') ?? $request->request->get('delete');
         $species = $this->em->getRepository(Species::class)->find($speciesId);
 
-        $response = '';
+        $response = [];
 
         if($request->request->get('delete') != null){
 
@@ -477,7 +481,8 @@ class AdminDashboardController extends AbstractController
             $this->em->persist($species);
             $this->em->flush();
 
-            $response = '<b><i class="fas fa-check-circle"></i> Species Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['flash'] = '<b><i class="fas fa-check-circle"></i> Species Successfully Updated.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['species'] = $species->getName();
         }
 
         return new JsonResponse($response);
@@ -490,7 +495,7 @@ class AdminDashboardController extends AbstractController
         $userId = $data->get('userId') ?? $request->request->get('delete');
         $user = $this->em->getRepository(User::class)->find($userId);
 
-        $response = '';
+        $response = [];
 
         if($request->request->get('delete') != null){
 
@@ -515,7 +520,7 @@ class AdminDashboardController extends AbstractController
 
                 if(count($validUser) > 0){
 
-                    $response = '<b><i class="fas fa-check-circle"></i> User account not created!.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+                    $response['flash'] = '<b><i class="fas fa-check-circle"></i> User account not created!.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
 
                     return new JsonResponse($response);
                 }
@@ -584,7 +589,8 @@ class AdminDashboardController extends AbstractController
                 $this->mailer->send($email);
             }
 
-            $response = '<b><i class="fas fa-check-circle"></i> User Successfully '. $action .'.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['flash'] = '<b><i class="fas fa-check-circle"></i> User account successfully '. $action .'!.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+            $response['user'] = $user->getFirstName() .' '. $user->getLastName();
         }
 
         return new JsonResponse($response);

@@ -21,7 +21,7 @@
         </div>
     </div>
     <div class="row pb-3 pt-2 pt-sm-3 bg-light border-left border-right">
-        <div class="row pb-3 border-bottom">
+        <div class="row pb-3 border-bottom d-none d-md-flex">
             <div class="col-1 fw-bold ps-4 text-truncate">
                 #ID
             </div>
@@ -49,46 +49,46 @@
             <div class="col-8 col-md-1 ps-4 text-truncate">
                 #{{ user.id }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 First Name
             </div>
             <div class="col-8 col-md-2 text-truncate">
                 {{ user.firstName }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Last Name
             </div>
             <div class="col-8 col-md-2 text-truncate">
                 {{ user.lastName }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Email
             </div>
             <div class="col-8 col-md-2 text-truncate">
                 {{ user.email }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Modified
             </div>
             <div class="col-8 col-md-2 text-truncate">
                 {{ user.modified|date('Y-m-d H:i:s') }}
             </div>
-            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+            <div class="col-4 ps-4 d-block d-md-none fw-bold text-truncate">
                 Created
             </div>
             <div class="col-8 col-md-2 text-truncate">
                 {{ user.created|date('Y-m-d') }}
             </div>
-            <div class="col-12 col-md-1 text-truncate">
+            <div class="col-12 col-md-1 text-truncate mt-3 mt-md-0">
                 <a
                     href="{{ path('users', {'userId':user.id} ) }}"
-                    class="float-end open-user-modal"
+                    class="float-start float-sm-end open-user-modal ms-5 ms-md-0"
                 >
                     <i class="fa-solid fa-pen-to-square edit-icon"></i>
                 </a>
                 <a
                     href=""
-                    class="delete-icon float-start float-sm-end open-delete-users-modal"
+                    class="delete-icon float-end open-delete-users-modal"
                     data-bs-toggle="modal"
                     data-users-id="{{ user.id }}"
                     data-bs-target="#modal_delete_users"

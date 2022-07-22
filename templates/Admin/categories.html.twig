@@ -145,6 +145,7 @@
                         success: function (response) {
 
                             getFlash(response.flash);
+                            $('.content-header-title').empty().append('<h4>Editing '+ response.category +'</h4>');
 
                             if(btn == 'save_return' || {{ app.request.get('category_id') }} == 0){
 

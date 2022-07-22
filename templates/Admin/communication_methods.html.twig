@@ -102,7 +102,8 @@
                         data: data,
                         success: function (response) {
 
-                            getFlash(response);
+                            getFlash(response.flash);
+                            $('.content-header-title').empty().append('<h4>Editing '+ response.method +'</h4>');
 
                             if(btn == 'save_return'){
 
