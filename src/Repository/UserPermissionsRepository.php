@@ -39,6 +39,14 @@ class UserPermissionsRepository extends ServiceEntityRepository
         }
     }
 
+    public function adminFindAll()
+    {
+        $queryBuilder = $this->createQueryBuilder('u')
+            ->select('u')
+            ->orderBy('u.permission', 'ASC');
+        return [$queryBuilder->getQuery(), $queryBuilder->getQuery()->getResult()];
+    }
+
 //    /**
 //     * @return UserPermissions[] Returns an array of UserPermissions objects
 //     */

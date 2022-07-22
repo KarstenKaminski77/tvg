@@ -1,0 +1,198 @@
+{% extends 'Admin/layout.html.twig' %}
+{% block meta_decription %}
+    {{ parent() }}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <form name="permission_form" id="permission_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="permissionId" id="permissionId" value="{{ permission.id ? permission.id : 0 }}">
+        <section class="content-header border-bottom ps-4 py-4 admin-header">
+            <div class="content-header-title">
+                <h4>
+                    {% if permission.id > 0 %}
+                        Editing <b>{{ permission.permission }}</b>
+                    {% else %}
+                        New User Permission
+                    {% endif %}
+                </h4>
+            </div>
+
+            <div class="page-actions pe-4">
+                <button
+                    class="action-saveAndContinue btn btn-secondary action-save"
+                    type="submit"
+                    name="save_continue"
+                >
+                <span class="btn-label">
+                    <i class="action-icon far fa-edit"></i>
+                    Save and continue editing
+                </span>
+                </button>
+
+                <button
+                    class="action-saveAndReturn btn btn-primary action-save"
+                    type="submit"
+                    name="save_return"
+                >
+                    <span class="btn-label">Save changes</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="ps-4" style="margin-top: 105px">
+            <div class="row mt-4">
+
+                {# Is Clinic #}
+                <div class="col-12 col-md-6">
+                    <div class="form-check form-switch">
+                        {% set isClinic = '' %}
+                        {% if permission.isClinic == 1 %}
+                            {% set isClinic = 'checked' %}
+                        {% endif %}
+                        <input
+                                name="isClinic"
+                                id="isClinic"
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                value="1"
+                                {{ isClinic }}
+                        >
+                        <label class="ms-2 text-primary" for="isClinic">
+                            Clinic
+                        </label>
+                    </div>
+                </div>
+
+                {# Is Distributor #}
+                <div class="col-12 col-md-6">
+                    <div class="form-check form-switch">
+                        {% set isDistributor = '' %}
+                        {% if permission.isDistributor == 1 %}
+                            {% set isDistributor = 'checked' %}
+                        {% endif %}
+                        <input
+                                name="isDistributor"
+                                id="isDistributor"
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                value="1"
+                                {{ isDistributor }}
+                        >
+                        <label class="ms-2 text-primary" for="isDistributor">
+                            Distributor
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                {# Permission #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Permission <span class="text-danger">*</span> </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="permission"
+                        id="permission"
+                        value="{{ permission.permission }}"
+                        placeholder="Permission"
+                    >
+                    <div class="hidden_msg" id="errorPermission">
+                        Required Field
+                    </div>
+                </div>
+
+                {# Description #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">Description <span class="text-danger">*</span> </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            name="description"
+                            id="description"
+                            value="{{ permission.info }}"
+                            placeholder="Description"
+                    >
+                    <div class="hidden_msg" id="errorDescription">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </form>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).ready(function (){
+
+            {# Save Permissions #}
+            $(document).on('submit', '#permission_form', function (e){
+
+                e.preventDefault();
+
+                let isClinic = $('#isClinic').val();
+                let isDistributor = $('#isDistributor').val();
+                let permission = $('#permission').val();
+                let description = $('#description').val();
+                let isValid = true;
+                let btn = document.activeElement.getAttribute('name');
+
+                let errorPermission = $('#errorPermission');
+                let errorDescription = $('#errorDescription');
+
+                errorPermission.hide();
+                errorDescription.hide();
+
+                if(permission == '' || permission == 'undefined'){
+
+                    errorPermission.show();
+                    isValid = false;
+                }
+
+                if(description == '' || description == 'undefined'){
+
+                    errorDescription.show();
+                    isValid = false;
+                }
+
+                if(isValid) {
+
+                    let data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('user_permission_crud') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+
+                            getFlash(response.flash);
+                            $('.content-header-title').empty().append('<h4>Editing '+ response.permission +'</h4>');
+
+                            if(btn == 'save_return'){
+
+                                window.location.assign('{{ path('user_permissions_list',{ 'page_id':1 }) }}');
+                            }
+                        }
+                    });
+                }
+            });
+            {# End Save Permissions #}
+        });
+
+    </script>
+{% endblock %}

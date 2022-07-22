@@ -33,7 +33,7 @@ class AdminDashboardController extends AbstractController
     private $page_manager;
     private $passwordHasher;
     private $mailer;
-    const ITEMS_PER_PAGE = 10;
+    const ITEMS_PER_PAGE = 7;
 
     public function __construct(
         EntityManagerInterface $em, PaginationManager $page_manager,
@@ -590,6 +590,52 @@ class AdminDashboardController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/admin/user-permissions/crud', name: 'user_permission_crud')]
+    public function userPermissionCrudAction(Request $request): Response
+    {
+        $data = $request->request;
+        $userPermissionId = $data->get('permissionId') ?? $request->request->get('delete');
+        $userPermission = $this->em->getRepository(UserPermissions::class)->find($userPermissionId);
+        $action = 'Updated';
+
+        $response = [];
+
+        if($request->request->get('delete') != null){
+
+            $this->em->remove($userPermission);
+            $this->em->flush();
+
+            $flash = '<b><i class="fas fa-check-circle"></i> User Permission Successfully Deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+            return new JsonResponse($flash);
+        }
+
+        if(!empty($data)) {
+
+            if($userPermission == null){
+
+                $userPermission = new UserPermissions();
+                $action = 'Created';
+            }
+
+            $isClinic = $data->get('isClinic') ?? 0;
+            $isDistributor = $data->get('isDistributor') ?? 0;
+
+            $userPermission->setIsClinic($isClinic);
+            $userPermission->setIsDistributor($isDistributor);
+            $userPermission->setPermission($data->get('permission'));
+            $userPermission->setInfo($data->get('description'));
+
+            $this->em->persist($userPermission);
+            $this->em->flush();
+        }
+
+        $response['flash'] = '<b><i class="fas fa-check-circle"></i> User Successfully '. $action .'.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        $response['permission'] = $data->get('permission');
+
+        return new JsonResponse($response);
+    }
+
     #[Route('/admin/product/manufacturer/save', name: 'products_manufacturer_save')]
     public function productsSaveManufacturer(Request $request): Response
     {
@@ -723,6 +769,44 @@ class AdminDashboardController extends AbstractController
         return new JsonResponse($isPublished);
     }
 
+    #[Route('/admin/user-permission/is-clinic', name: 'permission_is_clinic')]
+    public function permissionIsClinic(Request $request): Response
+    {
+        $isClinic = $request->request->get('is_clinic') ?? 0;
+        $permissionId = $request->request->get('permission_id');
+
+        $userPermission = $this->em->getRepository(UserPermissions::class)->find($permissionId);
+
+        if($userPermission != null){
+
+            $userPermission->setIsClinic($isClinic);
+
+            $this->em->persist($userPermission);
+            $this->em->flush();
+        }
+
+        return new JsonResponse($isClinic);
+    }
+
+    #[Route('/admin/user-permission/is-distributor', name: 'permission_is_distributor')]
+    public function permissionIsDistributor(Request $request): Response
+    {
+        $isDistributor = $request->request->get('is_distributor') ?? 0;
+        $permissionId = $request->request->get('permission_id');
+
+        $userPermission = $this->em->getRepository(UserPermissions::class)->find($permissionId);
+
+        if($userPermission != null){
+
+            $userPermission->setIsDistributor($isDistributor);
+
+            $this->em->persist($userPermission);
+            $this->em->flush();
+        }
+
+        return new JsonResponse($isDistributor);
+    }
+
     #[Route('/admin/product/{product_id}', name: 'products', requirements: ['product_id' => '\d+'])]
     public function productsCrud(Request $request, $product_id = 0): Response
     {
@@ -797,6 +881,21 @@ class AdminDashboardController extends AbstractController
             'productSpecies' => $productSpecies,
             'arr' => $arr,
             'arr_species' => $arr_species,
+        ]);
+    }
+
+    #[Route('/admin/user-permission/{permission_id}', name: 'user_permissions', requirements: ['permission_id' => '\d+'])]
+    public function userPermissionsCrud(Request $request, $permission_id = 0): Response
+    {
+        $userPermission = $this->em->getRepository(UserPermissions::class)->find($request->get('permission_id'));
+
+        if($userPermission == null){
+
+            $userPermission = new UserPermissions();
+        }
+
+        return $this->render('Admin/user_permissions.html.twig',[
+            'permission' => $userPermission,
         ]);
     }
 
@@ -921,6 +1020,19 @@ class AdminDashboardController extends AbstractController
 
         return $this->render('Admin/species_list.html.twig',[
             'species' => $results,
+            'pagination' => $pagination
+        ]);
+    }
+
+    #[Route('/admin/user-permissions/{page_id}', name: 'user_permissions_list')]
+    public function userPermissionsList(Request $request): Response
+    {
+        $userPermissions = $this->em->getRepository(UserPermissions::class)->adminFindAll();
+        $results = $this->page_manager->paginate($userPermissions[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->get('page_id'), $results, '/admin/user-permissions/');
+
+        return $this->render('Admin/user_permissions_list.html.twig',[
+            'permissions' => $results,
             'pagination' => $pagination
         ]);
     }
