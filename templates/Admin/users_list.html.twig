@@ -1,0 +1,165 @@
+{% extends 'Admin/layout.html.twig' %}
+{% block meta_decription %}
+    {{ parent() }}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="row border-bottom">
+        <div class="col-12 col-md-6 text-truncate mt-1 pt-3 pb-3 ps-4">
+            <h4 class="text-truncate">Users</h4>
+        </div>
+        <div class="col-12 col-sm-6 text-truncate mt-1 pt-3 pb-3">
+            <a
+                    href="{{ path('users') }}"
+                    class="btn btn-primary btn-sm float-end w-sm-100 text-truncate"
+            >
+                <i class="fa-solid fa-circle-plus me-2"></i> ADD USER
+            </a>
+        </div>
+    </div>
+    <div class="row pb-3 pt-2 pt-sm-3 bg-light border-left border-right">
+        <div class="row pb-3 border-bottom">
+            <div class="col-1 fw-bold ps-4 text-truncate">
+                #ID
+            </div>
+            <div class="col-2 fw-bold text-truncate">
+                First Name
+            </div>
+            <div class="col-2 fw-bold text-truncate">
+                Last Name
+            </div>
+            <div class="col-2 fw-bold text-truncate">
+                Email
+            </div>
+            <div class="col-2 fw-bold text-truncate">
+                Modified
+            </div>
+            <div class="col-2 fw-bold text-truncate">
+                Created
+            </div>
+        </div>
+        {% for user in users %}
+        <div class="row py-3 border-bottom-dashed" id="row_{{ user.id }}">
+            <div class="col-4 fw-bold ps-4 d-block d-md-none text-truncate">
+                #ID
+            </div>
+            <div class="col-8 col-md-1 ps-4 text-truncate">
+                #{{ user.id }}
+            </div>
+            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+                First Name
+            </div>
+            <div class="col-8 col-md-2 text-truncate">
+                {{ user.firstName }}
+            </div>
+            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+                Last Name
+            </div>
+            <div class="col-8 col-md-2 text-truncate">
+                {{ user.lastName }}
+            </div>
+            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+                Email
+            </div>
+            <div class="col-8 col-md-2 text-truncate">
+                {{ user.email }}
+            </div>
+            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+                Modified
+            </div>
+            <div class="col-8 col-md-2 text-truncate">
+                {{ user.modified|date('Y-m-d H:i:s') }}
+            </div>
+            <div class="col-4 d-block d-md-none fw-bold text-truncate">
+                Created
+            </div>
+            <div class="col-8 col-md-2 text-truncate">
+                {{ user.created|date('Y-m-d') }}
+            </div>
+            <div class="col-12 col-md-1 text-truncate">
+                <a
+                    href="{{ path('users', {'userId':user.id} ) }}"
+                    class="float-end open-user-modal"
+                >
+                    <i class="fa-solid fa-pen-to-square edit-icon"></i>
+                </a>
+                <a
+                    href=""
+                    class="delete-icon float-start float-sm-end open-delete-users-modal"
+                    data-bs-toggle="modal"
+                    data-users-id="{{ user.id }}"
+                    data-bs-target="#modal_delete_users"
+                >
+                    <i class="fa-solid fa-trash-can"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="row py-3">
+            <div class="col-12">
+                {{ pagination|raw }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Manufacturer Modal -->
+    <div class="modal fade" id="modal_delete_users" tabindex="-1" aria-labelledby="user_delete_label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="user_delete_label">Delete Manufacturer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 mb-0">
+                            Are you sure you would like to delete this user? This action cannot be undone.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">CANCEL</button>
+                    <button type="submit" class="btn btn-danger btn-sm" id="delete_user">DELETE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Delete Manufacturer Modal -->
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).ready(function (){
+
+            $(document).on('click', '.delete-icon', function (e){
+
+                $('#delete_user').attr('data-users-id', $(this).data('users-id'));
+            });
+            $(document).on('click', '#delete_user', function (e){
+
+                let users_id = $(this).attr('data-users-id');
+
+                $.ajax({
+                    url: "{{ path('user_crud') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        delete:users_id,
+                    },
+                    success: function (response) {
+
+                        getFlash(response);
+                        $('#modal_delete_users').modal('toggle');
+                        $('#row_'+ users_id).remove();
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

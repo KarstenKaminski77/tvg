@@ -1,0 +1,496 @@
+{% extends 'Admin/layout.html.twig' %}
+{% block meta_decription %}
+    {{ parent() }}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <form name="user_form" id="user_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="userId" id="user_id" value="{{ users.id ? users.id : 0 }}">
+        <input type="hidden" name="resetPassword" id="resetPassword" value="false">
+        <section class="content-header border-bottom ps-4 py-4 admin-header">
+            <div class="content-header-title">
+                <h4>
+                    {% if users.id > 0 %}
+                        Editing <b>{{ users.firstName ~' '~ users.lastName }}</b>
+                    {% else %}
+                        New User
+                    {% endif %}
+                </h4>
+            </div>
+
+            <div class="page-actions pe-4">
+                <button
+                    class="action-saveAndContinue btn btn-secondary text-truncate action-save"
+                    type="submit"
+                    name="save_continue"
+                >
+                <span class="btn-label">
+                    <i class="action-icon far fa-edit"></i>
+                    Save and continue editing
+                </span>
+                </button>
+
+                <button
+                    class="action-saveAndReturn btn btn-primary text-truncate action-save"
+                    type="submit"
+                    name="save_return"
+                >
+                    <span class="btn-label">Save changes</span>
+                </button>
+
+                <button
+                    class="action-saveAndReturn btn btn-warning text-truncate action-save"
+                    type="submit"
+                    name="save_reset_password"
+                    id="save_reset_password"
+                >
+                    <span class="btn-label">
+                        <i class="fa-solid fa-paper-plane me-2"></i>
+                        Reset Password
+                    </span>
+                </button>
+            </div>
+        </section>
+
+        <section class="ps-4" style="margin-top: 105px">
+            <div class="row mt-4">
+                {# First Name #}
+                <div class="col-12 col-md-6">
+                    <label class="ms-2 text-primary">
+                        First Name <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        name="first_name"
+                        id="first_name"
+                        class="form-control"
+                        type="text"
+                        value="{{ users.firstName }}"
+                        placeholder="First Name"
+                    >
+                    <div class="hidden_msg" id="error_first_name">
+                        Required Field
+                    </div>
+                </div>
+                {# Last Name #}
+                <div class="col-12 col-md-6">
+                    <label class="ms-2 text-primary">
+                        Last Name <span class="text-danger">*</span>
+                    </label>
+                    <input
+                            name="last_name"
+                            id="last_name"
+                            class="form-control"
+                            type="text"
+                            value="{{ users.lastName }}"
+                            placeholder="Last Name"
+                    >
+                    <div class="hidden_msg" id="error_last_name">
+                        Required Field
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                {# Email #}
+                <div class="col-12 col-md-6">
+                    <label class="ms-2 text-primary">
+                        Email <span class="text-danger">*</span>
+                    </label>
+                    <input
+                            name="email"
+                            id="email"
+                            class="form-control"
+                            type="text"
+                            value="{{ users.email }}"
+                            placeholder="Email"
+                    >
+                    <div class="hidden_msg" id="error_email">
+                        Required Field
+                    </div>
+                </div>
+                {# Roles #}
+                <div class="col-12 col-md-6">
+                    <label class="text-primary mb-2">User Roles <span class="text-danger">*</span> </label>
+                    <div class="position-relative">
+                        <div class="form-control cursor-text text-placeholder" id="role">
+                            {% if users.roles|length > 0 %}
+                                {% for role in users.roles %}
+                                    <span class="badge bg-disabled me-3 my-1" id="role_badge_{{ role }}">
+                                        <span id="role_badge_string_{{ role }}">
+                                            {{ role }}
+                                        </span>
+                                    </span>
+                                {% endfor %}
+                            {% else %}
+                                Select a Role
+                            {% endif %}
+                        </div>
+                        <div id="roles_list" class="row" style="display: none">
+                            {% if users.roles|length > 0 %}
+                                {% for role in users.roles %}
+                                    <input
+                                        type="hidden"
+                                        name="roles[]"
+                                        class="role_hidden"
+                                        data-name="{{ role }}"
+                                        id="role_hidden_field_{{ role }}"
+                                        value="{{ role }}"
+                                    >
+                                {% endfor %}
+                            {% endif %}
+                            <div id="role_list_container">
+                                {{ rolesList|raw }}
+                            </div>
+                        </div>
+                        <div class="hidden_msg"id="error_roles">
+                            Required Field
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </form>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+
+        $(document).ready(function (){
+
+            {# Save Users #}
+            $(document).on('submit', '#user_form', function (e){
+
+                e.preventDefault();
+
+                let first_name = $('#first_name').val();
+                let last_name = $('#last_name').val();
+                let email = $('#email').val();
+                let is_valid = true;
+                let btn = document.activeElement.getAttribute('name');
+                let error_first_name = $('#error_first_name');
+                let error_last_name = $('#error_last_name');
+                let error_email = $('#error_email');
+
+                error_first_name.hide();
+                error_last_name.hide();
+                error_email.hide();
+
+                if(first_name == '' || first_name == 'undefined'){
+
+                    error_first_name.show();
+                    is_valid = false;
+                }
+
+                if(last_name == '' || last_name == 'undefined'){
+
+                    error_last_name.show();
+                    is_valid = false;
+                }
+
+                if(email == '' || email == 'undefined'){
+
+                    error_email.show();
+                    is_valid = false;
+                }
+
+                if(btn == 'save_reset_password'){
+
+                    $('#resetPassword').val(true);
+
+                } else {
+
+                    $('#resetPassword').val(false);
+                }
+
+                if(is_valid) {
+
+                    let data = new FormData(this);
+
+                    $.ajax({
+                        url: "{{ path('user_crud') }}",
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        timeout: 600000,
+                        dataType: 'json',
+                        data: data,
+                        success: function (response) {
+
+                            getFlash(response);
+
+                            if(btn == 'save_return'){
+
+                                window.location.assign('{{ path('users_list',{ 'page_id':1 }) }}');
+                            }
+                        }
+                    });
+                }
+            });
+            {# End Save Users #}
+
+            {# Roles Dropdown #}
+            let selected = [];
+            let array = {{ arr|raw }};
+
+            for(let i = 0; i < array.length; i++){
+
+                selected.push(array[i]);
+            };
+
+            $(document).on('click', '#role', function (){
+
+                $('#roles_list').show(700);
+            });
+            $(document).mouseup(function(e){
+
+                let container = $('#roles_list');
+
+                // if the target of the click isn't the container nor a descendant of the container
+                if (!container.is(e.target) && container.has(e.target).length === 0)
+                {
+                    container.hide(700);
+                }
+            });
+            $(document).on('click', '.role-edit-icon', function (e){
+
+                e.preventDefault();
+
+                let role_id = $(this).data('role-edit-id');
+                $.session.set('role', $('#role_edit_field_'+ role_id).val());
+
+                $('#role_edit_field_'+ role_id).show();
+                $('#role_string_'+ role_id).hide();
+                $('#role_edit_'+ role_id).hide();
+                $('#role_save_'+ role_id).show();
+                $('#role_cancel_'+ role_id).show();
+                $('#role_remove_' + role_id).hide();
+            });
+            $(document).on('click', '.role-cancel-icon', function (e){
+
+                e.preventDefault();
+
+                let cancel_id = $(this).data('role-cancel-id');
+
+                $('#role_edit_field_'+ cancel_id).hide();
+                $('#role_string_'+ cancel_id).show();
+                $('#role_edit_field_'+ cancel_id).val($.session.get('role'));
+                $('#role_edit_'+ cancel_id).show();
+                $('#role_save_'+ cancel_id).hide();
+                $('#role_cancel_'+ cancel_id).hide();
+                $('#error_role_'+ cancel_id).hide();
+            });
+            $(document).on('click',' .role-save-icon', function (e){
+
+                e.preventDefault();
+
+                let role_id = $(this).data('role-id');
+                let role = $('#role_edit_field_'+ role_id).val();
+                let role_error = $('#error_role_'+ role_id);
+                let is_valid = true;
+
+                role_error.hide();
+
+                if(role == '' || role == 'undefined'){
+
+                    role_error.show();
+                    is_valid = false;
+                }
+
+                if(is_valid){
+
+                    $.ajax({
+                        {#url: "{{ path('products_role_save') }}",#}
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            role_id:role_id,
+                            role:role
+                        },
+                        success: function (response) {
+
+                            $('#role_edit_field_'+ role_id).hide();
+                            $('#role_string_'+ role_id).empty().append(role).show();
+                            $('#role_edit_field_'+ role_id).val(role);
+                            $('#role_edit_'+ role_id).show();
+                            $('#role_save_'+ role_id).hide();
+                            $('#role_cancel_'+ role_id).hide();
+                            $('#error_role_'+ role_id).hide();
+                            $('#role_row_id_'+ role_id).attr('data-role', role);
+                            $('#role_badge_string_'+ role_id).empty().append(role);
+                        }
+                    });
+                }
+            });
+            $(document).on('mouseover', '.edit-role', function (){
+
+                let role_id = $(this).data('role-id');
+
+                if($('#role_save_'+ role_id).is(':hidden')) {
+
+                    $('#role_edit_' + role_id).show();
+
+                    if(selected.includes(role_id)) {
+
+                        $('#role_remove_' + role_id).show();
+
+                    } else {
+
+                        $('#role_remove_' + role_id).hide();
+                    }
+                }
+            });
+            $(document).on('mouseout', '.edit-role', function (){
+
+                let role_id = $(this).data('role-id');
+
+                if($('#role_save_'+ role_id).is(':hidden')) {
+
+                    $('#role_edit_' + role_id).hide();
+                    $('#role_remove_' + role_id).hide();
+                };
+            });
+            $(document).on('click', '.role-select', function (){
+
+                let role_id = $(this).data('role-id');
+                let role = $(this).attr('data-role');
+
+                if($('#role_edit_field_'+ role_id).is(':hidden')) {
+
+                    let hidden_field = '<input type="hidden" name="roles[]" class="role_hidden" data-name="'+ role +'"';
+                    hidden_field += 'id="role_hidden_field_' + role_id + '" value="' + role_id + '" >';
+
+                    $('#roles_list').prepend(hidden_field);
+                    $(this).removeClass('role-select');
+                    $('#role_remove_' + role_id).show();
+
+                    let badge = getBadges('input[name="roles[]"]', 'role');
+
+                    $('#role').empty().append(badge);
+
+                    // Create array of selected ids
+                    selected = [];
+
+                    if($('.role_hidden').length > 0){
+
+                        $('.role_hidden').each(function (){
+
+                            selected.push($(this).val());
+                        });
+                    }
+                }
+            });
+            $(document).on('click', '.role-remove-icon', function (e){
+
+                e.preventDefault();
+
+                let role_id = $(this).data('role-id');
+
+                $('#role_badge_'+ role_id).remove();
+                $('#role_row_id_'+ role_id).addClass('role-select');
+                $('#role_hidden_field_'+ role_id).remove();
+                $('#role_remove_' + role_id).hide();
+
+                // Remove from selected array
+                let index = selected.indexOf(role_id);
+                if (index >= 0) {
+                    selected.splice( index, 1 );
+                }
+
+                if($('.role_hidden').length == 0){
+
+                    $('#role').append('Select a Manufacturer');
+                };
+            });
+            $(document).on('mouseover', '#role_add', function (){
+
+
+            });
+            $(document).on('click', '#role_create_string', function (e){
+
+                e.preventDefault();
+
+                $('#role_create_string').hide();
+                $('#role_create_field').show();
+                $('.role-create-cancel-icon').show();
+                $('.role-create-save-icon').show();
+            });
+            $(document).on('click', '.role-create-cancel-icon', function (e){
+
+                e.preventDefault();
+
+                $('#role_create_string').show();
+                $('#role_create_field').hide();
+                $('.role-create-cancel-icon').hide();
+                $('.role-create-save-icon').hide();
+            });
+            $(document).on('click', '.role-create-save-icon', function (e){
+
+                e.preventDefault();
+
+                let role = $('#role_create_field').val();
+                let error_role = $('#error_role_create');
+                let is_valid = true;
+
+                error_role.hide();
+
+                if(role == '' || role == 'udefined'){
+
+                    error_role.show()
+                    is_valid = false;
+                }
+
+                if(is_valid){
+
+                    $.ajax({
+                        {#url: "{{ path('products_role_save') }}",#}
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            role_id:0,
+                            role:role
+                        },
+                        success: function (response) {
+
+                            $('#role_list_container').empty().append(response);
+                            $('#role_create_string').show();
+                            $('#role_create_field').hide();
+                            $('.role-create-cancel-icon').hide();
+                            $('.role-create-save-icon').hide();
+                        }
+                    });
+                }
+            });
+
+            function getBadges(element, label){
+
+                let arr = [];
+
+                $(element).each(function() {
+
+                    let val = $(this).val();
+                    let name = $(this).data('name');
+
+                    arr.push({'id':val, 'name': name});
+                });
+
+                let badge = '';
+
+                for(let i = 0; i < arr.length; i++){
+
+                    badge += '<span class="badge bg-disabled me-3 my-1" id="'+ label +'_badge_'+ arr[i].id +'">';
+                    badge += '<span  id="'+ label +'_badge_string_'+ arr[i].id +'">' + arr[i].name + '</span>';
+                    badge += '</span>';
+                }
+
+                return badge;
+            }
+            {# End Roles Dropdown #}
+        });
+
+    </script>
+{% endblock %}

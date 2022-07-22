@@ -13,6 +13,7 @@ use App\Entity\Products;
 use App\Entity\ProductsSpecies;
 use App\Entity\Species;
 use App\Entity\SubCategories;
+use App\Entity\User;
 use App\Entity\UserPermissions;
 use App\Entity\CommunicationMethods;
 use App\Services\PaginationManager;
@@ -21,18 +22,28 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AdminDashboardController extends AbstractController
 {
     private $em;
     private $page_manager;
+    private $passwordHasher;
+    private $mailer;
     const ITEMS_PER_PAGE = 10;
 
-    public function __construct(EntityManagerInterface $em, PaginationManager $page_manager)
+    public function __construct(
+        EntityManagerInterface $em, PaginationManager $page_manager,
+        UserPasswordHasherInterface $passwordHasher, MailerInterface $mailer
+    )
     {
         $this->em = $em;
         $this->page_manager = $page_manager;
+        $this->passwordHasher = $passwordHasher;
+        $this->mailer = $mailer;
     }
 
     #[Route('/admin/dashboard', name: 'admin_dashboard')]
@@ -472,6 +483,113 @@ class AdminDashboardController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route('/admin/user/crud', name: 'user_crud')]
+    public function userCrudAction(Request $request): Response
+    {
+        $data = $request->request;
+        $userId = $data->get('userId') ?? $request->request->get('delete');
+        $user = $this->em->getRepository(User::class)->find($userId);
+
+        $response = '';
+
+        if($request->request->get('delete') != null){
+
+            $this->em->remove($user);
+            $this->em->flush();
+
+            $flash = '<b><i class="fas fa-check-circle"></i> User Successfully Deleted.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+            return new JsonResponse($flash);
+        }
+
+        if(!empty($data)) {
+
+            $action = 'Updated';
+            $newUser = false;
+
+            if($user == null){
+
+                $validUser = $this->em->getRepository(User::class)->findBy([
+                    'email' => $data->get('email'),
+                ]);
+
+                if(count($validUser) > 0){
+
+                    $response = '<b><i class="fas fa-check-circle"></i> User account not created!.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+
+                    return new JsonResponse($response);
+                }
+
+                $newUser = true;
+                $action = 'Created';
+                $user = new User();
+            }
+
+            $user->setFirstName($data->get('first_name'));
+            $user->setLastName($data->get('last_name'));
+            $user->setEmail($data->get('email'));
+
+            // User Roles
+            if(count($data->get('roles')) > 0){
+
+                $roles = [];
+
+                foreach($data->get('roles') as $role){
+
+                    $roles[] = $role;
+                }
+
+                $user->setRoles($roles);
+            }
+
+            $this->em->persist($user);
+            $this->em->flush();
+
+            if($newUser || $data->get('resetPassword') == 'true'){
+
+                $plainPwd = $this->setUserPassword($user->getId())['plainPassword'];
+                $hashedPwd = $this->setUserPassword($user->getId())['hashedPassword'];
+
+                $user->setPassword($hashedPwd);
+
+                $this->em->persist($user);
+                $this->em->flush();
+
+                // Send Email
+                $body = '<table style="padding: 8px; border-collapse: collapse; border: none; font-family: arial">';
+                $body .= '<tr><td colspan="2">Hi '. $user->getFirstName() .',</td></tr>';
+                $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+                $body .= '<tr><td colspan="2">Please use the credentials below login to the Fluid Backend.</td></tr>';
+                $body .= '<tr><td colspan="2">&nbsp;</td></tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>URL: </b></td>';
+                $body .= '    <td><a href="https://'. $_SERVER['HTTP_HOST'] .'/admin">https://'. $_SERVER['HTTP_HOST'] .'/admin</a></td>';
+                $body .= '</tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>Username: </b></td>';
+                $body .= '    <td>'. $user->getEmail() .'</td>';
+                $body .= '</tr>';
+                $body .= '<tr>';
+                $body .= '    <td><b>Password: </b></td>';
+                $body .= '    <td>'. $plainPwd .'</td>';
+                $body .= '</tr>';
+                $body .= '</table>';
+
+                $email = (new Email())
+                    ->from($this->getParameter('app.email_from'))
+                    ->addTo($data->get('email'))
+                    ->subject('Fluid Login Credentials')
+                    ->html($body);
+
+                $this->mailer->send($email);
+            }
+
+            $response = '<b><i class="fas fa-check-circle"></i> User Successfully '. $action .'.<div class="flash-close"><i class="fa-solid fa-xmark"></i></div>';
+        }
+
+        return new JsonResponse($response);
+    }
+
     #[Route('/admin/product/manufacturer/save', name: 'products_manufacturer_save')]
     public function productsSaveManufacturer(Request $request): Response
     {
@@ -781,6 +899,19 @@ class AdminDashboardController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/users/{page_id}', name: 'users_list')]
+    public function usersList(Request $request): Response
+    {
+        $users = $this->em->getRepository(User::class)->adminFindAll();
+        $results = $this->page_manager->paginate($users[0], $request, self::ITEMS_PER_PAGE);
+        $pagination = $this->getPagination($request->get('page_id'), $results, '/admin/users/');
+
+        return $this->render('Admin/users_list.html.twig',[
+            'users' => $results,
+            'pagination' => $pagination
+        ]);
+    }
+
     #[Route('/admin/species/{page_id}', name: 'species_list')]
     public function speciesList(Request $request): Response
     {
@@ -866,8 +997,38 @@ class AdminDashboardController extends AbstractController
         ]);
     }
 
-    private function getDropdownList($repository, $label, $entity, $name, $foreign_key, $entity_id, $method){
+    #[Route('/admin/user/{userId}', name: 'users', requirements: ['userId' => '\d+'])]
+    public function usersCrud(Request $request, $userId = 0): Response
+    {
+        $usersId = $request->get('userId') ?? 0;
+        $users = $this->em->getRepository(User::class)->find($usersId);
 
+        if($users == null){
+
+            $users = new User();
+        }
+
+        $rolesList = $this->getRolesDropdownList($users->getId());
+
+        $array = '';
+        $arr = '[';
+
+        foreach($users->getRoles() as $role){
+
+            $array .= '"'. $role .'",';
+        }
+
+        $arr .= trim($array,',') . ']';
+
+        return $this->render('Admin/users.html.twig',[
+            'users' => $users,
+            'rolesList' => $rolesList,
+            'arr' => $arr,
+        ]);
+    }
+
+    private function getDropdownList($repository, $label, $entity, $name, $foreign_key, $entity_id, $method)
+    {
         $list = '
         <div class="px-3 row">
             <div class="bg-dropdown px-0 col-12">';
@@ -1020,6 +1181,116 @@ class AdminDashboardController extends AbstractController
         return $list;
     }
 
+    private function getRolesDropdownList($userId)
+    {
+        $userId = $userId ?? 0;
+        $repository = [
+            "ROLE_USER",
+            "ROLE_ADMIN",
+            "ROLE_CATEGORY",
+            "ROLE_CLINIC",
+            "ROLE_COMMUNICATION_METHOD",
+            "ROLE_SPECIE",
+            "ROLE_SUB_CATEGORY",
+        ];
+
+        $list = '
+        <div class="px-3 row">
+            <div class="bg-dropdown px-0 col-12">';
+
+        // Loop through all dropdown options
+        foreach($repository as $repo){
+
+            // Get related records
+            $query = $this->em->getRepository(User::class)->find($userId);
+
+            $select = 'role-select';
+
+            if($query != null) {
+
+                foreach ($query->getRoles() as $role) {
+
+                    // Remove class identifier for adding
+                    if ($role == $repo) {
+
+                        $select = '';
+                        break;
+                    }
+                }
+            }
+
+
+            $list .= '
+            <div class="row">
+                <div 
+                    class="col-12 edit-role d-table"
+                    data-role-id="'. $repo .'"
+                    
+                >
+                    <div 
+                        class="row role-row d-table-row" data-role-id="'. $repo .'">
+                        <div 
+                            class="col-10 py-2 d-table-cell align-middle '. $select .'"
+                            data-role-id="'. $repo .'"
+                            data-role="'. $repo .'"
+                            id="role_row_id_'. $repo .'"
+                        >
+                                <span id="role_string_'. $repo .'">
+                                    '. $repo .'
+                                </span>
+                                <input 
+                                    type="text" 
+                                    class="form-control form-control-sm role-form-ctrl"
+                                    value="'. $repo .'"
+                                    data-role-field-'. $repo .'
+                                    id="role_edit_field_'. $repo .'"
+                                    style="display: none"
+                                >
+                                <div class="hidden_msg" id="error_role_'. $repo .'">
+                                    Required Field
+                                </div>
+                            </div>
+                            <div class="col-2 py-2 d-table-cell align-middle">
+                               <a 
+                                    href="" 
+                                    class="float-end role-remove-icon me-3" 
+                                    id="role_remove_'. $repo .'"
+                                    data-role-id="'. $repo .'"
+                                    style="display: none"
+                                >
+                                   <i class="fa-solid fa-circle-minus"></i>
+                               </a>
+                               <a 
+                                    href="" 
+                                    class="float-end role-cancel-icon me-3" 
+                                    id="role_cancel_'. $repo .'"
+                                    data-role-cancel-id="'. $repo .'"
+                                    style="display: none"
+                                >
+                                   <i class="fa-solid fa-xmark"></i>
+                               </a>
+                               <a 
+                                    href="" 
+                                    class="float-end role-save-icon me-3" 
+                                    id="role_save_'. $repo .'"
+                                    data-role-id="'. $repo .'"
+                                    style="display: none"
+                                >
+                                   <i class="fa-solid fa-floppy-disk"></i>
+                               </a>
+                            </div>
+                        </div>
+                </div>
+            </div>';
+        }
+
+        $list .= '
+            </div>
+        </div>';
+
+        return $list;
+    }
+
     public function getPagination($page_id, $results, $url)
     {
         $current_page = $page_id;
@@ -1119,5 +1390,53 @@ class AdminDashboardController extends AbstractController
         }
 
         return $pagination;
+    }
+
+    private function setUserPassword($userId)
+    {
+        // ... e.g. get the user data from a registration form
+        $user = $this->em->getRepository(User::class)->find($userId);
+
+        $plaintextPassword = $this->generatePassword();
+
+        // hash the password (based on the security.yaml config for the $user class)
+        $hashedPassword = $this->passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
+
+        return [
+            'plainPassword' => $plaintextPassword,
+            'hashedPassword' => $hashedPassword
+        ];
+    }
+
+    private function generatePassword()
+    {
+        $sets = [];
+        $sets[] = 'abcdefghjkmnpqrstuvwxyz';
+        $sets[] = 'ABCDEFGHJKMNPQRSTUVWXYZ';
+        $sets[] = '23456789';
+        $sets[] = '!@$%*?';
+
+        $all = '';
+        $password = '';
+
+        foreach ($sets as $set) {
+
+            $password .= $set[array_rand(str_split($set))];
+            $all .= $set;
+        }
+
+        $all = str_split($all);
+
+        for ($i = 0; $i < 16 - count($sets); $i++) {
+
+            $password .= $all[array_rand($all)];
+        }
+
+        $this->plain_password = str_shuffle($password);
+
+        return $this->plain_password;
     }
 }

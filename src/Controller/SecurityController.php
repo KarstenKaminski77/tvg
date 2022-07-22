@@ -14,7 +14,7 @@ class SecurityController extends AbstractController
     /**
      * @Route("/admin/login", name="app_login")
      */
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(AuthenticationUtils $authenticationUtils, Request$request, AuthorizationChecker $checker): Response
     {
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -33,7 +33,7 @@ class SecurityController extends AbstractController
     /**
      * @Route("/distributors/login", name="distributor_login")
      */
-    public function daistributorLogin(AuthenticationUtils $authenticationUtils, Request$request, AuthorizationChecker $checker): Response
+    public function daistributorLogin(AuthenticationUtils $authenticationUtils): Response
     {
         if (true === $checker->isGranted('ROLE_DISTRIBUTOR')) {
 
